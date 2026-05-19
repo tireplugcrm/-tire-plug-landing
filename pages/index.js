@@ -2,6 +2,11 @@ import React from 'react';
 import Head from 'next/head';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
+import Services from '../components/Services';
+import Promos from '../components/Promos';
+import WhyUs from '../components/WhyUs';
+import Reviews from '../components/Reviews';
+import Locations from '../components/Locations';
 import BookingForm from '../components/BookingForm';
 import Footer from '../components/Footer';
 
@@ -16,6 +21,11 @@ export default function Home() {
 
       <Header />
       <Hero />
+      <Services />
+      <Promos />
+      <WhyUs />
+      <Reviews />
+      <Locations />
       <BookingForm />
       <Footer />
     </>

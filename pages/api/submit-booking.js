@@ -11,12 +11,36 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  const bookingData = {
+    name,
+    phone,
+    email,
+    vehicle,
+    service,
+    date,
+    time,
+    source: 'vercel-website',
+    timestamp: new Date().toISOString(),
+  };
+
   try {
-    // For now, just log the booking (we'll connect to GHL later)
     console.log('✓ New booking received:', { name, phone, email, vehicle, service, date, time });
 
-    // TODO: Send to GHL webhook (we'll set this up in Week 2)
-    // const ghlResponse = await axios.post(process.env.GHL_WEBHOOK_URL, { ... });
+    // 1. Send to GHL webhook (creates contact + sends confirmation email)
+    await axios.post(
+      'https://services.leadconnectorhq.com/hooks/uWIoIC6rPbRxDvh7TvRN/webhook-trigger/3f00a391-328b-45a4-ab10-eba6e19e065b',
+      bookingData,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    console.log('✓ Sent to GHL successfully');
+
+    // 2. Send to N8N for automation workflows
+    await axios.post(
+      'https://tireplug.app.n8n.cloud/webhook-test/tire-plug-booking',
+      bookingData,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    console.log('✓ Sent to N8N successfully');
 
     return res.status(200).json({
       success: true,
@@ -30,6 +54,7 @@ export default async function handler(req, res) {
     return res.status(500).json({
       success: false,
       error: 'Failed to submit booking',
+      details: error.message,
     });
   }
 }
