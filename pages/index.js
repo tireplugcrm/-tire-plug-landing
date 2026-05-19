@@ -1,4 +1,5 @@
 import React from 'react';
+import PromoPopup from '../components/PromoPopup';
 import Head from 'next/head';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
@@ -19,6 +20,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
+      <PromoPopup />
       <Header />
       <Hero />
       <Services />
