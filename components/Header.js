@@ -60,7 +60,7 @@ export default function Header() {
         <button onClick={() => scrollToSection('locations')} style={navLinkStyle}>Locations</button>
         
         <a 
-          href="tel:562-513-0217"
+          href="tel:📞 Click to Call"
           style={{ 
             background: '#B2FF00',
             color: '#000', 
@@ -80,7 +80,7 @@ export default function Header() {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          📞 562-513-0217
+           📞 Click to Call
         </a>
       </div>
 
@@ -119,7 +119,7 @@ export default function Header() {
           <button onClick={() => scrollToSection('booking')} style={mobileNavStyle}>Book Now</button>
           <button onClick={() => scrollToSection('locations')} style={mobileNavStyle}>Locations</button>
           <a 
-            href="tel:562-513-0217"
+            href="tel:📞 Click to Call"
             style={{
               background: '#B2FF00',
               color: '#000',
@@ -129,7 +129,7 @@ export default function Header() {
               fontWeight: 700,
             }}
           >
-            📞 Call 562-513-0217
+            📞 Click to Call
           </a>
         </div>
       )}
