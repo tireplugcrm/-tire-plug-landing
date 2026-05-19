@@ -23,38 +23,45 @@ export default async function handler(req, res) {
     timestamp: new Date().toISOString(),
   };
 
-  try {
-    console.log('✓ New booking received:', { name, phone, email, vehicle, service, date, time });
+  console.log('New booking received:', bookingData);
 
-    // 1. Send to GHL webhook (creates contact + sends confirmation email)
+  let ghlSuccess = false;
+
+  // STEP 1: Send to GHL (this is what creates the contact + sends email)
+  try {
     await axios.post(
       'https://services.leadconnectorhq.com/hooks/uWIoIC6rPbRxDvh7TvRN/webhook-trigger/3f00a391-328b-45a4-ab10-eba6e19e065b',
       bookingData,
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' }, timeout: 8000 }
     );
-    console.log('✓ Sent to GHL successfully');
+    ghlSuccess = true;
+    console.log('GHL: SUCCESS');
+  } catch (ghlError) {
+    console.error('GHL: FAILED', ghlError.message);
+  }
 
-    // 2. Send to N8N for automation workflows
+  // STEP 2: Try N8N (optional - we do not care if it fails)
+  try {
     await axios.post(
-      'https://tireplug.app.n8n.cloud/webhook-test/tire-plug-booking',
+      'https://tireplug.app.n8n.cloud/webhook/tire-plug-booking',
       bookingData,
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' }, timeout: 5000 }
     );
-    console.log('✓ Sent to N8N successfully');
+    console.log('N8N: SUCCESS');
+  } catch (n8nError) {
+    console.log('N8N: FAILED (not critical)', n8nError.message);
+  }
 
+  // STEP 3: As long as GHL worked, return SUCCESS
+  if (ghlSuccess) {
     return res.status(200).json({
       success: true,
       message: 'Booking submitted successfully',
-      data: { name, phone, email, service, date, time },
     });
-
-  } catch (error) {
-    console.error('✗ Error submitting booking:', error.message);
-    
+  } else {
     return res.status(500).json({
       success: false,
-      error: 'Failed to submit booking',
-      details: error.message,
+      error: 'Failed to submit booking. Please call 562-513-0217',
     });
   }
 }
