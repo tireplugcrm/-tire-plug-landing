@@ -19,7 +19,6 @@ export default function Header() {
 
   return (
     <>
-      {/* TRUST BAR - Top strip with social proof */}
       <div className="trust-bar" style={{
         background: '#000',
         borderBottom: '1px solid rgba(178, 255, 0, 0.2)',
@@ -157,24 +156,19 @@ export default function Header() {
             </a>
           </div>
         )}
-
-        <style jsx>{`
-          @media (max-width: 768px) {
-            .desktop-nav {
-              display: none !important;
-            }
-            .mobile-menu-btn {
-              display: block !important;
-            }
-          }
-        `}</style>
       </nav>
 
       <style jsx>{`
         @media (max-width: 768px) {
+          .desktop-nav {
+            display: none !important;
+          }
+          .mobile-menu-btn {
+            display: block !important;
+          }
           .trust-bar {
-            font-size: 0.7rem !important;
-            gap: 1rem !important;
+            font-size: 0.65rem !important;
+            gap: 0.8rem !important;
             padding: 0.4rem 1rem !important;
           }
         }
