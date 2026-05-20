@@ -5,7 +5,6 @@ import Header from '../components/Header';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
 import Promos from '../components/Promos';
-import WhyUs from '../components/WhyUs';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
 import BookingForm from '../components/BookingForm';
@@ -25,7 +24,6 @@ export default function Home() {
       <Hero />
       <Services />
       <Promos />
-      <WhyUs />
       <Reviews />
       <Locations />
       <BookingForm />

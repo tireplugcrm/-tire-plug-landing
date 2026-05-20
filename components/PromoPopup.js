@@ -173,7 +173,7 @@ export default function PromoPopup() {
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(15px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflow: 'auto' }}>
-      <div style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #000 100%)', border: '1px solid rgba(178,255,0,0.3)', borderRadius: '28px', maxWidth: '1000px', width: '100%', overflow: 'hidden', position: 'relative', boxShadow: '0 30px 80px rgba(178,255,0,0.2)', display: 'grid', gridTemplateColumns: '1fr 1fr', maxHeight: '95vh' }} className="popup-grid">
+      <div style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #000 100%)', border: '1px solid rgba(255,31,31,0.3)', borderRadius: '28px', maxWidth: '1000px', width: '100%', overflow: 'hidden', position: 'relative', boxShadow: '0 30px 80px rgba(255,31,31,0.2)', display: 'grid', gridTemplateColumns: '1fr 1fr', maxHeight: '95vh' }} className="popup-grid">
         <button onClick={() => setIsOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: '38px', height: '38px', borderRadius: '50%', fontSize: '1rem', cursor: 'pointer', zIndex: 100 }}>✕</button>
 
         <div className="slideshow-side" style={{ position: 'relative', minHeight: '650px', background: '#0a0a0a', overflow: 'hidden' }}>
@@ -199,7 +199,7 @@ export default function PromoPopup() {
             left: '-100px',
             width: '400px',
             height: '400px',
-            background: 'radial-gradient(circle, rgba(178,255,0,0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255,31,31,0.2) 0%, transparent 70%)',
             filter: 'blur(80px)',
             pointerEvents: 'none',
           }} />
@@ -215,7 +215,7 @@ export default function PromoPopup() {
             backdropFilter: 'blur(15px)',
             padding: '0.55rem 1.1rem',
             borderRadius: '50px',
-            border: '1px solid rgba(178,255,0,0.4)',
+            border: '1px solid rgba(255,31,31,0.4)',
             color: '#fff',
             fontSize: '0.78rem',
             fontWeight: 600,
@@ -240,7 +240,7 @@ export default function PromoPopup() {
             border: '1px solid rgba(255,255,255,0.1)',
             zIndex: 5,
           }}>
-            <span style={{ color: '#FFB800', fontSize: '0.8rem' }}>★★★★★</span>
+            <span style={{ color: '#FF1F1F', fontSize: '0.8rem' }}>★★★★★</span>
             <span style={{ color: '#fff', fontSize: '0.7rem', fontWeight: 700 }}>4.9</span>
           </div>
 
@@ -277,7 +277,7 @@ export default function PromoPopup() {
               <div style={{
                 background: 'rgba(0,0,0,0.45)',
                 backdropFilter: 'blur(15px)',
-                border: '1px solid rgba(178,255,0,0.25)',
+                border: '1px solid rgba(255,31,31,0.25)',
                 borderRadius: '14px',
                 padding: '0.85rem 1rem',
                 marginBottom: '1.25rem',
@@ -292,7 +292,7 @@ export default function PromoPopup() {
                   {slides[currentSlide].review}
                 </p>
                 <p style={{
-                  color: '#B2FF00',
+                  color: '#FF1F1F',
                   fontSize: '0.65rem',
                   fontWeight: 600,
                   letterSpacing: '0.04em',
@@ -306,9 +306,9 @@ export default function PromoPopup() {
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
                 {slides[currentSlide].badges.map((badge, i) => (
                   <span key={i} style={{
-                    background: 'rgba(178,255,0,0.1)',
-                    border: '1px solid rgba(178,255,0,0.3)',
-                    color: '#B2FF00',
+                    background: 'rgba(255,31,31,0.1)',
+                    border: '1px solid rgba(255,31,31,0.3)',
+                    color: '#FF1F1F',
                     padding: '0.3rem 0.7rem',
                     borderRadius: '50px',
                     fontSize: '0.68rem',
@@ -329,9 +329,9 @@ export default function PromoPopup() {
                     width: idx === currentSlide ? '32px' : '6px',
                     height: '4px',
                     borderRadius: '2px',
-                    background: idx === currentSlide ? '#B2FF00' : 'rgba(255,255,255,0.3)',
+                    background: idx === currentSlide ? '#FF1F1F' : 'rgba(255,255,255,0.3)',
                     transition: 'all 0.5s ease',
-                    boxShadow: idx === currentSlide ? '0 0 12px rgba(178,255,0,0.6)' : 'none',
+                    boxShadow: idx === currentSlide ? '0 0 12px rgba(255,31,31,0.6)' : 'none',
                   }}
                 />
               ))}
@@ -342,17 +342,17 @@ export default function PromoPopup() {
         <div style={{ padding: '2rem 1.75rem', overflowY: 'auto', maxHeight: '95vh' }}>
           {!submitted ? (
             <>
-              <div style={{ display: 'inline-block', background: 'rgba(178,255,0,0.1)', color: '#B2FF00', padding: '0.35rem 0.9rem', borderRadius: '50px', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', marginBottom: '0.75rem', textTransform: 'uppercase', border: '1px solid rgba(178,255,0,0.3)' }}>First-Time Customer Offer</div>
-              <h2 style={{ color: '#fff', fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '0.25rem', letterSpacing: '-0.03em' }}>Help us find the <span style={{ color: '#B2FF00' }}>perfect service</span></h2>
+              <div style={{ display: 'inline-block', background: 'rgba(255,31,31,0.1)', color: '#FF1F1F', padding: '0.35rem 0.9rem', borderRadius: '50px', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', marginBottom: '0.75rem', textTransform: 'uppercase', border: '1px solid rgba(255,31,31,0.3)' }}>First-Time Customer Offer</div>
+              <h2 style={{ color: '#fff', fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '0.25rem', letterSpacing: '-0.03em' }}>Help us find the <span style={{ color: '#FF1F1F' }}>perfect service</span></h2>
               <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem', marginBottom: '1rem' }}>Get $20 off your first service with us</p>
 
               <div style={{ marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                   <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', fontWeight: 600 }}>STEP {currentStep} OF {totalSteps}</span>
-                  <span style={{ color: '#B2FF00', fontSize: '0.7rem', fontWeight: 700 }}>{Math.round((currentStep / totalSteps) * 100)}%</span>
+                  <span style={{ color: '#FF1F1F', fontSize: '0.7rem', fontWeight: 700 }}>{Math.round((currentStep / totalSteps) * 100)}%</span>
                 </div>
                 <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${(currentStep / totalSteps) * 100}%`, background: 'linear-gradient(90deg, #B2FF00, #8FCC00)', transition: 'width 0.4s ease' }} />
+                  <div style={{ height: '100%', width: `${(currentStep / totalSteps) * 100}%`, background: 'linear-gradient(90deg, #FF1F1F, ##B30000)', transition: 'width 0.4s ease' }} />
                 </div>
               </div>
 
@@ -365,10 +365,10 @@ export default function PromoPopup() {
                       {timingOptions.map(option => {
                         const isSelected = serviceTiming === option.value;
                         return (
-                          <button key={option.value} type="button" onClick={() => setServiceTiming(option.value)} style={{ background: isSelected ? (option.hot ? 'rgba(255,68,68,0.12)' : 'rgba(178,255,0,0.15)') : 'rgba(255,255,255,0.04)', border: isSelected ? (option.hot ? '1px solid #ff4444' : '1px solid #B2FF00') : '1px solid rgba(255,255,255,0.12)', color: '#fff', padding: '0.75rem 0.85rem', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <button key={option.value} type="button" onClick={() => setServiceTiming(option.value)} style={{ background: isSelected ? (option.hot ? 'rgba(255,68,68,0.12)' : 'rgba(255,31,31,0.15)') : 'rgba(255,255,255,0.04)', border: isSelected ? (option.hot ? '1px solid #ff4444' : '1px solid #FF1F1F') : '1px solid rgba(255,255,255,0.12)', color: '#fff', padding: '0.75rem 0.85rem', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <span style={{ fontSize: '1.2rem' }}>{option.icon}</span>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isSelected ? (option.hot ? '#ff7777' : '#B2FF00') : '#fff' }}>{option.label}</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isSelected ? (option.hot ? '#ff7777' : '#FF1F1F') : '#fff' }}>{option.label}</span>
                               <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.55)' }}>{option.sub}</span>
                             </div>
                             {option.hot && (
@@ -397,8 +397,8 @@ export default function PromoPopup() {
                       {services.map((service) => {
                         const isSelected = selectedServices.includes(service.id);
                         return (
-                          <button key={service.id} type="button" onClick={() => toggleService(service.id)} className="service-btn" style={{ background: isSelected ? 'rgba(178,255,0,0.12)' : service.featured ? 'rgba(178,255,0,0.04)' : 'rgba(255,255,255,0.04)', border: isSelected ? '1px solid #B2FF00' : service.featured ? '1px solid rgba(178,255,0,0.25)' : '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.55rem 0.5rem', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.25s ease', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: isSelected ? 700 : 600, color: isSelected ? '#B2FF00' : '#fff' }}>
+                          <button key={service.id} type="button" onClick={() => toggleService(service.id)} className="service-btn" style={{ background: isSelected ? 'rgba(255,31,31,0.12)' : service.featured ? 'rgba(255,31,31,0.04)' : 'rgba(255,255,255,0.04)', border: isSelected ? '1px solid #FF1F1F' : service.featured ? '1px solid rgba(255,31,31,0.25)' : '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.55rem 0.5rem', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.25s ease', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: isSelected ? 700 : 600, color: isSelected ? '#FF1F1F' : '#fff' }}>
                               <span>{service.icon}</span><span>{service.label}</span>
                             </div>
                             <span style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.5)', paddingLeft: '1.05rem' }}>{service.subtitle}</span>
@@ -408,12 +408,12 @@ export default function PromoPopup() {
                     </div>
 
                     {hasNewTires && (
-                      <div style={{ background: 'rgba(178,255,0,0.05)', border: '1px solid rgba(178,255,0,0.2)', borderRadius: '10px', padding: '0.75rem', marginBottom: '0.75rem' }}>
-                        <p style={{ color: '#B2FF00', fontSize: '0.7rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>What type of tires?</p>
+                      <div style={{ background: 'rgba(255,31,31,0.05)', border: '1px solid rgba(255,31,31,0.2)', borderRadius: '10px', padding: '0.75rem', marginBottom: '0.75rem' }}>
+                        <p style={{ color: '#FF1F1F', fontSize: '0.7rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>What type of tires?</p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.4rem' }}>
                           {tireTypes.map(type => (
-                            <button key={type.value} type="button" onClick={() => setTireType(type.value)} style={{ background: tireType === type.value ? 'rgba(178,255,0,0.15)' : 'rgba(255,255,255,0.04)', border: tireType === type.value ? '1px solid #B2FF00' : '1px solid rgba(255,255,255,0.12)', color: '#fff', padding: '0.7rem 0.85rem', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: tireType === type.value ? '#B2FF00' : '#fff' }}>{type.label}</span>
+                            <button key={type.value} type="button" onClick={() => setTireType(type.value)} style={{ background: tireType === type.value ? 'rgba(255,31,31,0.15)' : 'rgba(255,255,255,0.04)', border: tireType === type.value ? '1px solid #FF1F1F' : '1px solid rgba(255,255,255,0.12)', color: '#fff', padding: '0.7rem 0.85rem', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: tireType === type.value ? '#FF1F1F' : '#fff' }}>{type.label}</span>
                               <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.55)' }}>{type.sub}</span>
                             </button>
                           ))}
@@ -422,7 +422,7 @@ export default function PromoPopup() {
                     )}
 
                     {selectedServices.length > 0 && (
-                      <div style={{ background: 'rgba(178,255,0,0.08)', border: '1px dashed rgba(178,255,0,0.4)', borderRadius: '8px', padding: '0.4rem 0.75rem', color: '#B2FF00', fontSize: '0.7rem', fontWeight: 600, textAlign: 'center' }}>
+                      <div style={{ background: 'rgba(255,31,31,0.08)', border: '1px dashed rgba(255,31,31,0.4)', borderRadius: '8px', padding: '0.4rem 0.75rem', color: '#FF1F1F', fontSize: '0.7rem', fontWeight: 600, textAlign: 'center' }}>
                         ✓ {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} added
                       </div>
                     )}
@@ -455,7 +455,7 @@ export default function PromoPopup() {
                         <input type="text" name="tireRim" placeholder="Rim" value={formData.tireRim} onChange={handleChange} style={popupInputStyle} className="popup-input" />
                       </div>
                     ) : (
-                      <div style={{ background: 'rgba(178,255,0,0.08)', border: '1px solid rgba(178,255,0,0.3)', borderRadius: '10px', padding: '0.75rem', marginBottom: '0.75rem', color: '#B2FF00', fontSize: '0.8rem', textAlign: 'center' }}>
+                      <div style={{ background: 'rgba(255,31,31,0.08)', border: '1px solid rgba(255,31,31,0.3)', borderRadius: '10px', padding: '0.75rem', marginBottom: '0.75rem', color: '#FF1F1F', fontSize: '0.8rem', textAlign: 'center' }}>
                         ✓ We will help you find your tire size
                       </div>
                     )}
@@ -479,9 +479,9 @@ export default function PromoPopup() {
                     <button type="button" onClick={handleBack} style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '0.95rem', fontSize: '0.85rem', fontWeight: 600, borderRadius: '50px', cursor: 'pointer', fontFamily: 'inherit' }}>← Back</button>
                   )}
                   {currentStep < totalSteps ? (
-                    <button type="button" onClick={handleNext} disabled={(isStepTiming && !canProceedStep1) || (isStepServices && !canProceedStep2) || (isStepVehicle && !canProceedStep3) || (isStepTire && !canProceedStep4)} className="cta-btn" style={{ flex: 2, background: 'linear-gradient(135deg, #B2FF00 0%, #9FE600 100%)', color: '#000', padding: '0.95rem', fontSize: '0.9rem', fontWeight: 800, border: 'none', borderRadius: '50px', cursor: 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 24px rgba(178,255,0,0.3)', opacity: ((isStepTiming && !canProceedStep1) || (isStepServices && !canProceedStep2) || (isStepVehicle && !canProceedStep3) || (isStepTire && !canProceedStep4)) ? 0.4 : 1 }}>Continue →</button>
+                    <button type="button" onClick={handleNext} disabled={(isStepTiming && !canProceedStep1) || (isStepServices && !canProceedStep2) || (isStepVehicle && !canProceedStep3) || (isStepTire && !canProceedStep4)} className="cta-btn" style={{ flex: 2, background: 'linear-gradient(135deg, #FF1F1F 0%, #FF3838 100%)', color: '#000', padding: '0.95rem', fontSize: '0.9rem', fontWeight: 800, border: 'none', borderRadius: '50px', cursor: 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 24px rgba(255,31,31,0.3)', opacity: ((isStepTiming && !canProceedStep1) || (isStepServices && !canProceedStep2) || (isStepVehicle && !canProceedStep3) || (isStepTire && !canProceedStep4)) ? 0.4 : 1 }}>Continue →</button>
                   ) : (
-                    <button type="submit" disabled={submitting || !canSubmit} className="cta-btn" style={{ flex: 2, background: 'linear-gradient(135deg, #B2FF00 0%, #9FE600 100%)', color: '#000', padding: '0.95rem', fontSize: '0.9rem', fontWeight: 800, border: 'none', borderRadius: '50px', cursor: submitting ? 'not-allowed' : 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 24px rgba(178,255,0,0.3)', opacity: (!canSubmit || submitting) ? 0.4 : 1 }}>{submitting ? 'BOOKING...' : 'GET MY $20 OFF'}</button>
+                    <button type="submit" disabled={submitting || !canSubmit} className="cta-btn" style={{ flex: 2, background: 'linear-gradient(135deg, #FF1F1F 0%, #FF3838 100%)', color: '#000', padding: '0.95rem', fontSize: '0.9rem', fontWeight: 800, border: 'none', borderRadius: '50px', cursor: submitting ? 'not-allowed' : 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 24px rgba(255,31,31,0.3)', opacity: (!canSubmit || submitting) ? 0.4 : 1 }}>{submitting ? 'BOOKING...' : 'GET MY $20 OFF'}</button>
                   )}
                 </div>
 
@@ -493,13 +493,13 @@ export default function PromoPopup() {
           ) : (
             <div style={{ textAlign: 'center', padding: '5rem 0' }}>
               <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-              <h2 style={{ color: '#B2FF00', fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem' }}>You are in!</h2>
+              <h2 style={{ color: '#FF1F1F', fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem' }}>You are in!</h2>
               <p style={{ color: '#fff', fontSize: '1rem', marginBottom: '0.5rem' }}>Check your email for confirmation</p>
               <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '1rem' }}>
                 {serviceTiming === 'ASAP' ? 'We will call you immediately!' : 'We will call you shortly with your quote'}
               </p>
               {(serviceTiming === 'ASAP' || serviceTiming === 'Tomorrow') && (
-                <a href="tel:562-513-0217" style={{ display: 'inline-block', background: '#B2FF00', color: '#000', padding: '0.75rem 1.5rem', borderRadius: '50px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', marginTop: '0.5rem' }}>
+                <a href="tel:562-513-0217" style={{ display: 'inline-block', background: '#FF1F1F', color: '#000', padding: '0.75rem 1.5rem', borderRadius: '50px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', marginTop: '0.5rem' }}>
                   Or Call Now: 562-513-0217
                 </a>
               )}
@@ -513,9 +513,9 @@ export default function PromoPopup() {
           .popup-grid { grid-template-columns: 1fr !important; }
           .slideshow-side { min-height: 320px !important; }
         }
-        .popup-input:focus { border-color: #B2FF00 !important; background: rgba(178,255,0,0.05) !important; }
-        .service-btn:hover { background: rgba(178,255,0,0.08) !important; border-color: rgba(178,255,0,0.5) !important; transform: translateY(-1px); }
-        .cta-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(178,255,0,0.5) !important; }
+        .popup-input:focus { border-color: #FF1F1F !important; background: rgba(255,31,31,0.05) !important; }
+        .service-btn:hover { background: rgba(255,31,31,0.08) !important; border-color: rgba(255,31,31,0.5) !important; transform: translateY(-1px); }
+        .cta-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,31,31,0.5) !important; }
         .step-content { animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
