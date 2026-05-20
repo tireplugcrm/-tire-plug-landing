@@ -87,7 +87,7 @@ export default async function handler(req, res) {
   // ============================================
   // ROUTE TO CORRECT GHL WEBHOOK
   // ============================================
-  const SUBSCRIBER_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/uWIoIC6rPbRxDvh7TvRN/webhook-trigger/a69899d8-4949-4767-95d8-25994cf36bee';
+  const SUBSCRIBER_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/uWIoIC6rPbRxDvh7TvRN/webhook-trigger/7c368f50-25cd-46b1-bd54-35bdfb5ff024';
   const BOOKING_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/uWIoIC6rPbRxDvh7TvRN/webhook-trigger/ac7b9d88-9767-44c7-a8ac-00e4b9c778ef';
 
   const webhookUrl = isSubscriber ? SUBSCRIBER_WEBHOOK : BOOKING_WEBHOOK;
