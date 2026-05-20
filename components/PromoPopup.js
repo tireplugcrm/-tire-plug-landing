@@ -12,7 +12,7 @@ export default function PromoPopup() {
       const timer = setTimeout(() => {
         setIsOpen(true);
         sessionStorage.setItem('popupShown', 'true');
-      }, 3000);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, []);
