@@ -26,7 +26,7 @@
     },
     {
       "id": "ko_schedule",
-      "label": "Our shop is open 6 days a week. Are you available to work Saturdays?",
+      "label": "Our shop is open 7 days a week, including weekends. Are you available to work weekends?",
       "passAnswer": "yes",
       "options": ["yes", "no"]
     },
