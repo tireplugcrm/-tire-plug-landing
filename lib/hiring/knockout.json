@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "name": "The Tire Plug — Knockout (auto-reject) Questions",
+    "version": "1.0",
+    "how_it_works": "These are hard yes/no requirements asked BEFORE the situational survey. A 'failing' answer auto-rejects the applicant (status='rejected_knockout') and skips AI grading entirely - so an obvious bad fit never reaches the owner's dashboard. Tune the requirements here without touching code.",
+    "rejection_message": "Thanks for your interest in The Tire Plug. Based on your answers, this role isn't the right fit right now - but we appreciate you taking the time."
+  },
+  "questions": [
+    {
+      "id": "ko_transport",
+      "label": "Do you have reliable transportation to get to work every scheduled day?",
+      "passAnswer": "yes",
+      "options": ["yes", "no"]
+    },
+    {
+      "id": "ko_eligible",
+      "label": "Are you legally authorized to work in the United States?",
+      "passAnswer": "yes",
+      "options": ["yes", "no"]
+    },
+    {
+      "id": "ko_age",
+      "label": "Are you 18 years of age or older?",
+      "passAnswer": "yes",
+      "options": ["yes", "no"]
+    },
+    {
+      "id": "ko_schedule",
+      "label": "Our shop is open 6 days a week. Are you available to work Saturdays?",
+      "passAnswer": "yes",
+      "options": ["yes", "no"]
+    },
+    {
+      "id": "ko_physical",
+      "label": "This is a physical job: standing all day and lifting up to 50 lbs (tires, wheels). Can you do that?",
+      "passAnswer": "yes",
+      "options": ["yes", "no"]
+    },
+    {
+      "id": "ko_screen",
+      "label": "Are you willing to complete a background and/or drug screen if offered the position?",
+      "passAnswer": "yes",
+      "options": ["yes", "no"]
+    }
+  ]
+}
