@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "name": "The Tire Plug — Situational Judgment Survey",
+    "version": "1.0",
+    "how_it_works": "Each question targets one or more traits from scoring-config.json. The applicant answers in free text. Each answer is graded 0-5 against the anchors below (by a human reviewer or by AI via scoreAnswer.js). Those 0-5 scores become the traitScores fed into scoreCandidate(). Where a trait is measured by more than one question, average the question scores for that trait.",
+    "scoring_scale": {
+      "5": "Exceptional - does everything in 'strong' plus shows ownership/judgment beyond the ask.",
+      "3": "Meets the bar - hits the core of a good answer, no red flags.",
+      "1": "Weak - misses the point or leans on a red-flag behavior.",
+      "0": "Disqualifying answer - names a customer-harming, dishonest, or unsafe action."
+    }
+  },
+
+  "questions": [
+    {
+      "id": "q1_acknowledge_customer",
+      "traits": ["communication", "hustle_sales", "composure"],
+      "scenario": "A customer walks in the door and you make eye contact. What do you say, and how fast do you acknowledge him?",
+      "strong": "Acknowledges within seconds even if mid-task ('Hey, welcome in - be right with you'). Warm, immediate, makes the person feel seen. Names a clear next step.",
+      "meets_bar": "Greets promptly and politely, gets them to the right person.",
+      "red_flags": "Ignores until they're free; 'they can wait'; no greeting; treats acknowledgment as optional."
+    },
+    {
+      "id": "q2_wrong_tires_mistake",
+      "traits": ["integrity", "composure", "communication"],
+      "scenario": "An employee ordered the wrong tires for a customer on a busy day. The customer waited 30 minutes in line only to find that out. How do you handle it?",
+      "strong": "Owns it immediately to the customer (no blaming the coworker in front of them), apologizes plainly, fixes it fast, offers something for the wasted time (discount, priority, loaner timing), and handles the coworker issue privately later.",
+      "meets_bar": "Apologizes, corrects the order, keeps the customer informed on timing.",
+      "red_flags": "Throws the coworker under the bus in front of the customer; argues; makes excuses; downplays the 30 minutes; hides the mistake."
+    },
+    {
+      "id": "q3_unneeded_work_integrity",
+      "traits": ["integrity"],
+      "scenario": "You told a customer they needed an alignment. After getting the car on the rack, you realize it was already within spec and didn't actually need it. The customer already approved the charge. What do you do?",
+      "strong": "Tells the customer the truth, doesn't charge for work that wasn't needed, explains what they found. Treats the long-term trust as worth more than the ticket.",
+      "meets_bar": "Comes clean and adjusts the charge.",
+      "red_flags": "Charges anyway 'since they approved it'; says nothing; invents a reason to justify it. (An answer that keeps the money quietly is a 0.)"
+    },
+    {
+      "id": "q4_bay_slammed_teamwork",
+      "traits": ["team_contribution", "hustle_sales"],
+      "scenario": "It's slammed. Your own tickets are done, but two techs are buried and a car is holding up the whole bay. What do you do?",
+      "strong": "Jumps in without being asked - grabs the holdup car, helps the buried techs, keeps the line moving. Sees the shop's day, not just their own lane.",
+      "meets_bar": "Offers to help where needed.",
+      "red_flags": "'My tickets are done, not my problem'; sits down; waits to be told."
+    },
+    {
+      "id": "q5_coworker_snaps_composure",
+      "traits": ["composure", "team_contribution"],
+      "scenario": "A coworker snaps at you in front of a customer. What do you do in that moment?",
+      "strong": "Keeps it completely off the floor - stays calm, doesn't escalate in front of the customer, handles the customer first, then addresses the coworker privately and directly afterward.",
+      "meets_bar": "Stays calm in front of the customer, deals with it later.",
+      "red_flags": "Snaps back; argues in the lobby; name-calls; airs the conflict where the customer can hear."
+    },
+    {
+      "id": "q6_tight_budget_honest_sale",
+      "traits": ["integrity", "hustle_sales", "communication"],
+      "scenario": "A customer needs 4 tires for safety but can only afford 2 right now. How do you handle the recommendation?",
+      "strong": "Tells the truth about safety, prioritizes the most critical 2 (correct axle), explains the plan to come back for the others, never pressures or scares them into a sale they can't afford. Earns the repeat customer.",
+      "meets_bar": "Recommends what's safe within their budget and explains why.",
+      "red_flags": "Pressures the full sale regardless; lets them drive away unsafe without a word; lies about urgency to close."
+    },
+    {
+      "id": "q7_last_car_torque_discipline",
+      "traits": ["torque_safety", "speed_quality", "integrity"],
+      "scenario": "It's the last car of the day. You're tired and behind. Walk me through how you finish the job.",
+      "strong": "Same process as the first car - torques to spec, double-checks, no shortcuts. Names the safety stake explicitly. Tired isn't a reason to cut corners.",
+      "meets_bar": "Follows the full procedure to spec.",
+      "red_flags": "'Good enough'; eyeballs torque; skips the final check to get out the door."
+    },
+    {
+      "id": "q8_damaged_rim_self_report",
+      "traits": ["integrity", "equipment_care"],
+      "scenario": "While mounting a tire you scratch the customer's rim (or break a TPMS sensor). No one saw it. What do you do?",
+      "strong": "Reports it immediately to a manager and is upfront about it. Self-reporting when no one's watching is the whole test.",
+      "meets_bar": "Tells someone and helps make it right.",
+      "red_flags": "Hides it; hopes they don't notice; blames it on prior damage. (Hiding it is a 0.)"
+    },
+    {
+      "id": "q9_angry_customer_deescalation",
+      "traits": ["composure", "communication"],
+      "scenario": "A customer is yelling that the shop damaged their car - but you're confident it wasn't us. How do you respond?",
+      "strong": "Stays calm, lets them vent, doesn't argue or get defensive, investigates fairly, explains findings respectfully. De-escalates first, resolves second.",
+      "meets_bar": "Stays professional and looks into it.",
+      "red_flags": "Argues; matches their energy; gets defensive in front of other customers; dismisses them."
+    },
+    {
+      "id": "q10_sick_day_reliability",
+      "traits": ["reliability", "communication", "team_contribution"],
+      "scenario": "You wake up genuinely sick on a morning you know the shop is slammed. What do you do?",
+      "strong": "Calls in as early as possible (not a text 5 minutes before open), gives the team max notice to cover, doesn't ghost. Balances their health with the team's reality.",
+      "meets_bar": "Notifies the shop promptly that they can't make it.",
+      "red_flags": "No-call/no-show; texts after start time; OR comes in sick and gets others sick without a word."
+    }
+  ]
+}

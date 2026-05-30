@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "name": "The Tire Plug — Applicant & Employee Scoring Rubric",
+    "version": "1.0",
+    "scale": "Each trait scored 0–5. 0 = absent/red flag, 3 = meets bar, 5 = exceptional.",
+    "philosophy": "Character is the foundation and is trainable only through consequences, not coaching. Skill is teachable. Therefore character traits are weighted highest for any customer-facing role. 'Constructive' is rewarded over merely 'agreeable' — a yes-man who can't be honest about a car's condition is a liability, not an asset."
+  },
+
+  "gates": [
+    {
+      "id": "integrity_fail",
+      "label": "Failed integrity / dishonesty",
+      "description": "Caught lying, theft, inventing work, or skimming. Touches cash, customer trust, and reputation. Auto-disqualify regardless of skill.",
+      "applies_to": ["office_sales", "tire_tech", "alignment_tech"]
+    },
+    {
+      "id": "no_rehire_reference",
+      "label": "Prior employer would not rehire",
+      "description": "Most predictive negative signal there is. Ask every reference: 'Would you rehire?'",
+      "applies_to": ["office_sales", "tire_tech", "alignment_tech"]
+    },
+    {
+      "id": "application_lied",
+      "label": "Lied on application",
+      "description": "Falsified certs, experience, or employment dates. If they lie to get in, they'll lie on the job.",
+      "applies_to": ["office_sales", "tire_tech", "alignment_tech"]
+    },
+    {
+      "id": "no_call_no_show_history",
+      "label": "Documented no-call/no-show pattern",
+      "description": "At 20–30 cars/day one no-show backs up the whole bay. A pattern is disqualifying.",
+      "applies_to": ["office_sales", "tire_tech", "alignment_tech"]
+    }
+  ],
+
+  "traits": {
+    "integrity": {
+      "name": "Integrity / Character",
+      "description": "Tells the truth even when it costs them. Owns mistakes. Doesn't invent work or hide damage.",
+      "good": "Flags their own error before you find it; recommends only needed work but never misses needed work.",
+      "bad": "Covers up a scratched rim; oversells to hit a number; blames others."
+    },
+    "team_contribution": {
+      "name": "Team Contribution",
+      "description": "Actively makes the people around them better. Jumps in when the bay is slammed without being asked.",
+      "good": "Helps the new tech, picks up slack, shares what they know.",
+      "bad": "Stays in their lane while others drown; hoards knowledge; creates drama."
+    },
+    "composure": {
+      "name": "Professionalism / Composure",
+      "description": "Keeps the inside of the shop off the customer floor. Stays constructive when there IS a problem instead of blowing up OR fake-smiling. This is the trait the 'foo' incident violated.",
+      "good": "Can be in a bad mood and still keep it off the floor; raises a real problem respectfully and privately.",
+      "bad": "Badmouths coworkers in the lobby; name-calls customers; OR never raises real problems just to keep the peace."
+    },
+    "reliability": {
+      "name": "Reliability / Attendance",
+      "description": "Shows up, on time, consistently. Single most predictive trait of long-term value.",
+      "good": "Rock-solid attendance; gives notice; you can build the day around them.",
+      "bad": "Frequent lateness; unreliable; vanishes on busy days."
+    },
+    "communication": {
+      "name": "Communication",
+      "description": "Clear with customers and coworkers. Returns calls, follows up, translates findings into plain language.",
+      "good": "Explains the ball joint to the customer so the sale makes sense and they trust it.",
+      "bad": "Lets leads die; mumbles findings; no follow-up."
+    },
+    "hustle_sales": {
+      "name": "Hustle / Sales Drive",
+      "description": "Moves with urgency; closes; makes the shop money — honestly.",
+      "good": "Recommends the alignment/road hazard because the car needs it; builds 10-year customers.",
+      "bad": "Slow, passive; OR pressure-sells one-time customers."
+    },
+    "accuracy": {
+      "name": "Accuracy / Detail",
+      "description": "Right tire size, right service, right ticket. Wrong write-ups cause comebacks, refunds, reputation hits.",
+      "good": "Ticket matches the car every time.",
+      "bad": "Wrong size, wrong service, sloppy notes."
+    },
+    "torque_safety": {
+      "name": "Torque & Safety Discipline",
+      "description": "Proper torque specs every time. Under-torque is a lawsuit; over-torque is warped rotors and comebacks.",
+      "good": "Specs every wheel, no shortcuts under time pressure.",
+      "bad": "Eyeballs torque; cuts corners to move cars."
+    },
+    "speed_quality": {
+      "name": "Speed Without Shortcuts",
+      "description": "Fast, but car #25 gets the same quality as car #2. Stamina and pride through the day.",
+      "good": "Consistent quality and pace at hour 9.",
+      "bad": "Fast early, sloppy late; or shortcuts to fake speed."
+    },
+    "equipment_care": {
+      "name": "Care With Wheels & Sensors",
+      "description": "No scratched rims, no destroyed TPMS sensors. Sloppy hands = damage claims.",
+      "good": "Clean handling, sensors intact.",
+      "bad": "Damage claims, broken sensors."
+    },
+    "diagnostic": {
+      "name": "Diagnostic Ability",
+      "description": "Reads wear patterns, understands suspension, finds the actual cause — not just 'set to spec and send it.'",
+      "good": "Catches the bent control arm behind the bad alignment.",
+      "bad": "Sets toe and ignores the real cause."
+    },
+    "precision": {
+      "name": "Precision",
+      "description": "Hits spec, documents before/after, no 'close enough.'",
+      "good": "Before/after printout every time, dead on spec.",
+      "bad": "'Close enough'; no documentation."
+    }
+  },
+
+  "roles": {
+    "office_sales": {
+      "label": "Office / Sales Rep",
+      "weights": {
+        "integrity": 0.18,
+        "team_contribution": 0.12,
+        "composure": 0.18,
+        "reliability": 0.15,
+        "communication": 0.15,
+        "hustle_sales": 0.12,
+        "accuracy": 0.10
+      }
+    },
+    "tire_tech": {
+      "label": "Tire Technician",
+      "weights": {
+        "integrity": 0.15,
+        "team_contribution": 0.12,
+        "composure": 0.12,
+        "reliability": 0.16,
+        "torque_safety": 0.18,
+        "speed_quality": 0.14,
+        "equipment_care": 0.08,
+        "communication": 0.05
+      }
+    },
+    "alignment_tech": {
+      "label": "Alignment Technician",
+      "weights": {
+        "integrity": 0.20,
+        "team_contribution": 0.10,
+        "composure": 0.14,
+        "reliability": 0.12,
+        "diagnostic": 0.18,
+        "precision": 0.14,
+        "communication": 0.12
+      }
+    }
+  },
+
+  "bands": [
+    { "min": 85, "label": "Strong — hire / top performer" },
+    { "min": 70, "label": "Solid — good fit" },
+    { "min": 55, "label": "Marginal — coach or watch" },
+    { "min": 0,  "label": "Pass — below bar" }
+  ]
+}
