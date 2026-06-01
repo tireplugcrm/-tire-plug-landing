@@ -1,3 +1,5 @@
+import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -132,6 +134,42 @@ export default async function handler(req, res) {
       clearTimeout(timeoutId);
     } catch (err) {
       console.error('N8N submission error (non-blocking):', err);
+    }
+  }
+
+  // ============================================
+  // SAVE TO SUPABASE (OWN DATABASE — for the admin dashboard)
+  // Non-blocking: a failure here never affects the customer or GHL.
+  // ============================================
+  if (supabaseAdmin) {
+    try {
+      if (isSubscriber) {
+        await supabaseAdmin.from('subscribers').insert({
+          name: name || null,
+          email: email || null,
+          source: source || 'Website Discount Popup',
+          tags,
+        });
+      } else {
+        await supabaseAdmin.from('leads').insert({
+          name: name || null,
+          phone: phone && phone !== 'N/A' ? phone : null,
+          email: email || null,
+          vehicle: vehicle && vehicle !== 'N/A' ? vehicle : null,
+          tire_size: tireSize && tireSize !== 'N/A' ? tireSize : null,
+          tire_type: tireType && tireType !== 'N/A' ? tireType : null,
+          service: service || null,
+          service_timing: serviceTiming || null,
+          lead_priority:
+            serviceTiming === 'Just Pricing' ? 'SHOPPING' : leadPriority || 'WARM',
+          source: source || 'Website Booking Form',
+          promo_code: promoCode && promoCode !== 'N/A' ? promoCode : null,
+          tags,
+          raw: req.body,
+        });
+      }
+    } catch (err) {
+      console.error('Supabase save error (non-blocking):', err);
     }
   }
 
