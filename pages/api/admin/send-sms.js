@@ -8,14 +8,14 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { digits10 } from "../../../lib/phone.js";
 import { sendSms } from "../../../lib/sms.js";
 import { armFollowups } from "../../../lib/followups.js";
+import { requireAdmin } from "../../../lib/adminAuth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, lead_id, body, startFollowups } = req.body || {};
-  if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
+  const { lead_id, body, startFollowups } = req.body || {};
   if (!supabaseAdmin || !lead_id) return res.status(400).json({ error: "Missing config or lead." });
   if (!body || !body.trim()) return res.status(400).json({ error: "Message is empty." });
 

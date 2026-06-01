@@ -3,6 +3,7 @@
  * table must be "leads" or "subscribers".
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
+import { requireAdmin } from "../../../lib/adminAuth.js";
 
 const ALLOWED = {
   leads: { status: ["new", "called", "booked", "dead"], owner_notes: true, quotes: true, revenue: true, road_hazard: true },
@@ -13,10 +14,9 @@ const ALLOWED = {
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, table, id, status, owner_notes, read, quotes, revenue_amount, road_hazard_per_tire } = req.body || {};
-  if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
+  const { table, id, status, owner_notes, read, quotes, revenue_amount, road_hazard_per_tire } = req.body || {};
   if (!supabaseAdmin || !id || !ALLOWED[table]) {
     return res.status(400).json({ error: "Missing config, id, or invalid table." });
   }

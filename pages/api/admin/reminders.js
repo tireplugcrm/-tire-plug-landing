@@ -3,14 +3,14 @@
  * action: "create" | "complete" | "delete"
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
+import { requireAdmin } from "../../../lib/adminAuth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, action, lead_id, due_at, note, kind, id } = req.body || {};
-  if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
+  const { action, lead_id, due_at, note, kind, id } = req.body || {};
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
 
   try {

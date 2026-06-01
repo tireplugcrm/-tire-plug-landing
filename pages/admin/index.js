@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
@@ -8,63 +9,128 @@ import Head from "next/head";
 
 export default function AdminHub() {
   const [password, setPassword] = useState("");
+  const [accessToken, setAccessToken] = useState(null);
+  const [googleEmail, setGoogleEmail] = useState("");
   const [authed, setAuthed] = useState(false);
+  const [needsCode, setNeedsCode] = useState(false);
+  const [codeInput, setCodeInput] = useState("");
+  const [codeError, setCodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("leads");
-  const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {} });
+  const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {}, team: [], me: null });
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
-  useEffect(() => {
-    const saved =
-      typeof window !== "undefined"
-        ? sessionStorage.getItem("admin_pw") || sessionStorage.getItem("careers_pw")
-        : "";
-    if (saved) { setPassword(saved); load(saved); }
-  }, []);
+  const authObj = () => (accessToken ? { accessToken } : { password });
 
-  async function load(pw) {
+  async function loadWith(a) {
     setLoading(true); setError("");
     try {
-      const res = await fetch("/api/admin/data", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: pw }),
-      });
+      const res = await fetch("/api/admin/data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(a) });
       const d = await res.json();
       if (!res.ok) { setError(d.error || "Login failed"); setAuthed(false); return; }
-      sessionStorage.setItem("admin_pw", pw);
-      setData({
-        leads: d.leads || [], subscribers: d.subscribers || [], campaigns: d.campaigns || [],
-        replies: d.replies || [], reminders: d.reminders || [], unreadByLead: d.unreadByLead || {},
-      });
-      setAuthed(true);
+      if (a.password) sessionStorage.setItem("admin_pw", a.password);
+      setData({ leads: d.leads || [], subscribers: d.subscribers || [], campaigns: d.campaigns || [], replies: d.replies || [], reminders: d.reminders || [], unreadByLead: d.unreadByLead || {}, team: d.team || [], me: d.me || null });
+      setAuthed(true); setNeedsCode(false);
     } catch (e) { setError("Network error"); }
     finally { setLoading(false); }
   }
 
-  // Optimistic update — change the screen instantly, save in the background.
+  async function handleGoogleSession(token, email) {
+    setAccessToken(token); if (email) setGoogleEmail(email); setError("");
+    try {
+      const res = await fetch("/api/admin/request-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accessToken: token }) });
+      const d = await res.json();
+      if (d.status === "approved") loadWith({ accessToken: token });
+      else if (d.status === "pending") setNeedsCode(true);
+      else setError(d.error || "Access error");
+    } catch (e) { setError("Network error"); }
+  }
+
+  useEffect(() => {
+    const savedPw = typeof window !== "undefined" ? (sessionStorage.getItem("admin_pw") || sessionStorage.getItem("careers_pw")) : "";
+    if (supabaseBrowser) {
+      supabaseBrowser.auth.getSession().then(({ data: s }) => {
+        const token = s?.session?.access_token;
+        if (token) handleGoogleSession(token, s.session.user?.email || "");
+        else if (savedPw) { setPassword(savedPw); loadWith({ password: savedPw }); }
+      });
+      const { data: sub } = supabaseBrowser.auth.onAuthStateChange((_e, session) => {
+        if (session?.access_token) handleGoogleSession(session.access_token, session.user?.email || "");
+      });
+      return () => { try { sub?.subscription?.unsubscribe(); } catch (e) {} };
+    } else if (savedPw) { setPassword(savedPw); loadWith({ password: savedPw }); }
+    // eslint-disable-next-line
+  }, []);
+
+  // Presence heartbeat for Google users.
+  useEffect(() => {
+    if (!authed || !accessToken) return;
+    const id = setInterval(() => {
+      fetch("/api/admin/heartbeat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accessToken }) });
+    }, 30000);
+    return () => clearInterval(id);
+  }, [authed, accessToken]);
+
   async function update(table, id, patch) {
     let finalPatch = patch;
-    if (table === "leads" && patch.status === "booked") {
-      finalPatch = { booked_at: new Date().toISOString(), ...patch };
-    }
+    if (table === "leads" && patch.status === "booked") finalPatch = { booked_at: new Date().toISOString(), ...patch };
     const key = table === "email_replies" ? "replies" : table;
     setData((d) => ({ ...d, [key]: d[key].map((r) => (r.id === id ? { ...r, ...finalPatch } : r)) }));
     try {
-      const res = await fetch("/api/admin/update-lead", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, table, id, ...finalPatch }),
-      });
-      if (!res.ok) load(password);
-    } catch (e) { load(password); }
+      const res = await fetch("/api/admin/update-lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj(), table, id, ...finalPatch }) });
+      if (!res.ok) loadWith(authObj());
+    } catch (e) { loadWith(authObj()); }
   }
 
   async function reminderAction(payload) {
-    await fetch("/api/admin/reminders", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, ...payload }),
-    });
-    load(password);
+    await fetch("/api/admin/reminders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj(), ...payload }) });
+    loadWith(authObj());
+  }
+
+  async function revoke(email, action) {
+    await fetch("/api/admin/revoke", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj(), email, action }) });
+    loadWith(authObj());
+  }
+
+  function signInGoogle() {
+    if (!supabaseBrowser) { setError("Google sign-in isn't configured yet."); return; }
+    supabaseBrowser.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/admin" } });
+  }
+
+  async function signOut() {
+    try { await supabaseBrowser?.auth.signOut(); } catch (e) {}
+    sessionStorage.removeItem("admin_pw");
+    setAccessToken(null); setAuthed(false); setNeedsCode(false); setPassword(""); setGoogleEmail("");
+  }
+
+  async function verifyCode() {
+    setCodeError("");
+    try {
+      const res = await fetch("/api/admin/verify-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accessToken, code: codeInput }) });
+      const d = await res.json();
+      if (d.status === "approved") { setCodeInput(""); loadWith({ accessToken }); }
+      else setCodeError(d.error || "Invalid code");
+    } catch (e) { setCodeError("Network error"); }
+  }
+
+  // Signed in with Google, waiting for the owner's code
+  if (needsCode && !authed) {
+    return (
+      <Shell title="Tire Plug Admin">
+        <div style={{ maxWidth: 380, margin: "12vh auto 0", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}><Logo size={72} /></div>
+          <h1 style={{ color: "#fff", fontWeight: 900, textTransform: "uppercase", fontSize: "1.3rem", marginBottom: "0.5rem" }}>Access <span style={{ color: "#FF1F1F" }}>Code</span></h1>
+          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+            The owner was notified that you're requesting access{googleEmail ? ` as ${googleEmail}` : ""}. Enter the code they give you.
+          </p>
+          <input value={codeInput} onChange={(e) => setCodeInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && verifyCode()} placeholder="6-digit code" inputMode="numeric" style={{ ...inp, textAlign: "center", letterSpacing: "0.3em", fontSize: "1.2rem" }} />
+          <button onClick={verifyCode} style={cta}>Unlock</button>
+          {codeError && <p style={{ color: "#FF6666", marginTop: "1rem", fontSize: "0.85rem" }}>{codeError}</p>}
+          <button onClick={signOut} style={{ ...ghostBtn, marginTop: "1.5rem", fontSize: "0.75rem" }}>Cancel / sign out</button>
+        </div>
+      </Shell>
+    );
   }
 
   if (!authed) {
@@ -77,10 +143,16 @@ export default function AdminHub() {
           <h1 style={{ color: "#fff", textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
             Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
           </h1>
-          <input type="password" placeholder="Password" value={password}
+          <button onClick={signInGoogle} style={googleBtn}>
+            <span style={{ fontWeight: 900, color: "#4285F4" }}>G</span> Sign in with Google
+          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1.25rem 0" }}>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} /><span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem" }}>OR</span><div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
+          </div>
+          <input type="password" placeholder="Owner password" value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && load(password)} style={inp} />
-          <button onClick={() => load(password)} disabled={loading} style={cta}>
+            onKeyDown={(e) => e.key === "Enter" && loadWith({ password })} style={inp} />
+          <button onClick={() => loadWith({ password })} disabled={loading} style={cta}>
             {loading ? "..." : "Enter"}
           </button>
           {error && <p style={{ color: "#FF6666", textAlign: "center", marginTop: "1rem", fontSize: "0.85rem" }}>{error}</p>}
@@ -101,6 +173,7 @@ export default function AdminHub() {
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
+  const auth = authObj();
 
   return (
     <Shell title="Tire Plug Admin">
@@ -112,7 +185,11 @@ export default function AdminHub() {
               Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
             </h1>
           </div>
-          <button onClick={() => load(password)} style={ghostBtn}>↻ Refresh</button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            {data.me && data.me.email !== "owner" && <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>{data.me.name}</span>}
+            <button onClick={() => loadWith(authObj())} style={ghostBtn}>↻</button>
+            <button onClick={signOut} style={ghostBtn}>Sign out</button>
+          </div>
         </div>
 
         <div style={{ display: "flex", gap: "0.4rem", marginBottom: "2rem", flexWrap: "wrap", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem" }}>
@@ -127,10 +204,10 @@ export default function AdminHub() {
         </div>
 
         {tab === "leads" && (
-          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} />
+          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} />
         )}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
-        {tab === "email" && <EmailTab password={password} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
+        {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
         {tab === "hiring" && <HiringTab />}
       </div>
@@ -138,7 +215,7 @@ export default function AdminHub() {
       {selectedLead && (
         <LeadDrawer
           lead={selectedLead}
-          password={password}
+          auth={auth}
           reminders={data.reminders.filter((r) => r.lead_id === selectedLead.id)}
           onClose={() => setSelectedLeadId(null)}
           onUpdate={update}
@@ -158,7 +235,7 @@ const PRIORITY = {
 function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(255,255,255,0.5)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
 
-function LeadsTab({ data, dueCount, onOpen, onReminder }) {
+function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -190,6 +267,9 @@ function LeadsTab({ data, dueCount, onOpen, onReminder }) {
 
   return (
     <>
+      {/* Recently Active team board */}
+      <ActiveBoard team={data.team} me={data.me} onRevoke={onRevoke} />
+
       {/* Revenue summary */}
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
         <div style={{ background: "linear-gradient(135deg, rgba(61,214,140,0.12), rgba(0,0,0,0))", border: "1px solid rgba(61,214,140,0.3)", borderRadius: 14, padding: "0.85rem 1.25rem", flex: 1, minWidth: 200 }}>
@@ -267,7 +347,7 @@ function LeadRow({ l, unread, onClick }) {
 }
 
 /* ---------------- LEAD DRAWER ---------------- */
-function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }) {
+function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
   const [notes, setNotes] = useState(lead.owner_notes || "");
   const [revenue, setRevenue] = useState(lead.revenue_amount || "");
   const [draftText, setDraftText] = useState("");
@@ -309,10 +389,10 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
         </Section>
 
         {/* Quote builder */}
-        <QuoteBuilder lead={lead} password={password} onUpdate={onUpdate} onAiDraft={fillQuote} />
+        <QuoteBuilder lead={lead} auth={auth} onUpdate={onUpdate} onAiDraft={fillQuote} />
 
         {/* SMS conversation */}
-        <Conversation lead={lead} password={password} draft={draftText} setDraft={setDraftText} draftKind={draftKind} setDraftKind={setDraftKind} />
+        <Conversation lead={lead} auth={auth} draft={draftText} setDraft={setDraftText} draftKind={draftKind} setDraftKind={setDraftKind} />
 
         {/* Reminders */}
         <RemindersBlock lead={lead} reminders={reminders} onReminder={onReminder} />
@@ -338,7 +418,7 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
 }
 
 /* ---------------- QUOTE BUILDER ---------------- */
-function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
+function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4 }]);
   const [roadHazard, setRoadHazard] = useState(lead.road_hazard_per_tire || "");
   const [writing, setWriting] = useState(false);
@@ -368,7 +448,7 @@ function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
     try {
       const res = await fetch("/api/admin/ai-compose", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id, mode: "quote", quotes: rows, road_hazard: roadHazard }),
+        body: JSON.stringify({ ...auth, lead_id: lead.id, mode: "quote", quotes: rows, road_hazard: roadHazard }),
       });
       const d = await res.json();
       if (res.ok && d.draft) { onAiDraft(d.draft); setMsg("✨ Drafted below — review & send"); }
@@ -415,7 +495,7 @@ function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
 }
 
 /* ---------------- SMS CONVERSATION ---------------- */
-function Conversation({ lead, password, draft, setDraft, draftKind, setDraftKind }) {
+function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) {
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
   const [drafting, setDrafting] = useState(false);
@@ -425,7 +505,7 @@ function Conversation({ lead, password, draft, setDraft, draftKind, setDraftKind
     try {
       const res = await fetch("/api/admin/lead-messages", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id }),
+        body: JSON.stringify({ ...auth, lead_id: lead.id }),
       });
       const d = await res.json();
       if (res.ok) setMessages(d.messages || []);
@@ -446,7 +526,7 @@ function Conversation({ lead, password, draft, setDraft, draftKind, setDraftKind
     try {
       const res = await fetch("/api/admin/send-sms", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id, body, startFollowups: armFollowups }),
+        body: JSON.stringify({ ...auth, lead_id: lead.id, body, startFollowups: armFollowups }),
       });
       const d = await res.json();
       if (!res.ok) { setErr(d.error || "Send failed"); setDraft(body); }
@@ -461,7 +541,7 @@ function Conversation({ lead, password, draft, setDraft, draftKind, setDraftKind
     try {
       const res = await fetch("/api/admin/ai-compose", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id, mode: "reply" }),
+        body: JSON.stringify({ ...auth, lead_id: lead.id, mode: "reply" }),
       });
       const d = await res.json();
       if (res.ok && d.draft) { setDraft(d.draft); setDraftKind("reply"); }
@@ -573,7 +653,7 @@ function SubscribersTab({ subs, onUpdate }) {
 }
 
 /* ---------------- EMAIL ---------------- */
-function EmailTab({ password, leads, subs, campaigns }) {
+function EmailTab({ auth, leads, subs, campaigns }) {
   const [audience, setAudience] = useState("subscribers");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -590,7 +670,7 @@ function EmailTab({ password, leads, subs, campaigns }) {
     try {
       const res = await fetch("/api/admin/send-email", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, audience, subject, message }),
+        body: JSON.stringify({ ...auth, audience, subject, message }),
       });
       const d = await res.json();
       if (!res.ok) setResult({ error: d.error || "Send failed" });
@@ -756,6 +836,41 @@ function dueLabel(s) {
   return `Due ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 }
 
+/* ---------------- RECENTLY ACTIVE BOARD ---------------- */
+function ActiveBoard({ team, me, onRevoke }) {
+  if (!team || team.length === 0) return null;
+  return (
+    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "0.9rem 1.25rem", marginBottom: "1.5rem" }}>
+      <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.7rem" }}>Recently Active</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+        {team.map((m) => {
+          const online = isOnline(m.last_active);
+          return (
+            <div key={m.email} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 50, padding: "0.35rem 0.8rem" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: online ? "#3DD68C" : "rgba(255,255,255,0.25)", boxShadow: online ? "0 0 8px #3DD68C" : "none", flexShrink: 0 }} />
+              <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.82rem" }}>{m.name || m.email}{m.is_owner ? " 👑" : ""}</span>
+              <span style={{ color: online ? "#3DD68C" : "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>{agoLabel(m.last_active)}</span>
+              {me && me.isOwner && !m.is_owner && (
+                <button onClick={() => onRevoke(m.email, "revoke")} title="Log out / revoke access" style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.8rem", padding: 0, lineHeight: 1 }}>✕</button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+function isOnline(s) { return s ? (Date.now() - new Date(s).getTime()) < 90000 : false; }
+function agoLabel(s) {
+  if (!s) return "never";
+  const m = Math.floor((Date.now() - new Date(s).getTime()) / 60000);
+  if (m < 1) return "active now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
 function Logo({ size = 44 }) {
   return (
     <div style={{ width: size, height: size, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: "0 0 0 2px rgba(255,31,31,0.4), 0 0 20px rgba(255,31,31,0.25)", flexShrink: 0 }}>
@@ -781,6 +896,7 @@ const inp = { width: "100%", padding: "0.9rem 1.1rem", border: "1px solid rgba(2
 const miniInp = { width: "100%", padding: "0.5rem 0.6rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: "0.82rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
 const cta = { display: "inline-block", background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)", color: "#fff", padding: "0.8rem 1.4rem", fontSize: "0.8rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
 const ghostBtn = { display: "inline-block", background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.7rem 1.1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
+const googleBtn = { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", background: "#fff", color: "#1a1a1a", padding: "0.85rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" };
 const tabBtn = (active) => ({ background: active ? "rgba(255,31,31,0.15)" : "transparent", color: active ? "#FF6666" : "rgba(255,255,255,0.6)", padding: "0.55rem 1rem", fontSize: "0.85rem", fontWeight: 700, border: active ? "1px solid rgba(255,31,31,0.3)" : "1px solid transparent", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" });
 const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "0.85rem 1.25rem", transition: "all 0.2s ease" };
 const subHead = { color: "rgba(255,255,255,0.4)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", margin: "2.5rem 0 1rem" };

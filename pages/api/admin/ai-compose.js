@@ -8,6 +8,7 @@
  * Uses ANTHROPIC_API_KEY (same as the hiring AI). Human reviews before sending.
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
+import { requireAdmin } from "../../../lib/adminAuth.js";
 import { SHOP_FACTS, AI_VOICE } from "../../../lib/shop-facts.js";
 
 const MODEL = process.env.LEADS_AI_MODEL || "claude-sonnet-4-6";
@@ -31,10 +32,9 @@ function firstName(name) { return (name || "").trim().split(/\s+/)[0] || "there"
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, lead_id, mode, quotes, road_hazard } = req.body || {};
-  if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
+  const { lead_id, mode, quotes, road_hazard } = req.body || {};
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: "AI is not set up (missing key)." });
   if (!supabaseAdmin || !lead_id) return res.status(400).json({ error: "Missing config or lead." });
 
