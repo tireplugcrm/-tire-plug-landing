@@ -286,6 +286,18 @@ export default function PromoPopup() {
             }}>
               No spam. Just real deals from The Tire Plug.
             </p>
+            {/* Email consent disclaimer */}
+            <p style={{
+              color: 'rgba(255,255,255,0.3)',
+              fontSize: '0.62rem',
+              textAlign: 'center',
+              lineHeight: 1.5,
+              marginTop: '0.5rem',
+            }}>
+              By signing up, you agree to receive promotional emails from The Tire Plug. Unsubscribe
+              anytime via the link in any email. See our{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,56,56,0.8)', textDecoration: 'underline' }}>Privacy Policy</a>.
+            </p>
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '1.5rem 0', position: 'relative', zIndex: 2 }}>
