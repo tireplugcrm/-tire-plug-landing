@@ -5,7 +5,7 @@
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 
 const ALLOWED = {
-  leads: { status: ["new", "called", "booked", "dead"], owner_notes: true },
+  leads: { status: ["new", "called", "booked", "dead"], owner_notes: true, quotes: true, revenue: true },
   subscribers: { status: ["active", "unsubscribed"], owner_notes: false },
   email_replies: { read: true },
 };
@@ -13,7 +13,7 @@ const ALLOWED = {
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, table, id, status, owner_notes, read } = req.body || {};
+  const { password, table, id, status, owner_notes, read, quotes, revenue_amount } = req.body || {};
   if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -23,9 +23,17 @@ export default async function handler(req, res) {
 
   const rules = ALLOWED[table];
   const patch = {};
-  if (status !== undefined && rules.status && rules.status.includes(status)) patch.status = status;
+  if (status !== undefined && rules.status && rules.status.includes(status)) {
+    patch.status = status;
+    // Stamp the booked time the first time a lead is marked booked.
+    if (table === "leads" && status === "booked") patch.booked_at = new Date().toISOString();
+  }
   if (owner_notes !== undefined && rules.owner_notes) patch.owner_notes = owner_notes;
   if (read !== undefined && rules.read) patch.read = !!read;
+  if (quotes !== undefined && rules.quotes) patch.quotes = quotes;
+  if (revenue_amount !== undefined && rules.revenue) {
+    patch.revenue_amount = revenue_amount === null || revenue_amount === "" ? null : Number(revenue_amount);
+  }
 
   if (Object.keys(patch).length === 0) {
     return res.status(400).json({ error: "Nothing valid to update." });

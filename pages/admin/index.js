@@ -3,8 +3,7 @@ import Head from "next/head";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
-   One password (same as hiring). Tabs: Leads · Subscribers ·
-   Email · Replies · Hiring.
+   Tabs: Leads · Subscribers · Email · Replies · Hiring
    ============================================================ */
 
 export default function AdminHub() {
@@ -13,8 +12,8 @@ export default function AdminHub() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("leads");
-  const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [] });
-  const [selectedLead, setSelectedLead] = useState(null);
+  const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {} });
+  const [selectedLeadId, setSelectedLeadId] = useState(null);
 
   useEffect(() => {
     const saved =
@@ -34,16 +33,36 @@ export default function AdminHub() {
       const d = await res.json();
       if (!res.ok) { setError(d.error || "Login failed"); setAuthed(false); return; }
       sessionStorage.setItem("admin_pw", pw);
-      setData({ leads: d.leads || [], subscribers: d.subscribers || [], campaigns: d.campaigns || [], replies: d.replies || [] });
+      setData({
+        leads: d.leads || [], subscribers: d.subscribers || [], campaigns: d.campaigns || [],
+        replies: d.replies || [], reminders: d.reminders || [], unreadByLead: d.unreadByLead || {},
+      });
       setAuthed(true);
     } catch (e) { setError("Network error"); }
     finally { setLoading(false); }
   }
 
+  // Optimistic update — change the screen instantly, save in the background.
   async function update(table, id, patch) {
-    await fetch("/api/admin/update-lead", {
+    let finalPatch = patch;
+    if (table === "leads" && patch.status === "booked") {
+      finalPatch = { booked_at: new Date().toISOString(), ...patch };
+    }
+    const key = table === "email_replies" ? "replies" : table;
+    setData((d) => ({ ...d, [key]: d[key].map((r) => (r.id === id ? { ...r, ...finalPatch } : r)) }));
+    try {
+      const res = await fetch("/api/admin/update-lead", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, table, id, ...finalPatch }),
+      });
+      if (!res.ok) load(password);
+    } catch (e) { load(password); }
+  }
+
+  async function reminderAction(payload) {
+    await fetch("/api/admin/reminders", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, table, id, ...patch }),
+      body: JSON.stringify({ password, ...payload }),
     });
     load(password);
   }
@@ -67,15 +86,18 @@ export default function AdminHub() {
     );
   }
 
-  const unread = data.replies.filter((r) => !r.read).length;
+  const unreadReplies = data.replies.filter((r) => !r.read).length;
   const liveLeads = data.leads.filter((l) => l.status !== "dead");
+  const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const tabs = [
     { id: "leads", label: "Leads", count: liveLeads.length },
     { id: "subscribers", label: "Subscribers", count: data.subscribers.length },
     { id: "email", label: "Email" },
-    { id: "replies", label: "Replies", count: unread || null, alert: unread > 0 },
+    { id: "replies", label: "Replies", count: unreadReplies || null, alert: unreadReplies > 0 },
     { id: "hiring", label: "Hiring" },
   ];
+
+  const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
 
   return (
     <Shell title="Tire Plug Admin">
@@ -87,7 +109,6 @@ export default function AdminHub() {
           <button onClick={() => load(password)} style={ghostBtn}>↻ Refresh</button>
         </div>
 
-        {/* Tabs */}
         <div style={{ display: "flex", gap: "0.4rem", marginBottom: "2rem", flexWrap: "wrap", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem" }}>
           {tabs.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)} style={tabBtn(tab === t.id)}>
@@ -99,7 +120,9 @@ export default function AdminHub() {
           ))}
         </div>
 
-        {tab === "leads" && <LeadsTab leads={data.leads} onOpen={setSelectedLead} />}
+        {tab === "leads" && (
+          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} />
+        )}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
         {tab === "email" && <EmailTab password={password} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
@@ -107,7 +130,14 @@ export default function AdminHub() {
       </div>
 
       {selectedLead && (
-        <LeadDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} onUpdate={update} />
+        <LeadDrawer
+          lead={selectedLead}
+          password={password}
+          reminders={data.reminders.filter((r) => r.lead_id === selectedLead.id)}
+          onClose={() => setSelectedLeadId(null)}
+          onUpdate={update}
+          onReminder={reminderAction}
+        />
       )}
     </Shell>
   );
@@ -122,21 +152,84 @@ const PRIORITY = {
 function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(255,255,255,0.5)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
 
-function LeadsTab({ leads, onOpen }) {
-  const live = leads.filter((l) => l.status !== "dead").sort((a, b) => prio(a).rank - prio(b).rank || new Date(b.created_at) - new Date(a.created_at));
-  const dead = leads.filter((l) => l.status === "dead");
+function LeadsTab({ data, dueCount, onOpen, onReminder }) {
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all");
+
+  const leadById = Object.fromEntries(data.leads.map((l) => [l.id, l]));
+  const due = data.reminders.filter((r) => isDueOrOverdue(r.due_at));
+  const followupLeadIds = new Set(data.reminders.filter((r) => isDueOrOverdue(r.due_at)).map((r) => r.lead_id));
+
+  // Revenue this month
+  const monthLeads = data.leads.filter((l) => l.revenue_amount && isThisMonth(l.booked_at || l.created_at));
+  const revenue = monthLeads.reduce((s, l) => s + Number(l.revenue_amount || 0), 0);
+
+  let live = data.leads.filter((l) => l.status !== "dead");
+  if (q.trim()) {
+    const t = q.toLowerCase();
+    live = live.filter((l) => `${l.name} ${l.phone} ${l.email} ${l.service} ${l.vehicle}`.toLowerCase().includes(t));
+  }
+  if (filter === "hot") live = live.filter((l) => l.lead_priority === "HOT");
+  if (filter === "new") live = live.filter((l) => l.status === "new");
+  if (filter === "followup") live = live.filter((l) => followupLeadIds.has(l.id));
+  live = live.sort((a, b) => prio(a).rank - prio(b).rank || new Date(b.created_at) - new Date(a.created_at));
+
+  const dead = data.leads.filter((l) => l.status === "dead");
+  const chips = [
+    { id: "all", label: "All" },
+    { id: "hot", label: "🔴 Hot" },
+    { id: "new", label: "New" },
+    { id: "followup", label: `Needs follow-up${dueCount ? ` (${dueCount})` : ""}` },
+  ];
 
   return (
     <>
-      {live.length === 0 && <Empty>No leads yet. When someone completes the booking form on <strong style={{ color: "#FF3838" }}>tireplugla.com</strong>, they show up here.</Empty>}
-      <div style={{ display: "grid", gap: "0.75rem" }}>
-        {live.map((l) => <LeadRow key={l.id} l={l} onClick={() => onOpen(l)} />)}
+      {/* Revenue summary */}
+      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
+        <div style={{ background: "linear-gradient(135deg, rgba(61,214,140,0.12), rgba(0,0,0,0))", border: "1px solid rgba(61,214,140,0.3)", borderRadius: 14, padding: "0.85rem 1.25rem", flex: 1, minWidth: 200 }}>
+          <div style={{ color: "#3DD68C", fontWeight: 900, fontSize: "1.6rem", lineHeight: 1 }}>${revenue.toLocaleString()}</div>
+          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 4 }}>From web leads this month · {monthLeads.length} booked</div>
+        </div>
       </div>
-      {dead.length > 0 && (
+
+      {/* Due reminders */}
+      {due.length > 0 && (
+        <div style={{ background: "rgba(255,184,0,0.08)", border: "1px solid rgba(255,184,0,0.3)", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: "1.5rem" }}>
+          <p style={{ color: "#FFB800", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.6rem" }}>⏰ Follow-ups due ({due.length})</p>
+          {due.map((r) => {
+            const l = leadById[r.lead_id];
+            return (
+              <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.4rem 0" }}>
+                <span style={{ fontSize: "0.85rem" }}>{r.kind === "service_ready" ? "🛞" : "📞"}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span onClick={() => l && onOpen(l.id)} style={{ color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: "0.88rem" }}>{l ? l.name : "(lead)"}</span>
+                  <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.82rem" }}> — {r.note || (r.kind === "service_ready" ? "Tires are in" : "Follow up")} · {dueLabel(r.due_at)}</span>
+                </div>
+                <button onClick={() => onReminder({ action: "complete", id: r.id })} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.35rem 0.65rem" }}>Done</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Search + filters */}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔍 Search name, phone, service..." style={{ ...inp, marginBottom: 0, flex: 1, minWidth: 220 }} />
+        {chips.map((c) => (
+          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: filter === c.id ? "#FF1F1F" : "rgba(255,255,255,0.12)", color: filter === c.id ? "#FF6666" : "#fff" }}>{c.label}</button>
+        ))}
+      </div>
+
+      {live.length === 0 && <Empty>No leads here yet. When someone completes the booking form on <strong style={{ color: "#FF3838" }}>tireplugla.com</strong>, they show up here.</Empty>}
+      <div style={{ display: "grid", gap: "0.75rem" }}>
+        {live.map((l) => <LeadRow key={l.id} l={l} unread={data.unreadByLead[l.id]} onClick={() => onOpen(l.id)} />)}
+      </div>
+
+      {filter === "all" && !q && dead.length > 0 && (
         <>
           <h2 style={subHead}>Dead leads ({dead.length})</h2>
           <div style={{ display: "grid", gap: "0.5rem", opacity: 0.5 }}>
-            {dead.map((l) => <LeadRow key={l.id} l={l} onClick={() => onOpen(l)} />)}
+            {dead.map((l) => <LeadRow key={l.id} l={l} unread={data.unreadByLead[l.id]} onClick={() => onOpen(l.id)} />)}
           </div>
         </>
       )}
@@ -144,7 +237,7 @@ function LeadsTab({ leads, onOpen }) {
   );
 }
 
-function LeadRow({ l, onClick }) {
+function LeadRow({ l, unread, onClick }) {
   const p = prio(l);
   return (
     <div onClick={onClick} style={{ ...rowStyle, cursor: "pointer" }} className="adminRow">
@@ -152,7 +245,10 @@ function LeadRow({ l, onClick }) {
         <span style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.62rem", fontWeight: 800, padding: "0.25rem 0.5rem", borderRadius: 50, whiteSpace: "nowrap" }}>{p.label}</span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ color: "#fff", fontWeight: 700 }}>{l.name || "(no name)"} <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 500, fontSize: "0.8rem" }}>· {STATUS_LABEL[l.status] || l.status}</span></div>
+        <div style={{ color: "#fff", fontWeight: 700 }}>
+          {l.name || "(no name)"} <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 500, fontSize: "0.8rem" }}>· {STATUS_LABEL[l.status] || l.status}</span>
+          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#fff", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 50 }}>💬 {unread}</span>}
+        </div>
         <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.service || "—"}{l.vehicle ? ` · ${l.vehicle}` : ""}</div>
       </div>
       <div style={{ textAlign: "right" }}>
@@ -164,10 +260,13 @@ function LeadRow({ l, onClick }) {
   );
 }
 
-function LeadDrawer({ lead, onClose, onUpdate }) {
+/* ---------------- LEAD DRAWER ---------------- */
+function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }) {
   const [notes, setNotes] = useState(lead.owner_notes || "");
+  const [revenue, setRevenue] = useState(lead.revenue_amount || "");
   const p = prio(lead);
   const statuses = ["new", "called", "booked", "dead"];
+
   return (
     <div onClick={onClose} style={overlay}>
       <div onClick={(e) => e.stopPropagation()} style={drawer}>
@@ -181,15 +280,7 @@ function LeadDrawer({ lead, onClose, onUpdate }) {
           {lead.email && <a href={`mailto:${lead.email}`} style={ghostBtn}>✉ Email</a>}
         </div>
 
-        <Section title="Request">
-          <KV k="Service" v={lead.service} />
-          <KV k="When" v={lead.service_timing} />
-          <KV k="Vehicle" v={lead.vehicle} />
-          <KV k="Tire size" v={lead.tire_size} />
-          <KV k="Tire type" v={lead.tire_type} />
-          <KV k="Email" v={lead.email} />
-        </Section>
-
+        {/* Status (instant) */}
         <Section title="Status">
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
             {statuses.map((s) => (
@@ -199,14 +290,211 @@ function LeadDrawer({ lead, onClose, onUpdate }) {
               </button>
             ))}
           </div>
+          {lead.status === "booked" && (
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.75rem" }}>
+              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>💵 Sale amount $</span>
+              <input value={revenue} onChange={(e) => setRevenue(e.target.value)} onBlur={() => onUpdate("leads", lead.id, { revenue_amount: revenue })}
+                placeholder="0" inputMode="decimal" style={{ ...inp, marginBottom: 0, width: 120, padding: "0.5rem 0.75rem" }} />
+            </div>
+          )}
         </Section>
 
+        {/* Quote builder */}
+        <QuoteBuilder lead={lead} password={password} onUpdate={onUpdate} />
+
+        {/* SMS conversation */}
+        <Conversation lead={lead} password={password} />
+
+        {/* Reminders */}
+        <RemindersBlock lead={lead} reminders={reminders} onReminder={onReminder} />
+
+        {/* Request details */}
+        <Section title="Request">
+          <KV k="Service" v={lead.service} />
+          <KV k="When" v={lead.service_timing} />
+          <KV k="Vehicle" v={lead.vehicle} />
+          <KV k="Tire size" v={lead.tire_size} />
+          <KV k="Tire type" v={lead.tire_type} />
+          <KV k="Email" v={lead.email} />
+        </Section>
+
+        {/* Notes */}
         <Section title="Your notes">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ ...inp, resize: "vertical" }} placeholder="Notes from the call..." />
           <button onClick={() => onUpdate("leads", lead.id, { owner_notes: notes })} style={cta}>Save notes</button>
         </Section>
       </div>
     </div>
+  );
+}
+
+/* ---------------- QUOTE BUILDER ---------------- */
+function QuoteBuilder({ lead, password, onUpdate }) {
+  const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4 }]);
+  const [texting, setTexting] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
+  function addRow() { setRows([...rows, { brand: "", price: "", qty: 4 }]); }
+  function removeRow(i) { setRows(rows.filter((_, idx) => idx !== i)); }
+  function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price) }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
+
+  const grand = rows.reduce((s, r) => s + (Number(r.price) || 0) * (Number(r.qty) || 0), 0);
+
+  function buildText() {
+    const lines = rows.filter((r) => r.brand && r.price).map((r) => {
+      const tot = (Number(r.price) || 0) * (Number(r.qty) || 0);
+      return `${r.brand} - $${r.price} each${r.qty ? ` (set of ${r.qty} = $${tot})` : ""}`;
+    });
+    return `Hi ${lead.name?.split(" ")[0] || "there"}, here's your tire quote from The Tire Plug:\n\n${lines.join("\n")}\n\nText or call 562-513-0217 to lock it in!`;
+  }
+
+  async function textQuote() {
+    setTexting(true); setMsg("");
+    save();
+    try {
+      const res = await fetch("/api/admin/send-sms", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, lead_id: lead.id, body: buildText() }),
+      });
+      const d = await res.json();
+      setMsg(res.ok ? "Quote texted ✓" : `⚠ ${d.error}`);
+    } catch (e) { setMsg("⚠ Could not send"); }
+    finally { setTexting(false); }
+  }
+
+  return (
+    <Section title="Quote">
+      <div style={{ display: "grid", gap: "0.4rem", marginBottom: "0.6rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 50px 70px 24px", gap: "0.4rem", fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "0 0.2rem" }}>
+          <span>Brand</span><span>$ Each</span><span>Qty</span><span>Total</span><span></span>
+        </div>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 80px 50px 70px 24px", gap: "0.4rem", alignItems: "center" }}>
+            <input value={r.brand} onChange={(e) => setRow(i, "brand", e.target.value)} placeholder="Goodyear" style={miniInp} />
+            <input value={r.price} onChange={(e) => setRow(i, "price", e.target.value)} placeholder="159" inputMode="decimal" style={miniInp} />
+            <input value={r.qty} onChange={(e) => setRow(i, "qty", e.target.value)} inputMode="numeric" style={miniInp} />
+            <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${((Number(r.price) || 0) * (Number(r.qty) || 0)).toLocaleString()}</span>
+            <button onClick={() => removeRow(i)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+        <button onClick={addRow} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>+ Add brand</button>
+        {grand > 0 && <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem" }}>Top total: <strong style={{ color: "#3DD68C" }}>${grand.toLocaleString()}</strong></span>}
+      </div>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+        <button onClick={save} style={ghostBtn}>Save quote</button>
+        {lead.phone && <button onClick={textQuote} disabled={texting} style={cta}>{texting ? "Texting..." : "📲 Text quote to customer"}</button>}
+        {msg && <span style={{ color: msg.includes("⚠") ? "#FF6666" : "#3DD68C", fontSize: "0.8rem" }}>{msg}</span>}
+      </div>
+    </Section>
+  );
+}
+
+/* ---------------- SMS CONVERSATION ---------------- */
+function Conversation({ lead, password }) {
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function fetchMsgs() {
+    try {
+      const res = await fetch("/api/admin/lead-messages", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, lead_id: lead.id }),
+      });
+      const d = await res.json();
+      if (res.ok) setMessages(d.messages || []);
+    } catch (e) {}
+  }
+  useEffect(() => { fetchMsgs(); /* eslint-disable-next-line */ }, [lead.id]);
+
+  async function send() {
+    if (!text.trim()) return;
+    setSending(true); setErr("");
+    const body = text;
+    setText("");
+    try {
+      const res = await fetch("/api/admin/send-sms", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, lead_id: lead.id, body }),
+      });
+      const d = await res.json();
+      if (!res.ok) { setErr(d.error || "Send failed"); setText(body); }
+      else fetchMsgs();
+    } catch (e) { setErr("Network error"); setText(body); }
+    finally { setSending(false); }
+  }
+
+  return (
+    <Section title="Text messages">
+      {!lead.phone ? (
+        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.82rem" }}>No phone number on file for this lead.</p>
+      ) : (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", maxHeight: 260, overflowY: "auto", marginBottom: "0.75rem", padding: messages.length ? "0.25rem" : 0 }}>
+            {messages.length === 0 && <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
+            {messages.map((m) => (
+              <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "rgba(255,255,255,0.07)", color: "#fff", padding: "0.5rem 0.8rem", borderRadius: 14, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
+                {m.body}
+                <div style={{ fontSize: "0.6rem", opacity: 0.6, marginTop: 3, textAlign: "right" }}>{fmtDate(m.created_at, true)}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Type a text..." style={{ ...inp, marginBottom: 0, flex: 1 }} />
+            <button onClick={send} disabled={sending} style={cta}>{sending ? "..." : "Send"}</button>
+          </div>
+          {err && <p style={{ color: "#FF6666", fontSize: "0.78rem", marginTop: "0.4rem" }}>{err}</p>}
+        </>
+      )}
+    </Section>
+  );
+}
+
+/* ---------------- REMINDERS ---------------- */
+function RemindersBlock({ lead, reminders, onReminder }) {
+  const [note, setNote] = useState("");
+  const [kind, setKind] = useState("followup");
+  const open = reminders.filter((r) => !r.done);
+
+  function quickAdd(days, k, n) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    d.setHours(9, 0, 0, 0);
+    onReminder({ action: "create", lead_id: lead.id, due_at: d.toISOString(), note: n || note, kind: k || kind });
+    setNote("");
+  }
+
+  return (
+    <Section title="Reminders">
+      {open.length > 0 && (
+        <div style={{ display: "grid", gap: "0.4rem", marginBottom: "0.75rem" }}>
+          {open.map((r) => (
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "0.5rem 0.75rem" }}>
+              <span>{r.kind === "service_ready" ? "🛞" : "📞"}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: "#fff", fontSize: "0.82rem" }}>{r.note || (r.kind === "service_ready" ? "Tires are in — come in" : "Follow up")}</div>
+                <div style={{ color: isDueOrOverdue(r.due_at) ? "#FFB800" : "rgba(255,255,255,0.4)", fontSize: "0.7rem" }}>{dueLabel(r.due_at)}</div>
+              </div>
+              <button onClick={() => onReminder({ action: "complete", id: r.id })} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Done</button>
+            </div>
+          ))}
+        </div>
+      )}
+      <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reminder note (optional)" style={{ ...inp, marginBottom: "0.5rem" }} />
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.5rem" }}>
+        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: kind === "followup" ? "#FF1F1F" : "rgba(255,255,255,0.12)" }}>📞 General follow-up</button>
+        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: kind === "service_ready" ? "#FF1F1F" : "rgba(255,255,255,0.12)" }}>🛞 Tires are in</button>
+      </div>
+      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+        <button onClick={() => quickAdd(1)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.7rem" }}>Tomorrow</button>
+        <button onClick={() => quickAdd(2)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.7rem" }}>In 2 days</button>
+        <button onClick={() => quickAdd(7)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.7rem" }}>Next week</button>
+      </div>
+    </Section>
   );
 }
 
@@ -222,9 +510,7 @@ function SubscribersTab({ subs, onUpdate }) {
             <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>{s.email}</div>
           </div>
           <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", marginRight: "0.5rem" }}>{fmtDate(s.created_at)}</span>
-          <button
-            onClick={() => onUpdate("subscribers", s.id, { status: s.status === "active" ? "unsubscribed" : "active" })}
-            style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.45rem 0.7rem" }}>
+          <button onClick={() => onUpdate("subscribers", s.id, { status: s.status === "active" ? "unsubscribed" : "active" })} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.45rem 0.7rem" }}>
             {s.status === "active" ? "Unsubscribe" : "Re-activate"}
           </button>
         </div>
@@ -290,9 +576,7 @@ function EmailTab({ password, leads, subs, campaigns }) {
         </div>
 
         {!confirm ? (
-          <button onClick={() => setConfirm(true)} disabled={!subject || !message} style={{ ...cta, opacity: !subject || !message ? 0.4 : 1 }}>
-            Review &amp; send
-          </button>
+          <button onClick={() => setConfirm(true)} disabled={!subject || !message} style={{ ...cta, opacity: !subject || !message ? 0.4 : 1 }}>Review &amp; send</button>
         ) : (
           <div style={{ background: "rgba(255,31,31,0.08)", border: "1px solid rgba(255,31,31,0.3)", borderRadius: 12, padding: "1rem" }}>
             <p style={{ color: "#fff", fontSize: "0.9rem", marginBottom: "0.75rem" }}>
@@ -335,7 +619,7 @@ function EmailTab({ password, leads, subs, campaigns }) {
 /* ---------------- REPLIES ---------------- */
 function RepliesTab({ replies, onUpdate }) {
   if (replies.length === 0) {
-    return <Empty>No replies yet. When someone replies to an email blast, it shows up here (once inbound email is connected — see setup notes).</Empty>;
+    return <Empty>No replies yet. When someone replies to an email blast, it shows up here.</Empty>;
   }
   return (
     <div style={{ display: "grid", gap: "0.75rem" }}>
@@ -352,9 +636,7 @@ function RepliesTab({ replies, onUpdate }) {
           <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{r.body}</div>
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
             {r.from_email && <a href={`mailto:${r.from_email}`} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>Reply</a>}
-            <button onClick={() => onUpdate("email_replies", r.id, { read: !r.read })} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>
-              {r.read ? "Mark unread" : "Mark read"}
-            </button>
+            <button onClick={() => onUpdate("email_replies", r.id, { read: !r.read })} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>{r.read ? "Mark unread" : "Mark read"}</button>
           </div>
         </div>
       ))}
@@ -366,9 +648,7 @@ function RepliesTab({ replies, onUpdate }) {
 function HiringTab() {
   return (
     <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "2.5rem", textAlign: "center" }}>
-      <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "1.25rem", lineHeight: 1.6 }}>
-        Your AI hiring dashboard lives in its own dedicated space and works exactly as before.
-      </p>
+      <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "1.25rem", lineHeight: 1.6 }}>Your AI hiring dashboard lives in its own dedicated space and works exactly as before.</p>
       <a href="/careers/admin" style={cta}>Open Hiring Dashboard →</a>
     </div>
   );
@@ -392,14 +672,35 @@ function KV({ k, v }) {
     </div>
   );
 }
-function Empty({ children }) {
-  return <p style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{children}</p>;
-}
+function Empty({ children }) { return <p style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{children}</p>; }
+
 function fmtDate(s, withTime) {
   if (!s) return "";
   const d = new Date(s);
   const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   return withTime ? `${date}, ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}` : date;
+}
+function isThisMonth(s) {
+  if (!s) return false;
+  const d = new Date(s), n = new Date();
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth();
+}
+function isDueOrOverdue(s) {
+  if (!s) return false;
+  const due = new Date(s), end = new Date();
+  end.setHours(23, 59, 59, 999);
+  return due <= end;
+}
+function dueLabel(s) {
+  if (!s) return "";
+  const due = new Date(s), now = new Date();
+  const dayMs = 86400000;
+  const startToday = new Date(); startToday.setHours(0, 0, 0, 0);
+  const diff = Math.floor((due - startToday) / dayMs);
+  if (due < now && diff < 0) return `Overdue (${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })})`;
+  if (diff <= 0) return "Due today";
+  if (diff === 1) return "Tomorrow";
+  return `Due ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 }
 
 function Shell({ children, title }) {
@@ -416,6 +717,7 @@ function Shell({ children, title }) {
 
 /* styles */
 const inp = { width: "100%", padding: "0.9rem 1.1rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: "0.95rem", marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
+const miniInp = { width: "100%", padding: "0.5rem 0.6rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: "0.82rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
 const cta = { display: "inline-block", background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)", color: "#fff", padding: "0.8rem 1.4rem", fontSize: "0.8rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
 const ghostBtn = { display: "inline-block", background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.7rem 1.1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
 const tabBtn = (active) => ({ background: active ? "rgba(255,31,31,0.15)" : "transparent", color: active ? "#FF6666" : "rgba(255,255,255,0.6)", padding: "0.55rem 1rem", fontSize: "0.85rem", fontWeight: 700, border: active ? "1px solid rgba(255,31,31,0.3)" : "1px solid transparent", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" });
@@ -423,5 +725,5 @@ const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", backgroun
 const subHead = { color: "rgba(255,255,255,0.4)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", margin: "2.5rem 0 1rem" };
 const fieldLabel = { display: "block", color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "0.5rem" };
 const overlay = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "flex-end" };
-const drawer = { width: "min(520px, 100%)", height: "100%", overflowY: "auto", background: "linear-gradient(135deg, #0c0c0c 0%, #000 100%)", borderLeft: "1px solid rgba(255,31,31,0.25)", padding: "2.5rem 2rem", position: "relative" };
+const drawer = { width: "min(540px, 100%)", height: "100%", overflowY: "auto", background: "linear-gradient(135deg, #0c0c0c 0%, #000 100%)", borderLeft: "1px solid rgba(255,31,31,0.25)", padding: "2.5rem 2rem", position: "relative" };
 const closeBtn = { position: "absolute", top: "1.25rem", right: "1.25rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" };
