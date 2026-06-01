@@ -362,7 +362,7 @@ function LeadRow({ l, unread, onClick }) {
         <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.service || "—"}{l.vehicle ? ` · ${l.vehicle}` : ""}</div>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div style={{ color: "#FF3838", fontSize: "0.82rem", fontWeight: 700 }}>{l.phone || "—"}</div>
+        <div style={{ color: l.channel === "instagram" ? "#E1306C" : "#FF3838", fontSize: "0.82rem", fontWeight: 700 }}>{l.channel === "instagram" ? "📸 Instagram" : (l.phone || "—")}</div>
         <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.68rem" }}>{fmtDate(l.created_at)}</div>
       </div>
       <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "1.2rem" }}>›</span>
@@ -576,16 +576,20 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
   const thread = messages.filter((m) => m.status !== "scheduled" && m.status !== "canceled");
   const scheduledCount = messages.filter((m) => m.status === "scheduled").length;
 
+  const isIg = lead.channel === "instagram";
+
   async function send() {
     if (!draft.trim()) return;
     setSending(true); setErr("");
     const body = draft;
-    const armFollowups = draftKind === "quote";
+    const armFollowups = draftKind === "quote" && !isIg; // follow-ups are SMS-only for now
     setDraft(""); setDraftKind(null);
     try {
-      const res = await fetch("/api/admin/send-sms", {
+      const endpoint = isIg ? "/api/admin/send-ig" : "/api/admin/send-sms";
+      const payload = isIg ? { ...auth, lead_id: lead.id, body } : { ...auth, lead_id: lead.id, body, startFollowups: armFollowups };
+      const res = await fetch(endpoint, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...auth, lead_id: lead.id, body, startFollowups: armFollowups }),
+        body: JSON.stringify(payload),
       });
       const d = await res.json();
       if (!res.ok) { setErr(d.error || "Send failed"); setDraft(body); }
@@ -617,8 +621,8 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
   }
 
   return (
-    <Section title="Text messages">
-      {!lead.phone ? (
+    <Section title={isIg ? "📸 Instagram DM" : "Text messages"}>
+      {!lead.phone && !isIg ? (
         <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.82rem" }}>No phone number on file for this lead.</p>
       ) : (
         <>
