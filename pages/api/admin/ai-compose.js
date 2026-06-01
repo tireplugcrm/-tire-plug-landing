@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     const lines = rows.map((r) => {
       const qty = Number(r.qty) || 0;
       const total = (Number(r.price) || 0) * qty;
-      return `- ${r.brand}: $${r.price} each${qty ? ` x ${qty} = $${total}` : ""}`;
+      return `- ${r.brand}: $${r.price} each${qty ? ` x ${qty} = $${total}` : ""}${r.warranty ? ` (warranty: ${r.warranty})` : ""}`;
     }).join("\n");
 
     const rh = Number(road_hazard != null && road_hazard !== "" ? road_hazard : lead.road_hazard_per_tire) || 0;
@@ -80,7 +80,7 @@ ${lines}${rhLine}
 RECENT CONVERSATION:
 ${convo}
 
-Write a short, friendly text presenting this quote: per-tire price and the full set total for each option.
+Write a short, friendly text presenting this quote: per-tire price and the full set total for each option (and mention the mileage warranty when one is listed).
 ${rh > 0 ? "Briefly offer the optional Road Hazard Warranty at its per-tire price. " : ""}End with a light call to action to book or come in. Keep it to 2-4 sentences. Output ONLY the message text, nothing else.`;
   } else {
     // mode "reply"

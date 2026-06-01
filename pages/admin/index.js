@@ -419,13 +419,13 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
 
 /* ---------------- QUOTE BUILDER ---------------- */
 function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
-  const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4 }]);
+  const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4, warranty: "" }]);
   const [roadHazard, setRoadHazard] = useState(lead.road_hazard_per_tire || "");
   const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
 
   function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
-  function addRow() { setRows([...rows, { brand: "", price: "", qty: 4 }]); }
+  function addRow() { setRows([...rows, { brand: "", price: "", qty: 4, warranty: "" }]); }
   function removeRow(i) { setRows(rows.filter((_, idx) => idx !== i)); }
   function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
 
@@ -436,7 +436,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   function buildText() {
     const lines = rows.filter((r) => r.brand && r.price).map((r) => {
       const tot = (Number(r.price) || 0) * (Number(r.qty) || 0);
-      return `${r.brand} - $${r.price} each${r.qty ? ` (set of ${r.qty} = $${tot})` : ""}`;
+      return `${r.brand} - $${r.price} each${r.qty ? ` (set of ${r.qty} = $${tot})` : ""}${r.warranty ? ` — ${r.warranty} warranty` : ""}`;
     });
     return `Hi ${lead.name?.split(" ")[0] || "there"}, here's your tire quote from The Tire Plug:\n\n${lines.join("\n")}\n\nText or call 562-513-0217 to lock it in!`;
   }
@@ -464,12 +464,15 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
           <span>Brand</span><span>$ Each</span><span>Qty</span><span>Total</span><span></span>
         </div>
         {rows.map((r, i) => (
-          <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 80px 50px 70px 24px", gap: "0.4rem", alignItems: "center" }}>
-            <input value={r.brand} onChange={(e) => setRow(i, "brand", e.target.value)} placeholder="Goodyear" style={miniInp} />
-            <input value={r.price} onChange={(e) => setRow(i, "price", e.target.value)} placeholder="159" inputMode="decimal" style={miniInp} />
-            <input value={r.qty} onChange={(e) => setRow(i, "qty", e.target.value)} inputMode="numeric" style={miniInp} />
-            <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${((Number(r.price) || 0) * (Number(r.qty) || 0)).toLocaleString()}</span>
-            <button onClick={() => removeRow(i)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
+          <div key={i} style={{ marginBottom: "0.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 50px 70px 24px", gap: "0.4rem", alignItems: "center" }}>
+              <input value={r.brand} onChange={(e) => setRow(i, "brand", e.target.value)} placeholder="Goodyear" style={miniInp} />
+              <input value={r.price} onChange={(e) => setRow(i, "price", e.target.value)} placeholder="159" inputMode="decimal" style={miniInp} />
+              <input value={r.qty} onChange={(e) => setRow(i, "qty", e.target.value)} inputMode="numeric" style={miniInp} />
+              <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${((Number(r.price) || 0) * (Number(r.qty) || 0)).toLocaleString()}</span>
+              <button onClick={() => removeRow(i)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
+            </div>
+            <input value={r.warranty || ""} onChange={(e) => setRow(i, "warranty", e.target.value)} placeholder="Warranty (e.g. 60,000 mi)" style={{ ...miniInp, marginTop: "0.35rem" }} />
           </div>
         ))}
       </div>
