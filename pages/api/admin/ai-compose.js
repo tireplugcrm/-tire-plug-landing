@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
   const auth = await requireAdmin(req);
   if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
-  const { lead_id, mode, quotes, road_hazard } = req.body || {};
+  const { lead_id, mode, quotes, road_hazard, services } = req.body || {};
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: "AI is not set up (missing key)." });
   if (!supabaseAdmin || !lead_id) return res.status(400).json({ error: "Missing config or lead." });
 
@@ -67,6 +67,11 @@ export default async function handler(req, res) {
       ? `\nOPTIONAL ADD-ON the rep set — Road Hazard Warranty: $${rh} per tire (covers pothole, nail, curb & debris damage). Mention it briefly as an optional upgrade.`
       : "";
 
+    const svc = services || lead.services || {};
+    const SVC_LABELS = { alignment: "Wheel Alignment", oilChange: "Oil Change", tpms: "TPMS Sensors" };
+    const svcLines = Object.keys(SVC_LABELS).filter((k) => svc[k]).map((k) => `- ${SVC_LABELS[k]}: $${svc[k]}`).join("\n");
+    const svcBlock = svcLines ? `\n\nADD-ON SERVICES the rep also quoted (offer these too, exact prices):\n${svcLines}` : "";
+
     prompt = `You are a rep at The Tire Plug texting a customer their tire quote.
 
 VOICE: ${AI_VOICE}
@@ -75,13 +80,13 @@ CUSTOMER FIRST NAME: ${fn}
 VEHICLE: ${lead.vehicle || "their vehicle"}
 
 THE QUOTE THE REP ENTERED (use these exact numbers — do not add or change any price):
-${lines}${rhLine}
+${lines}${rhLine}${svcBlock}
 
 RECENT CONVERSATION:
 ${convo}
 
 Write a short, friendly text presenting this quote: per-tire price and the full set total for each option (and mention the mileage warranty when one is listed).
-${rh > 0 ? "Briefly offer the optional Road Hazard Warranty at its per-tire price. " : ""}End with a light call to action to book or come in. Keep it to 2-4 sentences. Output ONLY the message text, nothing else.`;
+${rh > 0 ? "Briefly offer the optional Road Hazard Warranty at its per-tire price. " : ""}${svcLines ? "Also offer the add-on services with their prices. " : ""}End with a light call to action to book or come in. Keep it to 2-5 sentences. Output ONLY the message text, nothing else.`;
   } else {
     // mode "reply"
     prompt = `You are a rep at The Tire Plug texting with a potential customer. Write the next reply.

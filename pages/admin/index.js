@@ -421,13 +421,15 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
 function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4, warranty: "" }]);
   const [roadHazard, setRoadHazard] = useState(lead.road_hazard_per_tire || "");
+  const [services, setServices] = useState(lead.services || {});
   const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
 
   function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
   function addRow() { setRows([...rows, { brand: "", price: "", qty: 4, warranty: "" }]); }
   function removeRow(i) { setRows(rows.filter((_, idx) => idx !== i)); }
-  function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
+  function setSvc(key, val) { setServices({ ...services, [key]: val }); }
+  function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard, services }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
 
   const grand = rows.reduce((s, r) => s + (Number(r.price) || 0) * (Number(r.qty) || 0), 0);
   const hasQuote = rows.some((r) => r.brand && r.price);
@@ -444,11 +446,11 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   // Save + have the AI write the quote message into the text box below for review.
   async function writeWithAi() {
     setWriting(true); setMsg("");
-    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard });
+    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard, services });
     try {
       const res = await fetch("/api/admin/ai-compose", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...auth, lead_id: lead.id, mode: "quote", quotes: rows, road_hazard: roadHazard }),
+        body: JSON.stringify({ ...auth, lead_id: lead.id, mode: "quote", quotes: rows, road_hazard: roadHazard, services }),
       });
       const d = await res.json();
       if (res.ok && d.draft) { onAiDraft(d.draft); setMsg("✨ Drafted below — review & send"); }
@@ -488,6 +490,23 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
         <input value={roadHazard} onChange={(e) => setRoadHazard(e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
         <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>/ tire</span>
       </div>
+
+      {/* Add-on services */}
+      <div style={{ marginBottom: "0.85rem" }}>
+        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>Add-on services</p>
+        {[
+          { key: "alignment", label: "🎯 Wheel Alignment" },
+          { key: "oilChange", label: "🛢️ Oil Change" },
+          { key: "tpms", label: "💡 TPMS Sensors" },
+        ].map((s) => (
+          <div key={s.key} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
+            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem", flex: 1 }}>{s.label}</span>
+            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem" }}>$</span>
+            <input value={services[s.key] || ""} onChange={(e) => setSvc(s.key, e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
+          </div>
+        ))}
+      </div>
+
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={save} style={ghostBtn}>Save quote</button>
         {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}

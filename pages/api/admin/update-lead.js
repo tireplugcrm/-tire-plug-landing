@@ -6,7 +6,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 
 const ALLOWED = {
-  leads: { status: ["new", "called", "booked", "dead"], owner_notes: true, quotes: true, revenue: true, road_hazard: true },
+  leads: { status: ["new", "called", "booked", "dead"], owner_notes: true, quotes: true, revenue: true, road_hazard: true, services: true },
   subscribers: { status: ["active", "unsubscribed"], owner_notes: false },
   email_replies: { read: true },
 };
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   const auth = await requireAdmin(req);
   if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
-  const { table, id, status, owner_notes, read, quotes, revenue_amount, road_hazard_per_tire } = req.body || {};
+  const { table, id, status, owner_notes, read, quotes, revenue_amount, road_hazard_per_tire, services } = req.body || {};
   if (!supabaseAdmin || !id || !ALLOWED[table]) {
     return res.status(400).json({ error: "Missing config, id, or invalid table." });
   }
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
   if (road_hazard_per_tire !== undefined && rules.road_hazard) {
     patch.road_hazard_per_tire = road_hazard_per_tire === null || road_hazard_per_tire === "" ? null : Number(road_hazard_per_tire);
   }
+  if (services !== undefined && rules.services) patch.services = services;
 
   if (Object.keys(patch).length === 0) {
     return res.status(400).json({ error: "Nothing valid to update." });
