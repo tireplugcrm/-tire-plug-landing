@@ -845,6 +845,41 @@ function RepliesTab({ replies, onUpdate }) {
   );
 }
 
+/* ---------------- CEO AGENT ---------------- */
+function CeoAgent({ auth }) {
+  const [briefing, setBriefing] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  async function load() {
+    setLoading(true); setErr("");
+    try {
+      const res = await fetch("/api/admin/ceo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth }) });
+      const d = await res.json();
+      if (res.ok && d.briefing) setBriefing(d.briefing);
+      else setErr(d.error || "Couldn't generate briefing");
+    } catch (e) { setErr("Network error"); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  return (
+    <div style={{ background: "linear-gradient(135deg, rgba(139,124,246,0.13), rgba(0,0,0,0))", border: "1px solid rgba(139,124,246,0.35)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.75rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+        <span style={{ color: "#A99CF8", fontWeight: 800, fontSize: "0.78rem", letterSpacing: "0.12em", textTransform: "uppercase" }}>🧠 CEO Agent · daily briefing</span>
+        <button onClick={load} disabled={loading} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.4rem 0.7rem" }}>{loading ? "Thinking…" : "↻ Refresh"}</button>
+      </div>
+      {loading ? (
+        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.88rem" }}>Reading today's numbers…</p>
+      ) : err ? (
+        <p style={{ color: "#FF6666", fontSize: "0.85rem" }}>⚠ {err}</p>
+      ) : (
+        <div style={{ color: "rgba(255,255,255,0.88)", fontSize: "0.92rem", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{briefing}</div>
+      )}
+    </div>
+  );
+}
+
 /* ---------------- SCOREBOARD (live from TireBase) ---------------- */
 function ScoreboardTab({ auth }) {
   const [data, setData] = useState(null);
@@ -882,6 +917,8 @@ function ScoreboardTab({ auth }) {
 
   return (
     <>
+      <CeoAgent auth={auth} />
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
         <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>🟢 Live from TireBase · {data.store} · {data.date}</span>
         <button onClick={load} style={ghostBtn}>↻ Refresh</button>
