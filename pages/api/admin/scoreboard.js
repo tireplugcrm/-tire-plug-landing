@@ -51,32 +51,41 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: "Could not reach TireBase." });
   }
 
-  let revenue = 0;
-  const payments = {};
+  // Revenue + payments are per INVOICE (TireBase repeats invoice tax on every
+  // line, so summing line totals over-counts). Service counts are per line.
+  const invoiceTotal = {};   // invoice_number -> total_invoice (set once)
+  const invoiceMethod = {};  // invoice_number -> payment method
+  const invoiceStaff = {};   // invoice_number -> salesperson
   const services = { tires: 0, alignments: 0, tpms: 0, brakes: 0, oil: 0 };
-  const staffMap = {};
-  const invoices = new Set();
 
-  for (const row of rows) {
-    const total = money(row.total);
+  rows.forEach((row, i) => {
+    const inv = row.invoice_number || `#${i}`;
+    invoiceTotal[inv] = money(row.total_invoice);
+    if (!invoiceMethod[inv]) invoiceMethod[inv] = (row.account_category || "Other").trim() || "Other";
+    const sp = (row.sales_person_name || row.technician || "").trim();
+    if (sp && !invoiceStaff[inv]) invoiceStaff[inv] = sp;
+
     const q = qty(row.quantity);
-    revenue += total;
-    if (row.invoice_number) invoices.add(row.invoice_number);
-
-    const method = (row.account_category || "Other").trim() || "Other";
-    payments[method] = (payments[method] || 0) + total;
-
     const cat = categorize(row.description);
     if (cat === "tire") services.tires += q;
     else if (cat === "alignment") services.alignments += q;
     else if (cat === "tpms") services.tpms += q;
     else if (cat === "brake") services.brakes += q;
     else if (cat === "oil") services.oil += q;
+  });
 
-    const sp = (row.sales_person_name || row.technician || "").trim();
-    if (sp) staffMap[sp] = (staffMap[sp] || 0) + total;
+  let revenue = 0;
+  const payments = {};
+  const staffMap = {};
+  for (const inv of Object.keys(invoiceTotal)) {
+    const t = invoiceTotal[inv];
+    revenue += t;
+    const method = invoiceMethod[inv] || "Other";
+    payments[method] = (payments[method] || 0) + t;
+    const sp = invoiceStaff[inv];
+    if (sp) staffMap[sp] = (staffMap[sp] || 0) + t;
   }
-
+  const invoices = new Set(Object.keys(invoiceTotal));
   const staff = Object.entries(staffMap).map(([name, total]) => ({ name, total })).sort((a, b) => b.total - a.total);
 
   return res.status(200).json({
