@@ -497,7 +497,6 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
         {[
           { key: "alignment", label: "🎯 Wheel Alignment" },
           { key: "oilChange", label: "🛢️ Oil Change" },
-          { key: "tpms", label: "💡 TPMS Sensors" },
         ].map((s) => (
           <div key={s.key} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
             <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem", flex: 1 }}>{s.label}</span>
@@ -505,6 +504,20 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
             <input value={services[s.key] || ""} onChange={(e) => setSvc(s.key, e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
           </div>
         ))}
+        {/* TPMS — set of 4 OR each */}
+        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
+          <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>💡 TPMS Sensors</span>
+          <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.4rem" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>Set of 4 $</span>
+              <input value={services.tpmsSet || ""} onChange={(e) => setSvc("tpmsSet", e.target.value)} placeholder="199" inputMode="decimal" style={{ ...miniInp, width: 60 }} />
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>Each $</span>
+              <input value={services.tpmsEach || ""} onChange={(e) => setSvc("tpmsEach", e.target.value)} placeholder="60" inputMode="decimal" style={{ ...miniInp, width: 55 }} />
+            </span>
+          </div>
+        </div>
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>

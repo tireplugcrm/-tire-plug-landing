@@ -68,8 +68,16 @@ export default async function handler(req, res) {
       : "";
 
     const svc = services || lead.services || {};
-    const SVC_LABELS = { alignment: "Wheel Alignment", oilChange: "Oil Change", tpms: "TPMS Sensors" };
-    const svcLines = Object.keys(SVC_LABELS).filter((k) => svc[k]).map((k) => `- ${SVC_LABELS[k]}: $${svc[k]}`).join("\n");
+    const svcParts = [];
+    if (svc.alignment) svcParts.push(`- Wheel Alignment: $${svc.alignment}`);
+    if (svc.oilChange) svcParts.push(`- Oil Change: $${svc.oilChange}`);
+    if (svc.tpmsSet || svc.tpmsEach) {
+      const t = [];
+      if (svc.tpmsSet) t.push(`$${svc.tpmsSet} for all 4`);
+      if (svc.tpmsEach) t.push(`$${svc.tpmsEach} each`);
+      svcParts.push(`- TPMS Sensors: ${t.join(" or ")}`);
+    }
+    const svcLines = svcParts.join("\n");
     const svcBlock = svcLines ? `\n\nADD-ON SERVICES the rep also quoted (offer these too, exact prices):\n${svcLines}` : "";
 
     prompt = `You are a rep at The Tire Plug texting a customer their tire quote.
