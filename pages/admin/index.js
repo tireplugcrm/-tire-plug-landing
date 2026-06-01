@@ -570,19 +570,26 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
     finally { setSending(false); }
   }
 
-  // Ask the AI to draft a reply to the customer's latest message, into the box.
-  async function draftReply() {
+  // Ask the AI to draft a reply (or a "tires are in" message) into the box.
+  async function aiDraft(mode) {
     setDrafting(true); setErr("");
     try {
       const res = await fetch("/api/admin/ai-compose", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...auth, lead_id: lead.id, mode: "reply" }),
+        body: JSON.stringify({ ...auth, lead_id: lead.id, mode }),
       });
       const d = await res.json();
       if (res.ok && d.draft) { setDraft(d.draft); setDraftKind("reply"); }
-      else setErr(d.error || "AI couldn't draft a reply");
+      else setErr(d.error || "AI couldn't draft that");
     } catch (e) { setErr("Network error"); }
     finally { setDrafting(false); }
+  }
+
+  // Drop the two-location question into the box (fixed template).
+  function fillLocation() {
+    const fn = (lead.name || "").split(" ")[0] || "there";
+    setDraft(`Hi ${fn}! Which location would you like to be serviced at?\n\n1. 2331 E Olympic Blvd, Los Angeles\n2. 2220 E Manchester Ave, Los Angeles\n\nJust reply 1 or 2 and we'll get you set up.`);
+    setDraftKind("manual");
   }
 
   return (
@@ -603,10 +610,12 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
           {scheduledCount > 0 && (
             <p style={{ color: "#FFB800", fontSize: "0.72rem", marginBottom: "0.5rem" }}>⏱ {scheduledCount} follow-up{scheduledCount > 1 ? "s" : ""} scheduled — auto-cancel if they reply</p>
           )}
-          <div style={{ marginBottom: "0.5rem" }}>
-            <button onClick={draftReply} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem", borderColor: "rgba(255,31,31,0.3)", color: "#FF8888" }}>
-              {drafting ? "✨ Thinking..." : "✨ Draft reply with AI"}
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.5rem" }}>
+            <button onClick={() => aiDraft("reply")} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem", borderColor: "rgba(255,31,31,0.3)", color: "#FF8888" }}>
+              {drafting ? "✨ Thinking..." : "✨ Draft reply"}
             </button>
+            <button onClick={() => aiDraft("ready")} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem" }}>🛞 Tires are in</button>
+            <button onClick={fillLocation} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem" }}>📍 Ask location</button>
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <textarea value={draft} onChange={(e) => { setDraft(e.target.value); setDraftKind("manual"); }} rows={draft && draft.length > 60 ? 3 : 1}
