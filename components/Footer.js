@@ -421,6 +421,14 @@ export default function Footer() {
             }}>
               © {new Date().getFullYear()} The Tire Plug. All rights reserved.
               {' · '}
+              <a href="/privacy" className="footer-link" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', transition: 'color 0.3s ease' }}>
+                Privacy
+              </a>
+              {' · '}
+              <a href="/terms" className="footer-link" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', transition: 'color 0.3s ease' }}>
+                Terms
+              </a>
+              {' · '}
               <a href="/careers" className="footer-link" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', transition: 'color 0.3s ease' }}>
                 We're Hiring
               </a>
