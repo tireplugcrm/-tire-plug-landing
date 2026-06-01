@@ -86,7 +86,7 @@ RECENT CONVERSATION:
 ${convo}
 
 Write a short, friendly text presenting this quote: per-tire price and the full set total for each option (and mention the mileage warranty when one is listed).
-${rh > 0 ? "Briefly offer the optional Road Hazard Warranty at its per-tire price. " : ""}${svcLines ? "Also offer the add-on services with their prices. " : ""}End with a light call to action to book or come in. Keep it to 2-5 sentences. Output ONLY the message text, nothing else.`;
+${rh > 0 ? "Briefly offer the optional Road Hazard Warranty at its per-tire price. " : ""}${svcLines ? "Also offer the add-on services with their prices. " : ""}Use ONLY the brand name(s) given — do NOT invent a tire model name or any detail not listed above. End with a light call to action to book or come in. Keep it to 2-5 sentences. Output ONLY the message text, nothing else.`;
   } else {
     // mode "reply"
     prompt = `You are a rep at The Tire Plug texting with a potential customer. Write the next reply.
