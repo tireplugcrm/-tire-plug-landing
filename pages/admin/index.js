@@ -165,6 +165,7 @@ export default function AdminHub() {
   const liveLeads = data.leads.filter((l) => l.status !== "dead");
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const tabs = [
+    { id: "scoreboard", label: "📊 Scoreboard" },
     { id: "leads", label: "Leads", count: liveLeads.length },
     { id: "subscribers", label: "Subscribers", count: data.subscribers.length },
     { id: "email", label: "Email" },
@@ -203,6 +204,7 @@ export default function AdminHub() {
           ))}
         </div>
 
+        {tab === "scoreboard" && <ScoreboardTab auth={auth} />}
         {tab === "leads" && (
           <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} />
         )}
@@ -817,6 +819,120 @@ function RepliesTab({ replies, onUpdate }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---------------- SCOREBOARD (live from TireBase) ---------------- */
+function ScoreboardTab({ auth }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  async function load() {
+    setLoading(true); setErr("");
+    try {
+      const today = new Date().toLocaleDateString("en-CA");
+      const res = await fetch("/api/admin/scoreboard", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...auth, date: today, store_id: 1 }),
+      });
+      const d = await res.json();
+      if (!res.ok) { setErr(d.error || "Could not load"); setData(null); }
+      else setData(d);
+    } catch (e) { setErr("Network error"); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  if (loading) return <Empty>Loading live numbers from TireBase…</Empty>;
+  if (err) return <p style={{ color: "#FF6666" }}>⚠ {err}</p>;
+  if (!data) return null;
+
+  const goalDefs = [
+    { key: "tires", label: "🛞 Tires Sold", goal: data.goals.tires },
+    { key: "alignments", label: "🎯 Alignments", goal: data.goals.alignments },
+    { key: "tpms", label: "💡 TPMS Sensors", goal: data.goals.tpms },
+    { key: "brakes", label: "🛑 Brake Jobs", goal: data.goals.brakes },
+    { key: "oil", label: "🛢️ Oil Changes", goal: data.goals.oil },
+  ];
+  const payEntries = Object.entries(data.payments || {}).sort((a, b) => b[1] - a[1]);
+
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
+        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>🟢 Live from TireBase · {data.store} · {data.date}</span>
+        <button onClick={load} style={ghostBtn}>↻ Refresh</button>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
+        <BigStat label="Today's Revenue" value={`$${data.revenue.toLocaleString()}`} color="#8B7CF6" />
+        <BigStat label="Invoices Today" value={data.invoices} color="#FF3838" />
+        <BigStat label="Tires Sold" value={data.services.tires} color="#3DD68C" />
+      </div>
+
+      <h2 style={subHead}>Daily Goals</h2>
+      <div style={{ display: "grid", gap: "0.6rem", marginBottom: "2rem" }}>
+        {goalDefs.map((g) => {
+          const val = data.services[g.key] || 0;
+          const pct = g.goal ? Math.min(100, Math.round((val / g.goal) * 100)) : 0;
+          const color = pct >= 100 ? "#3DD68C" : pct >= 67 ? "#9ACD32" : pct >= 34 ? "#FFB800" : "#FF6666";
+          return (
+            <div key={g.key} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem" }}>{g.label} <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>{val} / {g.goal}</span></span>
+                <span style={{ color, fontWeight: 800 }}>{pct}%</span>
+              </div>
+              <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${pct}%`, background: color, transition: "width 0.5s" }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
+        <div>
+          <h2 style={subHead}>Payments</h2>
+          {payEntries.length === 0 ? <Empty>No payments yet today.</Empty> : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+              {payEntries.map(([m, v]) => (
+                <div key={m} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "0.85rem 1rem" }}>
+                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>{m}</div>
+                  <div style={{ color: "#fff", fontWeight: 800, fontSize: "1.1rem" }}>${Number(v).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div>
+          <h2 style={subHead}>Staff Performance</h2>
+          {data.staff.length === 0 ? <Empty>No staff-attributed sales today.</Empty> : (
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              {data.staff.map((s) => {
+                const max = data.staff[0].total || 1;
+                return (
+                  <div key={s.name} style={{ ...rowStyle, padding: "0.7rem 1rem", gap: "0.75rem" }}>
+                    <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem", width: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
+                    <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${Math.round((s.total / max) * 100)}%`, background: "#8B7CF6" }} />
+                    </div>
+                    <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${s.total.toLocaleString()}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+function BigStat({ label, value, color }) {
+  return (
+    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>{label}</div>
+      <div style={{ color, fontWeight: 900, fontSize: "1.9rem", lineHeight: 1 }}>{value}</div>
     </div>
   );
 }
