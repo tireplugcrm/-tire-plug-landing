@@ -264,6 +264,7 @@ function LeadRow({ l, unread, onClick }) {
 function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }) {
   const [notes, setNotes] = useState(lead.owner_notes || "");
   const [revenue, setRevenue] = useState(lead.revenue_amount || "");
+  const [draftText, setDraftText] = useState("");
   const p = prio(lead);
   const statuses = ["new", "called", "booked", "dead"];
 
@@ -300,10 +301,10 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
         </Section>
 
         {/* Quote builder */}
-        <QuoteBuilder lead={lead} password={password} onUpdate={onUpdate} />
+        <QuoteBuilder lead={lead} password={password} onUpdate={onUpdate} onAiDraft={setDraftText} />
 
         {/* SMS conversation */}
-        <Conversation lead={lead} password={password} />
+        <Conversation lead={lead} password={password} draft={draftText} setDraft={setDraftText} />
 
         {/* Reminders */}
         <RemindersBlock lead={lead} reminders={reminders} onReminder={onReminder} />
@@ -329,9 +330,9 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
 }
 
 /* ---------------- QUOTE BUILDER ---------------- */
-function QuoteBuilder({ lead, password, onUpdate }) {
+function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
   const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4 }]);
-  const [texting, setTexting] = useState(false);
+  const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
 
   function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
@@ -340,7 +341,9 @@ function QuoteBuilder({ lead, password, onUpdate }) {
   function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price) }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
 
   const grand = rows.reduce((s, r) => s + (Number(r.price) || 0) * (Number(r.qty) || 0), 0);
+  const hasQuote = rows.some((r) => r.brand && r.price);
 
+  // Fallback message if the AI is unavailable — plain, deterministic.
   function buildText() {
     const lines = rows.filter((r) => r.brand && r.price).map((r) => {
       const tot = (Number(r.price) || 0) * (Number(r.qty) || 0);
@@ -349,18 +352,20 @@ function QuoteBuilder({ lead, password, onUpdate }) {
     return `Hi ${lead.name?.split(" ")[0] || "there"}, here's your tire quote from The Tire Plug:\n\n${lines.join("\n")}\n\nText or call 562-513-0217 to lock it in!`;
   }
 
-  async function textQuote() {
-    setTexting(true); setMsg("");
-    save();
+  // Save + have the AI write the quote message into the text box below for review.
+  async function writeWithAi() {
+    setWriting(true); setMsg("");
+    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price) });
     try {
-      const res = await fetch("/api/admin/send-sms", {
+      const res = await fetch("/api/admin/ai-compose", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id, body: buildText() }),
+        body: JSON.stringify({ password, lead_id: lead.id, mode: "quote", quotes: rows }),
       });
       const d = await res.json();
-      setMsg(res.ok ? "Quote texted ✓" : `⚠ ${d.error}`);
-    } catch (e) { setMsg("⚠ Could not send"); }
-    finally { setTexting(false); }
+      if (res.ok && d.draft) { onAiDraft(d.draft); setMsg("✨ Drafted below — review & send"); }
+      else { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
+    } catch (e) { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
+    finally { setWriting(false); setTimeout(() => setMsg(""), 3000); }
   }
 
   return (
@@ -385,18 +390,18 @@ function QuoteBuilder({ lead, password, onUpdate }) {
       </div>
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={save} style={ghostBtn}>Save quote</button>
-        {lead.phone && <button onClick={textQuote} disabled={texting} style={cta}>{texting ? "Texting..." : "📲 Text quote to customer"}</button>}
-        {msg && <span style={{ color: msg.includes("⚠") ? "#FF6666" : "#3DD68C", fontSize: "0.8rem" }}>{msg}</span>}
+        {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}
+        {msg && <span style={{ color: msg.includes("AI busy") ? "#FFB800" : "#3DD68C", fontSize: "0.8rem" }}>{msg}</span>}
       </div>
     </Section>
   );
 }
 
 /* ---------------- SMS CONVERSATION ---------------- */
-function Conversation({ lead, password }) {
+function Conversation({ lead, password, draft, setDraft }) {
   const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [drafting, setDrafting] = useState(false);
   const [err, setErr] = useState("");
 
   async function fetchMsgs() {
@@ -412,20 +417,35 @@ function Conversation({ lead, password }) {
   useEffect(() => { fetchMsgs(); /* eslint-disable-next-line */ }, [lead.id]);
 
   async function send() {
-    if (!text.trim()) return;
+    if (!draft.trim()) return;
     setSending(true); setErr("");
-    const body = text;
-    setText("");
+    const body = draft;
+    setDraft("");
     try {
       const res = await fetch("/api/admin/send-sms", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password, lead_id: lead.id, body }),
       });
       const d = await res.json();
-      if (!res.ok) { setErr(d.error || "Send failed"); setText(body); }
+      if (!res.ok) { setErr(d.error || "Send failed"); setDraft(body); }
       else fetchMsgs();
-    } catch (e) { setErr("Network error"); setText(body); }
+    } catch (e) { setErr("Network error"); setDraft(body); }
     finally { setSending(false); }
+  }
+
+  // Ask the AI to draft a reply to the customer's latest message, into the box.
+  async function draftReply() {
+    setDrafting(true); setErr("");
+    try {
+      const res = await fetch("/api/admin/ai-compose", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, lead_id: lead.id, mode: "reply" }),
+      });
+      const d = await res.json();
+      if (res.ok && d.draft) setDraft(d.draft);
+      else setErr(d.error || "AI couldn't draft a reply");
+    } catch (e) { setErr("Network error"); }
+    finally { setDrafting(false); }
   }
 
   return (
@@ -443,8 +463,15 @@ function Conversation({ lead, password }) {
               </div>
             ))}
           </div>
+          <div style={{ marginBottom: "0.5rem" }}>
+            <button onClick={draftReply} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem", borderColor: "rgba(255,31,31,0.3)", color: "#FF8888" }}>
+              {drafting ? "✨ Thinking..." : "✨ Draft reply with AI"}
+            </button>
+          </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Type a text..." style={{ ...inp, marginBottom: 0, flex: 1 }} />
+            <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={draft && draft.length > 60 ? 3 : 1}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              placeholder="Type a text, or tap ✨ to draft one..." style={{ ...inp, marginBottom: 0, flex: 1, resize: "vertical" }} />
             <button onClick={send} disabled={sending} style={cta}>{sending ? "..." : "Send"}</button>
           </div>
           {err && <p style={{ color: "#FF6666", fontSize: "0.78rem", marginTop: "0.4rem" }}>{err}</p>}

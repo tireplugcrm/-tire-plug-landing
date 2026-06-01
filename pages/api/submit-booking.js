@@ -1,4 +1,7 @@
 import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
+import { sendSms } from '../../lib/sms.js';
+import { digits10 } from '../../lib/phone.js';
+import { GREETING_TEXT } from '../../lib/shop-facts.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -151,9 +154,10 @@ export default async function handler(req, res) {
           tags,
         });
       } else {
-        await supabaseAdmin.from('leads').insert({
+        const cleanPhone = phone && phone !== 'N/A' ? phone : null;
+        const { data: inserted } = await supabaseAdmin.from('leads').insert({
           name: name || null,
-          phone: phone && phone !== 'N/A' ? phone : null,
+          phone: cleanPhone,
           email: email || null,
           vehicle: vehicle && vehicle !== 'N/A' ? vehicle : null,
           tire_size: tireSize && tireSize !== 'N/A' ? tireSize : null,
@@ -166,7 +170,24 @@ export default async function handler(req, res) {
           promo_code: promoCode && promoCode !== 'N/A' ? promoCode : null,
           tags,
           raw: req.body,
-        });
+        }).select('id').single();
+
+        // SPEED-TO-LEAD: auto-text the greeting the instant a consented lead arrives.
+        // Non-blocking; only if they checked the SMS consent box and gave a phone.
+        if (inserted && cleanPhone && req.body.smsConsent) {
+          const sms = await sendSms({ to: cleanPhone, body: GREETING_TEXT });
+          if (sms.ok) {
+            await supabaseAdmin.from('lead_messages').insert({
+              lead_id: inserted.id,
+              direction: 'outbound',
+              phone: digits10(cleanPhone),
+              body: GREETING_TEXT,
+              twilio_sid: sms.sid,
+              status: sms.status,
+              read: true,
+            });
+          }
+        }
       }
     } catch (err) {
       console.error('Supabase save error (non-blocking):', err);
