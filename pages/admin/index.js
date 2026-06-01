@@ -265,8 +265,10 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
   const [notes, setNotes] = useState(lead.owner_notes || "");
   const [revenue, setRevenue] = useState(lead.revenue_amount || "");
   const [draftText, setDraftText] = useState("");
+  const [draftKind, setDraftKind] = useState(null); // 'quote' arms follow-ups on send
   const p = prio(lead);
   const statuses = ["new", "called", "booked", "dead"];
+  const fillQuote = (t) => { setDraftText(t); setDraftKind("quote"); };
 
   return (
     <div onClick={onClose} style={overlay}>
@@ -301,10 +303,10 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
         </Section>
 
         {/* Quote builder */}
-        <QuoteBuilder lead={lead} password={password} onUpdate={onUpdate} onAiDraft={setDraftText} />
+        <QuoteBuilder lead={lead} password={password} onUpdate={onUpdate} onAiDraft={fillQuote} />
 
         {/* SMS conversation */}
-        <Conversation lead={lead} password={password} draft={draftText} setDraft={setDraftText} />
+        <Conversation lead={lead} password={password} draft={draftText} setDraft={setDraftText} draftKind={draftKind} setDraftKind={setDraftKind} />
 
         {/* Reminders */}
         <RemindersBlock lead={lead} reminders={reminders} onReminder={onReminder} />
@@ -332,13 +334,14 @@ function LeadDrawer({ lead, password, reminders, onClose, onUpdate, onReminder }
 /* ---------------- QUOTE BUILDER ---------------- */
 function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
   const [rows, setRows] = useState(lead.quotes && lead.quotes.length ? lead.quotes : [{ brand: "", price: "", qty: 4 }]);
+  const [roadHazard, setRoadHazard] = useState(lead.road_hazard_per_tire || "");
   const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
 
   function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
   function addRow() { setRows([...rows, { brand: "", price: "", qty: 4 }]); }
   function removeRow(i) { setRows(rows.filter((_, idx) => idx !== i)); }
-  function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price) }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
+  function save() { onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard }); setMsg("Quote saved ✓"); setTimeout(() => setMsg(""), 1500); }
 
   const grand = rows.reduce((s, r) => s + (Number(r.price) || 0) * (Number(r.qty) || 0), 0);
   const hasQuote = rows.some((r) => r.brand && r.price);
@@ -355,11 +358,11 @@ function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
   // Save + have the AI write the quote message into the text box below for review.
   async function writeWithAi() {
     setWriting(true); setMsg("");
-    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price) });
+    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard });
     try {
       const res = await fetch("/api/admin/ai-compose", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id, mode: "quote", quotes: rows }),
+        body: JSON.stringify({ password, lead_id: lead.id, mode: "quote", quotes: rows, road_hazard: roadHazard }),
       });
       const d = await res.json();
       if (res.ok && d.draft) { onAiDraft(d.draft); setMsg("✨ Drafted below — review & send"); }
@@ -388,6 +391,14 @@ function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
         <button onClick={addRow} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>+ Add brand</button>
         {grand > 0 && <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem" }}>Top total: <strong style={{ color: "#3DD68C" }}>${grand.toLocaleString()}</strong></span>}
       </div>
+
+      {/* Optional Road Hazard Warranty add-on */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.5rem 0.7rem" }}>
+        <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem", flex: 1 }}>🛡️ Road Hazard Warranty</span>
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem" }}>$</span>
+        <input value={roadHazard} onChange={(e) => setRoadHazard(e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>/ tire</span>
+      </div>
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={save} style={ghostBtn}>Save quote</button>
         {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}
@@ -398,7 +409,7 @@ function QuoteBuilder({ lead, password, onUpdate, onAiDraft }) {
 }
 
 /* ---------------- SMS CONVERSATION ---------------- */
-function Conversation({ lead, password, draft, setDraft }) {
+function Conversation({ lead, password, draft, setDraft, draftKind, setDraftKind }) {
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
   const [drafting, setDrafting] = useState(false);
@@ -416,15 +427,20 @@ function Conversation({ lead, password, draft, setDraft }) {
   }
   useEffect(() => { fetchMsgs(); /* eslint-disable-next-line */ }, [lead.id]);
 
+  // Sent/received texts shown in the thread; scheduled follow-ups counted separately.
+  const thread = messages.filter((m) => m.status !== "scheduled" && m.status !== "canceled");
+  const scheduledCount = messages.filter((m) => m.status === "scheduled").length;
+
   async function send() {
     if (!draft.trim()) return;
     setSending(true); setErr("");
     const body = draft;
-    setDraft("");
+    const armFollowups = draftKind === "quote";
+    setDraft(""); setDraftKind(null);
     try {
       const res = await fetch("/api/admin/send-sms", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, lead_id: lead.id, body }),
+        body: JSON.stringify({ password, lead_id: lead.id, body, startFollowups: armFollowups }),
       });
       const d = await res.json();
       if (!res.ok) { setErr(d.error || "Send failed"); setDraft(body); }
@@ -442,7 +458,7 @@ function Conversation({ lead, password, draft, setDraft }) {
         body: JSON.stringify({ password, lead_id: lead.id, mode: "reply" }),
       });
       const d = await res.json();
-      if (res.ok && d.draft) setDraft(d.draft);
+      if (res.ok && d.draft) { setDraft(d.draft); setDraftKind("reply"); }
       else setErr(d.error || "AI couldn't draft a reply");
     } catch (e) { setErr("Network error"); }
     finally { setDrafting(false); }
@@ -454,26 +470,30 @@ function Conversation({ lead, password, draft, setDraft }) {
         <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.82rem" }}>No phone number on file for this lead.</p>
       ) : (
         <>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", maxHeight: 260, overflowY: "auto", marginBottom: "0.75rem", padding: messages.length ? "0.25rem" : 0 }}>
-            {messages.length === 0 && <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
-            {messages.map((m) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", maxHeight: 260, overflowY: "auto", marginBottom: "0.75rem", padding: thread.length ? "0.25rem" : 0 }}>
+            {thread.length === 0 && <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
+            {thread.map((m) => (
               <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "rgba(255,255,255,0.07)", color: "#fff", padding: "0.5rem 0.8rem", borderRadius: 14, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
                 {m.body}
                 <div style={{ fontSize: "0.6rem", opacity: 0.6, marginTop: 3, textAlign: "right" }}>{fmtDate(m.created_at, true)}</div>
               </div>
             ))}
           </div>
+          {scheduledCount > 0 && (
+            <p style={{ color: "#FFB800", fontSize: "0.72rem", marginBottom: "0.5rem" }}>⏱ {scheduledCount} follow-up{scheduledCount > 1 ? "s" : ""} scheduled — auto-cancel if they reply</p>
+          )}
           <div style={{ marginBottom: "0.5rem" }}>
             <button onClick={draftReply} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem", borderColor: "rgba(255,31,31,0.3)", color: "#FF8888" }}>
               {drafting ? "✨ Thinking..." : "✨ Draft reply with AI"}
             </button>
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={draft && draft.length > 60 ? 3 : 1}
+            <textarea value={draft} onChange={(e) => { setDraft(e.target.value); setDraftKind("manual"); }} rows={draft && draft.length > 60 ? 3 : 1}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               placeholder="Type a text, or tap ✨ to draft one..." style={{ ...inp, marginBottom: 0, flex: 1, resize: "vertical" }} />
             <button onClick={send} disabled={sending} style={cta}>{sending ? "..." : "Send"}</button>
           </div>
+          {draftKind === "quote" && draft && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.68rem", marginTop: "0.35rem" }}>Sending this will start the 30min / 4hr / 12hr follow-ups (canceled if they reply).</p>}
           {err && <p style={{ color: "#FF6666", fontSize: "0.78rem", marginTop: "0.4rem" }}>{err}</p>}
         </>
       )}

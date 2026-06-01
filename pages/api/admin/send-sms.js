@@ -7,19 +7,20 @@
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { digits10 } from "../../../lib/phone.js";
 import { sendSms } from "../../../lib/sms.js";
+import { armFollowups } from "../../../lib/followups.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, lead_id, body } = req.body || {};
+  const { password, lead_id, body, startFollowups } = req.body || {};
   if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   if (!supabaseAdmin || !lead_id) return res.status(400).json({ error: "Missing config or lead." });
   if (!body || !body.trim()) return res.status(400).json({ error: "Message is empty." });
 
-  // Look up the lead's phone
-  const { data: lead } = await supabaseAdmin.from("leads").select("phone").eq("id", lead_id).single();
+  // Look up the lead's phone + name
+  const { data: lead } = await supabaseAdmin.from("leads").select("phone, name").eq("id", lead_id).single();
   const result = await sendSms({ to: lead?.phone, body });
   if (!result.ok) return res.status(502).json({ error: result.error });
 
@@ -33,6 +34,12 @@ export default async function handler(req, res) {
     status: result.status,
     read: true,
   });
+
+  // If this was the quote, arm the auto follow-up sequence (non-blocking).
+  if (startFollowups) {
+    try { await armFollowups({ leadId: lead_id, phone: lead?.phone, name: lead?.name }); }
+    catch (e) { console.error("arm follow-ups error:", e); }
+  }
 
   return res.status(200).json({ success: true });
 }

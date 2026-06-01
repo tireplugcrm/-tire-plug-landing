@@ -31,7 +31,7 @@ function firstName(name) { return (name || "").trim().split(/\s+/)[0] || "there"
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { password, lead_id, mode, quotes } = req.body || {};
+  const { password, lead_id, mode, quotes, road_hazard } = req.body || {};
   if (!process.env.CAREERS_ADMIN_PASSWORD || password !== process.env.CAREERS_ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -62,6 +62,11 @@ export default async function handler(req, res) {
       return `- ${r.brand}: $${r.price} each${qty ? ` x ${qty} = $${total}` : ""}`;
     }).join("\n");
 
+    const rh = Number(road_hazard != null && road_hazard !== "" ? road_hazard : lead.road_hazard_per_tire) || 0;
+    const rhLine = rh > 0
+      ? `\nOPTIONAL ADD-ON the rep set — Road Hazard Warranty: $${rh} per tire (covers pothole, nail, curb & debris damage). Mention it briefly as an optional upgrade.`
+      : "";
+
     prompt = `You are a rep at The Tire Plug texting a customer their tire quote.
 
 VOICE: ${AI_VOICE}
@@ -70,13 +75,13 @@ CUSTOMER FIRST NAME: ${fn}
 VEHICLE: ${lead.vehicle || "their vehicle"}
 
 THE QUOTE THE REP ENTERED (use these exact numbers — do not add or change any price):
-${lines}
+${lines}${rhLine}
 
 RECENT CONVERSATION:
 ${convo}
 
 Write a short, friendly text presenting this quote: per-tire price and the full set total for each option.
-End with a light call to action to book or come in. 1-3 sentences. Output ONLY the message text, nothing else.`;
+${rh > 0 ? "Briefly offer the optional Road Hazard Warranty at its per-tire price. " : ""}End with a light call to action to book or come in. Keep it to 2-4 sentences. Output ONLY the message text, nothing else.`;
   } else {
     // mode "reply"
     prompt = `You are a rep at The Tire Plug texting with a potential customer. Write the next reply.
