@@ -71,7 +71,10 @@ export default function AdminHub() {
     return (
       <Shell title="Tire Plug Admin">
         <div style={{ maxWidth: 360, margin: "12vh auto 0" }}>
-          <h1 style={{ color: "#fff", textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
+            <Logo size={88} />
+          </div>
+          <h1 style={{ color: "#fff", textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
             Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
           </h1>
           <input type="password" placeholder="Password" value={password}
@@ -103,9 +106,12 @@ export default function AdminHub() {
     <Shell title="Tire Plug Admin">
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
-          <h1 style={{ color: "#fff", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", fontSize: "1.4rem", margin: 0 }}>
-            Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
-          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+            <Logo size={44} />
+            <h1 style={{ color: "#fff", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", fontSize: "1.4rem", margin: 0 }}>
+              Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
+            </h1>
+          </div>
           <button onClick={() => load(password)} style={ghostBtn}>↻ Refresh</button>
         </div>
 
@@ -748,6 +754,14 @@ function dueLabel(s) {
   if (diff <= 0) return "Due today";
   if (diff === 1) return "Tomorrow";
   return `Due ${due.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+}
+
+function Logo({ size = 44 }) {
+  return (
+    <div style={{ width: size, height: size, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: "0 0 0 2px rgba(255,31,31,0.4), 0 0 20px rgba(255,31,31,0.25)", flexShrink: 0 }}>
+      <img src="/images/logo.webp" alt="The Tire Plug" style={{ width: "130%", height: "130%", objectFit: "cover", objectPosition: "center" }} />
+    </div>
+  );
 }
 
 function Shell({ children, title }) {
