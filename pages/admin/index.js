@@ -93,6 +93,13 @@ export default function AdminHub() {
     loadWith(authObj());
   }
 
+  async function syncOrders() {
+    const res = await fetch("/api/admin/sync-orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj() }) });
+    const d = await res.json();
+    await loadWith(authObj());
+    return d;
+  }
+
   function signInGoogle() {
     if (!supabaseBrowser) { setError("Google sign-in isn't configured yet."); return; }
     supabaseBrowser.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/admin" } });
@@ -206,7 +213,7 @@ export default function AdminHub() {
 
         {tab === "scoreboard" && <ScoreboardTab auth={auth} />}
         {tab === "leads" && (
-          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} />
+          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} onSync={syncOrders} />
         )}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
         {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
@@ -237,9 +244,20 @@ const PRIORITY = {
 function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(255,255,255,0.5)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
 
-function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke }) {
+function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+
+  async function doSync() {
+    setSyncing(true); setSyncMsg("");
+    try {
+      const d = await onSync();
+      setSyncMsg(d && d.closed > 0 ? `✓ Closed ${d.closed} lead${d.closed > 1 ? "s" : ""} from TireBase orders` : "✓ Up to date — no new matches");
+    } catch (e) { setSyncMsg("⚠ Sync failed"); }
+    finally { setSyncing(false); setTimeout(() => setSyncMsg(""), 5000); }
+  }
 
   const leadById = Object.fromEntries(data.leads.map((l) => [l.id, l]));
   const due = data.reminders.filter((r) => isDueOrOverdue(r.due_at));
@@ -306,7 +324,11 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke }) {
         {chips.map((c) => (
           <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: filter === c.id ? "#FF1F1F" : "rgba(255,255,255,0.12)", color: filter === c.id ? "#FF6666" : "#fff" }}>{c.label}</button>
         ))}
+        <button onClick={doSync} disabled={syncing} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", borderColor: "rgba(61,214,140,0.4)", color: "#3DD68C" }}>
+          {syncing ? "Syncing..." : "🔄 Sync TireBase orders"}
+        </button>
       </div>
+      {syncMsg && <p style={{ color: syncMsg.includes("⚠") ? "#FF6666" : "#3DD68C", fontSize: "0.8rem", marginTop: "-0.75rem", marginBottom: "1rem" }}>{syncMsg}</p>}
 
       {live.length === 0 && <Empty>No leads here yet. When someone completes the booking form on <strong style={{ color: "#FF3838" }}>tireplugla.com</strong>, they show up here.</Empty>}
       <div style={{ display: "grid", gap: "0.75rem" }}>
