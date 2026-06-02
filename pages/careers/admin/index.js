@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import questionnaire from "../../../lib/hiring/questionnaire.json";
+
+// questionId -> the actual question text, so graded answers show the question.
+const QUESTION_TEXT = Object.fromEntries((questionnaire.questions || []).map((q) => [q.id, q.scenario]));
 
 // Hiring pipeline stages (left→right = early→late). Separate from `status`.
 const STAGES = [
@@ -217,16 +221,19 @@ function Detail({ a, onClose, onResume, onSave, onDownload }) {
 
         {graded.length > 0 && (
           <Section title="Answers + grades">
-            {graded.map((g, i) => (
-              <div key={i} style={{ borderLeft: "2px solid rgba(255,31,31,0.3)", paddingLeft: "0.85rem", marginBottom: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.7rem" }}>{(g.questionId || "").replace(/_/g, " ")}</span>
-                  <span style={{ color: g.score >= 4 ? "#3DD68C" : g.score >= 3 ? "#FFB800" : "#FF6666", fontWeight: 800, fontSize: "0.85rem" }}>{g.score != null ? `${g.score}/5` : "review"}</span>
+            {graded.map((g, i) => {
+              const question = QUESTION_TEXT[g.questionId] || (g.questionId || "").replace(/_/g, " ");
+              return (
+                <div key={i} style={{ borderLeft: "2px solid rgba(255,31,31,0.3)", paddingLeft: "0.85rem", marginBottom: "1.1rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem" }}>
+                    <span style={{ color: "#fff", fontSize: "0.82rem", fontWeight: 700, lineHeight: 1.4 }}>{question}</span>
+                    <span style={{ color: g.score >= 4 ? "#3DD68C" : g.score >= 3 ? "#FFB800" : "#FF6666", fontWeight: 800, fontSize: "0.85rem", flexShrink: 0 }}>{g.score != null ? `${g.score}/5` : "review"}</span>
+                  </div>
+                  <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.85rem", margin: "0.4rem 0", lineHeight: 1.5 }}>"{a.survey_answers?.[g.questionId] || ""}"</p>
+                  {g.reasoning && <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem", fontStyle: "italic" }}>{g.reasoning}</p>}
                 </div>
-                <p style={{ color: "#fff", fontSize: "0.85rem", margin: "0.35rem 0", lineHeight: 1.5 }}>"{a.survey_answers?.[g.questionId] || ""}"</p>
-                {g.reasoning && <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem", fontStyle: "italic" }}>{g.reasoning}</p>}
-              </div>
-            ))}
+              );
+            })}
           </Section>
         )}
 

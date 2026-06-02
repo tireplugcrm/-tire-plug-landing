@@ -10,8 +10,14 @@
  */
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { supabaseAdmin, RESUME_BUCKET } from "../../../lib/supabaseAdmin.js";
+import { questionnaire } from "../../../lib/hiring/index.js";
 
 export const maxDuration = 30;
+
+// Map each questionId -> the actual question text the applicant answered.
+const QUESTION_TEXT = Object.fromEntries(
+  (questionnaire.questions || []).map((q) => [q.id, q.scenario])
+);
 
 const RED = rgb(0.8, 0.12, 0.12);
 const DARK = rgb(0.1, 0.1, 0.1);
@@ -120,13 +126,15 @@ export default async function handler(req, res) {
   if (graded.length) {
     heading("ANSWERS + AI GRADES");
     for (const g of graded) {
-      const q = (g.questionId || "").replace(/_/g, " ");
       const sc = g.score != null ? `${g.score}/5` : "review";
-      text(`${q}  -  ${sc}`, { size: 10, f: bold, color: DARK, gap: 2 });
+      const question = QUESTION_TEXT[g.questionId] || (g.questionId || "").replace(/_/g, " ");
+      // The actual question, then the grade, then the answer, then the AI's reasoning.
+      text(`Q: ${question}`, { size: 10.5, f: bold, color: DARK, gap: 2 });
+      text(`Grade: ${sc}`, { size: 9, f: bold, color: RED, gap: 3 });
       const ans = (a.survey_answers && a.survey_answers[g.questionId]) || "";
-      if (ans) text(`"${clean(ans)}"`, { size: 10, color: DARK, gap: 2 });
-      if (g.reasoning) text(clean(g.reasoning), { size: 9, color: GREY });
-      space(4);
+      if (ans) text(`Answer: "${clean(ans)}"`, { size: 10, color: DARK, gap: 2 });
+      if (g.reasoning) text(`AI note: ${clean(g.reasoning)}`, { size: 9, color: GREY });
+      space(8);
     }
   }
 
