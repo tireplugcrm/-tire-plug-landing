@@ -25,11 +25,10 @@ export default async function handler(req, res) {
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  // Always 200 fast so Meta doesn't retry; process best-effort.
-  res.status(200).json({ received: true });
-
+  // Process the event (fast — well within Meta's window), then 200 so the
+  // work reliably runs on serverless before the function freezes.
   try {
-    if (!supabaseAdmin) return;
+    if (!supabaseAdmin) return res.status(200).json({ received: true });
     const body = req.body || {};
     const entries = body.entry || [];
     for (const entry of entries) {
@@ -71,4 +70,5 @@ export default async function handler(req, res) {
   } catch (e) {
     console.error("IG webhook error:", e);
   }
+  return res.status(200).json({ received: true });
 }
