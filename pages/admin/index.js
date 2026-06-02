@@ -1014,20 +1014,58 @@ const TRAIN_CATS = [
   "Special Orders",
 ];
 
-// Split guide content into "slides" — each heading (or --- rule) starts a new section.
+// Split guide content into "slides" — a new section starts at a #/## heading or
+// a --- rule. Heading-only chunks get merged into the next slide so no slide is empty.
+function hasBody(s) {
+  return s.split("\n").some((l) => { const t = l.trim(); return t && !/^#{1,6}\s/.test(t) && !/^-{3,}$/.test(t); });
+}
 function splitSlides(content) {
   const text = (content || "").trim();
   if (!text) return ["(no content yet)"];
   const lines = text.split("\n");
-  const slides = []; let cur = [];
+  const raw = []; let cur = [];
   for (const line of lines) {
     const t = line.trim();
-    if (/^#{1,6}\s/.test(t) && cur.join("").trim()) { slides.push(cur.join("\n").trim()); cur = [line]; }
-    else if (/^-{3,}$/.test(t)) { if (cur.join("").trim()) { slides.push(cur.join("\n").trim()); cur = []; } }
+    if (/^#{1,2}\s/.test(t) && cur.join("").trim()) { raw.push(cur.join("\n").trim()); cur = [line]; }
+    else if (/^-{3,}$/.test(t)) { if (cur.join("").trim()) { raw.push(cur.join("\n").trim()); cur = []; } }
     else cur.push(line);
   }
-  if (cur.join("").trim()) slides.push(cur.join("\n").trim());
-  return slides.length ? slides : [text];
+  if (cur.join("").trim()) raw.push(cur.join("\n").trim());
+  // merge any heading-only slide into the following one
+  const out = [];
+  for (let i = 0; i < raw.length; i++) {
+    if (!hasBody(raw[i]) && i < raw.length - 1) { raw[i + 1] = raw[i] + "\n\n" + raw[i + 1]; }
+    else out.push(raw[i]);
+  }
+  return out.length ? out : [text];
+}
+
+// Lightweight markdown renderer for guide content (headings, bold, lists, simple tables).
+function MD({ text }) {
+  const lines = (text || "").split("\n");
+  const els = []; let list = []; let listType = null;
+  const flush = () => {
+    if (!list.length) return;
+    const Tag = listType === "ol" ? "ol" : "ul";
+    els.push(<Tag key={"l" + els.length} style={{ margin: "0 0 0.6rem 1.15rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>{list}</Tag>);
+    list = []; listType = null;
+  };
+  const inline = (s) => s.split(/(\*\*[^*]+\*\*)/g).map((p, i) => /^\*\*[^*]+\*\*$/.test(p) ? <strong key={i} style={{ color: "#fff" }}>{p.slice(2, -2)}</strong> : <span key={i}>{p}</span>);
+  lines.forEach((raw, i) => {
+    const t = raw.trim();
+    const h = t.match(/^(#{1,6})\s+(.*)/);
+    const ol = t.match(/^(\d+)\.\s+(.*)/);
+    const ul = t.match(/^[-*]\s+(.*)/);
+    if (h) { flush(); const lvl = h[1].length; els.push(<div key={i} style={{ color: "#fff", fontWeight: 800, fontSize: lvl <= 2 ? "1.02rem" : "0.92rem", margin: "0.5rem 0 0.4rem" }}>{inline(h[2])}</div>); }
+    else if (ol) { if (listType !== "ol") flush(); listType = "ol"; list.push(<li key={i} style={{ marginBottom: "0.25rem" }}>{inline(ol[2])}</li>); }
+    else if (ul) { if (listType !== "ul") flush(); listType = "ul"; list.push(<li key={i} style={{ marginBottom: "0.25rem" }}>{inline(ul[1])}</li>); }
+    else if (/^-{3,}$/.test(t)) { /* horizontal rule — skip */ }
+    else if (t.startsWith("|")) { if (!/^\|[\s:|-]+\|$/.test(t)) { flush(); const cells = t.split("|").map((c) => c.trim()).filter(Boolean); els.push(<p key={i} style={{ color: "rgba(255,255,255,0.8)", margin: "0 0 0.3rem", fontSize: "0.85rem" }}>{cells.join("  ·  ")}</p>); } }
+    else if (t === "") { flush(); }
+    else { flush(); els.push(<p key={i} style={{ color: "rgba(255,255,255,0.85)", margin: "0 0 0.6rem", lineHeight: 1.7 }}>{inline(t)}</p>); }
+  });
+  flush();
+  return <div>{els}</div>;
 }
 
 // Gated slideshow: read each section (with a short read-timer) before Next; quiz unlocks at the end.
@@ -1049,7 +1087,7 @@ function LessonViewer({ module, passed, onTakeQuiz, onComplete, onUndo }) {
       <div style={{ display: "flex", gap: 4, marginBottom: "0.7rem" }}>
         {slides.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= idx ? "#FF1F1F" : "rgba(255,255,255,0.1)", transition: "background 0.3s" }} />)}
       </div>
-      <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.9rem", lineHeight: 1.7, whiteSpace: "pre-wrap", minHeight: 110, marginBottom: "0.85rem" }}>{slides[idx]}</div>
+      <div style={{ fontSize: "0.9rem", minHeight: 110, marginBottom: "0.85rem" }}><MD text={slides[idx]} /></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
         <button onClick={() => setIdx((i) => Math.max(0, i - 1))} disabled={idx === 0} style={{ ...ghostBtn, opacity: idx === 0 ? 0.4 : 1 }}>← Back</button>
         <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.74rem" }}>Section {idx + 1} of {slides.length}</span>
