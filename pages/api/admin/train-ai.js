@@ -23,7 +23,29 @@ export default async function handler(req, res) {
   if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: "AI is not set up (missing key)." });
 
-  const { mode, title, bullets, question } = req.body || {};
+  const { mode, title, bullets, question, content, count } = req.body || {};
+
+  if (mode === "quiz") {
+    if (!auth.user.isOwner) return res.status(403).json({ error: "Owner only." });
+    const n = Math.min(15, Math.max(5, Number(count) || 5));
+    if (!content || content.trim().length < 30) return res.status(400).json({ error: "Write/draft the guide first, then generate the quiz." });
+    const prompt = `Create a ${n}-question multiple-choice quiz to test a new employee on this training guide for The Tire Plug tire shop. Each question must have exactly 4 options and exactly one correct answer. Base EVERY question only on the guide content below — do not test outside knowledge.
+
+GUIDE TITLE: ${title}
+GUIDE CONTENT:
+${content}
+
+Return ONLY valid JSON (no markdown, no preamble) in exactly this shape:
+{"questions":[{"q":"question text","options":["option A","option B","option C","option D"],"answer":0}]}
+where "answer" is the 0-based index (0-3) of the correct option. Produce exactly ${n} questions.`;
+    try {
+      const text = await askClaude(prompt, 3000);
+      let quiz;
+      try { quiz = JSON.parse(text.replace(/```json|```/g, "").trim()); } catch (e) { return res.status(502).json({ error: "Quiz didn't come back clean — try generating again." }); }
+      if (!quiz || !Array.isArray(quiz.questions) || !quiz.questions.length) return res.status(502).json({ error: "No questions generated — try again." });
+      return res.status(200).json({ quiz });
+    } catch (e) { return res.status(502).json({ error: "AI request failed — try again." }); }
+  }
 
   if (mode === "draft") {
     if (!auth.user.isOwner) return res.status(403).json({ error: "Owner only." });

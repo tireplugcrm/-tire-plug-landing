@@ -1019,7 +1019,10 @@ function TrainingTab({ auth }) {
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState(null);
+  const [openedAt, setOpenedAt] = useState(Date.now());
+  const [quizModId, setQuizModId] = useState(null);
   const [editing, setEditing] = useState(null);
+  const [showReport, setShowReport] = useState(false);
   const [ask, setAsk] = useState("");
   const [answer, setAnswer] = useState("");
   const [asking, setAsking] = useState(false);
@@ -1036,10 +1039,13 @@ function TrainingTab({ auth }) {
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
 
-  async function complete(id, done) {
-    setProgress((p) => ({ ...p, [id]: done ? new Date().toISOString() : undefined }));
-    await api({ action: "complete", module_id: id, done });
+  function openModule(id) {
+    const opening = openId !== id;
+    setOpenId(opening ? id : null);
+    setQuizModId(null);
+    if (opening) setOpenedAt(Date.now());
   }
+  async function complete(id, done) { await api({ action: "complete", module_id: id, done }); load(); }
   async function saveModule(m) { await api({ action: "save", ...m }); setEditing(null); load(); }
   async function delModule(id) { if (!confirm("Delete this guide?")) return; await api({ action: "delete", id }); load(); }
 
@@ -1057,9 +1063,10 @@ function TrainingTab({ auth }) {
   const byCat = {};
   modules.forEach((m) => { (byCat[m.category] = byCat[m.category] || []).push(m); });
   const cats = [...new Set([...TRAIN_CATS, ...Object.keys(byCat)])];
-  const done = Object.keys(progress).filter((k) => progress[k]).length;
+  const passedCount = Object.values(progress).filter((p) => p && p.passed).length;
 
   if (loading) return <Empty>Loading training…</Empty>;
+  if (showReport) return <ReportCard auth={auth} onClose={() => setShowReport(false)} />;
 
   return (
     <>
@@ -1073,8 +1080,11 @@ function TrainingTab({ auth }) {
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
-        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>✓ {done} of {modules.length} guides completed</span>
-        {isOwner && !editing && <button onClick={() => setEditing({ category: TRAIN_CATS[0], title: "", content: "" })} style={cta}>+ Add guide</button>}
+        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>✓ {passedCount} of {modules.length} guides passed</span>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {isOwner && <button onClick={() => setShowReport(true)} style={ghostBtn}>📊 Report card</button>}
+          {isOwner && !editing && <button onClick={() => setEditing({ category: TRAIN_CATS[0], title: "", content: "" })} style={cta}>+ Add guide</button>}
+        </div>
       </div>
 
       {editing && <ModuleEditor auth={auth} module={editing} onSave={saveModule} onCancel={() => setEditing(null)} />}
@@ -1086,22 +1096,155 @@ function TrainingTab({ auth }) {
             <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.8rem" }}>No guides yet.</p>
           ) : (
             <div style={{ display: "grid", gap: "0.5rem" }}>
-              {(byCat[cat] || []).map((m) => (
-                <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <span onClick={() => complete(m.id, !progress[m.id])} title="Mark complete" style={{ cursor: "pointer", width: 22, height: 22, borderRadius: 6, border: `1px solid ${progress[m.id] ? "#3DD68C" : "rgba(255,255,255,0.25)"}`, background: progress[m.id] ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{progress[m.id] ? "✓" : ""}</span>
-                    <span onClick={() => setOpenId(openId === m.id ? null : m.id)} style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", flex: 1 }}>{m.title}</span>
-                    {isOwner && <button onClick={() => setEditing(m)} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Edit</button>}
-                    {isOwner && <button onClick={() => delModule(m.id)} style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.85rem" }}>✕</button>}
-                    <span onClick={() => setOpenId(openId === m.id ? null : m.id)} style={{ color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>
+              {(byCat[cat] || []).map((m) => {
+                const pr = progress[m.id];
+                const status = pr && pr.passed ? `✓ Passed${pr.score != null ? ` · ${pr.score}%` : ""}`
+                  : pr && pr.score != null ? `${pr.score}% · retake to pass`
+                  : m.hasQuiz ? `📝 ${m.quizCount} questions` : "Read & complete";
+                return (
+                  <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.25)"}`, background: pr && pr.passed ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{pr && pr.passed ? "✓" : ""}</span>
+                      <span onClick={() => openModule(m.id)} style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.4)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
+                      {isOwner && <button onClick={() => setEditing(m)} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Edit</button>}
+                      {isOwner && <button onClick={() => delModule(m.id)} style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.85rem" }}>✕</button>}
+                      <span onClick={() => openModule(m.id)} style={{ color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>
+                    </div>
+                    {openId === m.id && (
+                      <div style={{ paddingLeft: "calc(22px + 0.75rem)" }}>
+                        <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.88rem", lineHeight: 1.65, whiteSpace: "pre-wrap", marginBottom: "0.75rem" }}>{m.content || "(no content yet)"}</div>
+                        {m.hasQuiz ? (
+                          quizModId === m.id ? (
+                            <QuizRunner auth={auth} moduleId={m.id} startedAt={openedAt} onDone={() => load()} />
+                          ) : (
+                            <button onClick={() => setQuizModId(m.id)} style={cta}>{pr && pr.passed ? "Retake quiz" : "📝 Take quiz"}</button>
+                          )
+                        ) : (
+                          pr && pr.passed
+                            ? <button onClick={() => complete(m.id, false)} style={ghostBtn}>✓ Completed — undo</button>
+                            : <button onClick={() => complete(m.id, true)} style={cta}>✓ Mark complete</button>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  {openId === m.id && <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.88rem", lineHeight: 1.65, whiteSpace: "pre-wrap", paddingLeft: "calc(22px + 0.75rem)" }}>{m.content || "(no content yet)"}</div>}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       ))}
+    </>
+  );
+}
+
+function QuizRunner({ auth, moduleId, startedAt, onDone }) {
+  const [questions, setQuestions] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/admin/training", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, action: "get-quiz", module_id: moduleId }) });
+      const d = await res.json();
+      setQuestions(d.questions || []);
+    })(); /* eslint-disable-next-line */
+  }, [moduleId]);
+
+  async function submit() {
+    if (Object.keys(answers).length < (questions ? questions.length : 0)) { setErr("Answer all questions first."); return; }
+    setSubmitting(true); setErr("");
+    const arr = questions.map((_, i) => answers[i]);
+    const time_spent = startedAt ? Math.round((Date.now() - startedAt) / 1000) : 0;
+    const res = await fetch("/api/admin/training", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, action: "submit-quiz", module_id: moduleId, answers: arr, time_spent }) });
+    const d = await res.json();
+    setResult(d); setSubmitting(false);
+    if (onDone) onDone();
+  }
+
+  if (!questions) return <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>Loading quiz…</p>;
+  if (!questions.length) return <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>No quiz on this guide yet.</p>;
+
+  if (result) {
+    return (
+      <div>
+        <div style={{ color: result.passed ? "#3DD68C" : "#FF6666", fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+          {result.passed ? "✓ Passed" : "✗ Not passed"} — {result.score}% ({result.correct}/{result.total})
+        </div>
+        {!result.passed && <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", marginBottom: "0.6rem" }}>You need {result.pass}% to pass. Review the guide and retake.</p>}
+        {questions.map((q, i) => (
+          <div key={i} style={{ marginBottom: "0.45rem", fontSize: "0.82rem" }}>
+            <div style={{ color: result.results[i].correct ? "#3DD68C" : "#FF6666" }}>{result.results[i].correct ? "✓" : "✗"} {q.q}</div>
+            {!result.results[i].correct && <div style={{ color: "rgba(255,255,255,0.6)", paddingLeft: "1.1rem" }}>Correct answer: {q.options[result.results[i].correctIndex]}</div>}
+          </div>
+        ))}
+        <button onClick={() => { setResult(null); setAnswers({}); }} style={{ ...ghostBtn, marginTop: "0.5rem" }}>Retake</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {questions.map((q, i) => (
+        <div key={i} style={{ marginBottom: "0.9rem" }}>
+          <div style={{ color: "#fff", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>{i + 1}. {q.q}</div>
+          {q.options.map((opt, j) => (
+            <label key={j} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", color: "rgba(255,255,255,0.8)", fontSize: "0.82rem", padding: "0.22rem 0", cursor: "pointer" }}>
+              <input type="radio" name={`q${moduleId}_${i}`} checked={answers[i] === j} onChange={() => setAnswers((a) => ({ ...a, [i]: j }))} style={{ marginTop: 3 }} />
+              <span>{opt}</span>
+            </label>
+          ))}
+        </div>
+      ))}
+      {err && <p style={{ color: "#FF6666", fontSize: "0.8rem", marginBottom: "0.4rem" }}>{err}</p>}
+      <button onClick={submit} disabled={submitting} style={cta}>{submitting ? "Grading…" : "Submit quiz"}</button>
+    </div>
+  );
+}
+
+function ReportCard({ auth, onClose }) {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/admin/training", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, action: "report" }) });
+      setData(await res.json());
+    })(); /* eslint-disable-next-line */
+  }, []);
+  if (!data) return <Empty>Loading report…</Empty>;
+  const total = (data.modules || []).length;
+  const byEmail = {};
+  (data.progress || []).forEach((p) => { (byEmail[p.email] = byEmail[p.email] || []).push(p); });
+  const people = Object.entries(byEmail);
+
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        <h2 style={{ ...subHead, margin: 0 }}>📊 Training Report Card</h2>
+        <button onClick={onClose} style={ghostBtn}>← Back</button>
+      </div>
+      {people.length === 0 ? <Empty>No one has taken a quiz yet.</Empty> : (
+        <div style={{ display: "grid", gap: "0.5rem" }}>
+          {people.map(([email, rows]) => {
+            const passed = rows.filter((r) => r.passed).length;
+            const scored = rows.filter((r) => r.score != null);
+            const avg = scored.length ? Math.round(scored.reduce((s, r) => s + (r.score || 0), 0) / scored.length) : 0;
+            const mins = Math.round(rows.reduce((s, r) => s + (r.time_spent_seconds || 0), 0) / 60);
+            const pct = total ? Math.round((passed / total) * 100) : 0;
+            return (
+              <div key={email} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.88rem" }}>{email}</span>
+                  <span style={{ color: pct >= 100 ? "#3DD68C" : "rgba(255,255,255,0.7)", fontSize: "0.8rem" }}>{passed}/{total} passed · {avg}% avg · {mins}m total</span>
+                </div>
+                <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${pct}%`, background: pct >= 100 ? "#3DD68C" : "#8B7CF6" }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }
@@ -1112,6 +1255,10 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
   const [content, setContent] = useState(module.content || "");
   const [bullets, setBullets] = useState("");
   const [drafting, setDrafting] = useState(false);
+  const [quiz, setQuiz] = useState(module.quiz || null);
+  const [qCount, setQCount] = useState(8);
+  const [genning, setGenning] = useState(false);
+  const [qErr, setQErr] = useState("");
 
   async function aiDraft() {
     if (!title.trim()) return;
@@ -1123,6 +1270,18 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
     } catch (e) {}
     finally { setDrafting(false); }
   }
+  async function genQuiz() {
+    if (!content.trim()) { setQErr("Write or draft the guide first."); return; }
+    setGenning(true); setQErr("");
+    try {
+      const res = await fetch("/api/admin/train-ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, mode: "quiz", title, content, count: qCount }) });
+      const d = await res.json();
+      if (d.quiz) setQuiz(d.quiz); else setQErr(d.error || "Quiz generation failed.");
+    } catch (e) { setQErr("Network error"); }
+    finally { setGenning(false); }
+  }
+
+  const qCountActual = quiz && quiz.questions ? quiz.questions.length : 0;
 
   return (
     <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
@@ -1137,8 +1296,25 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
       <button onClick={aiDraft} disabled={drafting || !title} style={{ ...ghostBtn, borderColor: "rgba(139,124,246,0.4)", color: "#A99CF8", marginBottom: "0.7rem", opacity: !title ? 0.4 : 1 }}>{drafting ? "✨ Writing the guide…" : "✨ AI draft the guide"}</button>
       <label style={fieldLabel}>Guide content</label>
       <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={10} placeholder="Write the step-by-step guide, or tap ✨ AI draft above." style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        <button onClick={() => onSave({ id: module.id, category, title, content })} disabled={!title} style={{ ...cta, opacity: !title ? 0.4 : 1 }}>Save guide</button>
+
+      {/* Quiz */}
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "0.85rem", marginTop: "0.5rem" }}>
+        <label style={fieldLabel}>Quiz {qCountActual > 0 ? `· ${qCountActual} questions ✓` : "(graded test on this guide)"}</label>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap", marginBottom: "0.6rem" }}>
+          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem" }}># questions (5–15):</span>
+          <input type="number" min={5} max={15} value={qCount} onChange={(e) => setQCount(Math.min(15, Math.max(5, Number(e.target.value) || 5)))} style={{ ...inp, marginBottom: 0, width: 70, padding: "0.5rem" }} />
+          <button onClick={genQuiz} disabled={genning} style={{ ...ghostBtn, borderColor: "rgba(139,124,246,0.4)", color: "#A99CF8" }}>{genning ? "✨ Building quiz…" : "✨ Generate quiz"}</button>
+          {qErr && <span style={{ color: "#FF6666", fontSize: "0.78rem" }}>{qErr}</span>}
+        </div>
+        {quiz && quiz.questions && quiz.questions.map((q, i) => (
+          <div key={i} style={{ fontSize: "0.78rem", marginBottom: "0.4rem", color: "rgba(255,255,255,0.6)" }}>
+            <span style={{ color: "rgba(255,255,255,0.8)" }}>{i + 1}. {q.q}</span> <span style={{ color: "#3DD68C" }}>→ {q.options[q.answer]}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
+        <button onClick={() => onSave({ id: module.id, category, title, content, quiz })} disabled={!title} style={{ ...cta, opacity: !title ? 0.4 : 1 }}>Save guide</button>
         <button onClick={onCancel} style={ghostBtn}>Cancel</button>
       </div>
     </div>
