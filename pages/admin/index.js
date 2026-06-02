@@ -1156,6 +1156,12 @@ function TrainingTab({ auth }) {
   modules.forEach((m) => { (byCat[m.category] = byCat[m.category] || []).push(m); });
   const cats = [...new Set([...TRAIN_CATS, ...Object.keys(byCat)])];
   const passedCount = Object.values(progress).filter((p) => p && p.passed).length;
+  // Sequential lock: a guide unlocks only once every earlier guide is passed (owners see all).
+  const ordered = [];
+  cats.forEach((cat) => (byCat[cat] || []).forEach((m) => ordered.push(m)));
+  const orderPos = {}; ordered.forEach((m, i) => { orderPos[m.id] = i; });
+  let unlockedUpTo = 0;
+  for (let i = 0; i < ordered.length; i++) { const p = progress[ordered[i].id]; if (p && p.passed) unlockedUpTo = i + 1; else break; }
 
   if (loading) return <Empty>Loading training…</Empty>;
   if (showReport) return <ReportCard auth={auth} onClose={() => setShowReport(false)} />;
@@ -1190,19 +1196,21 @@ function TrainingTab({ auth }) {
             <div style={{ display: "grid", gap: "0.5rem" }}>
               {(byCat[cat] || []).map((m) => {
                 const pr = progress[m.id];
-                const status = pr && pr.passed ? `✓ Passed${pr.score != null ? ` · ${pr.score}%` : ""}`
+                const locked = !isOwner && orderPos[m.id] > unlockedUpTo;
+                const status = locked ? "🔒 Locked — finish the previous guide first"
+                  : pr && pr.passed ? `✓ Passed${pr.score != null ? ` · ${pr.score}%` : ""}`
                   : pr && pr.score != null ? `${pr.score}% · retake to pass`
                   : m.hasQuiz ? `📝 ${m.quizCount} questions` : "Read & complete";
                 return (
-                  <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
+                  <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem", opacity: locked ? 0.5 : 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.25)"}`, background: pr && pr.passed ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{pr && pr.passed ? "✓" : ""}</span>
-                      <span onClick={() => openModule(m.id)} style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.4)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
+                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.25)"}`, background: pr && pr.passed ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{locked ? "🔒" : pr && pr.passed ? "✓" : ""}</span>
+                      <span onClick={() => !locked && openModule(m.id)} style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: locked ? "default" : "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.4)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
                       {isOwner && <button onClick={() => setEditing(m)} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Edit</button>}
                       {isOwner && <button onClick={() => delModule(m.id)} style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.85rem" }}>✕</button>}
-                      <span onClick={() => openModule(m.id)} style={{ color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>
+                      {!locked && <span onClick={() => openModule(m.id)} style={{ color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>}
                     </div>
-                    {openId === m.id && (
+                    {!locked && openId === m.id && (
                       <div style={{ paddingLeft: "calc(22px + 0.75rem)" }}>
                         {quizModId === m.id ? (
                           <QuizRunner auth={auth} moduleId={m.id} startedAt={openedAt} onDone={() => load()} />
