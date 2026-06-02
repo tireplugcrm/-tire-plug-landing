@@ -35,7 +35,7 @@ OWNER'S KEY POINTS: ${bullets || "(none given — use sensible best-practice for
 
 Write a clear, simple, step-by-step guide a 19-year-old new hire with no experience can follow. Use short numbered steps and plain language (no corporate fluff). Where relevant, include brief safety notes and customer-service tips. Output ONLY the guide content.`;
     try {
-      const draft = await askClaude(prompt);
+      const draft = await askClaude(prompt, 2000);
       return res.status(200).json({ draft });
     } catch (e) { return res.status(502).json({ error: "AI request failed — try again." }); }
   }
