@@ -179,6 +179,10 @@ export default function AdminHub() {
     { id: "replies", label: "Replies", count: unreadReplies || null, alert: unreadReplies > 0 },
     { id: "training", label: "📚 Training" },
     { id: "hiring", label: "Hiring" },
+    { id: "staff", label: "👥 Staff" },
+    { id: "schedule", label: "🗓️ Schedule" },
+    { id: "worklog", label: "📋 Work Log" },
+    { id: "payroll", label: "💵 Payroll" },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -221,6 +225,10 @@ export default function AdminHub() {
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
         {tab === "training" && <TrainingTab auth={auth} />}
         {tab === "hiring" && <HiringTab />}
+        {tab === "staff" && <StaffTab auth={auth} />}
+        {tab === "schedule" && <ScheduleTab auth={auth} />}
+        {tab === "worklog" && <WorkLogTab auth={auth} />}
+        {tab === "payroll" && <PayrollTab auth={auth} />}
       </div>
 
       {selectedLead && (
@@ -999,6 +1007,476 @@ function BigStat({ label, value, color }) {
       <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>{label}</div>
       <div style={{ color, fontWeight: 900, fontSize: "1.9rem", lineHeight: 1 }}>{value}</div>
     </div>
+  );
+}
+
+/* ---------------- STAFF ROSTER (People/HR) ---------------- */
+function StaffTab({ auth }) {
+  const [staff, setStaff] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [editing, setEditing] = useState(null); // staff object being added/edited, or null
+  const [saving, setSaving] = useState(false);
+
+  async function call(body) {
+    const res = await fetch("/api/admin/staff", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...auth, ...body }),
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || "Request failed");
+    return d;
+  }
+  async function load() {
+    setLoading(true); setErr("");
+    try { const d = await call({ action: "list" }); setStaff(d.staff); }
+    catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  async function save() {
+    if (!editing?.name?.trim()) return;
+    setSaving(true);
+    try { const d = await call({ action: "save", staff: editing }); setStaff(d.staff); setEditing(null); }
+    catch (e) { alert(e.message); }
+    finally { setSaving(false); }
+  }
+  async function toggleActive(s) {
+    try { const d = await call({ action: "setActive", id: s.id, active: !s.active }); setStaff(d.staff); }
+    catch (e) { alert(e.message); }
+  }
+
+  if (loading) return <Empty>Loading staff…</Empty>;
+  if (err) return <p style={{ color: "#FF6666" }}>⚠ {err}</p>;
+
+  const list = staff || [];
+  const activeList = list.filter((s) => s.active);
+  const inactiveList = list.filter((s) => !s.active);
+
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>
+          👥 {activeList.length} active · <span style={{ color: "#3DD68C" }}>{activeList.filter((s) => s.clocked_in).length} on the clock</span>
+        </span>
+        {!editing && (
+          <button onClick={() => setEditing({ active: true, location: "Olympic", pay_type: "hourly_commission" })} style={cta}>+ Add staff</button>
+        )}
+      </div>
+      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem", marginBottom: "1.25rem" }}>
+        Clock-in kiosk for the shop tablet: <span style={{ color: "#FF6666" }}>tireplugla.com/clock</span> — staff punch in/out with their PIN.
+      </p>
+
+      {editing && (
+        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+          <h2 style={subHead}>{editing.id ? "Edit" : "New"} staff member</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
+            <StaffField label="Name"><input style={inp} value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></StaffField>
+            <StaffField label="Role"><input style={inp} placeholder="Tire Technician" value={editing.role || ""} onChange={(e) => setEditing({ ...editing, role: e.target.value })} /></StaffField>
+            <StaffField label="Location">
+              <select style={inp} value={editing.location || ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })}>
+                <option value="Olympic">Olympic</option>
+                <option value="Manchester">Manchester</option>
+              </select>
+            </StaffField>
+            <StaffField label="Phone (for shift texts)"><input style={inp} value={editing.phone || ""} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></StaffField>
+            <StaffField label="Hourly rate ($)"><input style={inp} type="number" value={editing.hourly_rate ?? ""} onChange={(e) => setEditing({ ...editing, hourly_rate: e.target.value })} /></StaffField>
+            <StaffField label="Clock-in PIN (4 digits)"><input style={inp} inputMode="numeric" value={editing.pin || ""} onChange={(e) => setEditing({ ...editing, pin: e.target.value })} /></StaffField>
+          </div>
+          <StaffField label="Commission rule (plain text)"><input style={inp} placeholder="$5 per tire installed, $10 per alignment" value={editing.commission_note || ""} onChange={(e) => setEditing({ ...editing, commission_note: e.target.value })} /></StaffField>
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+            <button onClick={save} style={{ ...cta, opacity: editing.name?.trim() && !saving ? 1 : 0.5 }} disabled={!editing.name?.trim() || saving}>{saving ? "Saving…" : "Save"}</button>
+            <button onClick={() => setEditing(null)} style={ghostBtn}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {list.length === 0 && !editing ? <Empty>No staff yet. Add your first team member.</Empty> : (
+        <div style={{ display: "grid", gap: "0.5rem" }}>
+          {activeList.map((s) => <StaffRow key={s.id} s={s} onEdit={() => setEditing(s)} onToggle={() => toggleActive(s)} />)}
+        </div>
+      )}
+
+      {inactiveList.length > 0 && (
+        <>
+          <h2 style={{ ...subHead, marginTop: "2rem" }}>Inactive</h2>
+          <div style={{ display: "grid", gap: "0.5rem", opacity: 0.55 }}>
+            {inactiveList.map((s) => <StaffRow key={s.id} s={s} onEdit={() => setEditing(s)} onToggle={() => toggleActive(s)} />)}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+function StaffField({ label, children }) {
+  return (
+    <div style={{ marginBottom: "0.5rem" }}>
+      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+function StaffRow({ s, onEdit, onToggle }) {
+  return (
+    <div style={{ ...rowStyle, gap: "0.75rem" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ color: "#fff", fontWeight: 700 }}>
+          {s.name} <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 500, fontSize: "0.8rem" }}>{s.role || ""}</span>
+          {s.clocked_in && <span style={{ marginLeft: 8, color: "#3DD68C", fontSize: "0.7rem", fontWeight: 700 }}>● on the clock</span>}
+        </div>
+        <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem" }}>
+          {s.location || "—"} · ${Number(s.hourly_rate || 0)}/hr{s.commission_note ? ` · ${s.commission_note}` : ""}
+          {s.today_hours > 0 ? ` · ${s.today_hours}h today` : ""}
+        </div>
+      </div>
+      <button onClick={onEdit} style={ghostBtn}>Edit</button>
+      <button onClick={onToggle} style={ghostBtn}>{s.active ? "Deactivate" : "Reactivate"}</button>
+    </div>
+  );
+}
+
+/* ---------------- SCHEDULE (Phase 4) ---------------- */
+function ymd(d) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function mondayOf(date) {
+  const x = new Date(date); const off = (x.getDay() + 6) % 7; // Mon=0..Sun=6
+  x.setDate(x.getDate() - off); x.setHours(0, 0, 0, 0); return x;
+}
+function ScheduleTab({ auth }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const [weekStart, setWeekStart] = useState(() => mondayOf(new Date()));
+  const [shifts, setShifts] = useState([]);
+  const [staff, setStaff] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [adding, setAdding] = useState(null); // date string we're adding a shift to
+  const [form, setForm] = useState({ staff_id: "", start_time: "09:00", end_time: "18:00", location: "Olympic", note: "" });
+
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setDate(d.getDate() + i); return d; });
+
+  async function call(body) {
+    const res = await fetch("/api/admin/shifts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || "Request failed");
+    return d;
+  }
+  async function load(ws) {
+    setLoading(true); setErr("");
+    const d6 = new Date(ws); d6.setDate(d6.getDate() + 6);
+    try { const r = await call({ action: "list", from: ymd(ws), to: ymd(d6) }); setShifts(r.shifts); setStaff(r.staff); }
+    catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(weekStart); /* eslint-disable-next-line */ }, [weekStart]);
+
+  async function add(date) {
+    if (!form.staff_id) return;
+    try { const r = await call({ action: "add", shift: { ...form, shift_date: date } }); setShifts(r.shifts); setStaff(r.staff); setAdding(null); }
+    catch (e) { alert(e.message); }
+  }
+  async function del(id) {
+    try { const r = await call({ action: "delete", id }); setShifts(r.shifts); setStaff(r.staff); }
+    catch (e) { alert(e.message); }
+  }
+  function shiftWeek(n) { const d = new Date(weekStart); d.setDate(d.getDate() + n * 7); setWeekStart(d); }
+
+  const nameById = Object.fromEntries(staff.map((s) => [s.id, s.name]));
+  const byDate = {};
+  for (const s of shifts) (byDate[s.shift_date] || (byDate[s.shift_date] = [])).push(s);
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const todayStr = ymd(new Date());
+
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+          <button onClick={() => shiftWeek(-1)} style={chip}>‹</button>
+          <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem" }}>Week of {weekStart.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+          <button onClick={() => shiftWeek(1)} style={chip}>›</button>
+          <button onClick={() => setWeekStart(mondayOf(new Date()))} style={{ ...chip, marginLeft: "0.4rem" }}>This week</button>
+        </div>
+        <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", margin: 0 }}>📲 Auto-texts each tech their shift each morning.</p>
+      </div>
+
+      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {loading ? <Empty>Loading schedule…</Empty> : staff.length === 0 ? <Empty>Add staff in the 👥 Staff tab first.</Empty> : (
+        <div style={{ display: "grid", gap: "0.6rem" }}>
+          {days.map((d, i) => {
+            const ds = ymd(d);
+            const dayShifts = byDate[ds] || [];
+            const isToday = ds === todayStr;
+            return (
+              <div key={ds} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${isToday ? "rgba(255,31,31,0.35)" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, padding: "0.85rem 1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: dayShifts.length || adding === ds ? "0.6rem" : 0 }}>
+                  <span style={{ color: isToday ? "#FF6666" : "#fff", fontWeight: 800, fontSize: "0.85rem" }}>
+                    {dayNames[i]} {d.toLocaleDateString([], { month: "short", day: "numeric" })}{isToday ? " · today" : ""}
+                  </span>
+                  <button onClick={() => { setAdding(adding === ds ? null : ds); setForm((f) => ({ ...f, staff_id: "" })); }} style={chip}>{adding === ds ? "✕" : "＋ shift"}</button>
+                </div>
+
+                {dayShifts.map((s) => (
+                  <div key={s.id} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.35rem 0" }}>
+                    <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>
+                      {nameById[s.staff_id] || "—"} <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 400 }}>{[s.start_time, s.end_time].filter(Boolean).join("–")}{s.location ? ` · ${s.location}` : ""}</span>
+                      {s.reminded_at && <span style={{ color: "#3DD68C", fontSize: "0.65rem", marginLeft: 6 }}>texted ✓</span>}
+                    </span>
+                    <button onClick={() => del(s.id)} style={{ ...ghostBtn, padding: "0.25rem 0.55rem", fontSize: "0.7rem" }}>✕</button>
+                  </div>
+                ))}
+
+                {adding === ds && (
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center", marginTop: "0.5rem" }}>
+                    <select style={{ ...inp, marginBottom: 0, width: 150 }} value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
+                      <option value="">Who?</option>
+                      {staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                    <input type="time" style={{ ...inp, marginBottom: 0, width: 110 }} value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
+                    <input type="time" style={{ ...inp, marginBottom: 0, width: 110 }} value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
+                    <select style={{ ...inp, marginBottom: 0, width: 130 }} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}>
+                      <option value="Olympic">Olympic</option>
+                      <option value="Manchester">Manchester</option>
+                    </select>
+                    <button onClick={() => add(ds)} disabled={!form.staff_id} style={{ ...cta, opacity: form.staff_id ? 1 : 0.5 }}>Add</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ---------------- PAYROLL + PERFORMANCE (Phase 5) ---------------- */
+function PayrollTab({ auth }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  function presetWeek() { const n = new Date(); return { key: "week", from: ymd(mondayOf(n)), to: ymd(n) }; }
+  function presetLastWeek() { const m = mondayOf(new Date()); m.setDate(m.getDate() - 7); const e = new Date(m); e.setDate(e.getDate() + 6); return { key: "lastweek", from: ymd(m), to: ymd(e) }; }
+  function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
+
+  const [range, setRange] = useState(() => presetWeek());
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  async function call(body) {
+    const res = await fetch("/api/admin/payroll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || "Request failed");
+    return d;
+  }
+  async function load(r) {
+    setLoading(true); setErr("");
+    try { const d = await call({ action: "summary", from: r.from, to: r.to }); setRows(d.rows); }
+    catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(range); /* eslint-disable-next-line */ }, [range]);
+
+  async function setRating(id, rating) {
+    setRows((rs) => rs.map((x) => (x.staff_id === id ? { ...x, rating } : x)));
+    try { await call({ action: "rate", staff_id: id, rating }); } catch (e) { alert(e.message); }
+  }
+  function setNote(id, val) { setRows((rs) => rs.map((x) => (x.staff_id === id ? { ...x, perf_notes: val } : x))); }
+  async function saveNote(row) {
+    try { await call({ action: "rate", staff_id: row.staff_id, perf_notes: row.perf_notes }); } catch (e) { alert(e.message); }
+  }
+
+  const grand = rows.reduce((s, r) => s + (r.total_pay || 0), 0);
+  const presets = [{ p: presetWeek, l: "This week" }, { p: presetLastWeek, l: "Last week" }, { p: presetMonth, l: "This month" }];
+
+  return (
+    <>
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{x.l}</button>; })}
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{range.from} → {range.to}</span>
+      </div>
+
+      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {loading ? <Empty>Crunching the numbers…</Empty> : (
+        <>
+          <div style={{ background: "rgba(139,124,246,0.1)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 16, padding: "1.1rem 1.4rem", marginBottom: "1.5rem" }}>
+            <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>Estimated payroll this period</div>
+            <div style={{ color: "#A99CF8", fontWeight: 900, fontSize: "1.9rem", lineHeight: 1.1 }}>${grand.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginTop: "0.25rem" }}>hours × rate + logged commission · review before paying</div>
+          </div>
+
+          {rows.length === 0 ? <Empty>No active staff.</Empty> : (
+            <div style={{ display: "grid", gap: "0.75rem" }}>
+              {rows.map((r) => (
+                <div key={r.staff_id} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "1rem 1.15rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ color: "#fff", fontWeight: 800, fontSize: "1rem" }}>{r.name}</div>
+                      <div style={{ display: "flex", gap: "0.15rem", marginTop: "0.2rem" }}>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <span key={n} onClick={() => setRating(r.staff_id, n)} style={{ cursor: "pointer", color: n <= (r.rating || 0) ? "#FFB800" : "rgba(255,255,255,0.2)", fontSize: "1rem" }}>★</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ color: "#3DD68C", fontWeight: 900, fontSize: "1.3rem", lineHeight: 1 }}>${(r.total_pay || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                      <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.7rem" }}>total pay</div>
+                    </div>
+                  </div>
+
+                  <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", marginTop: "0.6rem" }}>
+                    {r.hours}h × ${r.hourly_rate}/hr = <strong style={{ color: "#fff" }}>${r.base_pay.toLocaleString()}</strong>
+                    {r.commission > 0 ? <> · commission <strong style={{ color: "#fff" }}>${r.commission.toLocaleString()}</strong></> : null}
+                    {" · "}{r.days_worked}d worked · {r.shifts} shift{r.shifts === 1 ? "" : "s"}
+                  </div>
+
+                  {Object.keys(r.output || {}).length > 0 && (
+                    <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.8rem", marginTop: "0.35rem" }}>
+                      {SERVICE_TYPES.filter((t) => r.output[t.key]).map((t) => `${t.emoji} ${r.output[t.key]}`).join("   ")}
+                    </div>
+                  )}
+                  {r.commission_note && <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", marginTop: "0.3rem" }}>commission rule: {r.commission_note}</div>}
+
+                  <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.6rem" }}>
+                    <input style={{ ...inp, marginBottom: 0, flex: 1, fontSize: "0.82rem", padding: "0.6rem 0.85rem" }} placeholder="Performance notes…" value={r.perf_notes || ""} onChange={(e) => setNote(r.staff_id, e.target.value)} onBlur={() => saveNote(r)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
+/* ---------------- WORK LOG (per-rep attribution) ---------------- */
+const SERVICE_TYPES = [
+  { key: "tire", label: "Tires", emoji: "🛞" },
+  { key: "alignment", label: "Alignment", emoji: "🎯" },
+  { key: "tpms", label: "TPMS", emoji: "💡" },
+  { key: "oil", label: "Oil", emoji: "🛢️" },
+  { key: "brake", label: "Brakes", emoji: "🛑" },
+  { key: "lead", label: "Lead handled", emoji: "📞" },
+  { key: "other", label: "Other", emoji: "➕" },
+];
+function WorkLogTab({ auth }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const [entries, setEntries] = useState([]);
+  const [staff, setStaff] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [days, setDays] = useState(0); // 0 = today
+  const [form, setForm] = useState({ staff_id: "", service_type: "alignment", qty: 1, amount: "", note: "" });
+  const [saving, setSaving] = useState(false);
+
+  async function call(body) {
+    const res = await fetch("/api/admin/service-log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || "Request failed");
+    return d;
+  }
+  async function load(d) {
+    setLoading(true); setErr("");
+    try { const r = await call({ action: "list", days: d }); setEntries(r.entries); setStaff(r.staff); }
+    catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(0); /* eslint-disable-next-line */ }, []);
+
+  async function add() {
+    if (!form.staff_id || !form.service_type) return;
+    setSaving(true);
+    try { const r = await call({ action: "add", entry: form, days }); setEntries(r.entries); setStaff(r.staff); setForm((f) => ({ ...f, qty: 1, amount: "", note: "" })); }
+    catch (e) { alert(e.message); }
+    finally { setSaving(false); }
+  }
+  async function del(id) {
+    try { const r = await call({ action: "delete", id, days }); setEntries(r.entries); setStaff(r.staff); }
+    catch (e) { alert(e.message); }
+  }
+  function changeRange(d) { setDays(d); load(d); }
+
+  const nameById = Object.fromEntries(staff.map((s) => [s.id, s.name]));
+  const summary = {};
+  for (const e of entries) {
+    const sid = e.staff_id || "unassigned";
+    const m = summary[sid] || (summary[sid] = { counts: {}, amount: 0 });
+    m.counts[e.service_type] = (m.counts[e.service_type] || 0) + (Number(e.qty) || 0);
+    m.amount += Number(e.amount) || 0;
+  }
+  const summaryRows = Object.entries(summary).sort((a, b) => b[1].amount - a[1].amount);
+
+  if (loading) return <Empty>Loading work log…</Empty>;
+
+  return (
+    <>
+      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+        <h2 style={subHead}>Log work</h2>
+        {staff.length === 0 ? (
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>Add staff in the 👥 Staff tab first.</p>
+        ) : (
+          <>
+            <select style={{ ...inp, maxWidth: 240 }} value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
+              <option value="">Who did it?</option>
+              {staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", margin: "0.25rem 0 0.75rem" }}>
+              {SERVICE_TYPES.map((t) => {
+                const on = form.service_type === t.key;
+                return <button key={t.key} onClick={() => setForm({ ...form, service_type: t.key })} style={{ ...chip, ...(on ? { background: "#FF1F1F", borderColor: "#FF1F1F", color: "#fff" } : {}) }}>{t.emoji} {t.label}</button>;
+              })}
+            </div>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+              <input style={{ ...inp, marginBottom: 0, width: 80 }} type="number" placeholder="Qty" value={form.qty} onChange={(e) => setForm({ ...form, qty: e.target.value })} />
+              <input style={{ ...inp, marginBottom: 0, width: 110 }} type="number" placeholder="$ (opt)" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+              <input style={{ ...inp, marginBottom: 0, flex: 1, minWidth: 120 }} placeholder="Note (optional)" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+              <button onClick={add} disabled={!form.staff_id || saving} style={{ ...cta, opacity: !form.staff_id || saving ? 0.5 : 1 }}>{saving ? "…" : "Log it"}</button>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem" }}>
+        {[{ d: 0, l: "Today" }, { d: 7, l: "7 days" }, { d: 30, l: "30 days" }].map((r) => (
+          <button key={r.d} onClick={() => changeRange(r.d)} style={{ ...chip, ...(days === r.d ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{r.l}</button>
+        ))}
+      </div>
+
+      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+
+      <h2 style={subHead}>Per rep ({days === 0 ? "today" : `last ${days} days`})</h2>
+      {summaryRows.length === 0 ? <Empty>Nothing logged yet.</Empty> : (
+        <div style={{ display: "grid", gap: "0.5rem", marginBottom: "2rem" }}>
+          {summaryRows.map(([sid, m]) => (
+            <div key={sid} style={{ ...rowStyle, gap: "0.75rem", flexWrap: "wrap" }}>
+              <span style={{ color: "#fff", fontWeight: 700, width: 120 }}>{nameById[sid] || "Unassigned"}</span>
+              <span style={{ flex: 1, color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
+                {SERVICE_TYPES.filter((t) => m.counts[t.key]).map((t) => `${t.emoji} ${m.counts[t.key]}`).join("   ") || "—"}
+              </span>
+              {m.amount > 0 && <span style={{ color: "#3DD68C", fontWeight: 700 }}>${m.amount.toLocaleString()}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h2 style={subHead}>Recent entries</h2>
+      {entries.length === 0 ? <Empty>No entries.</Empty> : (
+        <div style={{ display: "grid", gap: "0.4rem" }}>
+          {entries.slice(0, 50).map((e) => {
+            const t = SERVICE_TYPES.find((x) => x.key === e.service_type);
+            return (
+              <div key={e.id} style={{ ...rowStyle, padding: "0.6rem 1rem", gap: "0.75rem" }}>
+                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", width: 56 }}>{new Date(e.logged_at).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+                <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>{nameById[e.staff_id] || "Unassigned"} · {t ? `${t.emoji} ${t.label}` : e.service_type} ×{e.qty}{e.note ? ` — ${e.note}` : ""}</span>
+                {e.amount ? <span style={{ color: "#3DD68C", fontSize: "0.8rem" }}>${Number(e.amount).toLocaleString()}</span> : null}
+                <button onClick={() => del(e.id)} style={{ ...ghostBtn, padding: "0.3rem 0.6rem", fontSize: "0.7rem" }}>✕</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
 
