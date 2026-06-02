@@ -177,6 +177,7 @@ export default function AdminHub() {
     { id: "subscribers", label: "Subscribers", count: data.subscribers.length },
     { id: "email", label: "Email" },
     { id: "replies", label: "Replies", count: unreadReplies || null, alert: unreadReplies > 0 },
+    { id: "training", label: "📚 Training" },
     { id: "hiring", label: "Hiring" },
   ];
 
@@ -218,6 +219,7 @@ export default function AdminHub() {
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
         {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
+        {tab === "training" && <TrainingTab auth={auth} />}
         {tab === "hiring" && <HiringTab />}
       </div>
 
@@ -996,6 +998,149 @@ function BigStat({ label, value, color }) {
     <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
       <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>{label}</div>
       <div style={{ color, fontWeight: 900, fontSize: "1.9rem", lineHeight: 1 }}>{value}</div>
+    </div>
+  );
+}
+
+/* ---------------- TRAINING HUB ---------------- */
+const TRAIN_CATS = [
+  "Company Standards & Rules",
+  "How We Communicate",
+  "How to Read a Tire",
+  "Navigating the Warehouse",
+  "Finalizing a POS Order",
+  "Tire Installation Process",
+  "Special Orders",
+];
+
+function TrainingTab({ auth }) {
+  const [modules, setModules] = useState([]);
+  const [progress, setProgress] = useState({});
+  const [isOwner, setIsOwner] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [ask, setAsk] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [asking, setAsking] = useState(false);
+
+  async function api(body) {
+    const res = await fetch("/api/admin/training", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    return res.json();
+  }
+  async function load() {
+    setLoading(true);
+    const d = await api({ action: "list" });
+    setModules(d.modules || []); setProgress(d.progress || {}); setIsOwner(!!d.isOwner);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  async function complete(id, done) {
+    setProgress((p) => ({ ...p, [id]: done ? new Date().toISOString() : undefined }));
+    await api({ action: "complete", module_id: id, done });
+  }
+  async function saveModule(m) { await api({ action: "save", ...m }); setEditing(null); load(); }
+  async function delModule(id) { if (!confirm("Delete this guide?")) return; await api({ action: "delete", id }); load(); }
+
+  async function askTrainer() {
+    if (!ask.trim()) return;
+    setAsking(true); setAnswer("");
+    try {
+      const res = await fetch("/api/admin/train-ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, mode: "ask", question: ask }) });
+      const d = await res.json();
+      setAnswer(d.answer || ("⚠ " + (d.error || "No answer")));
+    } catch (e) { setAnswer("⚠ Network error"); }
+    finally { setAsking(false); }
+  }
+
+  const byCat = {};
+  modules.forEach((m) => { (byCat[m.category] = byCat[m.category] || []).push(m); });
+  const cats = [...new Set([...TRAIN_CATS, ...Object.keys(byCat)])];
+  const done = Object.keys(progress).filter((k) => progress[k]).length;
+
+  if (loading) return <Empty>Loading training…</Empty>;
+
+  return (
+    <>
+      <div style={{ background: "linear-gradient(135deg, rgba(139,124,246,0.13), rgba(0,0,0,0))", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 16, padding: "1rem 1.25rem", marginBottom: "1.5rem" }}>
+        <p style={{ color: "#A99CF8", fontWeight: 800, fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.6rem" }}>🧑‍🏫 Ask the Trainer</p>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <input value={ask} onChange={(e) => setAsk(e.target.value)} onKeyDown={(e) => e.key === "Enter" && askTrainer()} placeholder="e.g. What do I do when a customer has a special order?" style={{ ...inp, marginBottom: 0, flex: 1 }} />
+          <button onClick={askTrainer} disabled={asking} style={cta}>{asking ? "…" : "Ask"}</button>
+        </div>
+        {answer && <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.88rem", lineHeight: 1.6, whiteSpace: "pre-wrap", marginTop: "0.85rem" }}>{answer}</div>}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>✓ {done} of {modules.length} guides completed</span>
+        {isOwner && !editing && <button onClick={() => setEditing({ category: TRAIN_CATS[0], title: "", content: "" })} style={cta}>+ Add guide</button>}
+      </div>
+
+      {editing && <ModuleEditor auth={auth} module={editing} onSave={saveModule} onCancel={() => setEditing(null)} />}
+
+      {cats.map((cat) => (
+        <div key={cat} style={{ marginBottom: "1.5rem" }}>
+          <h2 style={subHead}>{cat}</h2>
+          {(byCat[cat] || []).length === 0 ? (
+            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.8rem" }}>No guides yet.</p>
+          ) : (
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              {(byCat[cat] || []).map((m) => (
+                <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <span onClick={() => complete(m.id, !progress[m.id])} title="Mark complete" style={{ cursor: "pointer", width: 22, height: 22, borderRadius: 6, border: `1px solid ${progress[m.id] ? "#3DD68C" : "rgba(255,255,255,0.25)"}`, background: progress[m.id] ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{progress[m.id] ? "✓" : ""}</span>
+                    <span onClick={() => setOpenId(openId === m.id ? null : m.id)} style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", flex: 1 }}>{m.title}</span>
+                    {isOwner && <button onClick={() => setEditing(m)} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Edit</button>}
+                    {isOwner && <button onClick={() => delModule(m.id)} style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.85rem" }}>✕</button>}
+                    <span onClick={() => setOpenId(openId === m.id ? null : m.id)} style={{ color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>
+                  </div>
+                  {openId === m.id && <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.88rem", lineHeight: 1.65, whiteSpace: "pre-wrap", paddingLeft: "calc(22px + 0.75rem)" }}>{m.content || "(no content yet)"}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </>
+  );
+}
+
+function ModuleEditor({ auth, module, onSave, onCancel }) {
+  const [category, setCategory] = useState(module.category || TRAIN_CATS[0]);
+  const [title, setTitle] = useState(module.title || "");
+  const [content, setContent] = useState(module.content || "");
+  const [bullets, setBullets] = useState("");
+  const [drafting, setDrafting] = useState(false);
+
+  async function aiDraft() {
+    if (!title.trim()) return;
+    setDrafting(true);
+    try {
+      const res = await fetch("/api/admin/train-ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, mode: "draft", title, bullets }) });
+      const d = await res.json();
+      if (d.draft) setContent(d.draft);
+    } catch (e) {}
+    finally { setDrafting(false); }
+  }
+
+  return (
+    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+      <label style={fieldLabel}>Category</label>
+      <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...inp, appearance: "auto" }}>
+        {TRAIN_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+      </select>
+      <label style={fieldLabel}>Title</label>
+      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. How to finalize a POS order" style={inp} />
+      <label style={fieldLabel}>Quick bullets for the AI (optional)</label>
+      <input value={bullets} onChange={(e) => setBullets(e.target.value)} placeholder="pull up customer, scan tires, add labor, take payment, print invoice" style={inp} />
+      <button onClick={aiDraft} disabled={drafting || !title} style={{ ...ghostBtn, borderColor: "rgba(139,124,246,0.4)", color: "#A99CF8", marginBottom: "0.7rem", opacity: !title ? 0.4 : 1 }}>{drafting ? "✨ Writing the guide…" : "✨ AI draft the guide"}</button>
+      <label style={fieldLabel}>Guide content</label>
+      <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={10} placeholder="Write the step-by-step guide, or tap ✨ AI draft above." style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
+      <div style={{ display: "flex", gap: "0.5rem" }}>
+        <button onClick={() => onSave({ id: module.id, category, title, content })} disabled={!title} style={{ ...cta, opacity: !title ? 0.4 : 1 }}>Save guide</button>
+        <button onClick={onCancel} style={ghostBtn}>Cancel</button>
+      </div>
     </div>
   );
 }
