@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 
+// Hiring pipeline stages (left→right = early→late). Separate from `status`.
+const STAGES = [
+  { key: "new", label: "New", color: "#FF8844" },
+  { key: "contacted", label: "Contacted", color: "#FFB800" },
+  { key: "interview", label: "Interview", color: "#9ACD32" },
+  { key: "trial", label: "Trial", color: "#5BC8FF" },
+  { key: "hired", label: "Hired", color: "#3DD68C" },
+];
+
 export default function CareersAdmin() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -39,11 +48,29 @@ export default function CareersAdmin() {
     if (data.url) window.open(data.url, "_blank");
   }
 
+  // Download the candidate report PDF (with the resume merged in).
+  async function downloadReport(a) {
+    const res = await fetch("/api/careers/report", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password, id: a.id })
+    });
+    if (!res.ok) { alert("Could not generate the report. Try again."); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = (a.name || "applicant").replace(/[^a-z0-9]/gi, "-").toLowerCase() + "-tireplug-report.pdf";
+    document.body.appendChild(link); link.click(); link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async function saveApplicant(id, patch) {
     await fetch("/api/careers/update", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password, id, ...patch })
     });
+    // Optimistic: reflect the change in the open drawer immediately.
+    setSelected((prev) => (prev && prev.id === id ? { ...prev, ...patch } : prev));
     load(password);
   }
 
@@ -82,11 +109,24 @@ export default function CareersAdmin() {
 
         {live.length === 0 && <p style={{ color: "rgba(255,255,255,0.5)" }}>No applications yet. Share <strong style={{ color: "#FF3838" }}>tireplugla.com/careers</strong> to start.</p>}
 
-        <div style={{ display: "grid", gap: "0.75rem" }}>
-          {live.map((a) => (
-            <Row key={a.id} a={a} onClick={() => setSelected(a)} />
-          ))}
-        </div>
+        {STAGES.map((st) => {
+          const inStage = live.filter((a) => (a.stage || "new") === st.key);
+          if (inStage.length === 0) return null;
+          return (
+            <div key={st.key} style={{ marginBottom: "1.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", margin: "0 0 0.75rem" }}>
+                <span style={{ width: 9, height: 9, borderRadius: "50%", background: st.color }} />
+                <span style={{ color: "#fff", fontWeight: 800, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>{st.label}</span>
+                <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem" }}>({inStage.length})</span>
+              </div>
+              <div style={{ display: "grid", gap: "0.6rem" }}>
+                {inStage.map((a) => (
+                  <Row key={a.id} a={a} onClick={() => setSelected(a)} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
 
         {filtered.length > 0 && (
           <>
@@ -107,7 +147,7 @@ export default function CareersAdmin() {
       </div>
 
       {selected && (
-        <Detail a={selected} onClose={() => setSelected(null)} onResume={viewResume} onSave={saveApplicant} />
+        <Detail a={selected} onClose={() => setSelected(null)} onResume={viewResume} onSave={saveApplicant} onDownload={downloadReport} />
       )}
     </Shell>
   );
@@ -136,10 +176,12 @@ function Row({ a, onClick }) {
   );
 }
 
-function Detail({ a, onClose, onResume, onSave }) {
+function Detail({ a, onClose, onResume, onSave, onDownload }) {
   const [notes, setNotes] = useState(a.owner_notes || "");
+  const [dl, setDl] = useState(false);
   const graded = a.graded || [];
   const traits = a.trait_scores || {};
+  const curStage = a.stage || "new";
 
   return (
     <div onClick={onClose} style={overlay}>
@@ -202,11 +244,28 @@ function Detail({ a, onClose, onResume, onSave }) {
           </Section>
         )}
 
+        <Section title="Pipeline stage">
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+            {STAGES.map((st) => {
+              const cur = curStage === st.key;
+              return (
+                <button key={st.key}
+                  onClick={() => onSave(a.id, st.key === "hired" ? { stage: "hired", status: "hired" } : { stage: st.key })}
+                  style={{ ...chipBtn, ...(cur ? { background: st.color, color: "#000", borderColor: st.color } : {}) }}>
+                  {st.label}
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+
         <Section title="Your notes">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ ...inp, resize: "vertical" }} placeholder="Notes from the call / interview..." />
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
             <button onClick={() => onSave(a.id, { owner_notes: notes, reviewed: true })} style={cta}>Save & mark reviewed</button>
-            <button onClick={() => onSave(a.id, { status: "hired" })} style={ghostBtn}>✓ Hired</button>
+            <button onClick={async () => { setDl(true); try { await onDownload(a); } finally { setDl(false); } }} disabled={dl} style={{ ...ghostBtn, opacity: dl ? 0.5 : 1 }}>
+              {dl ? "Preparing…" : "⬇ Download PDF"}
+            </button>
             <button onClick={() => onSave(a.id, { status: "archived" })} style={ghostBtn}>Archive</button>
           </div>
         </Section>
@@ -248,6 +307,7 @@ function Shell({ children, title }) {
 const inp = { width: "100%", padding: "1rem 1.15rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: "0.95rem", marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
 const cta = { background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)", color: "#fff", padding: "0.85rem 1.5rem", fontSize: "0.82rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: "inherit" };
 const ghostBtn = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.7rem 1.1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" };
+const chipBtn = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.8rem", fontSize: "0.75rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
 const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "0.85rem 1.25rem", transition: "all 0.2s ease" };
 const overlay = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "flex-end" };
 const drawer = { width: "min(560px, 100%)", height: "100%", overflowY: "auto", background: "linear-gradient(135deg, #0c0c0c 0%, #000 100%)", borderLeft: "1px solid rgba(255,31,31,0.25)", padding: "2.5rem 2rem", position: "relative" };
