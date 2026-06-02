@@ -1005,6 +1005,7 @@ function BigStat({ label, value, color }) {
 /* ---------------- TRAINING HUB ---------------- */
 const TRAIN_CATS = [
   "Company Standards & Rules",
+  "Warnings & Discipline",
   "How We Communicate",
   "How to Read a Tire",
   "Navigating the Warehouse",
@@ -1012,6 +1013,59 @@ const TRAIN_CATS = [
   "Tire Installation Process",
   "Special Orders",
 ];
+
+// Split guide content into "slides" — each heading (or --- rule) starts a new section.
+function splitSlides(content) {
+  const text = (content || "").trim();
+  if (!text) return ["(no content yet)"];
+  const lines = text.split("\n");
+  const slides = []; let cur = [];
+  for (const line of lines) {
+    const t = line.trim();
+    if (/^#{1,6}\s/.test(t) && cur.join("").trim()) { slides.push(cur.join("\n").trim()); cur = [line]; }
+    else if (/^-{3,}$/.test(t)) { if (cur.join("").trim()) { slides.push(cur.join("\n").trim()); cur = []; } }
+    else cur.push(line);
+  }
+  if (cur.join("").trim()) slides.push(cur.join("\n").trim());
+  return slides.length ? slides : [text];
+}
+
+// Gated slideshow: read each section (with a short read-timer) before Next; quiz unlocks at the end.
+function LessonViewer({ module, passed, onTakeQuiz, onComplete, onUndo }) {
+  const slides = splitSlides(module.content);
+  const [idx, setIdx] = useState(0);
+  const [canNext, setCanNext] = useState(false);
+  useEffect(() => {
+    setCanNext(false);
+    const words = (slides[idx] || "").split(/\s+/).filter(Boolean).length;
+    const wait = Math.min(8000, Math.max(2000, words * 90));
+    const t = setTimeout(() => setCanNext(true), wait);
+    return () => clearTimeout(t);
+    /* eslint-disable-next-line */
+  }, [idx, module.id]);
+  const last = idx >= slides.length - 1;
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 4, marginBottom: "0.7rem" }}>
+        {slides.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= idx ? "#FF1F1F" : "rgba(255,255,255,0.1)", transition: "background 0.3s" }} />)}
+      </div>
+      <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.9rem", lineHeight: 1.7, whiteSpace: "pre-wrap", minHeight: 110, marginBottom: "0.85rem" }}>{slides[idx]}</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
+        <button onClick={() => setIdx((i) => Math.max(0, i - 1))} disabled={idx === 0} style={{ ...ghostBtn, opacity: idx === 0 ? 0.4 : 1 }}>← Back</button>
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.74rem" }}>Section {idx + 1} of {slides.length}</span>
+        {!last ? (
+          <button onClick={() => canNext && setIdx((i) => i + 1)} disabled={!canNext} style={{ ...cta, opacity: canNext ? 1 : 0.45 }}>{canNext ? "Next →" : "Reading…"}</button>
+        ) : module.hasQuiz ? (
+          <button onClick={onTakeQuiz} disabled={!canNext} style={{ ...cta, opacity: canNext ? 1 : 0.45 }}>{passed ? "Retake quiz" : "📝 Take quiz"}</button>
+        ) : passed ? (
+          <button onClick={onUndo} style={ghostBtn}>✓ Completed — undo</button>
+        ) : (
+          <button onClick={onComplete} disabled={!canNext} style={{ ...cta, opacity: canNext ? 1 : 0.45 }}>✓ Mark complete</button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function TrainingTab({ auth }) {
   const [modules, setModules] = useState([]);
@@ -1112,17 +1166,10 @@ function TrainingTab({ auth }) {
                     </div>
                     {openId === m.id && (
                       <div style={{ paddingLeft: "calc(22px + 0.75rem)" }}>
-                        <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.88rem", lineHeight: 1.65, whiteSpace: "pre-wrap", marginBottom: "0.75rem" }}>{m.content || "(no content yet)"}</div>
-                        {m.hasQuiz ? (
-                          quizModId === m.id ? (
-                            <QuizRunner auth={auth} moduleId={m.id} startedAt={openedAt} onDone={() => load()} />
-                          ) : (
-                            <button onClick={() => setQuizModId(m.id)} style={cta}>{pr && pr.passed ? "Retake quiz" : "📝 Take quiz"}</button>
-                          )
+                        {quizModId === m.id ? (
+                          <QuizRunner auth={auth} moduleId={m.id} startedAt={openedAt} onDone={() => load()} />
                         ) : (
-                          pr && pr.passed
-                            ? <button onClick={() => complete(m.id, false)} style={ghostBtn}>✓ Completed — undo</button>
-                            : <button onClick={() => complete(m.id, true)} style={cta}>✓ Mark complete</button>
+                          <LessonViewer module={m} passed={pr && pr.passed} onTakeQuiz={() => setQuizModId(m.id)} onComplete={() => complete(m.id, true)} onUndo={() => complete(m.id, false)} />
                         )}
                       </div>
                     )}
