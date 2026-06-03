@@ -127,8 +127,8 @@ export default function AdminHub() {
       <Shell title="Tire Plug Admin">
         <div style={{ maxWidth: 380, margin: "12vh auto 0", textAlign: "center" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}><Logo size={72} /></div>
-          <h1 style={{ color: "#fff", fontWeight: 900, textTransform: "uppercase", fontSize: "1.3rem", marginBottom: "0.5rem" }}>Access <span style={{ color: "#FF1F1F" }}>Code</span></h1>
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+          <h1 style={{ color: "#1a1a1a", fontWeight: 900, textTransform: "uppercase", fontSize: "1.3rem", marginBottom: "0.5rem" }}>Access <span style={{ color: "#FF1F1F" }}>Code</span></h1>
+          <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.85rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
             The owner was notified that you're requesting access{googleEmail ? ` as ${googleEmail}` : ""}. Enter the code they give you.
           </p>
           <input value={codeInput} onChange={(e) => setCodeInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && verifyCode()} placeholder="6-digit code" inputMode="numeric" style={{ ...inp, textAlign: "center", letterSpacing: "0.3em", fontSize: "1.2rem" }} />
@@ -147,14 +147,14 @@ export default function AdminHub() {
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
             <Logo size={88} />
           </div>
-          <h1 style={{ color: "#fff", textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
+          <h1 style={{ color: "#1a1a1a", textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
             Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
           </h1>
           <button onClick={signInGoogle} style={googleBtn}>
             <span style={{ fontWeight: 900, color: "#4285F4" }}>G</span> Sign in with Google
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1.25rem 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} /><span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem" }}>OR</span><div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
+            <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.1)" }} /><span style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.7rem" }}>OR</span><div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.1)" }} />
           </div>
           <input type="password" placeholder="Owner password" value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -171,22 +171,13 @@ export default function AdminHub() {
   const unreadReplies = data.replies.filter((r) => !r.read).length;
   const liveLeads = data.leads.filter((l) => l.status !== "dead");
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
-  const tabs = [
-    { id: "scoreboard", label: "📊 Scoreboard" },
-    { id: "shopfloor", label: "🔧 Shop Floor" },
-    { id: "leads", label: "Leads", count: liveLeads.length },
-    { id: "subscribers", label: "Subscribers", count: data.subscribers.length },
-    { id: "email", label: "Email" },
-    { id: "replies", label: "Replies", count: unreadReplies || null, alert: unreadReplies > 0 },
-    { id: "training", label: "📚 Training" },
-    { id: "hiring", label: "Hiring" },
-    { id: "staff", label: "👥 Staff" },
-    { id: "schedule", label: "🗓️ Schedule" },
-    { id: "worklog", label: "📋 Work Log" },
-    { id: "payroll", label: "💵 Payroll" },
-    { id: "finance", label: "📒 Finance" },
-    { id: "customers", label: "📇 Customers" },
-    { id: "reviews", label: "⭐ Reviews" },
+  const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
+  const NAV_GROUPS = [
+    { items: [ { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
+    { title: "Sales", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
+    { title: "People", items: [ { id: "hiring", icon: "📝", label: "Hiring" }, { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
+    { title: "Money & Customers", items: [ { id: "finance", icon: "📒", label: "Finance" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" } ] },
+    { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -194,31 +185,36 @@ export default function AdminHub() {
 
   return (
     <Shell title="Tire Plug Admin">
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-            <Logo size={44} />
-            <h1 style={{ color: "#fff", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", fontSize: "1.4rem", margin: 0 }}>
-              Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
-            </h1>
+      <div style={{ display: "flex", minHeight: "100vh" }}>
+        <aside style={{ width: 234, flexShrink: 0, background: "#fff", borderRight: "1px solid rgba(0,0,0,0.08)", padding: "1.1rem 0.85rem", position: "sticky", top: 0, height: "100vh", overflowY: "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0 0.5rem 1.1rem" }}>
+            <Logo size={32} />
+            <span style={{ color: "#111", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.01em", fontSize: "0.98rem" }}>Tire Plug</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            {data.me && data.me.email !== "owner" && <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>{data.me.name}</span>}
+          {NAV_GROUPS.map((grp, gi) => (
+            <div key={grp.title || `g${gi}`} style={{ marginBottom: "0.35rem" }}>
+              {grp.title && <div style={{ color: "rgba(0,0,0,0.38)", fontSize: "0.62rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.13em", padding: "0.7rem 0.6rem 0.3rem" }}>{grp.title}</div>}
+              {grp.items.map((it) => {
+                const active = tab === it.id;
+                const cnt = navCounts[it.id];
+                return (
+                  <button key={it.id} onClick={() => setTab(it.id)} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", textAlign: "left", background: active ? "#f1f2f4" : "transparent", color: active ? "#111" : "rgba(0,0,0,0.62)", fontWeight: active ? 800 : 600, border: "none", borderLeft: active ? "3px solid #FF1F1F" : "3px solid transparent", padding: "0.5rem 0.55rem", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem" }}>
+                    <span style={{ fontSize: "1rem", width: 18, textAlign: "center" }}>{it.icon}</span>
+                    <span style={{ flex: 1 }}>{it.label}</span>
+                    {cnt ? <span style={{ background: it.alert ? "#FF1F1F" : "rgba(0,0,0,0.08)", color: it.alert ? "#fff" : "rgba(0,0,0,0.6)", fontSize: "0.62rem", fontWeight: 800, padding: "0.05rem 0.4rem", borderRadius: 50 }}>{cnt}</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </aside>
+
+        <main style={{ flex: 1, minWidth: 0, padding: "1.4rem 2rem 4rem" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+            {data.me && data.me.email !== "owner" && <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>{data.me.name}</span>}
             <button onClick={() => loadWith(authObj())} style={ghostBtn}>↻</button>
             <button onClick={signOut} style={ghostBtn}>Sign out</button>
           </div>
-        </div>
-
-        <div style={{ display: "flex", gap: "0.4rem", marginBottom: "2rem", flexWrap: "wrap", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem" }}>
-          {tabs.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={tabBtn(tab === t.id)}>
-              {t.label}
-              {t.count != null && (
-                <span style={{ marginLeft: 6, background: t.alert ? "#FF1F1F" : "rgba(255,255,255,0.12)", color: "#fff", fontSize: "0.65rem", fontWeight: 800, padding: "0.1rem 0.45rem", borderRadius: 50 }}>{t.count}</span>
-              )}
-            </button>
-          ))}
-        </div>
 
         {tab === "scoreboard" && <ScoreboardTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
@@ -237,6 +233,7 @@ export default function AdminHub() {
         {tab === "finance" && <FinanceTab auth={auth} />}
         {tab === "customers" && <CustomersTab auth={auth} />}
         {tab === "reviews" && <ReviewsTab auth={auth} />}
+        </main>
       </div>
 
       {selectedLead && (
@@ -257,9 +254,9 @@ export default function AdminHub() {
 const PRIORITY = {
   HOT: { rank: 0, color: "#FF3838", label: "🔴 HOT" },
   WARM: { rank: 1, color: "#FFB800", label: "🟡 WARM" },
-  SHOPPING: { rank: 2, color: "rgba(255,255,255,0.55)", label: "⚪ Shopping" },
+  SHOPPING: { rank: 2, color: "rgba(0,0,0,0.55)", label: "⚪ Shopping" },
 };
-function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(255,255,255,0.5)", label: l.lead_priority || "—" }; }
+function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(0,0,0,0.55)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
 
 function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
@@ -312,7 +309,7 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
         <div style={{ background: "linear-gradient(135deg, rgba(61,214,140,0.12), rgba(0,0,0,0))", border: "1px solid rgba(61,214,140,0.3)", borderRadius: 14, padding: "0.85rem 1.25rem", flex: 1, minWidth: 200 }}>
           <div style={{ color: "#3DD68C", fontWeight: 900, fontSize: "1.6rem", lineHeight: 1 }}>${revenue.toLocaleString()}</div>
-          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 4 }}>From web leads this month · {monthLeads.length} booked</div>
+          <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 4 }}>From web leads this month · {monthLeads.length} booked</div>
         </div>
       </div>
 
@@ -326,8 +323,8 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
               <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.4rem 0" }}>
                 <span style={{ fontSize: "0.85rem" }}>{r.kind === "service_ready" ? "🛞" : "📞"}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <span onClick={() => l && onOpen(l.id)} style={{ color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: "0.88rem" }}>{l ? l.name : "(lead)"}</span>
-                  <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.82rem" }}> — {r.note || (r.kind === "service_ready" ? "Tires are in" : "Follow up")} · {dueLabel(r.due_at)}</span>
+                  <span onClick={() => l && onOpen(l.id)} style={{ color: "#1a1a1a", fontWeight: 700, cursor: "pointer", fontSize: "0.88rem" }}>{l ? l.name : "(lead)"}</span>
+                  <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.82rem" }}> — {r.note || (r.kind === "service_ready" ? "Tires are in" : "Follow up")} · {dueLabel(r.due_at)}</span>
                 </div>
                 <button onClick={() => onReminder({ action: "complete", id: r.id })} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.35rem 0.65rem" }}>Done</button>
               </div>
@@ -340,7 +337,7 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔍 Search name, phone, service..." style={{ ...inp, marginBottom: 0, flex: 1, minWidth: 220 }} />
         {chips.map((c) => (
-          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: filter === c.id ? "#FF1F1F" : "rgba(255,255,255,0.12)", color: filter === c.id ? "#FF6666" : "#fff" }}>{c.label}</button>
+          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: filter === c.id ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: filter === c.id ? "#FF6666" : "#fff" }}>{c.label}</button>
         ))}
         <button onClick={doSync} disabled={syncing} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", borderColor: "rgba(61,214,140,0.4)", color: "#3DD68C" }}>
           {syncing ? "Syncing..." : "🔄 Sync TireBase orders"}
@@ -370,20 +367,20 @@ function LeadRow({ l, unread, onClick }) {
   return (
     <div onClick={onClick} style={{ ...rowStyle, cursor: "pointer" }} className="adminRow">
       <div style={{ width: 90 }}>
-        <span style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.62rem", fontWeight: 800, padding: "0.25rem 0.5rem", borderRadius: 50, whiteSpace: "nowrap" }}>{p.label}</span>
+        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.62rem", fontWeight: 800, padding: "0.25rem 0.5rem", borderRadius: 50, whiteSpace: "nowrap" }}>{p.label}</span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ color: "#fff", fontWeight: 700 }}>
-          {l.name || "(no name)"} <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 500, fontSize: "0.8rem" }}>· {STATUS_LABEL[l.status] || l.status}</span>
-          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#fff", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 50 }}>💬 {unread}</span>}
+        <div style={{ color: "#1a1a1a", fontWeight: 700 }}>
+          {l.name || "(no name)"} <span style={{ color: "rgba(0,0,0,0.42)", fontWeight: 500, fontSize: "0.8rem" }}>· {STATUS_LABEL[l.status] || l.status}</span>
+          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#1a1a1a", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 50 }}>💬 {unread}</span>}
         </div>
-        <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.service || "—"}{l.vehicle ? ` · ${l.vehicle}` : ""}</div>
+        <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.service || "—"}{l.vehicle ? ` · ${l.vehicle}` : ""}</div>
       </div>
       <div style={{ textAlign: "right" }}>
         <div style={{ color: l.channel === "instagram" ? "#E1306C" : "#FF3838", fontSize: "0.82rem", fontWeight: 700 }}>{l.channel === "instagram" ? "📸 Instagram" : (l.phone || "—")}</div>
-        <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.68rem" }}>{fmtDate(l.created_at)}</div>
+        <div style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.68rem" }}>{fmtDate(l.created_at)}</div>
       </div>
-      <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "1.2rem" }}>›</span>
+      <span style={{ color: "rgba(0,0,0,0.4)", fontSize: "1.2rem" }}>›</span>
     </div>
   );
 }
@@ -402,9 +399,9 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
     <div onClick={onClose} style={overlay}>
       <div onClick={(e) => e.stopPropagation()} style={drawer}>
         <button onClick={onClose} style={closeBtn}>✕</button>
-        <span style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.65rem", fontWeight: 800, padding: "0.25rem 0.6rem", borderRadius: 50 }}>{p.label}</span>
-        <h2 style={{ color: "#fff", fontWeight: 900, fontSize: "1.5rem", margin: "0.75rem 0 0.25rem" }}>{lead.name || "(no name)"}</h2>
-        <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "1.25rem", fontSize: "0.9rem" }}>{fmtDate(lead.created_at, true)} · via {lead.source || "website"}</p>
+        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.65rem", fontWeight: 800, padding: "0.25rem 0.6rem", borderRadius: 50 }}>{p.label}</span>
+        <h2 style={{ color: "#1a1a1a", fontWeight: 900, fontSize: "1.5rem", margin: "0.75rem 0 0.25rem" }}>{lead.name || "(no name)"}</h2>
+        <p style={{ color: "rgba(0,0,0,0.55)", marginBottom: "1.25rem", fontSize: "0.9rem" }}>{fmtDate(lead.created_at, true)} · via {lead.source || "website"}</p>
 
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
           {lead.phone && <a href={`tel:${lead.phone}`} style={cta}>📞 Call {lead.phone}</a>}
@@ -416,14 +413,14 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
             {statuses.map((s) => (
               <button key={s} onClick={() => onUpdate("leads", lead.id, { status: s })}
-                style={{ ...ghostBtn, background: lead.status === s ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: lead.status === s ? "#FF1F1F" : "rgba(255,255,255,0.12)", color: lead.status === s ? "#FF6666" : "#fff" }}>
+                style={{ ...ghostBtn, background: lead.status === s ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: lead.status === s ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: lead.status === s ? "#FF6666" : "#fff" }}>
                 {STATUS_LABEL[s]}
               </button>
             ))}
           </div>
           {lead.status === "booked" && (
             <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.75rem" }}>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>💵 Sale amount $</span>
+              <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem" }}>💵 Sale amount $</span>
               <input value={revenue} onChange={(e) => setRevenue(e.target.value)} onBlur={() => onUpdate("leads", lead.id, { revenue_amount: revenue })}
                 placeholder="0" inputMode="decimal" style={{ ...inp, marginBottom: 0, width: 120, padding: "0.5rem 0.75rem" }} />
             </div>
@@ -504,7 +501,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   return (
     <Section title="Quote">
       <div style={{ display: "grid", gap: "0.4rem", marginBottom: "0.6rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 50px 70px 24px", gap: "0.4rem", fontSize: "0.62rem", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "0 0.2rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 50px 70px 24px", gap: "0.4rem", fontSize: "0.62rem", color: "rgba(0,0,0,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", padding: "0 0.2rem" }}>
           <span>Brand</span><span>$ Each</span><span>Qty</span><span>Total</span><span></span>
         </div>
         {rows.map((r, i) => (
@@ -514,7 +511,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
               <input value={r.price} onChange={(e) => setRow(i, "price", e.target.value)} placeholder="159" inputMode="decimal" style={miniInp} />
               <input value={r.qty} onChange={(e) => setRow(i, "qty", e.target.value)} inputMode="numeric" style={miniInp} />
               <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${((Number(r.price) || 0) * (Number(r.qty) || 0)).toLocaleString()}</span>
-              <button onClick={() => removeRow(i)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: "1rem" }}>×</button>
+              <button onClick={() => removeRow(i)} style={{ background: "none", border: "none", color: "rgba(0,0,0,0.4)", cursor: "pointer", fontSize: "1rem" }}>×</button>
             </div>
             <input value={r.warranty || ""} onChange={(e) => setRow(i, "warranty", e.target.value)} placeholder="Warranty (e.g. 60,000 mi)" style={{ ...miniInp, marginTop: "0.35rem" }} />
           </div>
@@ -522,40 +519,40 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
         <button onClick={addRow} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>+ Add brand</button>
-        {grand > 0 && <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem" }}>Top total: <strong style={{ color: "#3DD68C" }}>${grand.toLocaleString()}</strong></span>}
+        {grand > 0 && <span style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem" }}>Top total: <strong style={{ color: "#3DD68C" }}>${grand.toLocaleString()}</strong></span>}
       </div>
 
       {/* Optional Road Hazard Warranty add-on */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.5rem 0.7rem" }}>
-        <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem", flex: 1 }}>🛡️ Road Hazard Warranty</span>
-        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem" }}>$</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem", background: "rgba(0,0,0,0.02)", border: "1px solid #ffffff", borderRadius: 8, padding: "0.5rem 0.7rem" }}>
+        <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem", flex: 1 }}>🛡️ Road Hazard Warranty</span>
+        <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem" }}>$</span>
         <input value={roadHazard} onChange={(e) => setRoadHazard(e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
-        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>/ tire</span>
+        <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>/ tire</span>
       </div>
 
       {/* Add-on services */}
       <div style={{ marginBottom: "0.85rem" }}>
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>Add-on services</p>
+        <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>Add-on services</p>
         {[
           { key: "alignment", label: "🎯 Wheel Alignment" },
           { key: "oilChange", label: "🛢️ Oil Change" },
         ].map((s) => (
-          <div key={s.key} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
-            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem", flex: 1 }}>{s.label}</span>
-            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem" }}>$</span>
+          <div key={s.key} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem", background: "rgba(0,0,0,0.02)", border: "1px solid #ffffff", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
+            <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem", flex: 1 }}>{s.label}</span>
+            <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem" }}>$</span>
             <input value={services[s.key] || ""} onChange={(e) => setSvc(s.key, e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
           </div>
         ))}
         {/* TPMS — set of 4 OR each */}
-        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
-          <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>💡 TPMS Sensors</span>
+        <div style={{ background: "rgba(0,0,0,0.02)", border: "1px solid #ffffff", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
+          <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem" }}>💡 TPMS Sensors</span>
           <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.4rem" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>Set of 4 $</span>
+              <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>Set of 4 $</span>
               <input value={services.tpmsSet || ""} onChange={(e) => setSvc("tpmsSet", e.target.value)} placeholder="199" inputMode="decimal" style={{ ...miniInp, width: 60 }} />
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>Each $</span>
+              <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>Each $</span>
               <input value={services.tpmsEach || ""} onChange={(e) => setSvc("tpmsEach", e.target.value)} placeholder="60" inputMode="decimal" style={{ ...miniInp, width: 55 }} />
             </span>
           </div>
@@ -641,13 +638,13 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
   return (
     <Section title={isIg ? "📸 Instagram DM" : "Text messages"}>
       {!lead.phone && !isIg ? (
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.82rem" }}>No phone number on file for this lead.</p>
+        <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.82rem" }}>No phone number on file for this lead.</p>
       ) : (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", maxHeight: 260, overflowY: "auto", marginBottom: "0.75rem", padding: thread.length ? "0.25rem" : 0 }}>
-            {thread.length === 0 && <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
+            {thread.length === 0 && <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
             {thread.map((m) => (
-              <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "rgba(255,255,255,0.07)", color: "#fff", padding: "0.5rem 0.8rem", borderRadius: 14, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
+              <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "#ffffff", color: "#1a1a1a", padding: "0.5rem 0.8rem", borderRadius: 14, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
                 {m.body}
                 <div style={{ fontSize: "0.6rem", opacity: 0.6, marginTop: 3, textAlign: "right" }}>{fmtDate(m.created_at, true)}</div>
               </div>
@@ -669,7 +666,7 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
               placeholder="Type a text, or tap ✨ to draft one..." style={{ ...inp, marginBottom: 0, flex: 1, resize: "vertical" }} />
             <button onClick={send} disabled={sending} style={cta}>{sending ? "..." : "Send"}</button>
           </div>
-          {draftKind === "quote" && draft && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.68rem", marginTop: "0.35rem" }}>Sending this will start the 30min / 4hr / 12hr follow-ups (canceled if they reply).</p>}
+          {draftKind === "quote" && draft && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.68rem", marginTop: "0.35rem" }}>Sending this will start the 30min / 4hr / 12hr follow-ups (canceled if they reply).</p>}
           {err && <p style={{ color: "#FF6666", fontSize: "0.78rem", marginTop: "0.4rem" }}>{err}</p>}
         </>
       )}
@@ -696,11 +693,11 @@ function RemindersBlock({ lead, reminders, onReminder }) {
       {open.length > 0 && (
         <div style={{ display: "grid", gap: "0.4rem", marginBottom: "0.75rem" }}>
           {open.map((r) => (
-            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "rgba(255,255,255,0.03)", borderRadius: 8, padding: "0.5rem 0.75rem" }}>
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#ffffff", borderRadius: 8, padding: "0.5rem 0.75rem" }}>
               <span>{r.kind === "service_ready" ? "🛞" : "📞"}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: "#fff", fontSize: "0.82rem" }}>{r.note || (r.kind === "service_ready" ? "Tires are in — come in" : "Follow up")}</div>
-                <div style={{ color: isDueOrOverdue(r.due_at) ? "#FFB800" : "rgba(255,255,255,0.4)", fontSize: "0.7rem" }}>{dueLabel(r.due_at)}</div>
+                <div style={{ color: "#1a1a1a", fontSize: "0.82rem" }}>{r.note || (r.kind === "service_ready" ? "Tires are in — come in" : "Follow up")}</div>
+                <div style={{ color: isDueOrOverdue(r.due_at) ? "#FFB800" : "rgba(0,0,0,0.45)", fontSize: "0.7rem" }}>{dueLabel(r.due_at)}</div>
               </div>
               <button onClick={() => onReminder({ action: "complete", id: r.id })} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Done</button>
             </div>
@@ -709,8 +706,8 @@ function RemindersBlock({ lead, reminders, onReminder }) {
       )}
       <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reminder note (optional)" style={{ ...inp, marginBottom: "0.5rem" }} />
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.5rem" }}>
-        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: kind === "followup" ? "#FF1F1F" : "rgba(255,255,255,0.12)" }}>📞 General follow-up</button>
-        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: kind === "service_ready" ? "#FF1F1F" : "rgba(255,255,255,0.12)" }}>🛞 Tires are in</button>
+        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: kind === "followup" ? "#FF1F1F" : "rgba(0,0,0,0.1)" }}>📞 General follow-up</button>
+        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: kind === "service_ready" ? "#FF1F1F" : "rgba(0,0,0,0.1)" }}>🛞 Tires are in</button>
       </div>
       <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
         <button onClick={() => quickAdd(1)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.7rem" }}>Tomorrow</button>
@@ -729,10 +726,10 @@ function SubscribersTab({ subs, onUpdate }) {
       {subs.map((s) => (
         <div key={s.id} style={{ ...rowStyle, opacity: s.status === "unsubscribed" ? 0.45 : 1 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: "#fff", fontWeight: 700 }}>{s.name || "(no name)"}</div>
-            <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>{s.email}</div>
+            <div style={{ color: "#1a1a1a", fontWeight: 700 }}>{s.name || "(no name)"}</div>
+            <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>{s.email}</div>
           </div>
-          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", marginRight: "0.5rem" }}>{fmtDate(s.created_at)}</span>
+          <span style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.7rem", marginRight: "0.5rem" }}>{fmtDate(s.created_at)}</span>
           <button onClick={() => onUpdate("subscribers", s.id, { status: s.status === "active" ? "unsubscribed" : "active" })} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.45rem 0.7rem" }}>
             {s.status === "active" ? "Unsubscribe" : "Re-activate"}
           </button>
@@ -782,8 +779,8 @@ function EmailTab({ auth, leads, subs, campaigns }) {
           <label style={fieldLabel}>Send to</label>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             {audiences.map((a) => (
-              <button key={a.id} onClick={() => setAudience(a.id)} style={{ ...ghostBtn, flex: 1, background: audience === a.id ? "rgba(255,31,31,0.18)" : "rgba(255,255,255,0.05)", borderColor: audience === a.id ? "#FF1F1F" : "rgba(255,255,255,0.12)" }}>
-                {a.label} <span style={{ color: "rgba(255,255,255,0.5)" }}>({a.n})</span>
+              <button key={a.id} onClick={() => setAudience(a.id)} style={{ ...ghostBtn, flex: 1, background: audience === a.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: audience === a.id ? "#FF1F1F" : "rgba(0,0,0,0.1)" }}>
+                {a.label} <span style={{ color: "rgba(0,0,0,0.55)" }}>({a.n})</span>
               </button>
             ))}
           </div>
@@ -795,14 +792,14 @@ function EmailTab({ auth, leads, subs, campaigns }) {
         <div>
           <label style={fieldLabel}>Message</label>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={8} placeholder={"Write your message here.\n\nLeave a blank line between paragraphs."} style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", marginTop: "0.4rem" }}>Your message gets wrapped in the red/black Tire Plug email design automatically. Replies come back to you.</p>
+          <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem", marginTop: "0.4rem" }}>Your message gets wrapped in the red/black Tire Plug email design automatically. Replies come back to you.</p>
         </div>
 
         {!confirm ? (
           <button onClick={() => setConfirm(true)} disabled={!subject || !message} style={{ ...cta, opacity: !subject || !message ? 0.4 : 1 }}>Review &amp; send</button>
         ) : (
           <div style={{ background: "rgba(255,31,31,0.08)", border: "1px solid rgba(255,31,31,0.3)", borderRadius: 12, padding: "1rem" }}>
-            <p style={{ color: "#fff", fontSize: "0.9rem", marginBottom: "0.75rem" }}>
+            <p style={{ color: "#1a1a1a", fontSize: "0.9rem", marginBottom: "0.75rem" }}>
               Send <strong style={{ color: "#FF3838" }}>“{subject}”</strong> to <strong style={{ color: "#FF3838" }}>{counts[audience]}</strong> {audience === "both" ? "people" : audience}?
             </p>
             <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -826,8 +823,8 @@ function EmailTab({ auth, leads, subs, campaigns }) {
             {campaigns.map((c) => (
               <div key={c.id} style={{ ...rowStyle, padding: "0.7rem 1rem" }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem" }}>{c.subject}</div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>to {c.audience} · {fmtDate(c.created_at, true)}</div>
+                  <div style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem" }}>{c.subject}</div>
+                  <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>to {c.audience} · {fmtDate(c.created_at, true)}</div>
                 </div>
                 <span style={{ color: "#3DD68C", fontSize: "0.78rem", fontWeight: 700 }}>{c.sent_count}/{c.recipient_count} sent</span>
               </div>
@@ -847,16 +844,16 @@ function RepliesTab({ replies, onUpdate }) {
   return (
     <div style={{ display: "grid", gap: "0.75rem" }}>
       {replies.map((r) => (
-        <div key={r.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.4rem", background: r.read ? "rgba(255,255,255,0.02)" : "rgba(255,31,31,0.05)", borderColor: r.read ? "rgba(255,255,255,0.08)" : "rgba(255,31,31,0.25)" }}>
+        <div key={r.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.4rem", background: r.read ? "rgba(0,0,0,0.02)" : "rgba(255,31,31,0.05)", borderColor: r.read ? "rgba(0,0,0,0.08)" : "rgba(255,31,31,0.25)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <span style={{ color: "#fff", fontWeight: 700 }}>{r.from_name || r.from_email}</span>
-              {r.from_name && <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem" }}> · {r.from_email}</span>}
+              <span style={{ color: "#1a1a1a", fontWeight: 700 }}>{r.from_name || r.from_email}</span>
+              {r.from_name && <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem" }}> · {r.from_email}</span>}
             </div>
-            <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem" }}>{fmtDate(r.created_at, true)}</span>
+            <span style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.7rem" }}>{fmtDate(r.created_at, true)}</span>
           </div>
-          <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", fontWeight: 600 }}>{r.subject}</div>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{r.body}</div>
+          <div style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.82rem", fontWeight: 600 }}>{r.subject}</div>
+          <div style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.82rem", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{r.body}</div>
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
             {r.from_email && <a href={`mailto:${r.from_email}`} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>Reply</a>}
             <button onClick={() => onUpdate("email_replies", r.id, { read: !r.read })} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>{r.read ? "Mark unread" : "Mark read"}</button>
@@ -892,11 +889,11 @@ function CeoAgent({ auth }) {
         <button onClick={load} disabled={loading} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.4rem 0.7rem" }}>{loading ? "Thinking…" : "↻ Refresh"}</button>
       </div>
       {loading ? (
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.88rem" }}>Reading today's numbers…</p>
+        <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.88rem" }}>Reading today's numbers…</p>
       ) : err ? (
         <p style={{ color: "#FF6666", fontSize: "0.85rem" }}>⚠ {err}</p>
       ) : (
-        <div style={{ color: "rgba(255,255,255,0.88)", fontSize: "0.92rem", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{briefing}</div>
+        <div style={{ color: "rgba(0,0,0,0.8)", fontSize: "0.92rem", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{briefing}</div>
       )}
     </div>
   );
@@ -915,7 +912,7 @@ function woMins(iso) {
   return `${Math.floor(m / 60)}h ${m % 60}m`;
 }
 function ShopFloorTab({ auth }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -953,16 +950,16 @@ function ShopFloorTab({ auth }) {
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
         <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-          {["all", "Olympic", "Manchester"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{l === "all" ? "All" : l}</button>)}
+          {["all", "Olympic", "Manchester"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{l === "all" ? "All" : l}</button>)}
         </div>
         <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-          <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem" }}>auto-refreshes</span>
+          <span style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem" }}>auto-refreshes</span>
           <button onClick={() => setShowNew((s) => !s)} style={cta}>{showNew ? "✕ Close" : "+ New work order"}</button>
         </div>
       </div>
 
       {showNew && (
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.1rem", marginBottom: "1.25rem" }}>
+        <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.1rem", marginBottom: "1.25rem" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
             <input style={inp} placeholder="Customer name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
             <input style={inp} placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -984,19 +981,19 @@ function ShopFloorTab({ auth }) {
             <div key={col.k}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
                 <span style={{ width: 9, height: 9, borderRadius: "50%", background: col.c }} />
-                <span style={{ color: "#fff", fontWeight: 800, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>{col.l}</span>
-                <span style={{ color: "rgba(255,255,255,0.35)" }}>{items.length}</span>
+                <span style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>{col.l}</span>
+                <span style={{ color: "rgba(0,0,0,0.42)" }}>{items.length}</span>
               </div>
               <div style={{ display: "grid", gap: "0.5rem" }}>
-                {items.length === 0 && <div style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.8rem", padding: "0.5rem" }}>—</div>}
+                {items.length === 0 && <div style={{ color: "rgba(0,0,0,0.2)", fontSize: "0.8rem", padding: "0.5rem" }}>—</div>}
                 {items.map((o) => {
                   const t = o.status === "done" ? o.done_at : o.status === "in_bay" ? o.started_at : o.created_at;
                   return (
-                    <div key={o.id} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${col.c}33`, borderRadius: 12, padding: "0.75rem 0.85rem" }}>
-                      <div style={{ color: "#fff", fontWeight: 700, fontSize: "0.86rem" }}>{o.customer_name || "—"} {o.location && <span style={{ color: "rgba(255,255,255,0.3)", fontWeight: 500, fontSize: "0.72rem" }}>{o.location}</span>}</div>
-                      {o.vehicle && <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>{o.vehicle}</div>}
-                      {o.service && <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.78rem" }}>{o.service}</div>}
-                      <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", margin: "0.3rem 0" }}>{woMins(t)} {o.assigned_staff_id ? `· ${nameById[o.assigned_staff_id] || "tech"}` : ""}</div>
+                    <div key={o.id} style={{ background: "#ffffff", border: `1px solid ${col.c}33`, borderRadius: 12, padding: "0.75rem 0.85rem" }}>
+                      <div style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.86rem" }}>{o.customer_name || "—"} {o.location && <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 500, fontSize: "0.72rem" }}>{o.location}</span>}</div>
+                      {o.vehicle && <div style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem" }}>{o.vehicle}</div>}
+                      {o.service && <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>{o.service}</div>}
+                      <div style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.7rem", margin: "0.3rem 0" }}>{woMins(t)} {o.assigned_staff_id ? `· ${nameById[o.assigned_staff_id] || "tech"}` : ""}</div>
                       <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
                         <select value={o.assigned_staff_id || ""} onChange={(e) => act({ action: "assign", id: o.id, assigned_staff_id: e.target.value })} style={{ ...inp, marginBottom: 0, padding: "0.3rem 0.5rem", fontSize: "0.72rem", width: 110 }}>
                           <option value="">tech…</option>{d.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -1057,7 +1054,7 @@ function ScoreboardTab({ auth }) {
       <CeoAgent auth={auth} />
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
-        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>🟢 Live from TireBase · {data.store} · {data.date}</span>
+        <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>🟢 Live from TireBase · {data.store} · {data.date}</span>
         <button onClick={load} style={ghostBtn}>↻ Refresh</button>
       </div>
 
@@ -1076,10 +1073,10 @@ function ScoreboardTab({ auth }) {
           return (
             <div key={g.key} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem" }}>{g.label} <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>{val} / {g.goal}</span></span>
+                <span style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.9rem" }}>{g.label} <span style={{ color: "rgba(0,0,0,0.45)", fontWeight: 500 }}>{val} / {g.goal}</span></span>
                 <span style={{ color, fontWeight: 800 }}>{pct}%</span>
               </div>
-              <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+              <div style={{ height: 6, background: "#ffffff", borderRadius: 4, overflow: "hidden" }}>
                 <div style={{ height: "100%", width: `${pct}%`, background: color, transition: "width 0.5s" }} />
               </div>
             </div>
@@ -1093,9 +1090,9 @@ function ScoreboardTab({ auth }) {
           {payEntries.length === 0 ? <Empty>No payments yet today.</Empty> : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
               {payEntries.map(([m, v]) => (
-                <div key={m} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "0.85rem 1rem" }}>
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>{m}</div>
-                  <div style={{ color: "#fff", fontWeight: 800, fontSize: "1.1rem" }}>${Number(v).toLocaleString()}</div>
+                <div key={m} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12, padding: "0.85rem 1rem" }}>
+                  <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>{m}</div>
+                  <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1.1rem" }}>${Number(v).toLocaleString()}</div>
                 </div>
               ))}
             </div>
@@ -1109,8 +1106,8 @@ function ScoreboardTab({ auth }) {
                 const max = data.staff[0].total || 1;
                 return (
                   <div key={s.name} style={{ ...rowStyle, padding: "0.7rem 1rem", gap: "0.75rem" }}>
-                    <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem", width: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
-                    <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                    <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem", width: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
+                    <div style={{ flex: 1, height: 6, background: "#ffffff", borderRadius: 4, overflow: "hidden" }}>
                       <div style={{ height: "100%", width: `${Math.round((s.total / max) * 100)}%`, background: "#8B7CF6" }} />
                     </div>
                     <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${s.total.toLocaleString()}</span>
@@ -1126,8 +1123,8 @@ function ScoreboardTab({ auth }) {
 }
 function BigStat({ label, value, color }) {
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
-      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>{label}</div>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+      <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.4rem" }}>{label}</div>
       <div style={{ color, fontWeight: 900, fontSize: "1.9rem", lineHeight: 1 }}>{value}</div>
     </div>
   );
@@ -1180,19 +1177,19 @@ function StaffTab({ auth }) {
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>
+        <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>
           👥 {activeList.length} active · <span style={{ color: "#3DD68C" }}>{activeList.filter((s) => s.clocked_in).length} on the clock</span>
         </span>
         {!editing && (
           <button onClick={() => setEditing({ active: true, location: "Olympic", pay_type: "hourly_commission" })} style={cta}>+ Add staff</button>
         )}
       </div>
-      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem", marginBottom: "1.25rem" }}>
+      <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.75rem", marginBottom: "1.25rem" }}>
         Clock-in kiosk for the shop tablet: <span style={{ color: "#FF6666" }}>tireplugla.com/clock</span> — staff punch in/out with their PIN.
       </p>
 
       {editing && (
-        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+        <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
           <h2 style={subHead}>{editing.id ? "Edit" : "New"} staff member</h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
             <StaffField label="Name"><input style={inp} value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></StaffField>
@@ -1235,7 +1232,7 @@ function StaffTab({ auth }) {
 function StaffField({ label, children }) {
   return (
     <div style={{ marginBottom: "0.5rem" }}>
-      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>{label}</div>
+      <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>{label}</div>
       {children}
     </div>
   );
@@ -1244,11 +1241,11 @@ function StaffRow({ s, onEdit, onToggle }) {
   return (
     <div style={{ ...rowStyle, gap: "0.75rem" }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ color: "#fff", fontWeight: 700 }}>
-          {s.name} <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 500, fontSize: "0.8rem" }}>{s.role || ""}</span>
+        <div style={{ color: "#1a1a1a", fontWeight: 700 }}>
+          {s.name} <span style={{ color: "rgba(0,0,0,0.42)", fontWeight: 500, fontSize: "0.8rem" }}>{s.role || ""}</span>
           {s.clocked_in && <span style={{ marginLeft: 8, color: "#3DD68C", fontSize: "0.7rem", fontWeight: 700 }}>● on the clock</span>}
         </div>
-        <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem" }}>
+        <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>
           {s.location || "—"} · ${Number(s.hourly_rate || 0)}/hr{s.commission_note ? ` · ${s.commission_note}` : ""}
           {s.today_hours > 0 ? ` · ${s.today_hours}h today` : ""}
         </div>
@@ -1269,7 +1266,7 @@ function mondayOf(date) {
   x.setDate(x.getDate() - off); x.setHours(0, 0, 0, 0); return x;
 }
 function ScheduleTab({ auth }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   const [weekStart, setWeekStart] = useState(() => mondayOf(new Date()));
   const [shifts, setShifts] = useState([]);
   const [staff, setStaff] = useState([]);
@@ -1317,11 +1314,11 @@ function ScheduleTab({ auth }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
         <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
           <button onClick={() => shiftWeek(-1)} style={chip}>‹</button>
-          <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem" }}>Week of {weekStart.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+          <span style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.9rem" }}>Week of {weekStart.toLocaleDateString([], { month: "short", day: "numeric" })}</span>
           <button onClick={() => shiftWeek(1)} style={chip}>›</button>
           <button onClick={() => setWeekStart(mondayOf(new Date()))} style={{ ...chip, marginLeft: "0.4rem" }}>This week</button>
         </div>
-        <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", margin: 0 }}>📲 Auto-texts each tech their shift each morning.</p>
+        <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem", margin: 0 }}>📲 Auto-texts each tech their shift each morning.</p>
       </div>
 
       {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
@@ -1332,7 +1329,7 @@ function ScheduleTab({ auth }) {
             const dayShifts = byDate[ds] || [];
             const isToday = ds === todayStr;
             return (
-              <div key={ds} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${isToday ? "rgba(255,31,31,0.35)" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, padding: "0.85rem 1rem" }}>
+              <div key={ds} style={{ background: "#ffffff", border: `1px solid ${isToday ? "rgba(255,31,31,0.35)" : "rgba(0,0,0,0.08)"}`, borderRadius: 12, padding: "0.85rem 1rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: dayShifts.length || adding === ds ? "0.6rem" : 0 }}>
                   <span style={{ color: isToday ? "#FF6666" : "#fff", fontWeight: 800, fontSize: "0.85rem" }}>
                     {dayNames[i]} {d.toLocaleDateString([], { month: "short", day: "numeric" })}{isToday ? " · today" : ""}
@@ -1342,8 +1339,8 @@ function ScheduleTab({ auth }) {
 
                 {dayShifts.map((s) => (
                   <div key={s.id} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.35rem 0" }}>
-                    <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>
-                      {nameById[s.staff_id] || "—"} <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 400 }}>{[s.start_time, s.end_time].filter(Boolean).join("–")}{s.location ? ` · ${s.location}` : ""}</span>
+                    <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>
+                      {nameById[s.staff_id] || "—"} <span style={{ color: "rgba(0,0,0,0.55)", fontWeight: 400 }}>{[s.start_time, s.end_time].filter(Boolean).join("–")}{s.location ? ` · ${s.location}` : ""}</span>
                       {s.reminded_at && <span style={{ color: "#3DD68C", fontSize: "0.65rem", marginLeft: 6 }}>texted ✓</span>}
                     </span>
                     <button onClick={() => del(s.id)} style={{ ...ghostBtn, padding: "0.25rem 0.55rem", fontSize: "0.7rem" }}>✕</button>
@@ -1384,7 +1381,7 @@ const CUST_SEGS = [
   { k: "commercial", l: "🏢 Commercial" },
 ];
 function CustomersTab({ auth }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -1437,9 +1434,9 @@ function CustomersTab({ auth }) {
   if (!d.customers.length) {
     return (
       <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
-        <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "1.25rem" }}>No customer list yet. Build it from your TireBase order history.</p>
+        <p style={{ color: "rgba(0,0,0,0.6)", marginBottom: "1.25rem" }}>No customer list yet. Build it from your TireBase order history.</p>
         <div style={{ display: "flex", gap: "0.4rem", justifyContent: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
-          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, ...(months === m ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{m} mo</button>)}
+          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, ...(months === m ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{m} mo</button>)}
         </div>
         <button onClick={sync} disabled={syncing} style={{ ...cta, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing… (may take a minute)" : `Sync ${months} months from TireBase`}</button>
         {err && <p style={{ color: "#FF6666", marginTop: "1rem" }}>⚠ {err}</p>}
@@ -1453,18 +1450,18 @@ function CustomersTab({ auth }) {
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>📇 {d.counts.all} customers · avg ticket {money(d.avgTicket)}</span>
+        <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>📇 {d.counts.all} customers · avg ticket {money(d.avgTicket)}</span>
         <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", flexWrap: "wrap" }}>
-          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, padding: "0.3rem 0.55rem", ...(months === m ? { background: "rgba(255,255,255,0.2)" } : {}) }}>{m}mo</button>)}
+          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, padding: "0.3rem 0.55rem", ...(months === m ? { background: "rgba(0,0,0,0.18)" } : {}) }}>{m}mo</button>)}
           <button onClick={sync} disabled={syncing} style={{ ...ghostBtn, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing…" : "↻ Re-sync"}</button>
         </div>
       </div>
 
       {/* Due-for-tires potential */}
       <div style={{ background: "rgba(255,42,42,0.08)", border: "1px solid rgba(255,42,42,0.3)", borderRadius: 16, padding: "1.1rem 1.4rem", marginBottom: "1.25rem" }}>
-        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>🛞 Due for tires (3+ yrs since last set)</div>
+        <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>🛞 Due for tires (3+ yrs since last set)</div>
         <div style={{ color: "#FF6B6B", fontWeight: 900, fontSize: "1.7rem", lineHeight: 1.1 }}>{d.counts.due_tires || 0} customers · ~{money(d.duePotential)} potential</div>
-        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginTop: "0.25rem" }}>estimate = due customers × avg ticket · call list ready below</div>
+        <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginTop: "0.25rem" }}>estimate = due customers × avg ticket · call list ready below</div>
       </div>
 
       {/* Suggested commercial */}
@@ -1478,7 +1475,7 @@ function CustomersTab({ auth }) {
       {/* Segment chips */}
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         {CUST_SEGS.map((s) => (
-          <button key={s.k} onClick={() => setSeg(s.k)} style={{ ...chip, ...(seg === s.k ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>
+          <button key={s.k} onClick={() => setSeg(s.k)} style={{ ...chip, ...(seg === s.k ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>
             {s.l} <span style={{ opacity: 0.6 }}>{s.k === "all" ? d.counts.all : (d.counts[s.k] || 0)}</span>
           </button>
         ))}
@@ -1496,11 +1493,11 @@ function CustomersTab({ auth }) {
         {shown.map((c) => (
           <div key={c.id} style={{ ...rowStyle, gap: "0.6rem", padding: "0.6rem 1rem" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ color: "#fff", fontWeight: 700, fontSize: "0.86rem" }}>
+              <div style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.86rem" }}>
                 {c.name} {c.is_commercial && <span style={{ color: "#5BC8FF", fontSize: "0.7rem" }}>🏢</span>}
                 {c.sms_opt_in && <span style={{ color: "#3DD68C", fontSize: "0.65rem", marginLeft: 4 }}>opt-in✓</span>}
               </div>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>
+              <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.75rem" }}>
                 {c.phone || "no phone"} · {money(c.total_spent)} lifetime · {c.order_count} orders
                 {c.last_tire_date ? ` · tires ${c.last_tire_date}` : ""}
               </div>
@@ -1511,7 +1508,7 @@ function CustomersTab({ auth }) {
           </div>
         ))}
       </div>
-      {list.length > shown.length && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", marginTop: "0.75rem" }}>Showing first 200 of {list.length}. Use “Copy numbers” for the full list.</p>}
+      {list.length > shown.length && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem", marginTop: "0.75rem" }}>Showing first 200 of {list.length}. Use “Copy numbers” for the full list.</p>}
     </>
   );
 }
@@ -1549,19 +1546,19 @@ function CampaignPanel({ auth, segment, label }) {
 
   const n = recip ? recip.reachable : 0;
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.25rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.25rem" }}>
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.75rem" }}>
         {["sms", "email"].map((ch) => (
-          <button key={ch} onClick={() => setChannel(ch)} style={{ background: channel === ch ? "#FF1F1F" : "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, padding: "0.4rem 0.9rem", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", fontFamily: "inherit" }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>
+          <button key={ch} onClick={() => setChannel(ch)} style={{ background: channel === ch ? "#FF1F1F" : "#ffffff", color: "#1a1a1a", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, padding: "0.4rem 0.9rem", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", fontFamily: "inherit" }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>
         ))}
       </div>
 
-      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", marginBottom: "0.5rem" }}>
-        <strong style={{ color: "#fff" }}>{label}</strong>: {recip ? `${recip.total} customers · ` : ""}
+      <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginBottom: "0.5rem" }}>
+        <strong style={{ color: "#1a1a1a" }}>{label}</strong>: {recip ? `${recip.total} customers · ` : ""}
         <strong style={{ color: n ? "#3DD68C" : "#FF6666" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
       </p>
-      {channel === "sms" && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>SMS sends only to opted-in customers. Delivery requires your A2P campaign to be approved.</p>}
-      {channel === "email" && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>Email sends to customers with an address on file (most TireBase customers have none yet).</p>}
+      {channel === "sms" && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>SMS sends only to opted-in customers. Delivery requires your A2P campaign to be approved.</p>}
+      {channel === "email" && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>Email sends to customers with an address on file (most TireBase customers have none yet).</p>}
 
       {channel === "email" && <input style={{ ...inp }} placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />}
       <textarea style={{ ...inp, minHeight: 110, resize: "vertical" }} placeholder="Your message… use {name} for the first name" value={body} onChange={(e) => setBody(e.target.value)} />
@@ -1589,11 +1586,11 @@ function ReviewsTab({ auth }) {
   if (!loaded) return <Empty>Loading…</Empty>;
   return (
     <>
-      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
+      <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={subHead}>Links</h2>
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK</div>
+        <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK</div>
         <input style={inp} placeholder="https://g.page/.../review or search.google.com/local/writereview?placeid=..." value={s.google_review_url} onChange={(e) => setS({ ...s, google_review_url: e.target.value })} />
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.7rem", margin: "0.25rem 0" }}>BOOKING LINK (for referrals)</div>
+        <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", margin: "0.25rem 0" }}>BOOKING LINK (for referrals)</div>
         <input style={inp} placeholder="https://tireplugla.com/#booking" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem" }}>
           <button onClick={save} style={cta}>Save links</button>
@@ -1611,7 +1608,7 @@ function ReviewsTab({ auth }) {
   );
 }
 function ReviewSend({ auth, mode }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.4rem 0.8rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.4rem 0.8rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   const [channel, setChannel] = useState("email");
   const [segment, setSegment] = useState("all");
   const [recip, setRecip] = useState(null);
@@ -1629,7 +1626,7 @@ function ReviewSend({ auth, mode }) {
   const n = recip ? recip.reachable : 0;
 
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "1.1rem 1.25rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1.1rem 1.25rem" }}>
       <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>
         {["email", "sms"].map((ch) => <button key={ch} onClick={() => setChannel(ch)} style={{ ...chip, ...(channel === ch ? { background: "#FF1F1F", borderColor: "#FF1F1F" } : {}) }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>)}
         {mode === "referral" && (
@@ -1638,7 +1635,7 @@ function ReviewSend({ auth, mode }) {
           </select>
         )}
       </div>
-      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", marginBottom: "0.6rem" }}>
+      <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginBottom: "0.6rem" }}>
         {mode === "review" ? "Recent customers not yet asked" : "Recipients"}: {recip ? `${recip.total} · ` : ""}<strong style={{ color: n ? "#3DD68C" : "#FF6666" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
         {channel === "sms" ? " — opted-in only, needs A2P approval" : ""}
       </p>
@@ -1657,7 +1654,7 @@ function ReviewSend({ auth, mode }) {
 /* ---------------- FINANCE ROBOT (P&L + cost memory) ---------------- */
 const EXPENSE_CATS = ["rent", "utilities", "ads", "supplies", "insurance", "other"];
 function FinanceTab({ auth }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
   function presetLastMonth() { const n = new Date(); return { key: "lastmonth", from: ymd(new Date(n.getFullYear(), n.getMonth() - 1, 1)), to: ymd(new Date(n.getFullYear(), n.getMonth(), 0)) }; }
   function presetWeek() { const n = new Date(); return { key: "week", from: ymd(mondayOf(n)), to: ymd(n) }; }
@@ -1722,8 +1719,8 @@ function FinanceTab({ auth }) {
   return (
     <>
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{x.l}</button>; })}
-        {d && <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{d.from} → {d.to}</span>}
+        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{x.l}</button>; })}
+        {d && <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{d.from} → {d.to}</span>}
       </div>
 
       {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
@@ -1734,21 +1731,21 @@ function FinanceTab({ auth }) {
             <button onClick={downloadPdf} disabled={dlBusy} style={{ ...ghostBtn, opacity: dlBusy ? 0.6 : 1 }}>{dlBusy ? "Preparing…" : "⬇ Download P&L PDF"}</button>
           </div>
           {insights && (
-            <div style={{ background: "rgba(139,124,246,0.08)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: "1.5rem", whiteSpace: "pre-wrap", color: "rgba(255,255,255,0.85)", fontSize: "0.86rem", lineHeight: 1.5 }}>
+            <div style={{ background: "rgba(139,124,246,0.08)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: "1.5rem", whiteSpace: "pre-wrap", color: "rgba(0,0,0,0.8)", fontSize: "0.86rem", lineHeight: 1.5 }}>
               <div style={{ color: "#A99CF8", fontWeight: 800, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.5rem" }}>🤖 Finance advisor</div>
               {insights}
             </div>
           )}
 
           {/* P&L STATEMENT */}
-          <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
+          <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
             <PLRow label="Revenue (pre-tax)" value={money(d.revenue)} />
             <PLRow label="− Tire / product cost (COGS)" value={money(d.cogs)} dim />
             <PLRow label="= Gross profit" value={money(d.gross)} pct={`${d.grossMargin}%`} strong color="#3DD68C" border />
             <PLRow label="− Labor (payroll)" value={money(d.labor)} dim />
             <PLRow label="− Operating expenses" value={money(d.otherOpex)} dim />
             <PLRow label="= Net profit" value={money(d.net)} pct={`${d.netMargin}%`} strong color={d.net >= 0 ? "#3DD68C" : "#FF6666"} border />
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", marginTop: "0.75rem" }}>Tax excluded (passthrough). Monthly expenses counted across {d.months} month{d.months > 1 ? "s" : ""} in range.</p>
+            <p style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.7rem", marginTop: "0.75rem" }}>Tax excluded (passthrough). Monthly expenses counted across {d.months} month{d.months > 1 ? "s" : ""} in range.</p>
           </div>
 
           {/* NEEDS COST — the memory builder */}
@@ -1759,8 +1756,8 @@ function FinanceTab({ auth }) {
                 {needsCost.slice(0, 30).map((p) => (
                   <div key={p.key} style={{ ...rowStyle, gap: "0.6rem", flexWrap: "wrap" }}>
                     <div style={{ flex: 1, minWidth: 160 }}>
-                      <div style={{ color: "#fff", fontWeight: 600, fontSize: "0.84rem" }}>{p.label}</div>
-                      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.74rem" }}>sold {p.qty} · revenue {money(p.revenue)}</div>
+                      <div style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.84rem" }}>{p.label}</div>
+                      <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.74rem" }}>sold {p.qty} · revenue {money(p.revenue)}</div>
                     </div>
                     <input style={{ ...inp, marginBottom: 0, width: 110 }} type="number" placeholder="$ cost ea" value={costIn[p.key] ?? ""} onChange={(e) => setCostIn({ ...costIn, [p.key]: e.target.value })} />
                     <button onClick={() => saveCost(p, true)} style={cta}>Save cost</button>
@@ -1778,8 +1775,8 @@ function FinanceTab({ auth }) {
               <div style={{ display: "grid", gap: "0.4rem" }}>
                 {priced.map((p) => (
                   <div key={p.key} style={{ ...rowStyle, gap: "0.6rem", padding: "0.6rem 1rem" }}>
-                    <span style={{ flex: 1, color: "#fff", fontSize: "0.83rem", minWidth: 0 }}>{p.label} <span style={{ color: "rgba(255,255,255,0.4)" }}>×{p.qty}</span></span>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem" }}>rev {money(p.revenue)} · cost {money(p.cost)}</span>
+                    <span style={{ flex: 1, color: "#1a1a1a", fontSize: "0.83rem", minWidth: 0 }}>{p.label} <span style={{ color: "rgba(0,0,0,0.45)" }}>×{p.qty}</span></span>
+                    <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>rev {money(p.revenue)} · cost {money(p.cost)}</span>
                     <span style={{ color: p.margin >= 0 ? "#3DD68C" : "#FF6666", fontWeight: 700, fontSize: "0.82rem", width: 90, textAlign: "right" }}>{money(p.margin)} ({p.marginPct}%)</span>
                   </div>
                 ))}
@@ -1805,7 +1802,7 @@ function FinanceTab({ auth }) {
             <div style={{ display: "grid", gap: "0.4rem" }}>
               {d.expenses.map((e) => (
                 <div key={e.id} style={{ ...rowStyle, gap: "0.6rem", padding: "0.55rem 1rem" }}>
-                  <span style={{ flex: 1, color: "#fff", fontSize: "0.84rem" }}>{e.label} <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.74rem" }}>· {e.category} · {e.frequency === "monthly" ? "/mo" : "one-time"}</span></span>
+                  <span style={{ flex: 1, color: "#1a1a1a", fontSize: "0.84rem" }}>{e.label} <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.74rem" }}>· {e.category} · {e.frequency === "monthly" ? "/mo" : "one-time"}</span></span>
                   <span style={{ color: "#FF9E9E", fontSize: "0.82rem" }}>{money(e.amount)}</span>
                   <button onClick={() => delExpense(e.id)} style={{ ...ghostBtn, padding: "0.25rem 0.55rem", fontSize: "0.7rem" }}>✕</button>
                 </div>
@@ -1819,10 +1816,10 @@ function FinanceTab({ auth }) {
 }
 function PLRow({ label, value, pct, dim, strong, color, border }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.4rem 0", borderTop: border ? "1px solid rgba(255,255,255,0.12)" : "none", marginTop: border ? "0.3rem" : 0 }}>
-      <span style={{ color: dim ? "rgba(255,255,255,0.55)" : "#fff", fontWeight: strong ? 800 : 500, fontSize: strong ? "0.95rem" : "0.85rem" }}>{label}</span>
-      <span style={{ color: color || (dim ? "rgba(255,255,255,0.6)" : "#fff"), fontWeight: strong ? 900 : 600, fontSize: strong ? "1.05rem" : "0.9rem" }}>
-        {value}{pct ? <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 600, fontSize: "0.78rem", marginLeft: 6 }}>{pct}</span> : null}
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.4rem 0", borderTop: border ? "1px solid rgba(0,0,0,0.1)" : "none", marginTop: border ? "0.3rem" : 0 }}>
+      <span style={{ color: dim ? "rgba(0,0,0,0.55)" : "#fff", fontWeight: strong ? 800 : 500, fontSize: strong ? "0.95rem" : "0.85rem" }}>{label}</span>
+      <span style={{ color: color || (dim ? "rgba(0,0,0,0.6)" : "#fff"), fontWeight: strong ? 900 : 600, fontSize: strong ? "1.05rem" : "0.9rem" }}>
+        {value}{pct ? <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600, fontSize: "0.78rem", marginLeft: 6 }}>{pct}</span> : null}
       </span>
     </div>
   );
@@ -1830,7 +1827,7 @@ function PLRow({ label, value, pct, dim, strong, color, border }) {
 
 /* ---------------- PAYROLL + PERFORMANCE (Phase 5) ---------------- */
 function PayrollTab({ auth }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   function presetWeek() { const n = new Date(); return { key: "week", from: ymd(mondayOf(n)), to: ymd(n) }; }
   function presetLastWeek() { const m = mondayOf(new Date()); m.setDate(m.getDate() - 7); const e = new Date(m); e.setDate(e.getDate() + 6); return { key: "lastweek", from: ymd(m), to: ymd(e) }; }
   function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
@@ -1869,50 +1866,50 @@ function PayrollTab({ auth }) {
   return (
     <>
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{x.l}</button>; })}
-        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{range.from} → {range.to}</span>
+        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{x.l}</button>; })}
+        <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{range.from} → {range.to}</span>
       </div>
 
       {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
       {loading ? <Empty>Crunching the numbers…</Empty> : (
         <>
           <div style={{ background: "rgba(139,124,246,0.1)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 16, padding: "1.1rem 1.4rem", marginBottom: "1.5rem" }}>
-            <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>Estimated payroll this period</div>
+            <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>Estimated payroll this period</div>
             <div style={{ color: "#A99CF8", fontWeight: 900, fontSize: "1.9rem", lineHeight: 1.1 }}>${grand.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginTop: "0.25rem" }}>hours × rate + logged commission · review before paying</div>
+            <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginTop: "0.25rem" }}>hours × rate + logged commission · review before paying</div>
           </div>
 
           {rows.length === 0 ? <Empty>No active staff.</Empty> : (
             <div style={{ display: "grid", gap: "0.75rem" }}>
               {rows.map((r) => (
-                <div key={r.staff_id} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "1rem 1.15rem" }}>
+                <div key={r.staff_id} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1rem 1.15rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", flexWrap: "wrap" }}>
                     <div>
-                      <div style={{ color: "#fff", fontWeight: 800, fontSize: "1rem" }}>{r.name}</div>
+                      <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1rem" }}>{r.name}</div>
                       <div style={{ display: "flex", gap: "0.15rem", marginTop: "0.2rem" }}>
                         {[1, 2, 3, 4, 5].map((n) => (
-                          <span key={n} onClick={() => setRating(r.staff_id, n)} style={{ cursor: "pointer", color: n <= (r.rating || 0) ? "#FFB800" : "rgba(255,255,255,0.2)", fontSize: "1rem" }}>★</span>
+                          <span key={n} onClick={() => setRating(r.staff_id, n)} style={{ cursor: "pointer", color: n <= (r.rating || 0) ? "#FFB800" : "rgba(0,0,0,0.18)", fontSize: "1rem" }}>★</span>
                         ))}
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <div style={{ color: "#3DD68C", fontWeight: 900, fontSize: "1.3rem", lineHeight: 1 }}>${(r.total_pay || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-                      <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.7rem" }}>total pay</div>
+                      <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.7rem" }}>total pay</div>
                     </div>
                   </div>
 
-                  <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", marginTop: "0.6rem" }}>
-                    {r.hours}h × ${r.hourly_rate}/hr = <strong style={{ color: "#fff" }}>${r.base_pay.toLocaleString()}</strong>
-                    {r.commission > 0 ? <> · commission <strong style={{ color: "#fff" }}>${r.commission.toLocaleString()}</strong></> : null}
+                  <div style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginTop: "0.6rem" }}>
+                    {r.hours}h × ${r.hourly_rate}/hr = <strong style={{ color: "#1a1a1a" }}>${r.base_pay.toLocaleString()}</strong>
+                    {r.commission > 0 ? <> · commission <strong style={{ color: "#1a1a1a" }}>${r.commission.toLocaleString()}</strong></> : null}
                     {" · "}{r.days_worked}d worked · {r.shifts} shift{r.shifts === 1 ? "" : "s"}
                   </div>
 
                   {Object.keys(r.output || {}).length > 0 && (
-                    <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.8rem", marginTop: "0.35rem" }}>
+                    <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem", marginTop: "0.35rem" }}>
                       {SERVICE_TYPES.filter((t) => r.output[t.key]).map((t) => `${t.emoji} ${r.output[t.key]}`).join("   ")}
                     </div>
                   )}
-                  {r.commission_note && <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", marginTop: "0.3rem" }}>commission rule: {r.commission_note}</div>}
+                  {r.commission_note && <div style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.72rem", marginTop: "0.3rem" }}>commission rule: {r.commission_note}</div>}
 
                   <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.6rem" }}>
                     <input style={{ ...inp, marginBottom: 0, flex: 1, fontSize: "0.82rem", padding: "0.6rem 0.85rem" }} placeholder="Performance notes…" value={r.perf_notes || ""} onChange={(e) => setNote(r.staff_id, e.target.value)} onBlur={() => saveNote(r)} />
@@ -1938,7 +1935,7 @@ const SERVICE_TYPES = [
   { key: "other", label: "Other", emoji: "➕" },
 ];
 function WorkLogTab({ auth }) {
-  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   const [entries, setEntries] = useState([]);
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1988,10 +1985,10 @@ function WorkLogTab({ auth }) {
 
   return (
     <>
-      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+      <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={subHead}>Log work</h2>
         {staff.length === 0 ? (
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>Add staff in the 👥 Staff tab first.</p>
+          <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem" }}>Add staff in the 👥 Staff tab first.</p>
         ) : (
           <>
             <select style={{ ...inp, maxWidth: 240 }} value={form.staff_id} onChange={(e) => setForm({ ...form, staff_id: e.target.value })}>
@@ -2001,7 +1998,7 @@ function WorkLogTab({ auth }) {
             <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", margin: "0.25rem 0 0.75rem" }}>
               {SERVICE_TYPES.map((t) => {
                 const on = form.service_type === t.key;
-                return <button key={t.key} onClick={() => setForm({ ...form, service_type: t.key })} style={{ ...chip, ...(on ? { background: "#FF1F1F", borderColor: "#FF1F1F", color: "#fff" } : {}) }}>{t.emoji} {t.label}</button>;
+                return <button key={t.key} onClick={() => setForm({ ...form, service_type: t.key })} style={{ ...chip, ...(on ? { background: "#FF1F1F", borderColor: "#FF1F1F", color: "#1a1a1a" } : {}) }}>{t.emoji} {t.label}</button>;
               })}
             </div>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
@@ -2016,7 +2013,7 @@ function WorkLogTab({ auth }) {
 
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem" }}>
         {[{ d: 0, l: "Today" }, { d: 7, l: "7 days" }, { d: 30, l: "30 days" }].map((r) => (
-          <button key={r.d} onClick={() => changeRange(r.d)} style={{ ...chip, ...(days === r.d ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{r.l}</button>
+          <button key={r.d} onClick={() => changeRange(r.d)} style={{ ...chip, ...(days === r.d ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{r.l}</button>
         ))}
       </div>
 
@@ -2027,8 +2024,8 @@ function WorkLogTab({ auth }) {
         <div style={{ display: "grid", gap: "0.5rem", marginBottom: "2rem" }}>
           {summaryRows.map(([sid, m]) => (
             <div key={sid} style={{ ...rowStyle, gap: "0.75rem", flexWrap: "wrap" }}>
-              <span style={{ color: "#fff", fontWeight: 700, width: 120 }}>{nameById[sid] || "Unassigned"}</span>
-              <span style={{ flex: 1, color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
+              <span style={{ color: "#1a1a1a", fontWeight: 700, width: 120 }}>{nameById[sid] || "Unassigned"}</span>
+              <span style={{ flex: 1, color: "rgba(0,0,0,0.62)", fontSize: "0.85rem" }}>
                 {SERVICE_TYPES.filter((t) => m.counts[t.key]).map((t) => `${t.emoji} ${m.counts[t.key]}`).join("   ") || "—"}
               </span>
               {m.amount > 0 && <span style={{ color: "#3DD68C", fontWeight: 700 }}>${m.amount.toLocaleString()}</span>}
@@ -2044,8 +2041,8 @@ function WorkLogTab({ auth }) {
             const t = SERVICE_TYPES.find((x) => x.key === e.service_type);
             return (
               <div key={e.id} style={{ ...rowStyle, padding: "0.6rem 1rem", gap: "0.75rem" }}>
-                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", width: 56 }}>{new Date(e.logged_at).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
-                <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>{nameById[e.staff_id] || "Unassigned"} · {t ? `${t.emoji} ${t.label}` : e.service_type} ×{e.qty}{e.note ? ` — ${e.note}` : ""}</span>
+                <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", width: 56 }}>{new Date(e.logged_at).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+                <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>{nameById[e.staff_id] || "Unassigned"} · {t ? `${t.emoji} ${t.label}` : e.service_type} ×{e.qty}{e.note ? ` — ${e.note}` : ""}</span>
                 {e.amount ? <span style={{ color: "#3DD68C", fontSize: "0.8rem" }}>${Number(e.amount).toLocaleString()}</span> : null}
                 <button onClick={() => del(e.id)} style={{ ...ghostBtn, padding: "0.3rem 0.6rem", fontSize: "0.7rem" }}>✕</button>
               </div>
@@ -2102,22 +2099,22 @@ function MD({ text }) {
   const flush = () => {
     if (!list.length) return;
     const Tag = listType === "ol" ? "ol" : "ul";
-    els.push(<Tag key={"l" + els.length} style={{ margin: "0 0 0.6rem 1.15rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.6 }}>{list}</Tag>);
+    els.push(<Tag key={"l" + els.length} style={{ margin: "0 0 0.6rem 1.15rem", color: "rgba(0,0,0,0.8)", lineHeight: 1.6 }}>{list}</Tag>);
     list = []; listType = null;
   };
-  const inline = (s) => s.split(/(\*\*[^*]+\*\*)/g).map((p, i) => /^\*\*[^*]+\*\*$/.test(p) ? <strong key={i} style={{ color: "#fff" }}>{p.slice(2, -2)}</strong> : <span key={i}>{p}</span>);
+  const inline = (s) => s.split(/(\*\*[^*]+\*\*)/g).map((p, i) => /^\*\*[^*]+\*\*$/.test(p) ? <strong key={i} style={{ color: "#1a1a1a" }}>{p.slice(2, -2)}</strong> : <span key={i}>{p}</span>);
   lines.forEach((raw, i) => {
     const t = raw.trim();
     const h = t.match(/^(#{1,6})\s+(.*)/);
     const ol = t.match(/^(\d+)\.\s+(.*)/);
     const ul = t.match(/^[-*]\s+(.*)/);
-    if (h) { flush(); const lvl = h[1].length; els.push(<div key={i} style={{ color: "#fff", fontWeight: 800, fontSize: lvl <= 2 ? "1.02rem" : "0.92rem", margin: "0.5rem 0 0.4rem" }}>{inline(h[2])}</div>); }
+    if (h) { flush(); const lvl = h[1].length; els.push(<div key={i} style={{ color: "#1a1a1a", fontWeight: 800, fontSize: lvl <= 2 ? "1.02rem" : "0.92rem", margin: "0.5rem 0 0.4rem" }}>{inline(h[2])}</div>); }
     else if (ol) { if (listType !== "ol") flush(); listType = "ol"; list.push(<li key={i} style={{ marginBottom: "0.25rem" }}>{inline(ol[2])}</li>); }
     else if (ul) { if (listType !== "ul") flush(); listType = "ul"; list.push(<li key={i} style={{ marginBottom: "0.25rem" }}>{inline(ul[1])}</li>); }
     else if (/^-{3,}$/.test(t)) { /* horizontal rule — skip */ }
-    else if (t.startsWith("|")) { if (!/^\|[\s:|-]+\|$/.test(t)) { flush(); const cells = t.split("|").map((c) => c.trim()).filter(Boolean); els.push(<p key={i} style={{ color: "rgba(255,255,255,0.8)", margin: "0 0 0.3rem", fontSize: "0.85rem" }}>{cells.join("  ·  ")}</p>); } }
+    else if (t.startsWith("|")) { if (!/^\|[\s:|-]+\|$/.test(t)) { flush(); const cells = t.split("|").map((c) => c.trim()).filter(Boolean); els.push(<p key={i} style={{ color: "rgba(0,0,0,0.7)", margin: "0 0 0.3rem", fontSize: "0.85rem" }}>{cells.join("  ·  ")}</p>); } }
     else if (t === "") { flush(); }
-    else { flush(); els.push(<p key={i} style={{ color: "rgba(255,255,255,0.85)", margin: "0 0 0.6rem", lineHeight: 1.7 }}>{inline(t)}</p>); }
+    else { flush(); els.push(<p key={i} style={{ color: "rgba(0,0,0,0.8)", margin: "0 0 0.6rem", lineHeight: 1.7 }}>{inline(t)}</p>); }
   });
   flush();
   return <div>{els}</div>;
@@ -2140,12 +2137,12 @@ function LessonViewer({ module, passed, onTakeQuiz, onComplete, onUndo }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 4, marginBottom: "0.7rem" }}>
-        {slides.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= idx ? "#FF1F1F" : "rgba(255,255,255,0.1)", transition: "background 0.3s" }} />)}
+        {slides.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= idx ? "#FF1F1F" : "rgba(0,0,0,0.1)", transition: "background 0.3s" }} />)}
       </div>
       <div style={{ fontSize: "0.9rem", minHeight: 110, marginBottom: "0.85rem" }}><MD text={slides[idx]} /></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
         <button onClick={() => setIdx((i) => Math.max(0, i - 1))} disabled={idx === 0} style={{ ...ghostBtn, opacity: idx === 0 ? 0.4 : 1 }}>← Back</button>
-        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.74rem" }}>Section {idx + 1} of {slides.length}</span>
+        <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.74rem" }}>Section {idx + 1} of {slides.length}</span>
         {!last ? (
           <button onClick={() => canNext && setIdx((i) => i + 1)} disabled={!canNext} style={{ ...cta, opacity: canNext ? 1 : 0.45 }}>{canNext ? "Next →" : "Reading…"}</button>
         ) : module.hasQuiz ? (
@@ -2229,11 +2226,11 @@ function TrainingTab({ auth }) {
           <input value={ask} onChange={(e) => setAsk(e.target.value)} onKeyDown={(e) => e.key === "Enter" && askTrainer()} placeholder="e.g. What do I do when a customer has a special order?" style={{ ...inp, marginBottom: 0, flex: 1 }} />
           <button onClick={askTrainer} disabled={asking} style={cta}>{asking ? "…" : "Ask"}</button>
         </div>
-        {answer && <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.88rem", lineHeight: 1.6, whiteSpace: "pre-wrap", marginTop: "0.85rem" }}>{answer}</div>}
+        {answer && <div style={{ color: "rgba(0,0,0,0.8)", fontSize: "0.88rem", lineHeight: 1.6, whiteSpace: "pre-wrap", marginTop: "0.85rem" }}>{answer}</div>}
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
-        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>✓ {passedCount} of {modules.length} guides passed</span>
+        <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>✓ {passedCount} of {modules.length} guides passed</span>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           {isOwner && <button onClick={() => setShowReport(true)} style={ghostBtn}>📊 Report card</button>}
           {isOwner && !editing && <button onClick={() => setEditing({ category: TRAIN_CATS[0], title: "", content: "" })} style={cta}>+ Add guide</button>}
@@ -2246,7 +2243,7 @@ function TrainingTab({ auth }) {
         <div key={cat} style={{ marginBottom: "1.5rem" }}>
           <h2 style={subHead}>{cat}</h2>
           {(byCat[cat] || []).length === 0 ? (
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.8rem" }}>No guides yet.</p>
+            <p style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.8rem" }}>No guides yet.</p>
           ) : (
             <div style={{ display: "grid", gap: "0.5rem" }}>
               {(byCat[cat] || []).map((m) => {
@@ -2259,11 +2256,11 @@ function TrainingTab({ auth }) {
                 return (
                   <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem", opacity: locked ? 0.5 : 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.25)"}`, background: pr && pr.passed ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{locked ? "🔒" : pr && pr.passed ? "✓" : ""}</span>
-                      <span onClick={() => !locked && openModule(m.id)} style={{ color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: locked ? "default" : "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#3DD68C" : "rgba(255,255,255,0.4)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
+                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#3DD68C" : "rgba(0,0,0,0.2)"}`, background: pr && pr.passed ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{locked ? "🔒" : pr && pr.passed ? "✓" : ""}</span>
+                      <span onClick={() => !locked && openModule(m.id)} style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.9rem", cursor: locked ? "default" : "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#3DD68C" : "rgba(0,0,0,0.45)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
                       {isOwner && <button onClick={() => setEditing(m)} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Edit</button>}
                       {isOwner && <button onClick={() => delModule(m.id)} style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.85rem" }}>✕</button>}
-                      {!locked && <span onClick={() => openModule(m.id)} style={{ color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>}
+                      {!locked && <span onClick={() => openModule(m.id)} style={{ color: "rgba(0,0,0,0.4)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>}
                     </div>
                     {!locked && openId === m.id && (
                       <div style={{ paddingLeft: "calc(22px + 0.75rem)" }}>
@@ -2311,8 +2308,8 @@ function QuizRunner({ auth, moduleId, startedAt, onDone }) {
     if (onDone) onDone();
   }
 
-  if (!questions) return <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>Loading quiz…</p>;
-  if (!questions.length) return <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>No quiz on this guide yet.</p>;
+  if (!questions) return <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem" }}>Loading quiz…</p>;
+  if (!questions.length) return <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem" }}>No quiz on this guide yet.</p>;
 
   if (result) {
     return (
@@ -2320,11 +2317,11 @@ function QuizRunner({ auth, moduleId, startedAt, onDone }) {
         <div style={{ color: result.passed ? "#3DD68C" : "#FF6666", fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
           {result.passed ? "✓ Passed" : "✗ Not passed"} — {result.score}% ({result.correct}/{result.total})
         </div>
-        {!result.passed && <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.82rem", marginBottom: "0.6rem" }}>You need {result.pass}% to pass. Review the guide and retake.</p>}
+        {!result.passed && <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.82rem", marginBottom: "0.6rem" }}>You need {result.pass}% to pass. Review the guide and retake.</p>}
         {questions.map((q, i) => (
           <div key={i} style={{ marginBottom: "0.45rem", fontSize: "0.82rem" }}>
             <div style={{ color: result.results[i].correct ? "#3DD68C" : "#FF6666" }}>{result.results[i].correct ? "✓" : "✗"} {q.q}</div>
-            {!result.results[i].correct && <div style={{ color: "rgba(255,255,255,0.6)", paddingLeft: "1.1rem" }}>Correct answer: {q.options[result.results[i].correctIndex]}</div>}
+            {!result.results[i].correct && <div style={{ color: "rgba(0,0,0,0.6)", paddingLeft: "1.1rem" }}>Correct answer: {q.options[result.results[i].correctIndex]}</div>}
           </div>
         ))}
         <button onClick={() => { setResult(null); setAnswers({}); }} style={{ ...ghostBtn, marginTop: "0.5rem" }}>Retake</button>
@@ -2336,9 +2333,9 @@ function QuizRunner({ auth, moduleId, startedAt, onDone }) {
     <div>
       {questions.map((q, i) => (
         <div key={i} style={{ marginBottom: "0.9rem" }}>
-          <div style={{ color: "#fff", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>{i + 1}. {q.q}</div>
+          <div style={{ color: "#1a1a1a", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>{i + 1}. {q.q}</div>
           {q.options.map((opt, j) => (
-            <label key={j} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", color: "rgba(255,255,255,0.8)", fontSize: "0.82rem", padding: "0.22rem 0", cursor: "pointer" }}>
+            <label key={j} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", color: "rgba(0,0,0,0.7)", fontSize: "0.82rem", padding: "0.22rem 0", cursor: "pointer" }}>
               <input type="radio" name={`q${moduleId}_${i}`} checked={answers[i] === j} onChange={() => setAnswers((a) => ({ ...a, [i]: j }))} style={{ marginTop: 3 }} />
               <span>{opt}</span>
             </label>
@@ -2382,10 +2379,10 @@ function ReportCard({ auth, onClose }) {
             return (
               <div key={email} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-                  <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.88rem" }}>{email}</span>
-                  <span style={{ color: pct >= 100 ? "#3DD68C" : "rgba(255,255,255,0.7)", fontSize: "0.8rem" }}>{passed}/{total} passed · {avg}% avg · {mins}m total</span>
+                  <span style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.88rem" }}>{email}</span>
+                  <span style={{ color: pct >= 100 ? "#3DD68C" : "rgba(0,0,0,0.62)", fontSize: "0.8rem" }}>{passed}/{total} passed · {avg}% avg · {mins}m total</span>
                 </div>
-                <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ height: 6, background: "#ffffff", borderRadius: 4, overflow: "hidden" }}>
                   <div style={{ height: "100%", width: `${pct}%`, background: pct >= 100 ? "#3DD68C" : "#8B7CF6" }} />
                 </div>
               </div>
@@ -2432,7 +2429,7 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
   const qCountActual = quiz && quiz.questions ? quiz.questions.length : 0;
 
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
       <label style={fieldLabel}>Category</label>
       <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...inp, appearance: "auto" }}>
         {TRAIN_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -2446,17 +2443,17 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
       <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={10} placeholder="Write the step-by-step guide, or tap ✨ AI draft above." style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
 
       {/* Quiz */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "0.85rem", marginTop: "0.5rem" }}>
+      <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: "0.85rem", marginTop: "0.5rem" }}>
         <label style={fieldLabel}>Quiz {qCountActual > 0 ? `· ${qCountActual} questions ✓` : "(graded test on this guide)"}</label>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap", marginBottom: "0.6rem" }}>
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem" }}># questions (5–15):</span>
+          <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}># questions (5–15):</span>
           <input type="number" min={5} max={15} value={qCount} onChange={(e) => setQCount(Math.min(15, Math.max(5, Number(e.target.value) || 5)))} style={{ ...inp, marginBottom: 0, width: 70, padding: "0.5rem" }} />
           <button onClick={genQuiz} disabled={genning} style={{ ...ghostBtn, borderColor: "rgba(139,124,246,0.4)", color: "#A99CF8" }}>{genning ? "✨ Building quiz…" : "✨ Generate quiz"}</button>
           {qErr && <span style={{ color: "#FF6666", fontSize: "0.78rem" }}>{qErr}</span>}
         </div>
         {quiz && quiz.questions && quiz.questions.map((q, i) => (
-          <div key={i} style={{ fontSize: "0.78rem", marginBottom: "0.4rem", color: "rgba(255,255,255,0.6)" }}>
-            <span style={{ color: "rgba(255,255,255,0.8)" }}>{i + 1}. {q.q}</span> <span style={{ color: "#3DD68C" }}>→ {q.options[q.answer]}</span>
+          <div key={i} style={{ fontSize: "0.78rem", marginBottom: "0.4rem", color: "rgba(0,0,0,0.6)" }}>
+            <span style={{ color: "rgba(0,0,0,0.7)" }}>{i + 1}. {q.q}</span> <span style={{ color: "#3DD68C" }}>→ {q.options[q.answer]}</span>
           </div>
         ))}
       </div>
@@ -2472,8 +2469,8 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
 /* ---------------- HIRING ---------------- */
 function HiringTab() {
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "2.5rem", textAlign: "center" }}>
-      <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "1.25rem", lineHeight: 1.6 }}>Your AI hiring dashboard lives in its own dedicated space and works exactly as before.</p>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: "2.5rem", textAlign: "center" }}>
+      <p style={{ color: "rgba(0,0,0,0.6)", marginBottom: "1.25rem", lineHeight: 1.6 }}>Your AI hiring dashboard lives in its own dedicated space and works exactly as before.</p>
       <a href="/careers/admin" style={cta}>Open Hiring Dashboard →</a>
     </div>
   );
@@ -2483,7 +2480,7 @@ function HiringTab() {
 function Section({ title, children }) {
   return (
     <div style={{ marginBottom: "1.5rem" }}>
-      <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.75rem" }}>{title}</p>
+      <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.75rem" }}>{title}</p>
       {children}
     </div>
   );
@@ -2491,13 +2488,13 @@ function Section({ title, children }) {
 function KV({ k, v }) {
   if (!v) return null;
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", padding: "0.4rem 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-      <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.8rem" }}>{k}</span>
-      <span style={{ color: "#fff", fontSize: "0.85rem", textAlign: "right" }}>{v}</span>
+    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", padding: "0.4rem 0", borderBottom: "1px solid #ffffff" }}>
+      <span style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.8rem" }}>{k}</span>
+      <span style={{ color: "#1a1a1a", fontSize: "0.85rem", textAlign: "right" }}>{v}</span>
     </div>
   );
 }
-function Empty({ children }) { return <p style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{children}</p>; }
+function Empty({ children }) { return <p style={{ color: "rgba(0,0,0,0.55)", lineHeight: 1.6 }}>{children}</p>; }
 
 function fmtDate(s, withTime) {
   if (!s) return "";
@@ -2532,16 +2529,16 @@ function dueLabel(s) {
 function ActiveBoard({ team, me, onRevoke }) {
   if (!team || team.length === 0) return null;
   return (
-    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "0.9rem 1.25rem", marginBottom: "1.5rem" }}>
-      <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.7rem" }}>Recently Active</p>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "0.9rem 1.25rem", marginBottom: "1.5rem" }}>
+      <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.7rem" }}>Recently Active</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
         {team.map((m) => {
           const online = isOnline(m.last_active);
           return (
-            <div key={m.email} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 50, padding: "0.35rem 0.8rem" }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: online ? "#3DD68C" : "rgba(255,255,255,0.25)", boxShadow: online ? "0 0 8px #3DD68C" : "none", flexShrink: 0 }} />
-              <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.82rem" }}>{m.name || m.email}{m.is_owner ? " 👑" : ""}</span>
-              <span style={{ color: online ? "#3DD68C" : "rgba(255,255,255,0.4)", fontSize: "0.72rem" }}>{agoLabel(m.last_active)}</span>
+            <div key={m.email} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#ffffff", border: "1px solid #ffffff", borderRadius: 50, padding: "0.35rem 0.8rem" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: online ? "#3DD68C" : "rgba(0,0,0,0.2)", boxShadow: online ? "0 0 8px #3DD68C" : "none", flexShrink: 0 }} />
+              <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.82rem" }}>{m.name || m.email}{m.is_owner ? " 👑" : ""}</span>
+              <span style={{ color: online ? "#3DD68C" : "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>{agoLabel(m.last_active)}</span>
               {me && me.isOwner && !m.is_owner && (
                 <button onClick={() => onRevoke(m.email, "revoke")} title="Log out / revoke access" style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.8rem", padding: 0, lineHeight: 1 }}>✕</button>
               )}
@@ -2575,24 +2572,24 @@ function Shell({ children, title }) {
   return (
     <>
       <Head><title>{title}</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <main style={{ background: "#000", minHeight: "100vh", padding: "2.5rem 1.25rem 5rem", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <div style={{ background: "#f5f6f8", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif", color: "#1a1a1a" }}>
         {children}
-        <style jsx>{`.adminRow:hover { border-color: rgba(255,31,31,0.4) !important; background: rgba(255,31,31,0.04) !important; }`}</style>
-      </main>
+        <style jsx>{`.adminRow:hover { border-color: rgba(0,0,0,0.18) !important; background: #fafbfc !important; }`}</style>
+      </div>
     </>
   );
 }
 
 /* styles */
-const inp = { width: "100%", padding: "0.9rem 1.1rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: "0.95rem", marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
-const miniInp = { width: "100%", padding: "0.5rem 0.6rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, background: "rgba(255,255,255,0.03)", color: "#fff", fontSize: "0.82rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
-const cta = { display: "inline-block", background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)", color: "#fff", padding: "0.8rem 1.4rem", fontSize: "0.8rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
-const ghostBtn = { display: "inline-block", background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.7rem 1.1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
-const googleBtn = { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", background: "#fff", color: "#1a1a1a", padding: "0.85rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" };
-const tabBtn = (active) => ({ background: active ? "rgba(255,31,31,0.15)" : "transparent", color: active ? "#FF6666" : "rgba(255,255,255,0.6)", padding: "0.55rem 1rem", fontSize: "0.85rem", fontWeight: 700, border: active ? "1px solid rgba(255,31,31,0.3)" : "1px solid transparent", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" });
-const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "0.85rem 1.25rem", transition: "all 0.2s ease" };
-const subHead = { color: "rgba(255,255,255,0.4)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", margin: "2.5rem 0 1rem" };
-const fieldLabel = { display: "block", color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "0.5rem" };
+const inp = { width: "100%", padding: "0.9rem 1.1rem", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, background: "#ffffff", color: "#1a1a1a", fontSize: "0.95rem", marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
+const miniInp = { width: "100%", padding: "0.5rem 0.6rem", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, background: "#ffffff", color: "#1a1a1a", fontSize: "0.82rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
+const cta = { display: "inline-block", background: "#1a1a1a", color: "#fff", padding: "0.8rem 1.4rem", fontSize: "0.8rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
+const ghostBtn = { display: "inline-block", background: "#ffffff", color: "#1a1a1a", padding: "0.7rem 1.1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
+const googleBtn = { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", background: "#fff", color: "#1a1a1a", padding: "0.85rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" };
+const tabBtn = (active) => ({ background: active ? "rgba(255,31,31,0.15)" : "transparent", color: active ? "#FF6666" : "rgba(0,0,0,0.6)", padding: "0.55rem 1rem", fontSize: "0.85rem", fontWeight: 700, border: active ? "1px solid rgba(255,31,31,0.3)" : "1px solid transparent", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" });
+const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "0.85rem 1.25rem", transition: "all 0.2s ease" };
+const subHead = { color: "rgba(0,0,0,0.45)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", margin: "2.5rem 0 1rem" };
+const fieldLabel = { display: "block", color: "rgba(0,0,0,0.55)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "0.5rem" };
 const overlay = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "flex-end" };
-const drawer = { width: "min(540px, 100%)", height: "100%", overflowY: "auto", background: "linear-gradient(135deg, #0c0c0c 0%, #000 100%)", borderLeft: "1px solid rgba(255,31,31,0.25)", padding: "2.5rem 2rem", position: "relative" };
-const closeBtn = { position: "absolute", top: "1.25rem", right: "1.25rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" };
+const drawer = { width: "min(540px, 100%)", height: "100%", overflowY: "auto", background: "#fff", borderLeft: "1px solid rgba(0,0,0,0.1)", boxShadow: "-10px 0 30px rgba(0,0,0,0.12)", padding: "2.5rem 2rem", position: "relative" };
+const closeBtn = { position: "absolute", top: "1.25rem", right: "1.25rem", background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", color: "#1a1a1a", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" };
