@@ -183,6 +183,7 @@ export default function AdminHub() {
     { id: "schedule", label: "🗓️ Schedule" },
     { id: "worklog", label: "📋 Work Log" },
     { id: "payroll", label: "💵 Payroll" },
+    { id: "finance", label: "📒 Finance" },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -229,6 +230,7 @@ export default function AdminHub() {
         {tab === "schedule" && <ScheduleTab auth={auth} />}
         {tab === "worklog" && <WorkLogTab auth={auth} />}
         {tab === "payroll" && <PayrollTab auth={auth} />}
+        {tab === "finance" && <FinanceTab auth={auth} />}
       </div>
 
       {selectedLead && (
@@ -1248,6 +1250,150 @@ function ScheduleTab({ auth }) {
         </div>
       )}
     </>
+  );
+}
+
+/* ---------------- FINANCE ROBOT (P&L + cost memory) ---------------- */
+const EXPENSE_CATS = ["rent", "utilities", "ads", "supplies", "insurance", "other"];
+function FinanceTab({ auth }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
+  function presetLastMonth() { const n = new Date(); return { key: "lastmonth", from: ymd(new Date(n.getFullYear(), n.getMonth() - 1, 1)), to: ymd(new Date(n.getFullYear(), n.getMonth(), 0)) }; }
+  function presetWeek() { const n = new Date(); return { key: "week", from: ymd(mondayOf(n)), to: ymd(n) }; }
+
+  const [range, setRange] = useState(() => presetMonth());
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [costIn, setCostIn] = useState({});
+  const [exp, setExp] = useState({ label: "", category: "rent", amount: "", frequency: "monthly" });
+
+  async function call(body) {
+    const res = await fetch("/api/admin/finance", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function load(r) {
+    setLoading(true); setErr("");
+    try { setD(await call({ action: "pnl", from: r.from, to: r.to })); }
+    catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(range); /* eslint-disable-next-line */ }, [range]);
+
+  async function saveCost(p, isProduct) {
+    const v = isProduct ? costIn[p.key] : 0;
+    try { await call({ action: "setCost", description: p.label, unit_cost: v || 0, is_product: isProduct }); await load(range); }
+    catch (e) { alert(e.message); }
+  }
+  async function addExpense() {
+    if (!exp.label || exp.amount === "") return;
+    try { await call({ action: "addExpense", expense: exp }); setExp({ label: "", category: "rent", amount: "", frequency: "monthly" }); await load(range); }
+    catch (e) { alert(e.message); }
+  }
+  async function delExpense(id) { try { await call({ action: "deleteExpense", id }); await load(range); } catch (e) { alert(e.message); } }
+
+  const money = (n) => `$${(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const presets = [{ p: presetWeek, l: "This week" }, { p: presetMonth, l: "This month" }, { p: presetLastMonth, l: "Last month" }];
+  const needsCost = d ? d.products.filter((p) => !p.hasCost) : [];
+  const priced = d ? d.products.filter((p) => p.hasCost) : [];
+
+  return (
+    <>
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{x.l}</button>; })}
+        {d && <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{d.from} → {d.to}</span>}
+      </div>
+
+      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {loading || !d ? <Empty>Building your P&amp;L from TireBase…</Empty> : (
+        <>
+          {/* P&L STATEMENT */}
+          <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
+            <PLRow label="Revenue (pre-tax)" value={money(d.revenue)} />
+            <PLRow label="− Tire / product cost (COGS)" value={money(d.cogs)} dim />
+            <PLRow label="= Gross profit" value={money(d.gross)} pct={`${d.grossMargin}%`} strong color="#3DD68C" border />
+            <PLRow label="− Labor (payroll)" value={money(d.labor)} dim />
+            <PLRow label="− Operating expenses" value={money(d.otherOpex)} dim />
+            <PLRow label="= Net profit" value={money(d.net)} pct={`${d.netMargin}%`} strong color={d.net >= 0 ? "#3DD68C" : "#FF6666"} border />
+            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", marginTop: "0.75rem" }}>Tax excluded (passthrough). Monthly expenses counted across {d.months} month{d.months > 1 ? "s" : ""} in range.</p>
+          </div>
+
+          {/* NEEDS COST — the memory builder */}
+          {needsCost.length > 0 && (
+            <div style={{ marginBottom: "1.75rem" }}>
+              <h2 style={{ ...subHead, color: "#FFB800" }}>⚠ Tires needing a cost ({needsCost.length}) — enter once, remembered forever</h2>
+              <div style={{ display: "grid", gap: "0.5rem" }}>
+                {needsCost.slice(0, 30).map((p) => (
+                  <div key={p.key} style={{ ...rowStyle, gap: "0.6rem", flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 160 }}>
+                      <div style={{ color: "#fff", fontWeight: 600, fontSize: "0.84rem" }}>{p.label}</div>
+                      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.74rem" }}>sold {p.qty} · revenue {money(p.revenue)}</div>
+                    </div>
+                    <input style={{ ...inp, marginBottom: 0, width: 110 }} type="number" placeholder="$ cost ea" value={costIn[p.key] ?? ""} onChange={(e) => setCostIn({ ...costIn, [p.key]: e.target.value })} />
+                    <button onClick={() => saveCost(p, true)} style={cta}>Save cost</button>
+                    <button onClick={() => saveCost(p, false)} style={ghostBtn} title="Labor / service — no product cost">Not a product</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* PER-TIRE MARGINS */}
+          {priced.length > 0 && (
+            <div style={{ marginBottom: "1.75rem" }}>
+              <h2 style={subHead}>Margin by item</h2>
+              <div style={{ display: "grid", gap: "0.4rem" }}>
+                {priced.map((p) => (
+                  <div key={p.key} style={{ ...rowStyle, gap: "0.6rem", padding: "0.6rem 1rem" }}>
+                    <span style={{ flex: 1, color: "#fff", fontSize: "0.83rem", minWidth: 0 }}>{p.label} <span style={{ color: "rgba(255,255,255,0.4)" }}>×{p.qty}</span></span>
+                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem" }}>rev {money(p.revenue)} · cost {money(p.cost)}</span>
+                    <span style={{ color: p.margin >= 0 ? "#3DD68C" : "#FF6666", fontWeight: 700, fontSize: "0.82rem", width: 90, textAlign: "right" }}>{money(p.margin)} ({p.marginPct}%)</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* OPERATING EXPENSES */}
+          <h2 style={subHead}>Operating expenses</h2>
+          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center", marginBottom: "0.75rem" }}>
+            <input style={{ ...inp, marginBottom: 0, width: 150 }} placeholder="Label (e.g. Rent)" value={exp.label} onChange={(e) => setExp({ ...exp, label: e.target.value })} />
+            <select style={{ ...inp, marginBottom: 0, width: 120 }} value={exp.category} onChange={(e) => setExp({ ...exp, category: e.target.value })}>
+              {EXPENSE_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <input style={{ ...inp, marginBottom: 0, width: 100 }} type="number" placeholder="$ amount" value={exp.amount} onChange={(e) => setExp({ ...exp, amount: e.target.value })} />
+            <select style={{ ...inp, marginBottom: 0, width: 120 }} value={exp.frequency} onChange={(e) => setExp({ ...exp, frequency: e.target.value })}>
+              <option value="monthly">per month</option>
+              <option value="one_time">one-time</option>
+            </select>
+            <button onClick={addExpense} disabled={!exp.label || exp.amount === ""} style={{ ...cta, opacity: !exp.label || exp.amount === "" ? 0.5 : 1 }}>Add</button>
+          </div>
+          {(d.expenses || []).length === 0 ? <Empty>No operating expenses added yet (rent, utilities, ads…).</Empty> : (
+            <div style={{ display: "grid", gap: "0.4rem" }}>
+              {d.expenses.map((e) => (
+                <div key={e.id} style={{ ...rowStyle, gap: "0.6rem", padding: "0.55rem 1rem" }}>
+                  <span style={{ flex: 1, color: "#fff", fontSize: "0.84rem" }}>{e.label} <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.74rem" }}>· {e.category} · {e.frequency === "monthly" ? "/mo" : "one-time"}</span></span>
+                  <span style={{ color: "#FF9E9E", fontSize: "0.82rem" }}>{money(e.amount)}</span>
+                  <button onClick={() => delExpense(e.id)} style={{ ...ghostBtn, padding: "0.25rem 0.55rem", fontSize: "0.7rem" }}>✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+function PLRow({ label, value, pct, dim, strong, color, border }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.4rem 0", borderTop: border ? "1px solid rgba(255,255,255,0.12)" : "none", marginTop: border ? "0.3rem" : 0 }}>
+      <span style={{ color: dim ? "rgba(255,255,255,0.55)" : "#fff", fontWeight: strong ? 800 : 500, fontSize: strong ? "0.95rem" : "0.85rem" }}>{label}</span>
+      <span style={{ color: color || (dim ? "rgba(255,255,255,0.6)" : "#fff"), fontWeight: strong ? 900 : 600, fontSize: strong ? "1.05rem" : "0.9rem" }}>
+        {value}{pct ? <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 600, fontSize: "0.78rem", marginLeft: 6 }}>{pct}</span> : null}
+      </span>
+    </div>
   );
 }
 
