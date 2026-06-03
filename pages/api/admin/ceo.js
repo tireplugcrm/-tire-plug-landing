@@ -59,6 +59,19 @@ export default async function handler(req, res) {
     } catch (e) { /* leave leadStats partial */ }
   }
 
+  // 3) Ops snapshot — jobs on the floor + reactivation opportunity
+  let ops = { jobs: { waiting: 0, in_bay: 0, done: 0 }, dueForTires: 0 };
+  if (supabaseAdmin) {
+    try {
+      const { data: wos } = await supabaseAdmin.from("work_orders").select("status").eq("archived", false);
+      for (const w of wos || []) { if (ops.jobs[w.status] != null) ops.jobs[w.status] += 1; }
+      const _d = new Date(); _d.setDate(_d.getDate() - 365 * 3);
+      const threeYrAgo = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, "0")}-${String(_d.getDate()).padStart(2, "0")}`;
+      const { count } = await supabaseAdmin.from("customers").select("*", { count: "exact", head: true }).lt("last_tire_date", threeYrAgo);
+      ops.dueForTires = count || 0;
+    } catch (e) { /* leave ops default */ }
+  }
+
   const prompt = `You are the sharp, no-nonsense operations advisor (CEO agent) for The Tire Plug, a Los Angeles tire & auto shop with daily goals.
 
 TODAY'S LIVE NUMBERS (from the register):
@@ -67,15 +80,18 @@ ${sb ? JSON.stringify({ revenue: sb.revenue, invoices: sb.invoices, services_vs_
 CRM / LEADS:
 ${JSON.stringify(leadStats)}
 
+SHOP FLOOR (open jobs) + REACTIVATION OPPORTUNITY:
+${JSON.stringify(ops)}
+
 Write a daily briefing for the owner. Use ONLY these numbers — never invent data. Format:
 - 2-3 punchy sentences summarizing where the day stands (revenue pace, what's strong, what's lagging).
-- Then a blank line, then 2-4 bullet recommendations starting with "•", each a specific action (what to push, which lagging goal to chase, which leads to chase, where money is). Be direct and concrete with the numbers.
+- Then a blank line, then 2-4 bullet recommendations starting with "•", each a specific action (what to push, which lagging goal to chase, which leads to chase, jobs stuck on the floor, and how many customers are due for new tires to call back). Be direct and concrete with the numbers.
 Keep it tight and useful. Output ONLY the briefing text.`;
 
   try {
     const briefing = await askClaude(prompt);
     if (!briefing) return res.status(502).json({ error: "AI returned nothing — try again." });
-    return res.status(200).json({ briefing, scoreboard: sb, leadStats });
+    return res.status(200).json({ briefing, scoreboard: sb, leadStats, ops });
   } catch (e) {
     return res.status(502).json({ error: "AI request failed — try again." });
   }

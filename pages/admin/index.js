@@ -17,7 +17,7 @@ export default function AdminHub() {
   const [codeError, setCodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState("leads");
+  const [tab, setTab] = useState("overview");
   const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {}, team: [], me: null });
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
@@ -173,7 +173,7 @@ export default function AdminHub() {
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
-    { items: [ { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
+    { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
     { title: "Sales", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
     { title: "People", items: [ { id: "hiring", icon: "📝", label: "Hiring" }, { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Money & Customers", items: [ { id: "finance", icon: "📒", label: "Finance" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" } ] },
@@ -216,6 +216,7 @@ export default function AdminHub() {
             <button onClick={signOut} style={ghostBtn}>Sign out</button>
           </div>
 
+        {tab === "overview" && <OverviewTab auth={auth} />}
         {tab === "scoreboard" && <ScoreboardTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
         {tab === "leads" && (
@@ -896,6 +897,49 @@ function CeoAgent({ auth }) {
         <div style={{ color: "rgba(0,0,0,0.8)", fontSize: "0.92rem", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{briefing}</div>
       )}
     </div>
+  );
+}
+
+/* ---------------- OVERVIEW (command center) ---------------- */
+function OverviewTab({ auth }) {
+  const [d, setD] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    let on = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/ceo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth }) });
+        const j = await res.json();
+        if (!res.ok) throw new Error(j.error || "Could not load");
+        if (on) setD(j);
+      } catch (e) { if (on) setErr(e.message); }
+      finally { if (on) setLoading(false); }
+    })();
+    return () => { on = false; };
+    /* eslint-disable-next-line */
+  }, []);
+  const money = (n) => `$${(Number(n) || 0).toLocaleString()}`;
+  const sb = d && d.scoreboard, ls = (d && d.leadStats) || {}, ops = (d && d.ops) || {};
+  const jobs = ops.jobs || {};
+  return (
+    <>
+      <h1 style={{ color: "#111", fontWeight: 900, fontSize: "1.5rem", margin: "0 0 1.25rem" }}>Overview</h1>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
+        <BigStat label="Today's Revenue" value={sb ? money(sb.revenue) : "—"} color="#1a1a1a" />
+        <BigStat label="Invoices Today" value={sb ? sb.invoices : "—"} color="#1a1a1a" />
+        <BigStat label="Tires Sold Today" value={sb ? sb.services.tires : "—"} color="#1a1a1a" />
+        <BigStat label="Active Leads" value={ls.activeLeads != null ? ls.activeLeads : "—"} color="#1a1a1a" />
+        <BigStat label="Jobs In Bay" value={jobs.in_bay != null ? jobs.in_bay : "—"} color="#1a1a1a" />
+        <BigStat label="Due For Tires" value={ops.dueForTires != null ? ops.dueForTires : "—"} color="#FF1F1F" />
+      </div>
+      <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
+        <div style={{ color: "#111", fontWeight: 800, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.75rem" }}>🧠 CEO Agent · today's briefing</div>
+        {loading ? <Empty>Reading every department…</Empty> : err ? <p style={{ color: "#FF6666" }}>⚠ {err}</p> : (
+          <div style={{ color: "rgba(0,0,0,0.78)", fontSize: "0.92rem", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{d.briefing}</div>
+        )}
+      </div>
+    </>
   );
 }
 
