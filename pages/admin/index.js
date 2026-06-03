@@ -173,6 +173,7 @@ export default function AdminHub() {
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const tabs = [
     { id: "scoreboard", label: "📊 Scoreboard" },
+    { id: "shopfloor", label: "🔧 Shop Floor" },
     { id: "leads", label: "Leads", count: liveLeads.length },
     { id: "subscribers", label: "Subscribers", count: data.subscribers.length },
     { id: "email", label: "Email" },
@@ -220,6 +221,7 @@ export default function AdminHub() {
         </div>
 
         {tab === "scoreboard" && <ScoreboardTab auth={auth} />}
+        {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
         {tab === "leads" && (
           <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} onSync={syncOrders} />
         )}
@@ -897,6 +899,121 @@ function CeoAgent({ auth }) {
         <div style={{ color: "rgba(255,255,255,0.88)", fontSize: "0.92rem", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{briefing}</div>
       )}
     </div>
+  );
+}
+
+/* ---------------- SHOP FLOOR / WORK ORDERS ---------------- */
+const WO_COLS = [
+  { k: "waiting", l: "Waiting", c: "#FFB800" },
+  { k: "in_bay", l: "In Bay", c: "#5BC8FF" },
+  { k: "done", l: "Done", c: "#3DD68C" },
+];
+function woMins(iso) {
+  if (!iso) return "";
+  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1) return "just now"; if (m < 60) return `${m}m`;
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+function ShopFloorTab({ auth }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [loc, setLoc] = useState("all");
+  const [showNew, setShowNew] = useState(false);
+  const [form, setForm] = useState({ customer_name: "", phone: "", vehicle: "", service: "", location: "Olympic", assigned_staff_id: "", note: "" });
+
+  async function call(body) {
+    const res = await fetch("/api/admin/work-orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function load(silent) {
+    if (!silent) setLoading(true);
+    try { setData(await call({ action: "list" })); setErr(""); }
+    catch (e) { setErr(e.message); }
+    finally { if (!silent) setLoading(false); }
+  }
+  useEffect(() => { load(); const t = setInterval(() => load(true), 20000); return () => clearInterval(t); /* eslint-disable-next-line */ }, []);
+
+  async function create() {
+    if (!form.customer_name && !form.vehicle) return;
+    try { setData(await call({ action: "create", order: form })); setForm({ customer_name: "", phone: "", vehicle: "", service: "", location: form.location, assigned_staff_id: "", note: "" }); setShowNew(false); }
+    catch (e) { alert(e.message); }
+  }
+  async function act(body) { try { setData(await call(body)); } catch (e) { alert(e.message); } }
+
+  if (loading && !data) return <Empty>Loading the shop floor…</Empty>;
+  const d = data || { orders: [], staff: [] };
+  const nameById = Object.fromEntries(d.staff.map((s) => [s.id, s.name]));
+  const orders = d.orders.filter((o) => loc === "all" || o.location === loc);
+
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+        <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
+          {["all", "Olympic", "Manchester"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{l === "all" ? "All" : l}</button>)}
+        </div>
+        <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
+          <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.72rem" }}>auto-refreshes</span>
+          <button onClick={() => setShowNew((s) => !s)} style={cta}>{showNew ? "✕ Close" : "+ New work order"}</button>
+        </div>
+      </div>
+
+      {showNew && (
+        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.1rem", marginBottom: "1.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+            <input style={inp} placeholder="Customer name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
+            <input style={inp} placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <input style={inp} placeholder="Vehicle (e.g. 2019 Camry)" value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })} />
+            <input style={inp} placeholder="Service (4 tires + align)" value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} />
+            <select style={inp} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}><option value="Olympic">Olympic</option><option value="Manchester">Manchester</option></select>
+            <select style={inp} value={form.assigned_staff_id} onChange={(e) => setForm({ ...form, assigned_staff_id: e.target.value })}><option value="">Assign tech…</option>{d.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+          </div>
+          <button onClick={create} disabled={!form.customer_name && !form.vehicle} style={{ ...cta, marginTop: "0.5rem", opacity: (!form.customer_name && !form.vehicle) ? 0.5 : 1 }}>Add to board</button>
+        </div>
+      )}
+
+      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
+        {WO_COLS.map((col) => {
+          const items = orders.filter((o) => o.status === col.k);
+          return (
+            <div key={col.k}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <span style={{ width: 9, height: 9, borderRadius: "50%", background: col.c }} />
+                <span style={{ color: "#fff", fontWeight: 800, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>{col.l}</span>
+                <span style={{ color: "rgba(255,255,255,0.35)" }}>{items.length}</span>
+              </div>
+              <div style={{ display: "grid", gap: "0.5rem" }}>
+                {items.length === 0 && <div style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.8rem", padding: "0.5rem" }}>—</div>}
+                {items.map((o) => {
+                  const t = o.status === "done" ? o.done_at : o.status === "in_bay" ? o.started_at : o.created_at;
+                  return (
+                    <div key={o.id} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${col.c}33`, borderRadius: 12, padding: "0.75rem 0.85rem" }}>
+                      <div style={{ color: "#fff", fontWeight: 700, fontSize: "0.86rem" }}>{o.customer_name || "—"} {o.location && <span style={{ color: "rgba(255,255,255,0.3)", fontWeight: 500, fontSize: "0.72rem" }}>{o.location}</span>}</div>
+                      {o.vehicle && <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>{o.vehicle}</div>}
+                      {o.service && <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.78rem" }}>{o.service}</div>}
+                      <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", margin: "0.3rem 0" }}>{woMins(t)} {o.assigned_staff_id ? `· ${nameById[o.assigned_staff_id] || "tech"}` : ""}</div>
+                      <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
+                        <select value={o.assigned_staff_id || ""} onChange={(e) => act({ action: "assign", id: o.id, assigned_staff_id: e.target.value })} style={{ ...inp, marginBottom: 0, padding: "0.3rem 0.5rem", fontSize: "0.72rem", width: 110 }}>
+                          <option value="">tech…</option>{d.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        </select>
+                        {o.status === "waiting" && <button onClick={() => act({ action: "setStatus", id: o.id, status: "in_bay" })} style={{ ...chip, padding: "0.3rem 0.6rem" }}>▶ In Bay</button>}
+                        {o.status === "in_bay" && <button onClick={() => act({ action: "setStatus", id: o.id, status: "done" })} style={{ ...chip, padding: "0.3rem 0.6rem", background: "#1f7a4d", borderColor: "#1f7a4d" }}>✓ Done</button>}
+                        {o.status === "done" && <button onClick={() => act({ action: "archive", id: o.id })} style={{ ...chip, padding: "0.3rem 0.6rem" }}>Clear</button>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
