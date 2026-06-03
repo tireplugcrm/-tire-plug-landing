@@ -174,9 +174,9 @@ export default function AdminHub() {
   const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
     { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
-    { title: "Sales", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
-    { title: "People", items: [ { id: "hiring", icon: "📝", label: "Hiring" }, { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
-    { title: "Money & Customers", items: [ { id: "finance", icon: "📒", label: "Finance" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" } ] },
+    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
+    { title: "Money", items: [ { id: "finance", icon: "📒", label: "Finance" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
+    { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
 
