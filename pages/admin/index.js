@@ -1267,6 +1267,9 @@ function FinanceTab({ auth }) {
   const [err, setErr] = useState("");
   const [costIn, setCostIn] = useState({});
   const [exp, setExp] = useState({ label: "", category: "rent", amount: "", frequency: "monthly" });
+  const [insights, setInsights] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [dlBusy, setDlBusy] = useState(false);
 
   async function call(body) {
     const res = await fetch("/api/admin/finance", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
@@ -1275,10 +1278,26 @@ function FinanceTab({ auth }) {
     return j;
   }
   async function load(r) {
-    setLoading(true); setErr("");
+    setLoading(true); setErr(""); setInsights("");
     try { setD(await call({ action: "pnl", from: r.from, to: r.to })); }
     catch (e) { setErr(e.message); }
     finally { setLoading(false); }
+  }
+  async function getInsights() {
+    setAiBusy(true);
+    try { const j = await call({ action: "insights", from: range.from, to: range.to }); setInsights(j.insights || ""); }
+    catch (e) { alert(e.message); }
+    finally { setAiBusy(false); }
+  }
+  async function downloadPdf() {
+    setDlBusy(true);
+    try {
+      const res = await fetch("/api/admin/finance-report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, from: range.from, to: range.to, insights }) });
+      if (!res.ok) { alert("Could not generate the PDF."); return; }
+      const blob = await res.blob(); const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = `tireplug-pnl-${range.from}-to-${range.to}.pdf`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    } finally { setDlBusy(false); }
   }
   useEffect(() => { load(range); /* eslint-disable-next-line */ }, [range]);
 
@@ -1309,6 +1328,17 @@ function FinanceTab({ auth }) {
       {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
       {loading || !d ? <Empty>Building your P&amp;L from TireBase…</Empty> : (
         <>
+          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+            <button onClick={getInsights} disabled={aiBusy} style={{ ...cta, opacity: aiBusy ? 0.6 : 1 }}>{aiBusy ? "Thinking…" : "🤖 AI insights"}</button>
+            <button onClick={downloadPdf} disabled={dlBusy} style={{ ...ghostBtn, opacity: dlBusy ? 0.6 : 1 }}>{dlBusy ? "Preparing…" : "⬇ Download P&L PDF"}</button>
+          </div>
+          {insights && (
+            <div style={{ background: "rgba(139,124,246,0.08)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: "1.5rem", whiteSpace: "pre-wrap", color: "rgba(255,255,255,0.85)", fontSize: "0.86rem", lineHeight: 1.5 }}>
+              <div style={{ color: "#A99CF8", fontWeight: 800, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.5rem" }}>🤖 Finance advisor</div>
+              {insights}
+            </div>
+          )}
+
           {/* P&L STATEMENT */}
           <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
             <PLRow label="Revenue (pre-tax)" value={money(d.revenue)} />
