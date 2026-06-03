@@ -338,7 +338,7 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔍 Search name, phone, service..." style={{ ...inp, marginBottom: 0, flex: 1, minWidth: 220 }} />
         {chips.map((c) => (
-          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: filter === c.id ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: filter === c.id ? "#FF6666" : "#fff" }}>{c.label}</button>
+          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: filter === c.id ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: filter === c.id ? "#C20000" : "rgba(0,0,0,0.6)" }}>{c.label}</button>
         ))}
         <button onClick={doSync} disabled={syncing} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", borderColor: "rgba(61,214,140,0.4)", color: "#3DD68C" }}>
           {syncing ? "Syncing..." : "🔄 Sync TireBase orders"}
@@ -414,7 +414,7 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
             {statuses.map((s) => (
               <button key={s} onClick={() => onUpdate("leads", lead.id, { status: s })}
-                style={{ ...ghostBtn, background: lead.status === s ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: lead.status === s ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: lead.status === s ? "#FF6666" : "#fff" }}>
+                style={{ ...ghostBtn, background: lead.status === s ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: lead.status === s ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: lead.status === s ? "#C20000" : "rgba(0,0,0,0.6)" }}>
                 {STATUS_LABEL[s]}
               </button>
             ))}
@@ -1375,7 +1375,7 @@ function ScheduleTab({ auth }) {
             return (
               <div key={ds} style={{ background: "#ffffff", border: `1px solid ${isToday ? "rgba(255,31,31,0.35)" : "rgba(0,0,0,0.08)"}`, borderRadius: 12, padding: "0.85rem 1rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: dayShifts.length || adding === ds ? "0.6rem" : 0 }}>
-                  <span style={{ color: isToday ? "#FF6666" : "#fff", fontWeight: 800, fontSize: "0.85rem" }}>
+                  <span style={{ color: isToday ? "#C20000" : "#1a1a1a", fontWeight: 800, fontSize: "0.85rem" }}>
                     {dayNames[i]} {d.toLocaleDateString([], { month: "short", day: "numeric" })}{isToday ? " · today" : ""}
                   </span>
                   <button onClick={() => { setAdding(adding === ds ? null : ds); setForm((f) => ({ ...f, staff_id: "" })); }} style={chip}>{adding === ds ? "✕" : "＋ shift"}</button>
@@ -1861,8 +1861,8 @@ function FinanceTab({ auth }) {
 function PLRow({ label, value, pct, dim, strong, color, border }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.4rem 0", borderTop: border ? "1px solid rgba(0,0,0,0.1)" : "none", marginTop: border ? "0.3rem" : 0 }}>
-      <span style={{ color: dim ? "rgba(0,0,0,0.55)" : "#fff", fontWeight: strong ? 800 : 500, fontSize: strong ? "0.95rem" : "0.85rem" }}>{label}</span>
-      <span style={{ color: color || (dim ? "rgba(0,0,0,0.6)" : "#fff"), fontWeight: strong ? 900 : 600, fontSize: strong ? "1.05rem" : "0.9rem" }}>
+      <span style={{ color: dim ? "rgba(0,0,0,0.55)" : "#1a1a1a", fontWeight: strong ? 800 : 500, fontSize: strong ? "0.95rem" : "0.85rem" }}>{label}</span>
+      <span style={{ color: color || (dim ? "rgba(0,0,0,0.6)" : "#1a1a1a"), fontWeight: strong ? 900 : 600, fontSize: strong ? "1.05rem" : "0.9rem" }}>
         {value}{pct ? <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600, fontSize: "0.78rem", marginLeft: 6 }}>{pct}</span> : null}
       </span>
     </div>
