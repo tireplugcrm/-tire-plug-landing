@@ -9,7 +9,8 @@
  * Env: IG_VERIFY_TOKEN, IG_PAGE_ACCESS_TOKEN
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
-import { getIgProfile } from "../../../lib/instagram.js";
+import { getIgProfile, sendIgMessage } from "../../../lib/instagram.js";
+import { IG_GREETING_TEXT } from "../../../lib/shop-facts.js";
 
 export default async function handler(req, res) {
   // --- Verification handshake ---
@@ -41,6 +42,7 @@ export default async function handler(req, res) {
         if (!igUserId || !text) continue;
 
         // Find or create the lead for this Instagram user
+        let justCreated = false;
         let { data: lead } = await supabaseAdmin.from("leads").select("id").eq("ig_user_id", igUserId).single();
         if (!lead) {
           const prof = await getIgProfile(igUserId);
@@ -53,6 +55,7 @@ export default async function handler(req, res) {
             status: "new",
           }).select("id").single();
           lead = created;
+          justCreated = !!created;
         }
 
         if (lead) {
@@ -64,6 +67,23 @@ export default async function handler(req, res) {
             status: "received",
             read: false,
           });
+
+          // Speed-to-lead: the instant a NEW person DMs us, send one auto-greeting
+          // (24/7). Returning customers don't get re-greeted. Replying to an inbound
+          // DM is inside Meta's 24h messaging window, so this is always allowed.
+          if (justCreated) {
+            const greet = await sendIgMessage({ igUserId, text: IG_GREETING_TEXT });
+            if (greet.ok) {
+              await supabaseAdmin.from("lead_messages").insert({
+                lead_id: lead.id,
+                direction: "outbound",
+                channel: "instagram",
+                body: IG_GREETING_TEXT,
+                status: "sent",
+                read: true,
+              });
+            }
+          }
         }
       }
     }
