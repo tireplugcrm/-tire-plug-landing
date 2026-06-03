@@ -13,6 +13,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { sendSms } from "../../../lib/sms.js";
 import { SHOP_FACTS, AI_VOICE } from "../../../lib/shop-facts.js";
+import { fetchAllCustomers } from "../../../lib/customers-data.js";
 
 export const maxDuration = 60;
 const MODEL = process.env.LEADS_AI_MODEL || "claude-sonnet-4-6";
@@ -96,9 +97,11 @@ Output ONLY the message.`;
       return res.status(200).json({ body: out });
     }
 
-    // Load the segment's customers once (used by recipients + send).
-    const { data: all } = await supabaseAdmin.from("customers").select("*").limit(5000);
-    const inSeg = (all || []).filter((c) => inSegment(c, segment));
+    // Load all customers (paged past the 1000-row cap) for recipients + send.
+    let all = [];
+    try { all = await fetchAllCustomers("id,name,phone,email,sms_opt_in,total_spent,last_visit,last_tire_date,is_commercial"); }
+    catch (e) { return res.status(500).json({ error: e.message }); }
+    const inSeg = all.filter((c) => inSegment(c, segment));
     const reach = inSeg.filter((c) => reachableBy(c, channel));
 
     if (action === "recipients") {

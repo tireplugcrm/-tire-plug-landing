@@ -15,6 +15,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { sendSms } from "../../../lib/sms.js";
 import { SHOP_FACTS, AI_VOICE } from "../../../lib/shop-facts.js";
+import { fetchAllCustomers } from "../../../lib/customers-data.js";
 
 export const maxDuration = 60;
 const MODEL = process.env.LEADS_AI_MODEL || "claude-sonnet-4-6";
@@ -94,8 +95,10 @@ Output ONLY the message.`;
       return res.status(200).json({ body: out });
     }
 
-    // Build recipient list
-    const { data: all } = await supabaseAdmin.from("customers").select("*").limit(5000);
+    // Build recipient list (paged past the 1000-row cap)
+    let all = [];
+    try { all = await fetchAllCustomers("id,name,phone,email,sms_opt_in,total_spent,last_visit,last_tire_date,is_commercial,review_requested_at"); }
+    catch (e) { return res.status(500).json({ error: e.message }); }
     let pool;
     if (mode === "review") pool = (all || []).filter((c) => c.last_visit && c.last_visit >= daysAgoYmd(45) && !c.review_requested_at);
     else pool = (all || []).filter((c) => inSegment(c, segment));

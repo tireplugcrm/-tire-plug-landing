@@ -7,6 +7,7 @@
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
+import { fetchAllCustomers } from "../../../lib/customers-data.js";
 
 function daysAgoYmd(days) {
   const d = new Date(); d.setDate(d.getDate() - days);
@@ -38,9 +39,11 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
-    // list
-    const { data, error } = await supabaseAdmin.from("customers").select("*").order("total_spent", { ascending: false }).limit(5000);
-    if (error) return res.status(500).json({ error: error.message });
+    // list — page past Supabase's ~1000-row cap so all customers are counted
+    let data;
+    try { data = await fetchAllCustomers("id,name,phone,email,total_spent,order_count,last_visit,last_tire_date,is_commercial,commercial_suggested,sms_opt_in"); }
+    catch (e) { return res.status(500).json({ error: e.message }); }
+    data.sort((a, b) => (Number(b.total_spent) || 0) - (Number(a.total_spent) || 0));
 
     const tire3y = daysAgoYmd(365 * 3);
     const lapsed1y = daysAgoYmd(365);
