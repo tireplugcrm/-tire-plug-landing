@@ -174,7 +174,7 @@ export default function AdminHub() {
   const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
     { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
-    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
+    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
     { title: "Money", items: [ { id: "finance", icon: "📒", label: "Finance" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
@@ -222,6 +222,7 @@ export default function AdminHub() {
         {tab === "leads" && (
           <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} onSync={syncOrders} />
         )}
+        {tab === "conversions" && <ConversionsTab data={data} onSync={syncOrders} />}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
         {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
@@ -259,6 +260,55 @@ const PRIORITY = {
 };
 function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(0,0,0,0.55)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
+
+/* ---------------- CONVERSIONS (funnel -> finalized TireBase orders) ---------------- */
+function ConversionsTab({ data, onSync }) {
+  const [syncing, setSyncing] = useState(false);
+  const [msg, setMsg] = useState("");
+  const money = (n) => `$${(Number(n) || 0).toLocaleString()}`;
+  const won = (data.leads || []).filter((l) => l.status === "booked")
+    .sort((a, b) => String(b.booked_at || b.created_at || "").localeCompare(String(a.booked_at || a.created_at || "")));
+  const allTotal = won.reduce((s, l) => s + Number(l.revenue_amount || 0), 0);
+  const ym = new Date().toISOString().slice(0, 7);
+  const monthWon = won.filter((l) => String(l.booked_at || "").slice(0, 7) === ym);
+  const monthTotal = monthWon.reduce((s, l) => s + Number(l.revenue_amount || 0), 0);
+  async function sync() {
+    setSyncing(true); setMsg("");
+    try { const r = await onSync(); setMsg(r && r.closed != null ? `Matched ${r.closed} finalized order(s) to your leads.` : "Synced."); }
+    catch (e) { setMsg("Sync failed — try again."); }
+    finally { setSyncing(false); }
+  }
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+        <h1 style={{ color: "#111", fontWeight: 900, fontSize: "1.4rem", margin: 0 }}>Funnel → Finalized Orders</h1>
+        <button onClick={sync} disabled={syncing} style={{ ...cta, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing…" : "🔄 Sync TireBase orders"}</button>
+      </div>
+      <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>Leads from your CRM funnel that turned into finalized TireBase orders (matched by phone). Run a sync after sales close to pull in the latest.</p>
+      {msg && <p style={{ color: "#1a7f4b", fontWeight: 700, marginBottom: "1rem" }}>{msg}</p>}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
+        <BigStat label="Won This Month" value={money(monthTotal)} color="#1a7f4b" />
+        <BigStat label="Converted This Month" value={monthWon.length} color="#1a1a1a" />
+        <BigStat label="Won All-Time" value={money(allTotal)} color="#1a7f4b" />
+        <BigStat label="Total Conversions" value={won.length} color="#1a1a1a" />
+      </div>
+      {won.length === 0 ? <Empty>No conversions yet. When a lead’s phone matches a finalized TireBase order, hit “Sync TireBase orders” and they’ll show here as won deals with the revenue.</Empty> : (
+        <div style={{ display: "grid", gap: "0.5rem" }}>
+          {won.map((l) => (
+            <div key={l.id} style={{ ...rowStyle, gap: "0.75rem", flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: "#111", fontWeight: 700 }}>{l.name || "(lead)"} <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 500, fontSize: "0.78rem" }}>{l.phone || ""}</span></div>
+                <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>{[l.service, l.vehicle].filter(Boolean).join(" · ") || "—"}{l.source ? ` · ${l.source}` : ""}</div>
+              </div>
+              <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.75rem" }}>{l.booked_at ? new Date(l.booked_at).toLocaleDateString([], { month: "short", day: "numeric" }) : ""}</span>
+              <span style={{ color: "#1a7f4b", fontWeight: 800, fontSize: "0.95rem" }}>{money(l.revenue_amount)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
 
 function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
   const [q, setQ] = useState("");
