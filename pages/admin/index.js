@@ -184,6 +184,7 @@ export default function AdminHub() {
     { id: "worklog", label: "📋 Work Log" },
     { id: "payroll", label: "💵 Payroll" },
     { id: "finance", label: "📒 Finance" },
+    { id: "customers", label: "📇 Customers" },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -231,6 +232,7 @@ export default function AdminHub() {
         {tab === "worklog" && <WorkLogTab auth={auth} />}
         {tab === "payroll" && <PayrollTab auth={auth} />}
         {tab === "finance" && <FinanceTab auth={auth} />}
+        {tab === "customers" && <CustomersTab auth={auth} />}
       </div>
 
       {selectedLead && (
@@ -1250,6 +1252,210 @@ function ScheduleTab({ auth }) {
         </div>
       )}
     </>
+  );
+}
+
+/* ---------------- CUSTOMERS (reactivation engine) ---------------- */
+const CUST_SEGS = [
+  { k: "all", l: "All" },
+  { k: "due_tires", l: "🛞 Due for tires" },
+  { k: "lapsed", l: "👋 Lapsed 12mo+" },
+  { k: "recent", l: "⭐ Recent" },
+  { k: "vip", l: "👑 VIP" },
+  { k: "commercial", l: "🏢 Commercial" },
+];
+function CustomersTab({ auth }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [seg, setSeg] = useState("all");
+  const [months, setMonths] = useState(24);
+  const [syncing, setSyncing] = useState(false);
+  const [showCampaign, setShowCampaign] = useState(false);
+
+  async function call(body) {
+    const res = await fetch("/api/admin/customers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function load() {
+    setLoading(true); setErr("");
+    try { setData(await call({ action: "list" })); }
+    catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  async function sync() {
+    setSyncing(true); setErr("");
+    try {
+      const res = await fetch("/api/admin/sync-customers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, months }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || "Sync failed");
+      await load();
+    } catch (e) { setErr(e.message); }
+    finally { setSyncing(false); }
+  }
+  async function toggleCommercial(c) {
+    const val = !c.is_commercial;
+    setData((d) => ({ ...d, customers: d.customers.map((x) => x.id === c.id ? { ...x, is_commercial: val, segments: val ? [...new Set([...x.segments, "commercial"])] : x.segments.filter((s) => s !== "commercial") } : x), counts: { ...d.counts, commercial: d.counts.commercial + (val ? 1 : -1) } }));
+    try { await call({ action: "setFlag", id: c.id, is_commercial: val }); } catch (e) { alert(e.message); load(); }
+  }
+  async function acceptSuggested() { try { await call({ action: "applySuggested" }); await load(); } catch (e) { alert(e.message); } }
+  function copyNumbers(list) {
+    const nums = list.map((c) => c.phone).filter(Boolean);
+    navigator.clipboard?.writeText(nums.join("\n"));
+    alert(`Copied ${nums.length} phone numbers — paste into your dialer or call list.`);
+  }
+
+  const money = (n) => `$${(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+
+  if (loading) return <Empty>Loading customers…</Empty>;
+  const d = data || { customers: [], counts: {}, avgTicket: 0, duePotential: 0 };
+
+  if (!d.customers.length) {
+    return (
+      <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
+        <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "1.25rem" }}>No customer list yet. Build it from your TireBase order history.</p>
+        <div style={{ display: "flex", gap: "0.4rem", justifyContent: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
+          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, ...(months === m ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>{m} mo</button>)}
+        </div>
+        <button onClick={sync} disabled={syncing} style={{ ...cta, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing… (may take a minute)" : `Sync ${months} months from TireBase`}</button>
+        {err && <p style={{ color: "#FF6666", marginTop: "1rem" }}>⚠ {err}</p>}
+      </div>
+    );
+  }
+
+  const list = d.customers.filter((c) => seg === "all" || c.segments.includes(seg));
+  const shown = list.slice(0, 200);
+
+  return (
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+        <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>📇 {d.counts.all} customers · avg ticket {money(d.avgTicket)}</span>
+        <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", flexWrap: "wrap" }}>
+          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, padding: "0.3rem 0.55rem", ...(months === m ? { background: "rgba(255,255,255,0.2)" } : {}) }}>{m}mo</button>)}
+          <button onClick={sync} disabled={syncing} style={{ ...ghostBtn, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing…" : "↻ Re-sync"}</button>
+        </div>
+      </div>
+
+      {/* Due-for-tires potential */}
+      <div style={{ background: "rgba(255,42,42,0.08)", border: "1px solid rgba(255,42,42,0.3)", borderRadius: 16, padding: "1.1rem 1.4rem", marginBottom: "1.25rem" }}>
+        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>🛞 Due for tires (3+ yrs since last set)</div>
+        <div style={{ color: "#FF6B6B", fontWeight: 900, fontSize: "1.7rem", lineHeight: 1.1 }}>{d.counts.due_tires || 0} customers · ~{money(d.duePotential)} potential</div>
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginTop: "0.25rem" }}>estimate = due customers × avg ticket · call list ready below</div>
+      </div>
+
+      {/* Suggested commercial */}
+      {d.counts.suggested > 0 && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(91,200,255,0.08)", border: "1px solid rgba(91,200,255,0.3)", borderRadius: 12, padding: "0.7rem 1rem", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
+          <span style={{ color: "#9ad5ff", fontSize: "0.84rem" }}>🏢 {d.counts.suggested} accounts look commercial (business name / repeat volume)</span>
+          <button onClick={acceptSuggested} style={cta}>Mark all as commercial</button>
+        </div>
+      )}
+
+      {/* Segment chips */}
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+        {CUST_SEGS.map((s) => (
+          <button key={s.k} onClick={() => setSeg(s.k)} style={{ ...chip, ...(seg === s.k ? { background: "#fff", color: "#000", borderColor: "#fff" } : {}) }}>
+            {s.l} <span style={{ opacity: 0.6 }}>{s.k === "all" ? d.counts.all : (d.counts[s.k] || 0)}</span>
+          </button>
+        ))}
+        <button onClick={() => copyNumbers(list)} style={{ ...chip, marginLeft: "auto" }}>📋 Copy {list.length} numbers</button>
+      </div>
+
+      <div style={{ marginBottom: "1.25rem" }}>
+        <button onClick={() => setShowCampaign((s) => !s)} style={cta}>📣 {showCampaign ? "Close campaign" : `Send a campaign to ${CUST_SEGS.find((s) => s.k === seg)?.l || seg}`}</button>
+      </div>
+      {showCampaign && <CampaignPanel auth={auth} segment={seg} label={CUST_SEGS.find((s) => s.k === seg)?.l || seg} />}
+
+      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+
+      <div style={{ display: "grid", gap: "0.4rem" }}>
+        {shown.map((c) => (
+          <div key={c.id} style={{ ...rowStyle, gap: "0.6rem", padding: "0.6rem 1rem" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ color: "#fff", fontWeight: 700, fontSize: "0.86rem" }}>
+                {c.name} {c.is_commercial && <span style={{ color: "#5BC8FF", fontSize: "0.7rem" }}>🏢</span>}
+                {c.sms_opt_in && <span style={{ color: "#3DD68C", fontSize: "0.65rem", marginLeft: 4 }}>opt-in✓</span>}
+              </div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>
+                {c.phone || "no phone"} · {money(c.total_spent)} lifetime · {c.order_count} orders
+                {c.last_tire_date ? ` · tires ${c.last_tire_date}` : ""}
+              </div>
+            </div>
+            <button onClick={() => toggleCommercial(c)} style={{ ...ghostBtn, padding: "0.3rem 0.6rem", fontSize: "0.7rem", ...(c.is_commercial ? { borderColor: "#5BC8FF", color: "#9ad5ff" } : {}) }}>
+              {c.is_commercial ? "Commercial ✓" : "Mark commercial"}
+            </button>
+          </div>
+        ))}
+      </div>
+      {list.length > shown.length && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", marginTop: "0.75rem" }}>Showing first 200 of {list.length}. Use “Copy numbers” for the full list.</p>}
+    </>
+  );
+}
+
+function CampaignPanel({ auth, segment, label }) {
+  const [channel, setChannel] = useState("sms");
+  const [recip, setRecip] = useState(null);
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState("");
+  const [result, setResult] = useState("");
+  const [confirm, setConfirm] = useState(false);
+
+  async function call(b) {
+    const res = await fetch("/api/admin/campaign", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, segment, channel, ...b }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function loadRecip() { try { setRecip(await call({ action: "recipients" })); } catch (e) { setRecip(null); } }
+  useEffect(() => { setConfirm(false); setResult(""); loadRecip(); /* eslint-disable-next-line */ }, [channel, segment]);
+
+  async function draft() {
+    setBusy("draft");
+    try { const r = await call({ action: "draft" }); setBody(r.body || ""); if (r.subject) setSubject(r.subject); }
+    catch (e) { alert(e.message); }
+    finally { setBusy(""); }
+  }
+  async function send() {
+    setBusy("send"); setResult("");
+    try { const r = await call({ action: "send", body, subject }); setResult(`✅ Sent ${r.sent} of ${r.reachable}${r.failed ? ` · ${r.failed} failed` : ""}.`); setConfirm(false); }
+    catch (e) { alert(e.message); }
+    finally { setBusy(""); }
+  }
+
+  const n = recip ? recip.reachable : 0;
+  return (
+    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.25rem" }}>
+      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.75rem" }}>
+        {["sms", "email"].map((ch) => (
+          <button key={ch} onClick={() => setChannel(ch)} style={{ background: channel === ch ? "#FF1F1F" : "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, padding: "0.4rem 0.9rem", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", fontFamily: "inherit" }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>
+        ))}
+      </div>
+
+      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", marginBottom: "0.5rem" }}>
+        <strong style={{ color: "#fff" }}>{label}</strong>: {recip ? `${recip.total} customers · ` : ""}
+        <strong style={{ color: n ? "#3DD68C" : "#FF6666" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
+      </p>
+      {channel === "sms" && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>SMS sends only to opted-in customers. Delivery requires your A2P campaign to be approved.</p>}
+      {channel === "email" && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>Email sends to customers with an address on file (most TireBase customers have none yet).</p>}
+
+      {channel === "email" && <input style={{ ...inp }} placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />}
+      <textarea style={{ ...inp, minHeight: 110, resize: "vertical" }} placeholder="Your message… use {name} for the first name" value={body} onChange={(e) => setBody(e.target.value)} />
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        <button onClick={draft} disabled={busy === "draft"} style={ghostBtn}>{busy === "draft" ? "Writing…" : "🤖 Draft with AI"}</button>
+        {!confirm ? (
+          <button onClick={() => setConfirm(true)} disabled={!body.trim() || !n} style={{ ...cta, opacity: !body.trim() || !n ? 0.5 : 1 }}>Send…</button>
+        ) : (
+          <button onClick={send} disabled={busy === "send"} style={{ ...cta, background: "#C20000" }}>{busy === "send" ? "Sending…" : `Confirm — send to ${n}`}</button>
+        )}
+      </div>
+      {result && <p style={{ color: "#3DD68C", marginTop: "0.75rem", fontWeight: 700 }}>{result}</p>}
+    </div>
   );
 }
 
