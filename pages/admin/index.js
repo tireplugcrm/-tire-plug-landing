@@ -185,6 +185,7 @@ export default function AdminHub() {
     { id: "payroll", label: "💵 Payroll" },
     { id: "finance", label: "📒 Finance" },
     { id: "customers", label: "📇 Customers" },
+    { id: "reviews", label: "⭐ Reviews" },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -233,6 +234,7 @@ export default function AdminHub() {
         {tab === "payroll" && <PayrollTab auth={auth} />}
         {tab === "finance" && <FinanceTab auth={auth} />}
         {tab === "customers" && <CustomersTab auth={auth} />}
+        {tab === "reviews" && <ReviewsTab auth={auth} />}
       </div>
 
       {selectedLead && (
@@ -1455,6 +1457,82 @@ function CampaignPanel({ auth, segment, label }) {
         )}
       </div>
       {result && <p style={{ color: "#3DD68C", marginTop: "0.75rem", fontWeight: 700 }}>{result}</p>}
+    </div>
+  );
+}
+
+/* ---------------- REVIEWS & REFERRALS ---------------- */
+function ReviewsTab({ auth }) {
+  const [s, setS] = useState({ google_review_url: "", booking_url: "" });
+  const [loaded, setLoaded] = useState(false);
+  const [saved, setSaved] = useState("");
+  async function call(b) { const res = await fetch("/api/admin/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...b }) }); const j = await res.json(); if (!res.ok) throw new Error(j.error || "Request failed"); return j; }
+  useEffect(() => { call({ action: "getSettings" }).then((d) => { setS(d); setLoaded(true); }).catch(() => setLoaded(true)); /* eslint-disable-next-line */ }, []);
+  async function save() { try { await call({ action: "setSettings", ...s }); setSaved("Saved ✓"); setTimeout(() => setSaved(""), 2000); } catch (e) { alert(e.message); } }
+  if (!loaded) return <Empty>Loading…</Empty>;
+  return (
+    <>
+      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
+        <h2 style={subHead}>Links</h2>
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK</div>
+        <input style={inp} placeholder="https://g.page/.../review or search.google.com/local/writereview?placeid=..." value={s.google_review_url} onChange={(e) => setS({ ...s, google_review_url: e.target.value })} />
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.7rem", margin: "0.25rem 0" }}>BOOKING LINK (for referrals)</div>
+        <input style={inp} placeholder="https://tireplugla.com/#booking" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem" }}>
+          <button onClick={save} style={cta}>Save links</button>
+          {saved && <span style={{ color: "#3DD68C", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}
+        </div>
+        {!s.google_review_url && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link so review requests include it. (Find it in your Google Business profile → Ask for reviews.)</p>}
+      </div>
+
+      <h2 style={subHead}>⭐ Ask recent customers for a review</h2>
+      <ReviewSend auth={auth} mode="review" />
+
+      <h2 style={{ ...subHead, marginTop: "2rem" }}>🤝 Refer a friend</h2>
+      <ReviewSend auth={auth} mode="referral" />
+    </>
+  );
+}
+function ReviewSend({ auth, mode }) {
+  const chip = { background: "rgba(255,255,255,0.05)", color: "#fff", padding: "0.4rem 0.8rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const [channel, setChannel] = useState("email");
+  const [segment, setSegment] = useState("all");
+  const [recip, setRecip] = useState(null);
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState("");
+  const [confirm, setConfirm] = useState(false);
+  const [result, setResult] = useState("");
+
+  async function call(b) { const res = await fetch("/api/admin/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, mode, channel, segment, ...b }) }); const j = await res.json(); if (!res.ok) throw new Error(j.error || "Request failed"); return j; }
+  async function loadRecip() { try { setRecip(await call({ action: "recipients" })); } catch (e) { setRecip(null); } }
+  useEffect(() => { setConfirm(false); setResult(""); loadRecip(); /* eslint-disable-next-line */ }, [channel, segment]);
+  async function draft() { setBusy("draft"); try { const r = await call({ action: "draft" }); setBody(r.body || ""); if (r.subject) setSubject(r.subject); } catch (e) { alert(e.message); } finally { setBusy(""); } }
+  async function send() { setBusy("send"); setResult(""); try { const r = await call({ action: "send", body, subject }); setResult(`✅ Sent ${r.sent} of ${r.reachable}${r.failed ? ` · ${r.failed} failed` : ""}.`); setConfirm(false); } catch (e) { alert(e.message); } finally { setBusy(""); } }
+  const n = recip ? recip.reachable : 0;
+
+  return (
+    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "1.1rem 1.25rem" }}>
+      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>
+        {["email", "sms"].map((ch) => <button key={ch} onClick={() => setChannel(ch)} style={{ ...chip, ...(channel === ch ? { background: "#FF1F1F", borderColor: "#FF1F1F" } : {}) }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>)}
+        {mode === "referral" && (
+          <select style={{ ...inp, marginBottom: 0, width: 150, padding: "0.4rem 0.7rem" }} value={segment} onChange={(e) => setSegment(e.target.value)}>
+            <option value="all">All customers</option><option value="vip">VIP</option><option value="lapsed">Lapsed</option><option value="commercial">Commercial</option>
+          </select>
+        )}
+      </div>
+      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", marginBottom: "0.6rem" }}>
+        {mode === "review" ? "Recent customers not yet asked" : "Recipients"}: {recip ? `${recip.total} · ` : ""}<strong style={{ color: n ? "#3DD68C" : "#FF6666" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
+        {channel === "sms" ? " — opted-in only, needs A2P approval" : ""}
+      </p>
+      {channel === "email" && <input style={inp} placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />}
+      <textarea style={{ ...inp, minHeight: 90, resize: "vertical" }} placeholder="Message… {name} = first name" value={body} onChange={(e) => setBody(e.target.value)} />
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        <button onClick={draft} disabled={busy === "draft"} style={ghostBtn}>{busy === "draft" ? "Writing…" : "🤖 Draft with AI"}</button>
+        {!confirm ? <button onClick={() => setConfirm(true)} disabled={!body.trim() || !n} style={{ ...cta, opacity: !body.trim() || !n ? 0.5 : 1 }}>Send…</button>
+          : <button onClick={send} disabled={busy === "send"} style={{ ...cta, background: "#C20000" }}>{busy === "send" ? "Sending…" : `Confirm — send to ${n}`}</button>}
+      </div>
+      {result && <p style={{ color: "#3DD68C", marginTop: "0.6rem", fontWeight: 700 }}>{result}</p>}
     </div>
   );
 }
