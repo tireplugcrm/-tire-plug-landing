@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /careers/admin
+Disallow: /clock
+Disallow: /api/
+
+Sitemap: https://tireplugla.com/sitemap.xml
