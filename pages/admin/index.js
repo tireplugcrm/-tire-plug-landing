@@ -1720,6 +1720,7 @@ function ReviewsTab({ auth }) {
   async function call(b) { const res = await fetch("/api/admin/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...b }) }); const j = await res.json(); if (!res.ok) throw new Error(j.error || "Request failed"); return j; }
   useEffect(() => { call({ action: "getSettings" }).then((d) => { setS(d); setLoaded(true); }).catch(() => setLoaded(true)); /* eslint-disable-next-line */ }, []);
   async function save() { try { await call({ action: "setSettings", ...s }); setSaved("Saved ✓"); setTimeout(() => setSaved(""), 2000); } catch (e) { alert(e.message); } }
+  async function toggleAuto(on) { const ns = { ...s, auto_reviews: on ? "on" : "off" }; setS(ns); try { await call({ action: "setSettings", ...ns }); } catch (e) { alert(e.message); } }
   if (!loaded) return <Empty>Loading…</Empty>;
   return (
     <>
@@ -1734,6 +1735,14 @@ function ReviewsTab({ auth }) {
           {saved && <span style={{ color: "#3DD68C", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}
         </div>
         {!s.google_review_url && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link so review requests include it. (Find it in your Google Business profile → Ask for reviews.)</p>}
+      </div>
+
+      <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+        <div>
+          <div style={{ color: "#111", fontWeight: 800, fontSize: "0.95rem" }}>🤖 Auto-ask for reviews (daily)</div>
+          <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.82rem", marginTop: "0.2rem", maxWidth: 580 }}>Each morning, automatically asks recent customers (not already asked) for a Google review — texts opted-in customers, emails those with an address. Needs your review link above; SMS delivers once your A2P campaign is approved.</div>
+        </div>
+        <button onClick={() => toggleAuto(s.auto_reviews !== "on")} style={{ ...cta, background: s.auto_reviews === "on" ? "#1a7f4b" : "#8A94A6", whiteSpace: "nowrap" }}>{s.auto_reviews === "on" ? "● ON" : "Turn ON"}</button>
       </div>
 
       <h2 style={subHead}>⭐ Ask recent customers for a review</h2>

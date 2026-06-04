@@ -61,13 +61,14 @@ export default async function handler(req, res) {
 
   try {
     if (action === "getSettings") {
-      return res.status(200).json({ google_review_url: await getSetting("google_review_url"), booking_url: await getSetting("booking_url") });
+      return res.status(200).json({ google_review_url: await getSetting("google_review_url"), booking_url: await getSetting("booking_url"), auto_reviews: await getSetting("auto_reviews") });
     }
     if (action === "setSettings") {
       const rows = [
         { key: "google_review_url", value: req.body.google_review_url || "", updated_at: new Date().toISOString() },
         { key: "booking_url", value: req.body.booking_url || "", updated_at: new Date().toISOString() },
       ];
+      if (req.body.auto_reviews !== undefined) rows.push({ key: "auto_reviews", value: req.body.auto_reviews === "on" ? "on" : "off", updated_at: new Date().toISOString() });
       const { error } = await supabaseAdmin.from("app_settings").upsert(rows, { onConflict: "key" });
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ ok: true });
