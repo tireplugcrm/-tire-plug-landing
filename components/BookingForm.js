@@ -58,7 +58,8 @@ export default function BookingForm() {
   const canProceedStep2 = selectedServices.length > 0;
   const canProceedStep3 = formData.year && formData.make && formData.model;
   const canProceedStep4 = !needsTireSize || tireSizeUnknown || (formData.tireWidth && formData.tireAspect && formData.tireRim);
-  const canSubmit = formData.name && formData.phone && formData.email && smsConsent;
+  // SMS consent is OPTIONAL — it must NOT be required to book (A2P/TCPA compliance).
+  const canSubmit = formData.name && formData.phone && formData.email;
 
   const handleNext = () => { if (currentStep < totalSteps) setCurrentStep(currentStep + 1); };
   const handleBack = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
@@ -435,7 +436,7 @@ export default function BookingForm() {
                     <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required style={inlineInputStyle} className="inline-input" />
                     <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required style={inlineInputStyle} className="inline-input" />
 
-                    {/* SMS consent (required) — A2P 10DLC compliant */}
+                    {/* SMS consent (OPTIONAL) — A2P 10DLC compliant; not required to book */}
                     <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.7rem', marginTop: '0.75rem', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
@@ -444,7 +445,7 @@ export default function BookingForm() {
                         style={{ marginTop: '0.2rem', width: '18px', height: '18px', accentColor: '#FF1F1F', flexShrink: 0, cursor: 'pointer' }}
                       />
                       <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.72rem', lineHeight: 1.5 }}>
-                        Yes, text me about my request. I agree to receive text messages from The Tire Plug
+                        <strong>(Optional)</strong> Yes, text me about my request. I agree to receive text messages from The Tire Plug
                         about my quote, appointment, and service updates. Msg frequency varies. Msg &amp; data
                         rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of
                         purchase. See our{' '}
