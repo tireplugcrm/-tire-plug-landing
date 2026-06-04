@@ -61,11 +61,12 @@ export default async function handler(req, res) {
 
   try {
     if (action === "getSettings") {
-      return res.status(200).json({ google_review_url: await getSetting("google_review_url"), booking_url: await getSetting("booking_url"), auto_reviews: await getSetting("auto_reviews") });
+      return res.status(200).json({ review_url_olympic: await getSetting("review_url_olympic"), review_url_manchester: await getSetting("review_url_manchester"), booking_url: await getSetting("booking_url"), auto_reviews: await getSetting("auto_reviews") });
     }
     if (action === "setSettings") {
       const rows = [
-        { key: "google_review_url", value: req.body.google_review_url || "", updated_at: new Date().toISOString() },
+        { key: "review_url_olympic", value: req.body.review_url_olympic || "", updated_at: new Date().toISOString() },
+        { key: "review_url_manchester", value: req.body.review_url_manchester || "", updated_at: new Date().toISOString() },
         { key: "booking_url", value: req.body.booking_url || "", updated_at: new Date().toISOString() },
       ];
       if (req.body.auto_reviews !== undefined) rows.push({ key: "auto_reviews", value: req.body.auto_reviews === "on" ? "on" : "off", updated_at: new Date().toISOString() });
@@ -74,15 +75,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
-    const reviewUrl = await getSetting("google_review_url");
+    const revOlympic = (await getSetting("review_url_olympic")) || (await getSetting("google_review_url"));
+    const revManchester = await getSetting("review_url_manchester");
+    const reviewLinks = [revOlympic && `Olympic / Downtown: ${revOlympic}`, revManchester && `Manchester / South LA: ${revManchester}`].filter(Boolean).join("  ·  ") || "(your Google review link)";
     const bookingUrl = (await getSetting("booking_url")) || "https://tireplugla.com/#booking";
 
     if (action === "draft") {
       if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: "AI not set up." });
       const isEmail = channel === "email";
-      const link = mode === "review" ? (reviewUrl || "(your Google review link)") : bookingUrl;
+      const link = mode === "review" ? reviewLinks : bookingUrl;
       const intent = mode === "review"
-        ? `Thank a recent customer and warmly ask them to leave a Google review. Include this review link: ${link}. Keep it genuine and short, not pushy.`
+        ? `Thank a recent customer and warmly ask them to leave a Google review for the shop they visited. Include these review links exactly: ${link}. Keep it genuine and short, not pushy.`
         : `Invite a happy customer to refer a friend to The Tire Plug. Mention they and their friend both get a deal. Include this link/contact: ${link} (or call 562-513-0217). Don't invent specific dollar amounts unless general.`;
       const prompt = `You write messages for The Tire Plug (LA tire shop).
 VOICE: ${AI_VOICE}
@@ -114,8 +117,11 @@ Output ONLY the message.`;
       if (!body || !body.trim()) return res.status(400).json({ error: "Write a message first." });
       if (reach.length === 0) return res.status(400).json({ error: "No reachable recipients." });
       // Guarantee the call-to-action link is present.
-      const link = mode === "review" ? reviewUrl : bookingUrl;
-      if (link && !body.includes(link)) body += (mode === "review" ? `\n\nLeave a review: ${link}` : `\n\n${link}`);
+      if (mode === "review") {
+        if ((revOlympic && !body.includes(revOlympic)) || (revManchester && !body.includes(revManchester))) body += `\n\nLeave a review — ${reviewLinks}`;
+      } else if (bookingUrl && !body.includes(bookingUrl)) {
+        body += `\n\n${bookingUrl}`;
+      }
 
       let sent = 0, failed = 0; const sentIds = [];
       for (const c of reach.slice(0, 1000)) {

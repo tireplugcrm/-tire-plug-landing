@@ -1714,7 +1714,7 @@ function CampaignPanel({ auth, segment, label }) {
 
 /* ---------------- REVIEWS & REFERRALS ---------------- */
 function ReviewsTab({ auth }) {
-  const [s, setS] = useState({ google_review_url: "", booking_url: "" });
+  const [s, setS] = useState({ review_url_olympic: "", review_url_manchester: "", booking_url: "" });
   const [loaded, setLoaded] = useState(false);
   const [saved, setSaved] = useState("");
   async function call(b) { const res = await fetch("/api/admin/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...b }) }); const j = await res.json(); if (!res.ok) throw new Error(j.error || "Request failed"); return j; }
@@ -1726,15 +1726,17 @@ function ReviewsTab({ auth }) {
     <>
       <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={subHead}>Links</h2>
-        <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK</div>
-        <input style={inp} placeholder="https://g.page/.../review or search.google.com/local/writereview?placeid=..." value={s.google_review_url} onChange={(e) => setS({ ...s, google_review_url: e.target.value })} />
+        <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK — OLYMPIC (DOWNTOWN)</div>
+        <input style={inp} placeholder="Olympic shop Google review link" value={s.review_url_olympic || ""} onChange={(e) => setS({ ...s, review_url_olympic: e.target.value })} />
+        <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", margin: "0.25rem 0" }}>GOOGLE REVIEW LINK — MANCHESTER (SOUTH LA)</div>
+        <input style={inp} placeholder="Manchester shop Google review link" value={s.review_url_manchester || ""} onChange={(e) => setS({ ...s, review_url_manchester: e.target.value })} />
         <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", margin: "0.25rem 0" }}>BOOKING LINK (for referrals)</div>
         <input style={inp} placeholder="https://tireplugla.com/#booking" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem" }}>
           <button onClick={save} style={cta}>Save links</button>
           {saved && <span style={{ color: "#3DD68C", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}
         </div>
-        {!s.google_review_url && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link so review requests include it. (Find it in your Google Business profile → Ask for reviews.)</p>}
+        {!s.review_url_olympic && !s.review_url_manchester && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link(s) so review requests include them. (Find them in each shop's Google Business profile → Ask for reviews.)</p>}
       </div>
 
       <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
