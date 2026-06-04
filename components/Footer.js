@@ -162,6 +162,12 @@ export default function Footer() {
               <span style={{ fontSize: '1.1rem' }}>→</span>
             </button>
           </div>
+          <p style={{ marginTop: '2rem', color: 'rgba(255,255,255,0.45)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
+            Our Los Angeles tire shops:{' '}
+            <a href="/olympic" style={{ color: '#FF6666', textDecoration: 'none', fontWeight: 700 }}>Downtown · Olympic Blvd</a>
+            {' '}·{' '}
+            <a href="/manchester" style={{ color: '#FF6666', textDecoration: 'none', fontWeight: 700 }}>South LA · Manchester Ave</a>
+          </p>
         </div>
       </section>
 
