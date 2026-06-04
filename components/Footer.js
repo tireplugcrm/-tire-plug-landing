@@ -168,6 +168,14 @@ export default function Footer() {
             {' '}·{' '}
             <a href="/manchester" style={{ color: '#FF6666', textDecoration: 'none', fontWeight: 700 }}>South LA · Manchester Ave</a>
           </p>
+          <p style={{ marginTop: '0.75rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', letterSpacing: '0.04em', lineHeight: 1.8 }}>
+            <a href="/new-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>New Tires</a>{' · '}
+            <a href="/used-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Used Tires</a>{' · '}
+            <a href="/wheel-alignment-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Wheel Alignment</a>{' · '}
+            <a href="/oil-change-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Oil Change</a>{' · '}
+            <a href="/tpms-sensors-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>TPMS Sensors</a>{' · '}
+            <a href="/brake-service-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Brakes</a>
+          </p>
         </div>
       </section>
 
