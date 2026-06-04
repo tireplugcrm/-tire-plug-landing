@@ -272,6 +272,11 @@ function ConversionsTab({ data, onSync }) {
   const ym = new Date().toISOString().slice(0, 7);
   const monthWon = won.filter((l) => String(l.booked_at || "").slice(0, 7) === ym);
   const monthTotal = monthWon.reduce((s, l) => s + Number(l.revenue_amount || 0), 0);
+  const totalLeads = (data.leads || []).length;
+  const rate = totalLeads ? Math.round((won.length / totalLeads) * 100) : 0;
+  const bySource = {};
+  won.forEach((l) => { const sc = l.source || "unknown"; (bySource[sc] = bySource[sc] || { rev: 0, n: 0 }); bySource[sc].rev += Number(l.revenue_amount || 0); bySource[sc].n += 1; });
+  const sourceRows = Object.entries(bySource).sort((a, b) => b[1].rev - a[1].rev);
   async function sync() {
     setSyncing(true); setMsg("");
     try { const r = await onSync(); setMsg(r && r.closed != null ? `Matched ${r.closed} finalized order(s) to your leads.` : "Synced."); }
@@ -291,7 +296,23 @@ function ConversionsTab({ data, onSync }) {
         <BigStat label="Converted This Month" value={monthWon.length} color="#1a1a1a" />
         <BigStat label="Won All-Time" value={money(allTotal)} color="#1a7f4b" />
         <BigStat label="Total Conversions" value={won.length} color="#1a1a1a" />
+        <BigStat label="Conversion Rate" value={`${rate}%`} color="#1a1a1a" />
       </div>
+      {sourceRows.length > 0 && (
+        <div style={{ marginBottom: "1.75rem" }}>
+          <h2 style={subHead}>Revenue by source</h2>
+          <div style={{ display: "grid", gap: "0.4rem" }}>
+            {sourceRows.map(([src, v]) => (
+              <div key={src} style={{ ...rowStyle, gap: "0.75rem", padding: "0.6rem 1rem" }}>
+                <span style={{ flex: 1, color: "#111", fontWeight: 600, fontSize: "0.85rem" }}>{src}</span>
+                <span style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.78rem" }}>{v.n} deal{v.n === 1 ? "" : "s"}</span>
+                <span style={{ color: "#1a7f4b", fontWeight: 800, fontSize: "0.9rem" }}>{money(v.rev)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {won.length === 0 ? <Empty>No conversions yet. When a lead’s phone matches a finalized TireBase order, hit “Sync TireBase orders” and they’ll show here as won deals with the revenue.</Empty> : (
         <div style={{ display: "grid", gap: "0.5rem" }}>
           {won.map((l) => (
