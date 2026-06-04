@@ -30,7 +30,11 @@ export default async function handler(req, res) {
   }
   if (owner_notes !== undefined && rules.owner_notes) patch.owner_notes = owner_notes;
   if (read !== undefined && rules.read) patch.read = !!read;
-  if (quotes !== undefined && rules.quotes) patch.quotes = quotes;
+  if (quotes !== undefined && rules.quotes) {
+    patch.quotes = quotes;
+    // Saving a real quote starts the funnel clock (New -> Quoted -> Follow-up -> Cold).
+    if (Array.isArray(quotes) && quotes.some((qq) => qq && (qq.brand || qq.price))) patch.quoted_at = new Date().toISOString();
+  }
   if (revenue_amount !== undefined && rules.revenue) {
     patch.revenue_amount = revenue_amount === null || revenue_amount === "" ? null : Number(revenue_amount);
   }

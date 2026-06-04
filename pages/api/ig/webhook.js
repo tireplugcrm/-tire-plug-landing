@@ -67,6 +67,7 @@ export default async function handler(req, res) {
             status: "received",
             read: false,
           });
+          await supabaseAdmin.from("leads").update({ last_reply_at: new Date().toISOString() }).eq("id", lead.id);
 
           // Speed-to-lead: the instant a NEW person DMs us, send one auto-greeting
           // (24/7). Returning customers don't get re-greeted. Replying to an inbound

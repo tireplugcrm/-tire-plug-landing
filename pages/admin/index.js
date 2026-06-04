@@ -331,6 +331,25 @@ function ConversionsTab({ data, onSync }) {
   );
 }
 
+const FUNNEL_META = {
+  new: { label: "New", color: "#FF8844" },
+  quoted: { label: "Quoted", color: "#5BC8FF" },
+  follow_up: { label: "Follow-up", color: "#FFB800" },
+  cold: { label: "Cold", color: "#8A94A6" },
+  engaged: { label: "Replied", color: "#3DD68C" },
+  won: { label: "Won", color: "#1a7f4b" },
+};
+// Live funnel stage from timestamps: New -> Quoted -> (30min) Follow-up -> (24h, no reply) Cold.
+function funnelStage(l) {
+  if (l.status === "booked") return "won";
+  if (!l.quoted_at) return "new";
+  if (l.last_reply_at && new Date(l.last_reply_at) > new Date(l.quoted_at)) return "engaged";
+  const mins = (Date.now() - new Date(l.quoted_at).getTime()) / 60000;
+  if (mins < 30) return "quoted";
+  if (mins < 1440) return "follow_up";
+  return "cold";
+}
+
 function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
@@ -360,8 +379,7 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
     live = live.filter((l) => `${l.name} ${l.phone} ${l.email} ${l.service} ${l.vehicle}`.toLowerCase().includes(t));
   }
   if (filter === "hot") live = live.filter((l) => l.lead_priority === "HOT");
-  if (filter === "new") live = live.filter((l) => l.status === "new");
-  if (filter === "followup") live = live.filter((l) => followupLeadIds.has(l.id));
+  else if (["new", "quoted", "follow_up", "cold", "engaged"].includes(filter)) live = live.filter((l) => funnelStage(l) === filter);
   live = live.sort((a, b) => prio(a).rank - prio(b).rank || new Date(b.created_at) - new Date(a.created_at));
 
   const dead = data.leads.filter((l) => l.status === "dead");
@@ -369,7 +387,9 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
     { id: "all", label: "All" },
     { id: "hot", label: "🔴 Hot" },
     { id: "new", label: "New" },
-    { id: "followup", label: `Needs follow-up${dueCount ? ` (${dueCount})` : ""}` },
+    { id: "quoted", label: "Quoted" },
+    { id: "follow_up", label: "Follow-up" },
+    { id: "cold", label: "Cold" },
   ];
 
   return (
@@ -436,6 +456,7 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
 
 function LeadRow({ l, unread, onClick }) {
   const p = prio(l);
+  const fm = FUNNEL_META[funnelStage(l)];
   return (
     <div onClick={onClick} style={{ ...rowStyle, cursor: "pointer" }} className="adminRow">
       <div style={{ width: 90 }}>
@@ -444,7 +465,8 @@ function LeadRow({ l, unread, onClick }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: "#1a1a1a", fontWeight: 700 }}>
           {l.name || "(no name)"} <span style={{ color: "rgba(0,0,0,0.42)", fontWeight: 500, fontSize: "0.8rem" }}>· {STATUS_LABEL[l.status] || l.status}</span>
-          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#1a1a1a", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 50 }}>💬 {unread}</span>}
+          {fm && <span style={{ marginLeft: 6, background: `${fm.color}22`, color: fm.color, fontSize: "0.6rem", fontWeight: 800, padding: "0.12rem 0.5rem", borderRadius: 50 }}>{fm.label}</span>}
+          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#fff", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 50 }}>💬 {unread}</span>}
         </div>
         <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.service || "—"}{l.vehicle ? ` · ${l.vehicle}` : ""}</div>
       </div>

@@ -45,8 +45,11 @@ export default async function handler(req, res) {
         read: false,
       });
 
-      // Customer replied — cancel any pending follow-up nudges for this lead.
-      if (leadId) await cancelFollowups(leadId);
+      // Customer replied — stamp the reply (pulls them out of the cold path) + cancel nudges.
+      if (leadId) {
+        await supabaseAdmin.from("leads").update({ last_reply_at: new Date().toISOString() }).eq("id", leadId);
+        await cancelFollowups(leadId);
+      }
     } catch (err) {
       console.error("Inbound SMS save error:", err);
     }
