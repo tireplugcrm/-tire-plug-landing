@@ -342,7 +342,7 @@ const FUNNEL_META = {
 // Live funnel stage from timestamps: New -> Quoted -> (30min) Follow-up -> (24h, no reply) Cold.
 function funnelStage(l) {
   if (l.status === "booked") return "won";
-  if (!l.quoted_at) return "new";
+  if (!l.quoted_at) return l.status === "called" ? "quoted" : "new";
   if (l.last_reply_at && new Date(l.last_reply_at) > new Date(l.quoted_at)) return "engaged";
   const mins = (Date.now() - new Date(l.quoted_at).getTime()) / 60000;
   if (mins < 30) return "quoted";

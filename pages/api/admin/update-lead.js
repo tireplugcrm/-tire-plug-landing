@@ -49,5 +49,12 @@ export default async function handler(req, res) {
 
   const { error } = await supabaseAdmin.from(table).update(patch).eq("id", id);
   if (error) return res.status(500).json({ error: error.message });
+
+  // Marking a lead "Called" starts the funnel clock (-> Quoted -> Follow-up -> Cold),
+  // but only if it hasn't already entered the funnel.
+  if (table === "leads" && status === "called") {
+    await supabaseAdmin.from("leads").update({ quoted_at: new Date().toISOString() }).eq("id", id).is("quoted_at", null);
+  }
+
   return res.status(200).json({ success: true });
 }
