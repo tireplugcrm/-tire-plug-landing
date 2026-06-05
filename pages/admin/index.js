@@ -557,6 +557,8 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   const [services, setServices] = useState(lead.services || {});
   const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
+  const [pushing, setPushing] = useState(false);
+  const [pushMsg, setPushMsg] = useState(lead.tirebase_quote_id ? { ok: true, text: `In TireBase ✓ (Quote #${lead.tirebase_quote_id})` } : null);
 
   function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
   function addRow() { setRows([...rows, { brand: "", price: "", qty: 4, warranty: "" }]); }
@@ -590,6 +592,30 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       else { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
     } catch (e) { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
     finally { setWriting(false); setTimeout(() => setMsg(""), 3000); }
+  }
+
+  // Push the saved quote into TireBase as a Quote order (live write — confirm first).
+  async function pushToTireBase() {
+    if (!hasQuote) return;
+    const already = lead.tirebase_quote_id;
+    if (!window.confirm(`${already ? `This lead is already in TireBase as Quote #${already}.\n\n` : ""}Create a Quote in TireBase for ${lead.name || "this customer"}? This writes to your live TireBase account.`)) return;
+    setPushing(true); setPushMsg(null);
+    // Make sure the latest quote is saved before pushing.
+    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard, services });
+    try {
+      const res = await fetch("/api/admin/push-to-tirebase", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...auth, lead_id: lead.id }),
+      });
+      const d = await res.json();
+      if (res.ok && d.ok) {
+        lead.tirebase_quote_id = String(d.order_id);
+        setPushMsg({ ok: true, text: `Pushed to TireBase ✓ Quote #${d.order_id}${d.created_customer ? " (new customer created)" : ""}` });
+      } else {
+        setPushMsg({ ok: false, text: d.error || "Push failed." });
+      }
+    } catch (e) { setPushMsg({ ok: false, text: "Push failed — network error." }); }
+    finally { setPushing(false); }
   }
 
   return (
@@ -657,6 +683,12 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
         <button onClick={save} style={ghostBtn}>Save quote</button>
         {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}
         {msg && <span style={{ color: msg.includes("AI busy") ? "#FFB800" : "#3DD68C", fontSize: "0.8rem" }}>{msg}</span>}
+      </div>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center", marginTop: "0.6rem", paddingTop: "0.6rem", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+        <button onClick={pushToTireBase} disabled={pushing || !hasQuote} style={{ ...ghostBtn, opacity: !hasQuote ? 0.4 : 1, borderColor: "#1a1a1a", color: "#1a1a1a", fontWeight: 700 }} title="Create this quote in TireBase">
+          {pushing ? "Pushing…" : "🔗 Push to TireBase"}
+        </button>
+        {pushMsg && <span style={{ color: pushMsg.ok ? "#3DD68C" : "#E5484D", fontSize: "0.8rem" }}>{pushMsg.text}</span>}
       </div>
     </Section>
   );
