@@ -175,7 +175,8 @@ export default function Footer() {
             <a href="/oil-change-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Oil Change</a>{' · '}
             <a href="/tpms-sensors-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>TPMS Sensors</a>{' · '}
             <a href="/brake-service-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Brakes</a>{' · '}
-            <a href="/tire-shop-near-me-faq" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Tire FAQ</a>
+            <a href="/tire-shop-near-me-faq" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Tire FAQ</a>{' · '}
+            <a href="/tire-size-guide" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Tire Size Guide</a>
           </p>
         </div>
       </section>

@@ -137,6 +137,7 @@ export default function TireShopFaq() {
           <h2 style={h2}>Our services</h2>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             {SERVICE_INDEX.map((s) => <a key={s.slug} href={`/${s.slug}`} style={chipLink}>{s.label}</a>)}
+            <a href="/tire-size-guide" style={chipLink}>Tire Size Guide</a>
           </div>
           <p style={{ marginTop: "1.5rem" }}><a href="/" style={{ color: "#FF6666", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
         </section>
