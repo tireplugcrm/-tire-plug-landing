@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Head from "next/head";
 import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 
@@ -175,7 +175,7 @@ export default function AdminHub() {
   const NAV_GROUPS = [
     { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
     { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
-    { title: "Money", items: [ { id: "finance", icon: "📒", label: "Finance" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
+    { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "finance", icon: "📒", label: "Finance" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
@@ -232,6 +232,7 @@ export default function AdminHub() {
         {tab === "schedule" && <ScheduleTab auth={auth} />}
         {tab === "worklog" && <WorkLogTab auth={auth} />}
         {tab === "payroll" && <PayrollTab auth={auth} />}
+        {tab === "pnl" && <PnlTab auth={auth} />}
         {tab === "finance" && <FinanceTab auth={auth} />}
         {tab === "customers" && <CustomersTab auth={auth} />}
         {tab === "reviews" && <ReviewsTab auth={auth} />}
@@ -1833,6 +1834,235 @@ function ReviewSend({ auth, mode }) {
 
 /* ---------------- FINANCE ROBOT (P&L + cost memory) ---------------- */
 const EXPENSE_CATS = ["rent", "utilities", "ads", "supplies", "insurance", "other"];
+/* ---------------- WEEKLY P&L ---------------- */
+const PNL_FLAG = {
+  negative: { e: "🟥", bg: "#FFE9EC", label: "Negative profit" },
+  low: { e: "🟨", bg: "#FFFBE6", label: "Low (<$30/tire)" },
+  high: { e: "🟩", bg: "#EAF7EE", label: "High (>$60/tire)" },
+  pickup: { e: "📦", bg: "#E8F6FE", label: "Pickup-only" },
+  missing: { e: "🟧", bg: "#FFF2E2", label: "Missing tire cost" },
+};
+function pnlRowBg(flags) {
+  for (const f of ["missing", "negative", "low", "high", "pickup"]) if (flags.includes(f)) return PNL_FLAG[f].bg;
+  return "transparent";
+}
+
+function PnlTab({ auth }) {
+  const [start, setStart] = useState(() => ymd(mondayOf(new Date())));
+  const [wk, setWk] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+  const [journal, setJournal] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [openDay, setOpenDay] = useState(null);
+  const [costVals, setCostVals] = useState({});
+  const [dl, setDl] = useState(false);
+
+  async function call(body) {
+    const res = await fetch("/api/admin/pnl", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function loadWeek(s) {
+    setLoading(true); setErr("");
+    try { setWk(await call({ action: "week", start: s })); }
+    catch (e) { setErr(e.message); } finally { setLoading(false); }
+  }
+  useEffect(() => { loadWeek(start); /* eslint-disable-next-line */ }, [start]);
+
+  const toB64 = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+
+  async function processDay() {
+    if (!journal || !detail) { setNote("Pick both PDFs first."); return; }
+    setBusy(true); setNote("");
+    try {
+      const [journalB64, detailB64] = await Promise.all([toB64(journal), toB64(detail)]);
+      const r = await call({ action: "upload", journalB64, detailB64 });
+      setNote(`✓ Processed ${r.date} — ${r.day.invoices} invoices${r.unmatched?.length ? ` (⚠️ no detail for: ${r.unmatched.join(", ")})` : ""}`);
+      setJournal(null); setDetail(null);
+      await loadWeek(start);
+    } catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
+  }
+
+  // Unique missing tire costs across the week, queued 3 at a time.
+  const missing = useMemo(() => {
+    if (!wk) return [];
+    const map = {};
+    wk.days.forEach((d) => d.missing.forEach((m) => { map[m.key] = m; }));
+    return Object.values(map);
+  }, [wk]);
+  const queue = missing.slice(0, 3);
+
+  async function saveCosts() {
+    const items = queue.map((m) => ({ match_key: m.key, label: m.description, unit_cost: Number(costVals[m.key]) || 0 })).filter((i) => i.unit_cost > 0);
+    if (!items.length) { setNote("Enter at least one cost."); return; }
+    setBusy(true);
+    try { await call({ action: "costs_bulk", items }); setCostVals({}); await loadWeek(start); setNote(`✓ Saved ${items.length} cost${items.length > 1 ? "s" : ""}`); }
+    catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
+  }
+
+  async function downloadExcel() {
+    setDl(true);
+    try {
+      const res = await fetch("/api/admin/pnl-export", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, start }) });
+      if (!res.ok) { alert("Could not generate the workbook."); return; }
+      const blob = await res.blob(); const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = `TirePlug-PnL-Week-${start}.xlsx`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    } finally { setDl(false); }
+  }
+
+  const money = (n) => `$${(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money0 = (n) => `$${(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const s = wk?.summary;
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 900 }}>📈 Weekly P&amp;L</h2>
+          <p style={{ margin: "0.2rem 0 0", color: "rgba(0,0,0,0.5)", fontSize: "0.82rem" }}>Upload each day's Sales Journal + Sales Detail. Costs are shared with Finance — fill once, remembered forever.</p>
+        </div>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <label style={{ fontSize: "0.75rem", color: "rgba(0,0,0,0.55)" }}>Week of</label>
+          <input type="date" value={start} onChange={(e) => setStart(e.target.value)} style={{ ...miniInp, width: 150 }} />
+          <button onClick={downloadExcel} disabled={dl} style={cta}>{dl ? "…" : "⬇ Excel"}</button>
+        </div>
+      </div>
+
+      {/* Upload */}
+      <Section title="Add a day">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "0.6rem", alignItems: "end" }}>
+          <div>
+            <label style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.55)", display: "block", marginBottom: "0.25rem" }}>Sales Journal PDF</label>
+            <input type="file" accept="application/pdf" onChange={(e) => setJournal(e.target.files[0])} style={{ fontSize: "0.78rem" }} />
+          </div>
+          <div>
+            <label style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.55)", display: "block", marginBottom: "0.25rem" }}>Sales Detail PDF</label>
+            <input type="file" accept="application/pdf" onChange={(e) => setDetail(e.target.files[0])} style={{ fontSize: "0.78rem" }} />
+          </div>
+          <button onClick={processDay} disabled={busy || !journal || !detail} style={{ ...cta, opacity: busy || !journal || !detail ? 0.5 : 1 }}>{busy ? "Reading…" : "Process day"}</button>
+        </div>
+        {note && <p style={{ marginTop: "0.6rem", fontSize: "0.82rem", color: note.startsWith("⚠️") ? "#E5484D" : "#2E7D32" }}>{note}</p>}
+        <p style={{ marginTop: "0.5rem", fontSize: "0.72rem", color: "rgba(0,0,0,0.4)" }}>The day's date is read from the PDF automatically. Re-uploading a day overwrites it.</p>
+      </Section>
+
+      {err && <p style={{ color: "#E5484D" }}>{err}</p>}
+      {loading && <p style={{ color: "rgba(0,0,0,0.5)" }}>Loading…</p>}
+
+      {/* Weekly summary */}
+      {s && (
+        <Section title={`Week summary · ${wk.dates[0]} → ${wk.dates[6]}`}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "0.6rem", marginBottom: "0.9rem" }}>
+            {[
+              ["Revenue", money0(s.revenue)], ["COGS", money0(s.cogs)], ["Gross profit", money0(s.grossProfit)],
+              ["Commissions", money0(s.commissions)], ["Rent", money0(s.rent)],
+              ["Net profit", money0(s.net), s.net < 0 ? "#C62828" : "#2E7D32"],
+            ].map(([k, v, c]) => (
+              <div key={k} style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 10, padding: "0.7rem 0.8rem" }}>
+                <div style={{ fontSize: "0.66rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(0,0,0,0.45)" }}>{k}</div>
+                <div style={{ fontSize: "1.1rem", fontWeight: 800, color: c || "#1a1a1a" }}>{v}</div>
+              </div>
+            ))}
+          </div>
+          {/* Partner split */}
+          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginBottom: "0.9rem" }}>
+            <div style={{ flex: 1, minWidth: 200, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 10, padding: "0.7rem 0.8rem" }}>
+              <div style={{ fontSize: "0.72rem", fontWeight: 700 }}>Party A <span style={{ color: "rgba(0,0,0,0.45)", fontWeight: 400 }}>(COGS + 50% GP + 50% tax)</span></div>
+              <div style={{ fontSize: "1.05rem", fontWeight: 800 }}>{money(s.partnerA)}</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 200, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 10, padding: "0.7rem 0.8rem" }}>
+              <div style={{ fontSize: "0.72rem", fontWeight: 700 }}>Party B <span style={{ color: "rgba(0,0,0,0.45)", fontWeight: 400 }}>(50% GP + 50% tax)</span></div>
+              <div style={{ fontSize: "1.05rem", fontWeight: 800 }}>{money(s.partnerB)}</div>
+            </div>
+          </div>
+          {/* Per-day strip */}
+          <div style={{ display: "grid", gap: "0.35rem" }}>
+            {wk.days.map((d) => {
+              const has = d.invoices > 0;
+              return (
+                <button key={d.date} onClick={() => setOpenDay(openDay === d.date ? null : d.date)} style={{ display: "grid", gridTemplateColumns: "150px repeat(4, 1fr) auto", gap: "0.5rem", alignItems: "center", background: openDay === d.date ? "#f1f2f4" : "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8, padding: "0.5rem 0.7rem", cursor: has ? "pointer" : "default", textAlign: "left", fontFamily: "inherit", opacity: has ? 1 : 0.5 }}>
+                  <span style={{ fontWeight: 700, fontSize: "0.8rem" }}>{new Date(d.date + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
+                  <span style={{ fontSize: "0.78rem" }}>{has ? `${d.invoices} inv` : "—"}</span>
+                  <span style={{ fontSize: "0.78rem" }}>{has ? money0(d.revenue) : ""}</span>
+                  <span style={{ fontSize: "0.78rem", color: "rgba(0,0,0,0.55)" }}>{has ? `GP ${money0(d.grossProfit)}` : ""}</span>
+                  <span style={{ fontSize: "0.78rem" }}>{has && d.commissions ? `comm ${money0(d.commissions)}` : ""}</span>
+                  <span style={{ fontSize: "0.72rem" }}>{has && d.flags.missing ? `🟧${d.flags.missing}` : ""}{has && d.flags.negative ? ` 🟥${d.flags.negative}` : ""}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+      )}
+
+      {/* Missing costs — 3 at a time */}
+      {missing.length > 0 && (
+        <Section title={`🟧 Missing tire costs (${missing.length})`}>
+          <p style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.55)", marginTop: 0 }}>Enter our cost per tire. Saved to the shared cost book, so Finance learns them too. Showing {queue.length} of {missing.length}.</p>
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            {queue.map((m) => (
+              <div key={m.key} style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ fontSize: "0.82rem" }}>{m.description} <span style={{ color: "rgba(0,0,0,0.4)" }}>(qty {m.qty})</span></span>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.8rem" }}>$</span>
+                  <input value={costVals[m.key] || ""} onChange={(e) => setCostVals({ ...costVals, [m.key]: e.target.value })} placeholder="cost" inputMode="decimal" style={miniInp} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={saveCosts} disabled={busy} style={{ ...cta, marginTop: "0.7rem" }}>{busy ? "Saving…" : "Save costs"}</button>
+        </Section>
+      )}
+
+      {/* Day detail */}
+      {openDay && wk && (() => {
+        const d = wk.days.find((x) => x.date === openDay);
+        if (!d || !d.rows.length) return null;
+        return (
+          <Section title={`${new Date(openDay + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })} · ${d.invoices} invoices`}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.76rem" }}>
+                <thead>
+                  <tr style={{ textAlign: "left", color: "rgba(0,0,0,0.5)", borderBottom: "1px solid rgba(0,0,0,0.1)" }}>
+                    {["Inv", "Rep", "Customer", "Description", "Tires", "Cost", "Retail", "Tax", "Profit", "Comm", "Flags"].map((h) => <th key={h} style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {d.rows.map((r) => (
+                    <tr key={r.inv_no} style={{ background: pnlRowBg(r.flags), borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                      <td style={{ padding: "0.4rem 0.5rem", fontWeight: 700, whiteSpace: "nowrap" }}>{r.inv_no}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{r.rep}{r.eligible ? "" : " *"}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{r.customer}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", maxWidth: 260 }}>{r.description}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", textAlign: "center" }}>{r.tireQty || ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem" }}>{money(r.totalCost)}</td>
+                      <td style={{ padding: "0.4rem 0.5rem" }}>{money(r.retail)}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", color: "rgba(0,0,0,0.5)" }}>{money(r.tax)}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", fontWeight: 700 }}>{money(r.totalProfit)}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", color: "#2E7D32", fontWeight: 700 }}>{r.commission ? money0(r.commission) : ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{r.flags.map((f) => PNL_FLAG[f].e).join(" ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginTop: "0.7rem", fontSize: "0.72rem", color: "rgba(0,0,0,0.5)" }}>
+              {Object.entries(PNL_FLAG).map(([k, v]) => <span key={k}>{v.e} {v.label}</span>)}
+              <span>* not commission-eligible</span>
+            </div>
+            {Object.keys(d.commissionsByRep).length > 0 && (
+              <p style={{ marginTop: "0.6rem", fontSize: "0.8rem" }}><strong>Commissions:</strong> {Object.entries(d.commissionsByRep).map(([r, a]) => `${r} ${money0(a)}`).join(" · ")}</p>
+            )}
+          </Section>
+        );
+      })()}
+    </div>
+  );
+}
+
 function FinanceTab({ auth }) {
   const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
   function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
