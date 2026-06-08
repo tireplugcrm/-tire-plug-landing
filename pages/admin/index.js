@@ -2005,7 +2005,10 @@ function PnlTab({ auth }) {
           <div style={{ display: "grid", gap: "0.5rem" }}>
             {queue.map((m) => (
               <div key={m.key} style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: "0.5rem", alignItems: "center" }}>
-                <span style={{ fontSize: "0.82rem" }}>{m.description} <span style={{ color: "rgba(0,0,0,0.4)" }}>(qty {m.qty})</span></span>
+                <span style={{ fontSize: "0.82rem" }}>
+                  <span style={{ display: "inline-block", fontSize: "0.66rem", fontWeight: 700, background: m.category === "tire" ? "#EEF" : m.category === "tpms" ? "#E8F6FE" : "#FFF2E2", borderRadius: 5, padding: "0.1rem 0.4rem", marginRight: "0.4rem" }}>{m.category === "tire" ? "🛞 Tire" : m.category === "tpms" ? "💡 TPMS" : "🛢️ Oil"}</span>
+                  {m.description} <span style={{ color: "rgba(0,0,0,0.4)" }}>(qty {m.qty})</span>
+                </span>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
                   <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.8rem" }}>$</span>
                   <input value={costVals[m.key] || ""} onChange={(e) => setCostVals({ ...costVals, [m.key]: e.target.value })} placeholder="cost" inputMode="decimal" style={miniInp} />
