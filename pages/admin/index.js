@@ -1886,7 +1886,9 @@ function PnlTab({ auth }) {
   useEffect(() => { loadWeek(start); loadCostItems(start); /* eslint-disable-next-line */ }, [start]);
 
   async function saveEditedCosts() {
-    const items = costItems.map((i) => ({ match_key: i.key, label: i.description, unit_cost: Number(costEdits[i.key]) || 0 })).filter((i) => i.unit_cost > 0);
+    const items = costItems
+      .filter((i) => String(costEdits[i.key] ?? "").trim() !== "")
+      .map((i) => ({ match_key: i.key, label: i.description, unit_cost: Number(costEdits[i.key]) || 0 }));
     if (!items.length) { setNote("Enter at least one cost."); return; }
     setSavingCosts(true);
     try { await call({ action: "costs_bulk", items }); await loadWeek(start); await loadCostItems(start); setNote(`✓ Saved ${items.length} cost change${items.length > 1 ? "s" : ""}`); }
@@ -1917,8 +1919,11 @@ function PnlTab({ auth }) {
   const queue = missing.slice(0, 3);
 
   async function saveCosts() {
-    const items = queue.map((m) => ({ match_key: m.key, label: m.description, unit_cost: Number(costVals[m.key]) || 0 })).filter((i) => i.unit_cost > 0);
-    if (!items.length) { setNote("Enter at least one cost."); return; }
+    // Save anything the user actually typed — including 0 (free/used tires).
+    const items = queue
+      .filter((m) => String(costVals[m.key] ?? "").trim() !== "")
+      .map((m) => ({ match_key: m.key, label: m.description, unit_cost: Number(costVals[m.key]) || 0 }));
+    if (!items.length) { setNote("Enter a cost first — use 0 for free/used tires."); return; }
     setBusy(true);
     try { await call({ action: "costs_bulk", items }); setCostVals({}); await loadWeek(start); await loadCostItems(start); setNote(`✓ Saved ${items.length} cost${items.length > 1 ? "s" : ""}`); }
     catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
@@ -2021,7 +2026,7 @@ function PnlTab({ auth }) {
       {/* Missing costs — 3 at a time */}
       {missing.length > 0 && (
         <Section title={`🟧 Missing tire costs (${missing.length})`}>
-          <p style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.55)", marginTop: 0 }}>Enter our cost per tire. Saved to the shared cost book, so Finance learns them too. Showing {queue.length} of {missing.length}.</p>
+          <p style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.55)", marginTop: 0 }}>Enter our cost per unit — <strong>type 0 for free / used / trade-in tires</strong>. Saved to the shared cost book, so Finance learns them too. Showing {queue.length} of {missing.length}.</p>
           <div style={{ display: "grid", gap: "0.5rem" }}>
             {queue.map((m) => (
               <div key={m.key} style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: "0.5rem", alignItems: "center" }}>
