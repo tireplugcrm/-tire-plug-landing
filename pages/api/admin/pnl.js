@@ -13,7 +13,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { extractPdfLines } from "../../../lib/pnl/pdf-text.js";
 import { parseSalesJournal, parseSalesDetail, matchDay, reportDate } from "../../../lib/pnl/parse.js";
-import { saveDayInvoices, getDay, getWeek, loadedDates } from "../../../lib/pnl/store.js";
+import { saveDayInvoices, getDay, getWeek, loadedDates, getWeekCostItems } from "../../../lib/pnl/store.js";
 
 export const maxDuration = 60;
 export const config = { api: { bodyParser: { sizeLimit: "12mb" } } };
@@ -75,6 +75,12 @@ export default async function handler(req, res) {
       const { error } = await supabaseAdmin.from("tire_costs").upsert(rows, { onConflict: "match_key" });
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ ok: true, saved: rows.length });
+    }
+
+    if (action === "costbook") {
+      const { start } = req.body;
+      if (!start) return res.status(400).json({ error: "Missing week start." });
+      return res.status(200).json({ ok: true, items: await getWeekCostItems(start) });
     }
 
     if (action === "list") {

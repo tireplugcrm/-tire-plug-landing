@@ -1859,6 +1859,10 @@ function PnlTab({ auth }) {
   const [openDay, setOpenDay] = useState(null);
   const [costVals, setCostVals] = useState({});
   const [dl, setDl] = useState(false);
+  const [costItems, setCostItems] = useState([]);
+  const [costEdits, setCostEdits] = useState({});
+  const [showCosts, setShowCosts] = useState(false);
+  const [savingCosts, setSavingCosts] = useState(false);
 
   async function call(body) {
     const res = await fetch("/api/admin/pnl", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
@@ -1871,7 +1875,22 @@ function PnlTab({ auth }) {
     try { setWk(await call({ action: "week", start: s })); }
     catch (e) { setErr(e.message); } finally { setLoading(false); }
   }
-  useEffect(() => { loadWeek(start); /* eslint-disable-next-line */ }, [start]);
+  async function loadCostItems(s) {
+    try {
+      const r = await call({ action: "costbook", start: s });
+      setCostItems(r.items || []);
+      setCostEdits(Object.fromEntries((r.items || []).map((i) => [i.key, i.unit_cost == null ? "" : String(i.unit_cost)])));
+    } catch (e) { /* non-fatal */ }
+  }
+  useEffect(() => { loadWeek(start); loadCostItems(start); /* eslint-disable-next-line */ }, [start]);
+
+  async function saveEditedCosts() {
+    const items = costItems.map((i) => ({ match_key: i.key, label: i.description, unit_cost: Number(costEdits[i.key]) || 0 })).filter((i) => i.unit_cost > 0);
+    if (!items.length) { setNote("Enter at least one cost."); return; }
+    setSavingCosts(true);
+    try { await call({ action: "costs_bulk", items }); await loadWeek(start); await loadCostItems(start); setNote(`✓ Saved ${items.length} cost change${items.length > 1 ? "s" : ""}`); }
+    catch (e) { setNote(`⚠️ ${e.message}`); } finally { setSavingCosts(false); }
+  }
 
   const toB64 = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
 
@@ -1883,7 +1902,7 @@ function PnlTab({ auth }) {
       const r = await call({ action: "upload", journalB64, detailB64 });
       setNote(`✓ Processed ${r.date} — ${r.day.invoices} invoices${r.unmatched?.length ? ` (⚠️ no detail for: ${r.unmatched.join(", ")})` : ""}`);
       setJournal(null); setDetail(null);
-      await loadWeek(start);
+      await loadWeek(start); await loadCostItems(start);
     } catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
   }
 
@@ -1900,7 +1919,7 @@ function PnlTab({ auth }) {
     const items = queue.map((m) => ({ match_key: m.key, label: m.description, unit_cost: Number(costVals[m.key]) || 0 })).filter((i) => i.unit_cost > 0);
     if (!items.length) { setNote("Enter at least one cost."); return; }
     setBusy(true);
-    try { await call({ action: "costs_bulk", items }); setCostVals({}); await loadWeek(start); setNote(`✓ Saved ${items.length} cost${items.length > 1 ? "s" : ""}`); }
+    try { await call({ action: "costs_bulk", items }); setCostVals({}); await loadWeek(start); await loadCostItems(start); setNote(`✓ Saved ${items.length} cost${items.length > 1 ? "s" : ""}`); }
     catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
   }
 
@@ -2020,6 +2039,33 @@ function PnlTab({ auth }) {
         </Section>
       )}
 
+      {/* Edit any cost (corrections) */}
+      {costItems.length > 0 && (
+        <Section title={`💲 Edit costs (${costItems.length})`}>
+          <button onClick={() => setShowCosts(!showCosts)} style={{ ...ghostBtn, marginBottom: showCosts ? "0.7rem" : 0 }}>{showCosts ? "Hide costs" : "Show / edit all costs"}</button>
+          {showCosts && (
+            <>
+              <p style={{ fontSize: "0.78rem", color: "rgba(0,0,0,0.5)", margin: "0 0 0.6rem" }}>Cost per unit — per tire, per TPMS sensor, per oil change. Editing here updates the shared cost book and recalculates every day instantly. Fix a typo anytime.</p>
+              <div style={{ display: "grid", gap: "0.4rem", maxHeight: 380, overflowY: "auto", paddingRight: "0.3rem" }}>
+                {costItems.map((m) => (
+                  <div key={m.key} style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: "0.5rem", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.8rem" }}>
+                      <span style={{ display: "inline-block", fontSize: "0.66rem", fontWeight: 700, background: m.category === "tire" ? "#EEF" : m.category === "tpms" ? "#E8F6FE" : "#FFF2E2", borderRadius: 5, padding: "0.1rem 0.4rem", marginRight: "0.4rem" }}>{m.category === "tire" ? "🛞 Tire" : m.category === "tpms" ? "💡 TPMS" : "🛢️ Oil"}</span>
+                      {m.description} <span style={{ color: "rgba(0,0,0,0.4)" }}>(qty {m.qty})</span>
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                      <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.8rem" }}>$</span>
+                      <input value={costEdits[m.key] ?? ""} onChange={(e) => setCostEdits({ ...costEdits, [m.key]: e.target.value })} placeholder="per unit" inputMode="decimal" style={miniInp} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={saveEditedCosts} disabled={savingCosts} style={{ ...cta, marginTop: "0.7rem" }}>{savingCosts ? "Saving…" : "Save cost changes"}</button>
+            </>
+          )}
+        </Section>
+      )}
+
       {/* Day detail */}
       {openDay && wk && (() => {
         const d = wk.days.find((x) => x.date === openDay);
@@ -2030,7 +2076,7 @@ function PnlTab({ auth }) {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.76rem" }}>
                 <thead>
                   <tr style={{ textAlign: "left", color: "rgba(0,0,0,0.5)", borderBottom: "1px solid rgba(0,0,0,0.1)" }}>
-                    {["Inv", "Rep", "Customer", "Description", "Tires", "Tire $", "TPMS $", "Oil $", "Total Cost", "Retail", "Tax", "Profit", "Comm", "Flags"].map((h) => <th key={h} style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{h}</th>)}
+                    {["Inv", "Rep", "Customer", "Description", "Tires", "Tire $/ea", "TPMS $/ea", "Oil $/ea", "Total Cost", "Retail", "Tax", "Profit", "Comm", "Flags"].map((h) => <th key={h} style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -2041,9 +2087,9 @@ function PnlTab({ auth }) {
                       <td style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{r.customer}</td>
                       <td style={{ padding: "0.4rem 0.5rem", maxWidth: 260 }}>{r.description}</td>
                       <td style={{ padding: "0.4rem 0.5rem", textAlign: "center" }}>{r.tireQty || ""}</td>
-                      <td style={{ padding: "0.4rem 0.5rem" }}>{r.tireCost ? money(r.tireCost) : ""}</td>
-                      <td style={{ padding: "0.4rem 0.5rem" }}>{r.tpmsCost ? money(r.tpmsCost) : ""}</td>
-                      <td style={{ padding: "0.4rem 0.5rem" }}>{r.oilCost ? money(r.oilCost) : ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem" }}>{r.tireUnitCost ? money(r.tireUnitCost) : ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem" }}>{r.tpmsUnitCost ? money(r.tpmsUnitCost) : ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem" }}>{r.oilUnitCost ? money(r.oilUnitCost) : ""}</td>
                       <td style={{ padding: "0.4rem 0.5rem", fontWeight: 600 }}>{money(r.totalCost)}</td>
                       <td style={{ padding: "0.4rem 0.5rem" }}>{money(r.retail)}</td>
                       <td style={{ padding: "0.4rem 0.5rem", color: "rgba(0,0,0,0.5)" }}>{money(r.tax)}</td>
