@@ -2076,7 +2076,7 @@ function PnlTab({ auth }) {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.76rem" }}>
                 <thead>
                   <tr style={{ textAlign: "left", color: "rgba(0,0,0,0.5)", borderBottom: "1px solid rgba(0,0,0,0.1)" }}>
-                    {["Inv", "Rep", "Customer", "Description", "Tires", "Tire $/ea", "TPMS $/ea", "Oil $/ea", "Total Cost", "Retail", "Tax", "Profit", "Comm", "Flags"].map((h) => <th key={h} style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{h}</th>)}
+                    {["Inv", "Rep", "Customer", "Description", "Tires", "Tire $/ea", "TPMS", "TPMS $/ea", "Oil", "Oil $/ea", "Total Cost", "Retail", "Tax", "Profit", "Comm", "Flags"].map((h) => <th key={h} style={{ padding: "0.4rem 0.5rem", whiteSpace: "nowrap" }}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -2088,7 +2088,9 @@ function PnlTab({ auth }) {
                       <td style={{ padding: "0.4rem 0.5rem", maxWidth: 260 }}>{r.description}</td>
                       <td style={{ padding: "0.4rem 0.5rem", textAlign: "center" }}>{r.tireQty || ""}</td>
                       <td style={{ padding: "0.4rem 0.5rem" }}>{r.tireUnitCost ? money(r.tireUnitCost) : ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", textAlign: "center" }}>{r.tpmsQty || ""}</td>
                       <td style={{ padding: "0.4rem 0.5rem" }}>{r.tpmsUnitCost ? money(r.tpmsUnitCost) : ""}</td>
+                      <td style={{ padding: "0.4rem 0.5rem", textAlign: "center" }}>{r.oilQty || ""}</td>
                       <td style={{ padding: "0.4rem 0.5rem" }}>{r.oilUnitCost ? money(r.oilUnitCost) : ""}</td>
                       <td style={{ padding: "0.4rem 0.5rem", fontWeight: 600 }}>{money(r.totalCost)}</td>
                       <td style={{ padding: "0.4rem 0.5rem" }}>{money(r.retail)}</td>
