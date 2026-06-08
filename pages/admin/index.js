@@ -1842,9 +1842,10 @@ const PNL_FLAG = {
   pickup: { e: "📦", bg: "#E8F6FE", label: "Pickup-only" },
   missing: { e: "🟧", bg: "#FFF2E2", label: "Missing tire cost" },
   unmatched: { e: "⚠️", bg: "#FFE3E3", label: "No detail matched — check this invoice" },
+  refund: { e: "↩️", bg: "#F3E8FF", label: "Refund (reverses a sale)" },
 };
 function pnlRowBg(flags) {
-  for (const f of ["unmatched", "missing", "negative", "low", "high", "pickup"]) if (flags.includes(f)) return PNL_FLAG[f].bg;
+  for (const f of ["refund", "unmatched", "missing", "negative", "low", "high", "pickup"]) if (flags.includes(f)) return PNL_FLAG[f].bg;
   return "transparent";
 }
 
