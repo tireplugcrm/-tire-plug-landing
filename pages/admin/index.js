@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Head from "next/head";
 import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 
@@ -23,6 +23,11 @@ export default function AdminHub() {
 
   const authObj = () => (accessToken ? { accessToken } : { password });
 
+  // Guard against the auth listener firing multiple times for one sign-in. Without
+  // this, getSession() + several onAuthStateChange events each hit request-access,
+  // generating (and emailing the owner) a fresh code each time — the user saw 4.
+  const accessRequestedRef = useRef(false);
+
   async function loadWith(a) {
     setLoading(true); setError("");
     try {
@@ -38,13 +43,16 @@ export default function AdminHub() {
 
   async function handleGoogleSession(token, email) {
     setAccessToken(token); if (email) setGoogleEmail(email); setError("");
+    // Only request access (and trigger a code email) once per sign-in.
+    if (accessRequestedRef.current) return;
+    accessRequestedRef.current = true;
     try {
       const res = await fetch("/api/admin/request-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accessToken: token }) });
       const d = await res.json();
       if (d.status === "approved") loadWith({ accessToken: token });
       else if (d.status === "pending") setNeedsCode(true);
-      else setError(d.error || "Access error");
-    } catch (e) { setError("Network error"); }
+      else { setError(d.error || "Access error"); accessRequestedRef.current = false; }
+    } catch (e) { setError("Network error"); accessRequestedRef.current = false; }
   }
 
   useEffect(() => {
@@ -108,6 +116,7 @@ export default function AdminHub() {
   async function signOut() {
     try { await supabaseBrowser?.auth.signOut(); } catch (e) {}
     sessionStorage.removeItem("admin_pw");
+    accessRequestedRef.current = false;
     setAccessToken(null); setAuthed(false); setNeedsCode(false); setPassword(""); setGoogleEmail("");
   }
 
