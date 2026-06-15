@@ -20,6 +20,15 @@ export const config = { api: { bodyParser: { sizeLimit: "12mb" } } };
 
 const b64ToBuf = (s) => Buffer.from(String(s || "").replace(/^data:.*;base64,/, ""), "base64");
 
+// Parse a cost robustly: strip $, commas, spaces. Returns NaN for non-numbers so we
+// refuse the save instead of silently storing 0 (that bug zeroed real costs once).
+const parseCost = (v) => {
+  const s = String(v ?? "").replace(/[^0-9.\-]/g, "");
+  if (s === "" || s === "-" || s === "." || s === "-.") return NaN;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const auth = await requireAdmin(req);
@@ -58,10 +67,12 @@ export default async function handler(req, res) {
     }
 
     if (action === "cost") {
-      const { match_key, label, unit_cost, is_product = true } = req.body;
+      const { match_key, label, is_product = true } = req.body;
       if (!match_key) return res.status(400).json({ error: "Missing match_key." });
+      const unit_cost = parseCost(req.body.unit_cost);
+      if (Number.isNaN(unit_cost)) return res.status(400).json({ error: "Cost must be a number." });
       const { error } = await supabaseAdmin.from("tire_costs").upsert(
-        { match_key, label: label || null, unit_cost: Number(unit_cost) || 0, is_product, updated_at: new Date().toISOString() },
+        { match_key, label: label || null, unit_cost, is_product, updated_at: new Date().toISOString() },
         { onConflict: "match_key" }
       );
       if (error) return res.status(500).json({ error: error.message });
@@ -71,7 +82,10 @@ export default async function handler(req, res) {
     if (action === "costs_bulk") {
       const items = (req.body.items || []).filter((i) => i.match_key);
       if (!items.length) return res.status(400).json({ error: "No costs to save." });
-      const rows = items.map((i) => ({ match_key: i.match_key, label: i.label || null, unit_cost: Number(i.unit_cost) || 0, is_product: i.is_product !== false, updated_at: new Date().toISOString() }));
+      const parsed = items.map((i) => ({ ...i, _cost: parseCost(i.unit_cost) }));
+      const bad = parsed.filter((i) => Number.isNaN(i._cost));
+      if (bad.length) return res.status(400).json({ error: `These costs aren't numbers: ${bad.map((i) => i.label || i.match_key).join(", ")}` });
+      const rows = parsed.map((i) => ({ match_key: i.match_key, label: i.label || null, unit_cost: i._cost, is_product: i.is_product !== false, updated_at: new Date().toISOString() }));
       const { error } = await supabaseAdmin.from("tire_costs").upsert(rows, { onConflict: "match_key" });
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json({ ok: true, saved: rows.length });

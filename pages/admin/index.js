@@ -1849,6 +1849,16 @@ function pnlRowBg(flags) {
   return "transparent";
 }
 
+// Read a cost the owner typed. Strips $, commas, and stray spaces so "$1,140" -> 1140.
+// Returns NaN for anything that isn't a real number so the caller can refuse to save it
+// (silently turning bad input into 0 once wiped out a whole night of entered costs).
+function parseCost(v) {
+  const s = String(v ?? "").replace(/[^0-9.\-]/g, "");
+  if (s === "" || s === "-" || s === "." || s === "-.") return NaN;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
+}
+
 function PnlTab({ auth }) {
   const [start, setStart] = useState(() => ymd(mondayOf(new Date())));
   const [wk, setWk] = useState(null);
@@ -1887,9 +1897,12 @@ function PnlTab({ auth }) {
   useEffect(() => { loadWeek(start); loadCostItems(start); /* eslint-disable-next-line */ }, [start]);
 
   async function saveEditedCosts() {
-    const items = costItems
-      .filter((i) => String(costEdits[i.key] ?? "").trim() !== "")
-      .map((i) => ({ match_key: i.key, label: i.description, unit_cost: Number(costEdits[i.key]) || 0 }));
+    const typed = costItems.filter((i) => String(costEdits[i.key] ?? "").trim() !== "");
+    const bad = typed.filter((i) => Number.isNaN(parseCost(costEdits[i.key])));
+    const items = typed
+      .filter((i) => !Number.isNaN(parseCost(costEdits[i.key])))
+      .map((i) => ({ match_key: i.key, label: i.description, unit_cost: parseCost(costEdits[i.key]) }));
+    if (bad.length) { setNote(`⚠️ Couldn't read ${bad.length} cost${bad.length > 1 ? "s" : ""} (use numbers only — no letters): ${bad.map((i) => i.description).join(", ")}`); return; }
     if (!items.length) { setNote("Enter at least one cost."); return; }
     setSavingCosts(true);
     try { await call({ action: "costs_bulk", items }); await loadWeek(start); await loadCostItems(start); setNote(`✓ Saved ${items.length} cost change${items.length > 1 ? "s" : ""}`); }
@@ -1921,9 +1934,12 @@ function PnlTab({ auth }) {
 
   async function saveCosts() {
     // Save anything the user actually typed — including 0 (free/used tires).
-    const items = queue
-      .filter((m) => String(costVals[m.key] ?? "").trim() !== "")
-      .map((m) => ({ match_key: m.key, label: m.description, unit_cost: Number(costVals[m.key]) || 0 }));
+    const typed = queue.filter((m) => String(costVals[m.key] ?? "").trim() !== "");
+    const bad = typed.filter((m) => Number.isNaN(parseCost(costVals[m.key])));
+    const items = typed
+      .filter((m) => !Number.isNaN(parseCost(costVals[m.key])))
+      .map((m) => ({ match_key: m.key, label: m.description, unit_cost: parseCost(costVals[m.key]) }));
+    if (bad.length) { setNote(`⚠️ Couldn't read ${bad.length} cost${bad.length > 1 ? "s" : ""} (use numbers only — no letters): ${bad.map((m) => m.description).join(", ")}`); return; }
     if (!items.length) { setNote("Enter a cost first — use 0 for free/used tires."); return; }
     setBusy(true);
     try { await call({ action: "costs_bulk", items }); setCostVals({}); await loadWeek(start); await loadCostItems(start); setNote(`✓ Saved ${items.length} cost${items.length > 1 ? "s" : ""}`); }
