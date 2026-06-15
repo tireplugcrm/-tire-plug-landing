@@ -1868,6 +1868,7 @@ function PnlTab({ auth }) {
   const [note, setNote] = useState("");
   const [journal, setJournal] = useState(null);
   const [detail, setDetail] = useState(null);
+  const [uploadKey, setUploadKey] = useState(0); // bump to remount file inputs so they visually clear after a save
   const [openDay, setOpenDay] = useState(null);
   const [costVals, setCostVals] = useState({});
   const [dl, setDl] = useState(false);
@@ -1917,8 +1918,8 @@ function PnlTab({ auth }) {
     try {
       const [journalB64, detailB64] = await Promise.all([toB64(journal), toB64(detail)]);
       const r = await call({ action: "upload", journalB64, detailB64 });
-      setNote(`✓ Processed ${r.date} — ${r.day.invoices} invoices${r.unmatched?.length ? ` (⚠️ no detail for: ${r.unmatched.join(", ")})` : ""}`);
-      setJournal(null); setDetail(null);
+      setNote(`✓ Processed ${r.date} — ${r.day.invoices} invoices${r.unmatched?.length ? ` (⚠️ no detail for: ${r.unmatched.join(", ")})` : ""}. Pick the next day's two PDFs below.`);
+      setJournal(null); setDetail(null); setUploadKey((k) => k + 1);
       await loadWeek(start); await loadCostItems(start);
     } catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
   }
@@ -1979,14 +1980,14 @@ function PnlTab({ auth }) {
       <Section title="Add a day">
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "0.6rem", alignItems: "end" }}>
           <div>
-            <label style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.55)", display: "block", marginBottom: "0.25rem" }}>Sales Journal PDF</label>
-            <input type="file" accept="application/pdf" onChange={(e) => setJournal(e.target.files[0])} style={{ fontSize: "0.78rem" }} />
+            <label style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.55)", display: "block", marginBottom: "0.25rem" }}>Sales Journal PDF {journal ? "✓" : ""}</label>
+            <input key={`j-${uploadKey}`} type="file" accept="application/pdf" onChange={(e) => setJournal(e.target.files[0])} style={{ fontSize: "0.78rem" }} />
           </div>
           <div>
-            <label style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.55)", display: "block", marginBottom: "0.25rem" }}>Sales Detail PDF</label>
-            <input type="file" accept="application/pdf" onChange={(e) => setDetail(e.target.files[0])} style={{ fontSize: "0.78rem" }} />
+            <label style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.55)", display: "block", marginBottom: "0.25rem" }}>Sales Detail PDF {detail ? "✓" : ""}</label>
+            <input key={`d-${uploadKey}`} type="file" accept="application/pdf" onChange={(e) => setDetail(e.target.files[0])} style={{ fontSize: "0.78rem" }} />
           </div>
-          <button onClick={processDay} disabled={busy || !journal || !detail} style={{ ...cta, opacity: busy || !journal || !detail ? 0.5 : 1 }}>{busy ? "Reading…" : "Process day"}</button>
+          <button onClick={processDay} disabled={busy} style={{ ...cta, opacity: busy ? 0.5 : 1 }}>{busy ? "Reading…" : "Process day"}</button>
         </div>
         {note && <p style={{ marginTop: "0.6rem", fontSize: "0.82rem", color: note.startsWith("⚠️") ? "#E5484D" : "#2E7D32" }}>{note}</p>}
         <p style={{ marginTop: "0.5rem", fontSize: "0.72rem", color: "rgba(0,0,0,0.4)" }}>The day's date is read from the PDF automatically. Re-uploading a day overwrites it.</p>
