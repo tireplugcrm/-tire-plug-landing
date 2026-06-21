@@ -11,8 +11,9 @@ import BookingForm from '../components/BookingForm';
 import Footer from '../components/Footer';
 
 const SERVICE_NAMES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Change", "Brake Service", "Tire Rotation & Balance", "Tire Repair"];
-function makeLocation(name, street, zip, sundayHours) {
-  const hours = [{ "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00" }];
+function makeLocation(name, street, zip, sundayHours, weekday) {
+  const wk = weekday || [{ dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00" }];
+  const hours = wk.map((w) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: w.dayOfWeek, opens: w.opens, closes: w.closes }));
   if (sundayHours) hours.push({ "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: sundayHours[0], closes: sundayHours[1] });
   return {
     "@context": "https://schema.org", "@type": "AutoRepair",
@@ -25,7 +26,10 @@ function makeLocation(name, street, zip, sundayHours) {
   };
 }
 const TIRE_PLUG_SCHEMA = [
-  makeLocation("The Tire Plug — Olympic", "2331 E Olympic Blvd", "90021", null),
+  makeLocation("The Tire Plug — Olympic", "2331 E Olympic Blvd", "90021", ["09:00", "16:00"], [
+    { dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "19:00" },
+    { dayOfWeek: ["Saturday"], opens: "09:00", closes: "18:00" },
+  ]),
   makeLocation("The Tire Plug — Manchester", "2220 E Manchester Ave", "90001", ["10:00", "16:00"]),
 ];
 

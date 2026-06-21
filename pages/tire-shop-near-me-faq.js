@@ -53,7 +53,7 @@ const FAQS = [
   },
   {
     q: "What are your hours and locations?",
-    a: "The Tire Plug has two Los Angeles shops: Downtown / East LA at 2331 E Olympic Blvd (LA 90021) and South LA at 2220 E Manchester Ave (LA 90001). Call (562) 513-0217 for current hours at each location — we're open 6 days a week with same-day service.",
+    a: "The Tire Plug has two Los Angeles shops: Downtown / East LA at 2331 E Olympic Blvd (LA 90021) and South LA at 2220 E Manchester Ave (LA 90001). Call (562) 513-0217 for current hours at each location — we're open 7 days a week with same-day service.",
   },
   {
     q: "How do I get a tire quote fast?",

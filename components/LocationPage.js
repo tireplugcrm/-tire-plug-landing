@@ -7,7 +7,8 @@ const SERVICES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", 
 
 export default function LocationPage({ loc }) {
   const url = `https://tireplugla.com/${loc.slug}`;
-  const hours = [{ "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00" }];
+  const weekday = loc.weekday || [{ dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00" }];
+  const hours = weekday.map((w) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: w.dayOfWeek, opens: w.opens, closes: w.closes }));
   if (loc.sunday) hours.push({ "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: loc.sunday[0], closes: loc.sunday[1] });
   const schema = {
     "@context": "https://schema.org", "@type": "AutoRepair",
@@ -41,7 +42,7 @@ export default function LocationPage({ loc }) {
           <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.6, maxWidth: 700 }}>{loc.intro}</p>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", margin: "2rem 0 1.5rem" }}>
             <div style={card}><div style={cardLabel}>📍 Address</div><div style={cardVal}>{loc.street}<br />Los Angeles, CA {loc.zip}</div></div>
-            <div style={card}><div style={cardLabel}>🕐 Hours</div><div style={cardVal}>Mon–Sat · 9AM–6PM<br />{loc.sundayText}</div></div>
+            <div style={card}><div style={cardLabel}>🕐 Hours</div><div style={cardVal}>{(loc.hoursLines || ["Mon–Sat · 9AM–6PM", loc.sundayText]).map((line, i) => (<React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>))}</div></div>
             <div style={card}><div style={cardLabel}>📞 Phone</div><div style={cardVal}>(562) 513-0217</div></div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
