@@ -26,7 +26,7 @@ function makeLocation(name, street, zip, sundayHours, weekday) {
   };
 }
 const TIRE_PLUG_SCHEMA = [
-  makeLocation("The Tire Plug — Olympic", "2331 E Olympic Blvd", "90021", ["09:00", "16:00"], [
+  makeLocation("The Tire Plug — Olympic", "2331 E Olympic Blvd", "90021", ["10:00", "16:00"], [
     { dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "19:00" },
     { dayOfWeek: ["Saturday"], opens: "09:00", closes: "18:00" },
   ]),
