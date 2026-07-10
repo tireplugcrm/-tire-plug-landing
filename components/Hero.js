@@ -276,7 +276,7 @@ export default function Hero() {
           </button>
 
           
-            <a href="tel:562-513-0217"
+            <a href="tel:562-500-4625"
             className="hero-cta-secondary"
             style={{
               background: 'rgba(255,255,255,0.04)',

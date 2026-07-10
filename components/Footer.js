@@ -108,7 +108,7 @@ export default function Footer() {
           {/* Dual CTAs */}
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             
-              <a href="tel:562-513-0217"
+              <a href="tel:562-500-4625"
               className="cta-primary"
               style={{
                 position: 'relative',
@@ -165,8 +165,6 @@ export default function Footer() {
           <p style={{ marginTop: '2rem', color: 'rgba(255,255,255,0.45)', fontSize: '0.8rem', letterSpacing: '0.05em' }}>
             Our Los Angeles tire shops:{' '}
             <a href="/olympic" style={{ color: '#FF6666', textDecoration: 'none', fontWeight: 700 }}>Downtown · Olympic Blvd</a>
-            {' '}·{' '}
-            <a href="/manchester" style={{ color: '#FF6666', textDecoration: 'none', fontWeight: 700 }}>South LA · Manchester Ave</a>
           </p>
           <p style={{ marginTop: '0.75rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', letterSpacing: '0.04em', lineHeight: 1.8 }}>
             <a href="/new-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>New Tires</a>{' · '}
@@ -289,13 +287,13 @@ export default function Footer() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <ProofItem icon="⭐" text="4.9 Google Rating" />
                 <ProofItem icon="🚗" text="10,000+ Vehicles Serviced" />
-                <ProofItem icon="📍" text="2 Los Angeles Locations" />
+                <ProofItem icon="📍" text="Los Angeles Tire Shop" />
               </div>
             </div>
 
             {/* MIDDLE: Locations */}
             <div>
-              <h4 style={footerHeadingStyle}>Locations</h4>
+              <h4 style={footerHeadingStyle}>Location</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
                   <p style={{ color: '#FF3838', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
@@ -308,17 +306,6 @@ export default function Footer() {
                     Los Angeles, CA 90021
                   </p>
                 </div>
-                <div>
-                  <p style={{ color: '#FF3838', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                    South LA
-                  </p>
-                  <p style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.2rem', lineHeight: 1.4 }}>
-                    2220 E Manchester Ave
-                  </p>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>
-                    Los Angeles, CA 90001
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -328,7 +315,7 @@ export default function Footer() {
 
               {/* GIANT PHONE NUMBER */}
               
-                <a href="tel:562-513-0217"
+                <a href="tel:562-500-4625"
                 className="footer-phone"
                 style={{
                   display: 'block',
@@ -360,7 +347,7 @@ export default function Footer() {
                   lineHeight: 1.1,
                   transition: 'filter 0.3s ease',
                 }}>
-                  562-513-0217
+                  562-500-4625
                 </span>
               </a>
 

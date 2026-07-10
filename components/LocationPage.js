@@ -13,7 +13,7 @@ export default function LocationPage({ loc }) {
   const schema = {
     "@context": "https://schema.org", "@type": "AutoRepair",
     name: `The Tire Plug — ${loc.label}`, image: "https://tireplugla.com/images/logo.webp", url,
-    telephone: "+1-562-513-0217", priceRange: "$$",
+    telephone: "+1-562-500-4625", priceRange: "$$",
     address: { "@type": "PostalAddress", streetAddress: loc.street, addressLocality: "Los Angeles", addressRegion: "CA", postalCode: loc.zip, addressCountry: "US" },
     areaServed: loc.neighborhoods.map((n) => ({ "@type": "Place", name: n })),
     openingHoursSpecification: hours,
@@ -43,10 +43,10 @@ export default function LocationPage({ loc }) {
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", margin: "2rem 0 1.5rem" }}>
             <div style={card}><div style={cardLabel}>📍 Address</div><div style={cardVal}>{loc.street}<br />Los Angeles, CA {loc.zip}</div></div>
             <div style={card}><div style={cardLabel}>🕐 Hours</div><div style={cardVal}>{(loc.hoursLines || ["Mon–Sat · 9AM–6PM", loc.sundayText]).map((line, i) => (<React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>))}</div></div>
-            <div style={card}><div style={cardLabel}>📞 Phone</div><div style={cardVal}>(562) 513-0217</div></div>
+            <div style={card}><div style={cardLabel}>📞 Phone</div><div style={cardVal}>(562) 500-4625</div></div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            <a href="tel:5625130217" style={ctaRed}>📞 Call Now</a>
+            <a href="tel:5625004625" style={ctaRed}>📞 Call Now</a>
             <a href={loc.directionsUrl} target="_blank" rel="noopener noreferrer" style={ctaGhost}>🗺️ Get Directions</a>
             <a href="/#booking" style={ctaGhost}>Get a Quote</a>
           </div>
@@ -63,7 +63,7 @@ export default function LocationPage({ loc }) {
           <h2 style={h2}>Proudly serving {loc.areaText}</h2>
           <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.6, maxWidth: 720 }}>
             Drivers around {loc.neighborhoods.join(", ")} trust The Tire Plug for honest pricing and same-day tire service.
-            Come by {loc.street} in Los Angeles or call <a href="tel:5625130217" style={{ color: "#FF6666" }}>(562) 513-0217</a> for a fast quote on new or used tires, an alignment, or an oil change.
+            Come by {loc.street} in Los Angeles or call <a href="tel:5625004625" style={{ color: "#FF6666" }}>(562) 500-4625</a> for a fast quote on new or used tires, an alignment, or an oil change.
           </p>
           <p style={{ marginTop: "1.25rem" }}><a href="/" style={{ color: "#FF6666", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
         </section>

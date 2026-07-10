@@ -15,21 +15,8 @@ export default function Locations() {
       sundayHours: 'Sat 9AM - 6PM · Sun 9AM - 4PM',
       image: '/images/shop-exterior.webp',
       directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=2331+E+Olympic+Blvd+Los+Angeles+CA+90021',
-      phone: '562-513-0217',
+      phone: '562-500-4625',
       highlights: ['Full Service', 'Oil Changes', 'Brake Service'],
-    },
-    {
-      id: 'south-la',
-      label: 'South LA',
-      tag: 'Express Location',
-      address: '2220 E Manchester Ave',
-      city: 'Los Angeles, CA 90001',
-      hours: 'Mon - Sat · 9AM - 6PM',
-      sundayHours: 'Sun · 10AM - 4PM',
-      image: '/images/shop-south-la.webp',
-      directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=2220+E+Manchester+Ave+Los+Angeles+CA+90001',
-      phone: '562-513-0217',
-      highlights: ['Walk-Ins Welcome', 'Quick Service', '7 Days a Week'],
     },
   ];
 
@@ -89,7 +76,7 @@ export default function Locations() {
             margin: '0 auto',
           }}>
             <span style={{ background: 'linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.85) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              Two Locations.
+              One Location.
             </span>{' '}
             <span style={{ background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 25px rgba(255,31,31,0.4))' }}>
               One Standard.
@@ -100,8 +87,10 @@ export default function Locations() {
         {/* Location Cards */}
         <div className="locations-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateColumns: '1fr',
           gap: '2rem',
+          maxWidth: '600px',
+          margin: '0 auto',
         }}>
           {locations.map((loc, idx) => (
             <LocationCard

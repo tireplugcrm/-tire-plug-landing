@@ -151,8 +151,8 @@ export default function Promos() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-          <a href="tel:562-513-0217" className="claim-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '1.1rem 2.5rem', fontSize: '1rem', fontWeight: 800, borderRadius: '50px', transition: 'all 0.3s ease', boxShadow: '0 8px 24px rgba(255,31,31,0.25)', letterSpacing: '0.02em', textDecoration: 'none' }}>
-            📞 Call to Claim · 562-513-0217
+          <a href="tel:562-500-4625" className="claim-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '1.1rem 2.5rem', fontSize: '1rem', fontWeight: 800, borderRadius: '50px', transition: 'all 0.3s ease', boxShadow: '0 8px 24px rgba(255,31,31,0.25)', letterSpacing: '0.02em', textDecoration: 'none' }}>
+            📞 Call to Claim · 562-500-4625
           </a>
           <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
             Or book online in 60 seconds

@@ -18,7 +18,7 @@ function makeLocation(name, street, zip, sundayHours, weekday) {
   return {
     "@context": "https://schema.org", "@type": "AutoRepair",
     name, image: "https://tireplugla.com/images/logo.webp", url: "https://tireplugla.com/",
-    telephone: "+1-562-513-0217", priceRange: "$$",
+    telephone: "+1-562-500-4625", priceRange: "$$",
     address: { "@type": "PostalAddress", streetAddress: street, addressLocality: "Los Angeles", addressRegion: "CA", postalCode: zip, addressCountry: "US" },
     areaServed: { "@type": "City", name: "Los Angeles" },
     openingHoursSpecification: hours,
@@ -30,7 +30,6 @@ const TIRE_PLUG_SCHEMA = [
     { dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "19:00" },
     { dayOfWeek: ["Saturday"], opens: "09:00", closes: "18:00" },
   ]),
-  makeLocation("The Tire Plug — Manchester", "2220 E Manchester Ave", "90001", ["10:00", "16:00"]),
 ];
 
 export default function Home() {
@@ -38,20 +37,20 @@ export default function Home() {
     <>
       <Head>
         <title>Tire Shop in Los Angeles | The Tire Plug — Tires, Alignments & Oil Changes</title>
-        <meta name="description" content="The Tire Plug is a Los Angeles tire shop with two locations (Olympic & Manchester). New & used tires, wheel alignment, TPMS sensors, oil changes & brakes — honest pricing, same-day appointments. Call 562-513-0217." />
+        <meta name="description" content="The Tire Plug is a Los Angeles tire shop in Downtown LA (Olympic Blvd). New & used tires, wheel alignment, TPMS sensors, oil changes & brakes — honest pricing, same-day appointments. Call 562-500-4625." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href="https://tireplugla.com/" />
-        <meta name="keywords" content="tire shop Los Angeles, tires near me, new tires, used tires, wheel alignment, TPMS sensors, oil change, brakes, Olympic Blvd, Manchester Ave, Los Angeles tires" />
+        <meta name="keywords" content="tire shop Los Angeles, tires near me, new tires, used tires, wheel alignment, TPMS sensors, oil change, brakes, Olympic Blvd, Los Angeles tires" />
         <meta name="robots" content="index, follow" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="The Tire Plug" />
         <meta property="og:title" content="The Tire Plug — Tire Shop in Los Angeles" />
-        <meta property="og:description" content="New & used tires, wheel alignment, TPMS, oil changes & brakes. Two LA locations. Honest pricing, same-day appointments. Call 562-513-0217." />
+        <meta property="og:description" content="New & used tires, wheel alignment, TPMS, oil changes & brakes. Downtown LA on Olympic Blvd. Honest pricing, same-day appointments. Call 562-500-4625." />
         <meta property="og:url" content="https://tireplugla.com/" />
         <meta property="og:image" content="https://tireplugla.com/images/logo.webp" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="The Tire Plug — Tire Shop in Los Angeles" />
-        <meta name="twitter:description" content="New & used tires, wheel alignment, TPMS, oil changes & brakes. Two LA locations. Same-day appointments." />
+        <meta name="twitter:description" content="New & used tires, wheel alignment, TPMS, oil changes & brakes. Downtown LA on Olympic Blvd. Same-day appointments." />
         <meta name="twitter:image" content="https://tireplugla.com/images/logo.webp" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(TIRE_PLUG_SCHEMA) }} />
       </Head>

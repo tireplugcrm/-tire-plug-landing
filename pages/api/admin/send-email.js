@@ -37,7 +37,7 @@ function renderEmail({ subject, message }) {
           </td></tr>
           <tr><td style="padding:0 36px 24px;">${paragraphs}</td></tr>
           <tr><td style="padding:0 36px 36px;text-align:center;">
-            <a href="tel:562-513-0217" style="display:inline-block;background:linear-gradient(180deg,#FF2A2A,#8B0000);color:#fff;padding:14px 32px;border-radius:8px;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;">Call 562-513-0217</a>
+            <a href="tel:562-500-4625" style="display:inline-block;background:linear-gradient(180deg,#FF2A2A,#8B0000);color:#fff;padding:14px 32px;border-radius:8px;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;">Call 562-500-4625</a>
           </td></tr>
           <tr><td style="padding:20px 36px;border-top:1px solid rgba(255,255,255,0.08);text-align:center;">
             <p style="margin:0;color:rgba(255,255,255,0.4);font-size:12px;line-height:1.5;">

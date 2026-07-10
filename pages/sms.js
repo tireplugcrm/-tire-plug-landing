@@ -29,8 +29,8 @@ export default function SmsOptIn() {
       });
       const d = await res.json();
       if (d.success) setDone(true);
-      else setErr("Something went wrong — please call 562-513-0217.");
-    } catch (e2) { setErr("Network error — please call 562-513-0217."); }
+      else setErr("Something went wrong — please call 562-500-4625.");
+    } catch (e2) { setErr("Network error — please call 562-500-4625."); }
     finally { setSubmitting(false); }
   }
 
@@ -82,7 +82,7 @@ export default function SmsOptIn() {
           )}
 
           <p style={{ textAlign: "center", color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", marginTop: "1.5rem", lineHeight: 1.5 }}>
-            The Tire Plug · Los Angeles, CA · 562-513-0217
+            The Tire Plug · Los Angeles, CA · 562-500-4625
           </p>
         </div>
       </main>

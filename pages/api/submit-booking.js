@@ -206,7 +206,7 @@ export default async function handler(req, res) {
   } else {
     return res.status(500).json({
       success: false,
-      error: 'Submission failed. Please call 562-513-0217',
+      error: 'Submission failed. Please call 562-500-4625',
     });
   }
 }

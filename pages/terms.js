@@ -43,7 +43,7 @@ export default function Terms() {
       <H>Contact us</H>
       <P>
         The Tire Plug<br />
-        Phone: <A href="tel:562-513-0217">562-513-0217</A><br />
+        Phone: <A href="tel:562-500-4625">562-500-4625</A><br />
         Email: <A href="mailto:tiredepotplug@gmail.com">tiredepotplug@gmail.com</A>
       </P>
     </Legal>

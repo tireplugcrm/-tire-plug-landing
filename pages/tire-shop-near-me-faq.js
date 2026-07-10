@@ -7,17 +7,17 @@ import { SERVICE_INDEX } from "../components/ServicePage";
 const URL = "https://tireplugla.com/tire-shop-near-me-faq";
 const TITLE = "Tire Shop Near Me in Los Angeles — FAQ | The Tire Plug";
 const DESCRIPTION =
-  "Answers to the most-asked questions about finding a tire shop near you in Los Angeles: tire prices, same-day install, used tires, brands, wheel alignment, hours & locations. The Tire Plug — two LA shops. Call (562) 513-0217.";
+  "Answers to the most-asked questions about finding a tire shop near you in Los Angeles: tire prices, same-day install, used tires, brands, wheel alignment, hours & location. The Tire Plug — Downtown LA on Olympic Blvd. Call (562) 500-4625.";
 
 // Q&A pairs — plain-language answers that double as the FAQPage rich-result content.
 const FAQS = [
   {
     q: "Where is the best tire shop near me in Los Angeles?",
-    a: "The Tire Plug has two convenient Los Angeles locations: Downtown at 2331 E Olympic Blvd (LA 90021) and South LA at 2220 E Manchester Ave (LA 90001). Both offer new and used tires, wheel alignments, oil changes, brakes and TPMS service with honest, upfront pricing and same-day appointments. Walk-ins are welcome at either shop.",
+    a: "The Tire Plug is conveniently located in Downtown Los Angeles at 2331 E Olympic Blvd (LA 90021). We offer new and used tires, wheel alignments, oil changes, brakes and TPMS service with honest, upfront pricing and same-day appointments. Walk-ins are welcome.",
   },
   {
     q: "How much do new tires cost in Los Angeles?",
-    a: "New tire prices depend on your tire size and the brand you choose — we carry everything from affordable value brands to premium names like Michelin, Goodyear, Falken and Continental. The fastest way to get an exact price is to text us a photo of your tire's sidewall (the numbers like 225/45R17) or your vehicle info to (562) 513-0217 and we'll send you an honest, upfront quote with mounting and balancing included.",
+    a: "New tire prices depend on your tire size and the brand you choose — we carry everything from affordable value brands to premium names like Michelin, Goodyear, Falken and Continental. The fastest way to get an exact price is to text us a photo of your tire's sidewall (the numbers like 225/45R17) or your vehicle info to (562) 500-4625 and we'll send you an honest, upfront quote with mounting and balancing included.",
   },
   {
     q: "Do you sell used tires, and how much are they?",
@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: "Can I get tires installed the same day?",
-    a: "Almost always, yes. The Tire Plug does same-day tire installation at both LA locations. Call ahead at (562) 513-0217 or send us your size so we can confirm we have your tire in stock and get you in and out fast.",
+    a: "Almost always, yes. The Tire Plug does same-day tire installation at our Downtown LA shop. Call ahead at (562) 500-4625 or send us your size so we can confirm we have your tire in stock and get you in and out fast.",
   },
   {
     q: "What tire brands do you carry?",
@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: "How do I know what tire size I need?",
-    a: "Your tire size is printed right on the sidewall of your current tires — it looks like 225/45R17 or P215/65R15. You can also find it on a sticker inside the driver's door jamb. Not sure? Just snap a photo of the sidewall and text it to (562) 513-0217 — we'll read it for you and quote the right fit.",
+    a: "Your tire size is printed right on the sidewall of your current tires — it looks like 225/45R17 or P215/65R15. You can also find it on a sticker inside the driver's door jamb. Not sure? Just snap a photo of the sidewall and text it to (562) 500-4625 — we'll read it for you and quote the right fit.",
   },
   {
     q: "Do you do wheel alignments?",
@@ -49,15 +49,15 @@ const FAQS = [
   },
   {
     q: "Do you take walk-ins or do I need an appointment?",
-    a: "Both work. Walk-ins are welcome at both LA locations, but calling ahead at (562) 513-0217 — or getting a quote first — means we can confirm your tire is in stock and minimize your wait.",
+    a: "Both work. Walk-ins are welcome at our Downtown LA shop, but calling ahead at (562) 500-4625 — or getting a quote first — means we can confirm your tire is in stock and minimize your wait.",
   },
   {
     q: "What are your hours and locations?",
-    a: "The Tire Plug has two Los Angeles shops: Downtown / East LA at 2331 E Olympic Blvd (LA 90021) and South LA at 2220 E Manchester Ave (LA 90001). Call (562) 513-0217 for current hours at each location — we're open 7 days a week with same-day service.",
+    a: "The Tire Plug is in Downtown / East LA at 2331 E Olympic Blvd (LA 90021). Call (562) 500-4625 for current hours — we're open 7 days a week with same-day service.",
   },
   {
     q: "How do I get a tire quote fast?",
-    a: "The fastest way: text a photo of your tire sidewall or your year/make/model to (562) 513-0217, or fill out the quick quote form at tireplugla.com. We reply with honest, upfront pricing — no pressure, no hidden fees.",
+    a: "The fastest way: text a photo of your tire sidewall or your year/make/model to (562) 500-4625, or fill out the quick quote form at tireplugla.com. We reply with honest, upfront pricing — no pressure, no hidden fees.",
   },
 ];
 
@@ -95,10 +95,10 @@ export default function TireShopFaq() {
           <span style={{ color: "#FF1F1F", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>Tire Shop Near Me — Los Angeles FAQ</h1>
           <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>
-            Looking for a tire shop near you in Los Angeles? Here are honest answers to the questions we hear most — about pricing, same-day install, used tires, brands and what we offer. Still have a question? Call or text us at <a href="tel:5625130217" style={{ color: "#FF6666", fontWeight: 700 }}>(562) 513-0217</a>.
+            Looking for a tire shop near you in Los Angeles? Here are honest answers to the questions we hear most — about pricing, same-day install, used tires, brands and what we offer. Still have a question? Call or text us at <a href="tel:5625004625" style={{ color: "#FF6666", fontWeight: 700 }}>(562) 500-4625</a>.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
-            <a href="tel:5625130217" style={ctaRed}>📞 Call (562) 513-0217</a>
+            <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
             <a href="/#booking" style={ctaGhost}>Get a Free Quote</a>
           </div>
         </section>
@@ -126,10 +126,9 @@ export default function TireShopFaq() {
         </section>
 
         <section style={{ padding: "0 1.5rem 2.5rem", maxWidth: 860, margin: "0 auto" }}>
-          <h2 style={h2}>Two convenient LA locations</h2>
+          <h2 style={h2}>Our LA location</h2>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             <a href="/olympic" style={locCard}><strong style={{ color: "#fff" }}>Downtown · Olympic Blvd</strong><br /><span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>2331 E Olympic Blvd, LA 90021</span></a>
-            <a href="/manchester" style={locCard}><strong style={{ color: "#fff" }}>South LA · Manchester Ave</strong><br /><span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>2220 E Manchester Ave, LA 90001</span></a>
           </div>
         </section>
 

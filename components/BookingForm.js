@@ -96,7 +96,7 @@ export default function BookingForm() {
         setSubmitted(true);
       }
     } catch (err) {
-      alert('Error. Please call 562-513-0217');
+      alert('Error. Please call 562-500-4625');
     } finally {
       setSubmitting(false);
     }
@@ -301,8 +301,8 @@ export default function BookingForm() {
                     {serviceTiming === 'ASAP' && (
                       <div style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'center', boxShadow: '0 0 30px rgba(255,68,68,0.1)' }}>
                         <p style={{ color: '#ff7777', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🚨 Need service now?</p>
-                        <a href="tel:562-513-0217" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #ff4444 0%, #c20000 100%)', color: '#fff', padding: '0.85rem 2rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', boxShadow: '0 8px 24px rgba(255,68,68,0.4)' }}>
-                          📞 Call Now: 562-513-0217
+                        <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #ff4444 0%, #c20000 100%)', color: '#fff', padding: '0.85rem 2rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', boxShadow: '0 8px 24px rgba(255,68,68,0.4)' }}>
+                          📞 Call Now: 562-500-4625
                         </a>
                       </div>
                     )}
@@ -544,7 +544,7 @@ export default function BookingForm() {
 
                 {/* Contact footer */}
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)', fontSize: '0.72rem', letterSpacing: '0.05em' }}>
-                  <span>📞 562-513-0217</span>
+                  <span>📞 562-500-4625</span>
                   <span style={{ color: 'rgba(255,31,31,0.3)' }}>·</span>
                   <span>📸 @tireplugcali</span>
                 </div>
@@ -560,7 +560,7 @@ export default function BookingForm() {
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
                 {serviceTiming === 'ASAP' ? 'We will call you immediately!' : 'We will call you shortly with your quote'}
               </p>
-              <a href="tel:562-513-0217" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', padding: '1rem 2.25rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: '0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.25)' }}>
+              <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', padding: '1rem 2.25rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: '0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.25)' }}>
                 Or Call Now
               </a>
             </div>

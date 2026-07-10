@@ -120,7 +120,7 @@ ${convo}
 
 Write the shop's next text reply to the customer's most recent message. Answer their question (hours,
 locations, warranties, services, etc.) using only the shop facts. If they ask about price and no quote
-has been given, tell them you're getting an exact quote / they can call 562-513-0217 — do not guess a price.
+has been given, tell them you're getting an exact quote / they can call 562-500-4625 — do not guess a price.
 If something isn't in the facts, say you'll confirm rather than make it up. Keep it short and natural.
 Output ONLY the message text, nothing else.`;
   }

@@ -84,7 +84,7 @@ VOICE: ${AI_VOICE}
 SHOP FACTS (only facts you may state; never invent prices): ${SHOP_FACTS}
 AUDIENCE: ${INTENT[segment] || INTENT.all}
 Write ${isEmail ? "a short marketing EMAIL" : "a short marketing SMS (under 320 characters)"} to send to this audience.
-Use {name} where the customer's first name should go. Do NOT invent specific prices — refer to "a great deal" / "special pricing" or tell them to call 562-513-0217 for a quote.
+Use {name} where the customer's first name should go. Do NOT invent specific prices — refer to "a great deal" / "special pricing" or tell them to call 562-500-4625 for a quote.
 ${isEmail ? "Start with a line 'SUBJECT: <subject>' then a blank line then the email body. End the body with an opt-out note." : "End with 'Reply STOP to opt out.'"}
 Output ONLY the message.`;
       const out = await askClaude(prompt);

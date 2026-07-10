@@ -15,7 +15,7 @@ export const SERVICE_INDEX = [
 const WHY = [
   "Honest, upfront pricing — no surprises",
   "Same-day appointments, walk-ins welcome",
-  "Two Los Angeles locations: Downtown (Olympic Blvd) & South LA (Manchester Ave)",
+  "Los Angeles tire shop: Downtown on Olympic Blvd",
   "Free tire inspection & air check",
   "Trusted local shop — quotes by text or phone",
 ];
@@ -26,7 +26,7 @@ export default function ServicePage({ svc }) {
     "@context": "https://schema.org", "@type": "Service",
     name: `${svc.label} in Los Angeles`, serviceType: svc.label,
     areaServed: { "@type": "City", name: "Los Angeles" },
-    provider: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-513-0217", url: "https://tireplugla.com/", image: "https://tireplugla.com/images/logo.webp" },
+    provider: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/", image: "https://tireplugla.com/images/logo.webp" },
     url,
   };
   const related = SERVICE_INDEX.filter((s) => s.slug !== svc.slug);
@@ -52,7 +52,7 @@ export default function ServicePage({ svc }) {
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>{svc.h1}</h1>
           {svc.intro.map((p, i) => <p key={i} style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>{p}</p>)}
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.5rem" }}>
-            <a href="tel:5625130217" style={ctaRed}>📞 Call (562) 513-0217</a>
+            <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
             <a href="/#booking" style={ctaGhost}>Get a Free Quote</a>
           </div>
         </section>
@@ -65,10 +65,9 @@ export default function ServicePage({ svc }) {
         </section>
 
         <section style={{ padding: "0 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto" }}>
-          <h2 style={h2}>Two convenient LA locations</h2>
+          <h2 style={h2}>Our LA location</h2>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             <a href="/olympic" style={locCard}><strong style={{ color: "#fff" }}>Downtown · Olympic Blvd</strong><br /><span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>2331 E Olympic Blvd, LA 90021</span></a>
-            <a href="/manchester" style={locCard}><strong style={{ color: "#fff" }}>South LA · Manchester Ave</strong><br /><span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>2220 E Manchester Ave, LA 90001</span></a>
           </div>
         </section>
 

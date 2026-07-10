@@ -585,7 +585,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       const tot = (Number(r.price) || 0) * (Number(r.qty) || 0);
       return `${r.brand} - $${r.price} each${r.qty ? ` (set of ${r.qty} = $${tot})` : ""}${r.warranty ? ` — ${r.warranty} warranty` : ""}`;
     });
-    return `Hi ${lead.name?.split(" ")[0] || "there"}, here's your tire quote from The Tire Plug:\n\n${lines.join("\n")}\n\nText or call 562-513-0217 to lock it in!`;
+    return `Hi ${lead.name?.split(" ")[0] || "there"}, here's your tire quote from The Tire Plug:\n\n${lines.join("\n")}\n\nText or call 562-500-4625 to lock it in!`;
   }
 
   // Save + have the AI write the quote message into the text box below for review.
@@ -764,10 +764,10 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
     finally { setDrafting(false); }
   }
 
-  // Drop the two-location question into the box (fixed template).
+  // Drop the location/booking prompt into the box (fixed template).
   function fillLocation() {
     const fn = (lead.name || "").split(" ")[0] || "there";
-    setDraft(`Hi ${fn}! Which location would you like to be serviced at?\n\n1. 2331 E Olympic Blvd, Los Angeles\n2. 2220 E Manchester Ave, Los Angeles\n\nJust reply 1 or 2 and we'll get you set up.`);
+    setDraft(`Hi ${fn}! We're at The Tire Plug — 2331 E Olympic Blvd, Los Angeles. What day and time works best for you and we'll get you set up?`);
     setDraftKind("manual");
   }
 
@@ -1129,7 +1129,7 @@ function ShopFloorTab({ auth }) {
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
         <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-          {["all", "Olympic", "Manchester"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{l === "all" ? "All" : l}</button>)}
+          {["all", "Olympic"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{l === "all" ? "All" : l}</button>)}
         </div>
         <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
           <span style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem" }}>auto-refreshes</span>
@@ -1144,7 +1144,7 @@ function ShopFloorTab({ auth }) {
             <input style={inp} placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             <input style={inp} placeholder="Vehicle (e.g. 2019 Camry)" value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })} />
             <input style={inp} placeholder="Service (4 tires + align)" value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} />
-            <select style={inp} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}><option value="Olympic">Olympic</option><option value="Manchester">Manchester</option></select>
+            <select style={inp} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}><option value="Olympic">Olympic</option></select>
             <select style={inp} value={form.assigned_staff_id} onChange={(e) => setForm({ ...form, assigned_staff_id: e.target.value })}><option value="">Assign tech…</option>{d.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
           </div>
           <button onClick={create} disabled={!form.customer_name && !form.vehicle} style={{ ...cta, marginTop: "0.5rem", opacity: (!form.customer_name && !form.vehicle) ? 0.5 : 1 }}>Add to board</button>
@@ -1376,7 +1376,6 @@ function StaffTab({ auth }) {
             <StaffField label="Location">
               <select style={inp} value={editing.location || ""} onChange={(e) => setEditing({ ...editing, location: e.target.value })}>
                 <option value="Olympic">Olympic</option>
-                <option value="Manchester">Manchester</option>
               </select>
             </StaffField>
             <StaffField label="Phone (for shift texts)"><input style={inp} value={editing.phone || ""} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></StaffField>
@@ -1536,7 +1535,6 @@ function ScheduleTab({ auth }) {
                     <input type="time" style={{ ...inp, marginBottom: 0, width: 110 }} value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
                     <select style={{ ...inp, marginBottom: 0, width: 130 }} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}>
                       <option value="Olympic">Olympic</option>
-                      <option value="Manchester">Manchester</option>
                     </select>
                     <button onClick={() => add(ds)} disabled={!form.staff_id} style={{ ...cta, opacity: form.staff_id ? 1 : 0.5 }}>Add</button>
                   </div>
@@ -1756,7 +1754,7 @@ function CampaignPanel({ auth, segment, label }) {
 
 /* ---------------- REVIEWS & REFERRALS ---------------- */
 function ReviewsTab({ auth }) {
-  const [s, setS] = useState({ review_url_olympic: "", review_url_manchester: "", booking_url: "" });
+  const [s, setS] = useState({ review_url_olympic: "", booking_url: "" });
   const [loaded, setLoaded] = useState(false);
   const [saved, setSaved] = useState("");
   async function call(b) { const res = await fetch("/api/admin/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...b }) }); const j = await res.json(); if (!res.ok) throw new Error(j.error || "Request failed"); return j; }
@@ -1770,15 +1768,13 @@ function ReviewsTab({ auth }) {
         <h2 style={subHead}>Links</h2>
         <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK — OLYMPIC (DOWNTOWN)</div>
         <input style={inp} placeholder="Olympic shop Google review link" value={s.review_url_olympic || ""} onChange={(e) => setS({ ...s, review_url_olympic: e.target.value })} />
-        <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", margin: "0.25rem 0" }}>GOOGLE REVIEW LINK — MANCHESTER (SOUTH LA)</div>
-        <input style={inp} placeholder="Manchester shop Google review link" value={s.review_url_manchester || ""} onChange={(e) => setS({ ...s, review_url_manchester: e.target.value })} />
         <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", margin: "0.25rem 0" }}>BOOKING LINK (for referrals)</div>
         <input style={inp} placeholder="https://tireplugla.com/#booking" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem" }}>
           <button onClick={save} style={cta}>Save links</button>
           {saved && <span style={{ color: "#3DD68C", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}
         </div>
-        {!s.review_url_olympic && !s.review_url_manchester && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link(s) so review requests include them. (Find them in each shop's Google Business profile → Ask for reviews.)</p>}
+        {!s.review_url_olympic && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link so review requests include it. (Find it in your shop's Google Business profile → Ask for reviews.)</p>}
       </div>
 
       <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>

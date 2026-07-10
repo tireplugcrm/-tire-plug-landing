@@ -238,7 +238,7 @@ export default function Careers() {
                   <>
                     <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚠️</div>
                     <h2 style={doneH}>Something went wrong.</h2>
-                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Please try again, or call us at 562-513-0217.</p>
+                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>Please try again, or call us at 562-500-4625.</p>
                   </>
                 )}
                 <a href="/" style={{ display: "inline-block", marginTop: "1.75rem", color: "#FF3838", textDecoration: "none", fontWeight: 700, fontSize: "0.85rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>← Back to Home</a>
