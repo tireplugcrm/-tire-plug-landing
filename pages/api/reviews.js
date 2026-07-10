@@ -27,6 +27,29 @@ export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_API_KEY;
   const placeId = process.env.GOOGLE_PLACE_ID;
 
+  // Temporary diagnostic (?debug=tpdiag): reports config presence + Google's
+  // status/error without leaking the key. Remove once live reviews are confirmed.
+  if ((req.query.debug || "") === "tpdiag") {
+    res.setHeader("Cache-Control", "no-store");
+    const info = { hasKey: !!key, hasPlaceId: !!placeId, placeIdStartsWith: placeId ? placeId.slice(0, 4) : null };
+    if (key && placeId) {
+      try {
+        const url =
+          "https://maps.googleapis.com/maps/api/place/details/json" +
+          `?place_id=${encodeURIComponent(placeId)}` +
+          "&fields=rating,user_ratings_total,reviews&reviews_sort=newest&language=en" +
+          `&key=${encodeURIComponent(key)}`;
+        const r = await fetch(url);
+        const d = await r.json();
+        info.googleStatus = d.status || null;
+        info.googleError = d.error_message || null;
+        info.reviewCount = ((d.result && d.result.reviews) || []).length;
+        info.rating = (d.result && d.result.rating) || null;
+      } catch (e) { info.fetchError = String((e && e.message) || e); }
+    }
+    return res.status(200).json(info);
+  }
+
   // Edge-cache the response for 6h (serve stale up to a day while revalidating).
   res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=86400");
 
