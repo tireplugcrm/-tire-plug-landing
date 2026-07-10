@@ -58,8 +58,9 @@ export default function BookingForm() {
   const canProceedStep2 = selectedServices.length > 0;
   const canProceedStep3 = formData.year && formData.make && formData.model;
   const canProceedStep4 = !needsTireSize || tireSizeUnknown || (formData.tireWidth && formData.tireAspect && formData.tireRim);
-  // SMS consent is OPTIONAL — it must NOT be required to book (A2P/TCPA compliance).
-  const canSubmit = formData.name && formData.phone && formData.email;
+  // Phone is what we actually need. Email is optional; SMS consent is optional too
+  // (it must NOT be required to book — A2P/TCPA compliance).
+  const canSubmit = formData.name && formData.phone;
 
   const handleNext = () => { if (currentStep < totalSteps) setCurrentStep(currentStep + 1); };
   const handleBack = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
@@ -87,13 +88,20 @@ export default function BookingForm() {
           service: serviceLabels,
           serviceTiming,
           leadPriority: serviceTiming === 'ASAP' || serviceTiming === 'Tomorrow' ? 'HOT' : 'WARM',
-          smsConsent: true,
+          smsConsent,
           date: new Date().toISOString().split('T')[0], time: '10:00', source: 'inline-form',
         }),
       });
       const data = await response.json();
       if (data.success) {
         setSubmitted(true);
+        // Fire lead-conversion events for GA4 + Meta (no-op until analytics is installed).
+        if (typeof window !== 'undefined') {
+          if (window.gtag) window.gtag('event', 'generate_lead', { currency: 'USD', value: 1 });
+          if (window.fbq) window.fbq('track', 'Lead');
+        }
+      } else {
+        alert(data.error || 'Something went wrong. Please call 562-500-4625');
       }
     } catch (err) {
       alert('Error. Please call 562-500-4625');
@@ -430,11 +438,11 @@ export default function BookingForm() {
                 {/* STEP CONTACT */}
                 {isStepContact && (
                   <div className="step-content">
-                    <p style={stepLabelStyle}>Where do we send your quote?</p>
-                    <p style={stepSubStyle}>We will call or text you shortly to confirm</p>
+                    <p style={stepLabelStyle}>How can we reach you?</p>
+                    <p style={stepSubStyle}>We'll text or call you shortly with your quote</p>
                     <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required style={inlineInputStyle} className="inline-input" />
                     <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required style={inlineInputStyle} className="inline-input" />
-                    <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required style={inlineInputStyle} className="inline-input" />
+                    <input type="email" name="email" placeholder="Email (optional)" value={formData.email} onChange={handleChange} style={inlineInputStyle} className="inline-input" />
 
                     {/* SMS consent (OPTIONAL) — A2P 10DLC compliant; not required to book */}
                     <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.7rem', marginTop: '0.75rem', cursor: 'pointer' }}>
@@ -556,9 +564,9 @@ export default function BookingForm() {
               <h2 style={{ color: '#fff', fontSize: '2rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
                 You're <span style={{ background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>In.</span>
               </h2>
-              <p style={{ color: '#fff', fontSize: '1.05rem', marginBottom: '0.5rem', fontWeight: 600 }}>Check your email for confirmation</p>
+              <p style={{ color: '#fff', fontSize: '1.05rem', marginBottom: '0.5rem', fontWeight: 600 }}>We've got your request.</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
-                {serviceTiming === 'ASAP' ? 'We will call you immediately!' : 'We will call you shortly with your quote'}
+                {serviceTiming === 'ASAP' ? "We'll call you right away!" : "We'll text or call you shortly with your quote."}
               </p>
               <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', padding: '1rem 2.25rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: '0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.25)' }}>
                 Or Call Now
