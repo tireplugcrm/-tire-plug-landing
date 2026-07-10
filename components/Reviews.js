@@ -134,7 +134,7 @@ export default function Reviews() {
             gap: '1.5rem',
             maxWidth: '420px',
           }}>
-            <StatBlock value="4.9" label="Google Rating" icon="★" iconColor="#FFB800" />
+            <StatBlock value="5.0" label="Google Rating" icon="★" iconColor="#FFB800" />
             <StatBlock value="10K+" label="Vehicles Serviced" red />
             <StatBlock value="130K" label="Instagram Followers" />
             <StatBlock value="5M+" label="Total Views" red />

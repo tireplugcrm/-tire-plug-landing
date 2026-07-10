@@ -155,7 +155,7 @@ function ReviewsModal({ isOpen, onClose }) {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,31,31,0.1)', border: '1px solid rgba(255,31,31,0.3)', padding: '0.4rem 1rem', borderRadius: '50px', marginBottom: '1.25rem' }}>
             <span style={{ color: '#FFB800' }}>★★★★★</span>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem' }}>4.9</span>
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem' }}>5.0</span>
             <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>· Google Verified</span>
           </div>
           <h2 style={{ color: '#fff', fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>What LA Drivers Say</h2>

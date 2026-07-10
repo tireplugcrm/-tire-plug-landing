@@ -285,7 +285,7 @@ export default function Footer() {
 
               {/* Social Proof Stack */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                <ProofItem icon="⭐" text="4.9 Google Rating" />
+                <ProofItem icon="⭐" text="5.0 Google Rating" />
                 <ProofItem icon="🚗" text="10,000+ Vehicles Serviced" />
                 <ProofItem icon="📍" text="Los Angeles Tire Shop" />
               </div>
