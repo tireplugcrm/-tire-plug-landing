@@ -101,13 +101,6 @@ export default function AdminHub() {
     loadWith(authObj());
   }
 
-  async function syncOrders() {
-    const res = await fetch("/api/admin/sync-orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj() }) });
-    const d = await res.json();
-    await loadWith(authObj());
-    return d;
-  }
-
   function signInGoogle() {
     if (!supabaseBrowser) { setError("Google sign-in isn't configured yet."); return; }
     supabaseBrowser.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/admin" } });
@@ -182,9 +175,9 @@ export default function AdminHub() {
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
-    { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "scoreboard", icon: "📊", label: "Scoreboard" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
+    { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
     { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
-    { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "finance", icon: "📒", label: "Finance" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
+    { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
@@ -226,12 +219,11 @@ export default function AdminHub() {
           </div>
 
         {tab === "overview" && <OverviewTab auth={auth} />}
-        {tab === "scoreboard" && <ScoreboardTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
         {tab === "leads" && (
-          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} onSync={syncOrders} />
+          <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} />
         )}
-        {tab === "conversions" && <ConversionsTab data={data} onSync={syncOrders} />}
+        {tab === "conversions" && <ConversionsTab data={data} />}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
         {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
@@ -242,7 +234,6 @@ export default function AdminHub() {
         {tab === "worklog" && <WorkLogTab auth={auth} />}
         {tab === "payroll" && <PayrollTab auth={auth} />}
         {tab === "pnl" && <PnlTab auth={auth} />}
-        {tab === "finance" && <FinanceTab auth={auth} />}
         {tab === "customers" && <CustomersTab auth={auth} />}
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         </main>
@@ -271,10 +262,8 @@ const PRIORITY = {
 function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(0,0,0,0.55)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
 
-/* ---------------- CONVERSIONS (funnel -> finalized TireBase orders) ---------------- */
-function ConversionsTab({ data, onSync }) {
-  const [syncing, setSyncing] = useState(false);
-  const [msg, setMsg] = useState("");
+/* ---------------- CONVERSIONS (funnel -> won deals) ---------------- */
+function ConversionsTab({ data }) {
   const money = (n) => `$${(Number(n) || 0).toLocaleString()}`;
   const won = (data.leads || []).filter((l) => l.status === "booked")
     .sort((a, b) => String(b.booked_at || b.created_at || "").localeCompare(String(a.booked_at || a.created_at || "")));
@@ -287,20 +276,12 @@ function ConversionsTab({ data, onSync }) {
   const bySource = {};
   won.forEach((l) => { const sc = l.source || "unknown"; (bySource[sc] = bySource[sc] || { rev: 0, n: 0 }); bySource[sc].rev += Number(l.revenue_amount || 0); bySource[sc].n += 1; });
   const sourceRows = Object.entries(bySource).sort((a, b) => b[1].rev - a[1].rev);
-  async function sync() {
-    setSyncing(true); setMsg("");
-    try { const r = await onSync(); setMsg(r && r.closed != null ? `Matched ${r.closed} finalized order(s) to your leads.` : "Synced."); }
-    catch (e) { setMsg("Sync failed — try again."); }
-    finally { setSyncing(false); }
-  }
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
-        <h1 style={{ color: "#111", fontWeight: 900, fontSize: "1.4rem", margin: 0 }}>Funnel → Finalized Orders</h1>
-        <button onClick={sync} disabled={syncing} style={{ ...cta, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing…" : "🔄 Sync TireBase orders"}</button>
+        <h1 style={{ color: "#111", fontWeight: 900, fontSize: "1.4rem", margin: 0 }}>Funnel → Won Deals</h1>
       </div>
-      <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>Leads from your CRM funnel that turned into finalized TireBase orders (matched by phone). Run a sync after sales close to pull in the latest.</p>
-      {msg && <p style={{ color: "#1a7f4b", fontWeight: 700, marginBottom: "1rem" }}>{msg}</p>}
+      <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem", marginBottom: "1.25rem" }}>Leads from your CRM funnel that turned into won deals. Mark a lead as booked (with the sale amount) from the lead's page and it'll show here.</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
         <BigStat label="Won This Month" value={money(monthTotal)} color="#1a7f4b" />
         <BigStat label="Converted This Month" value={monthWon.length} color="#1a1a1a" />
@@ -323,7 +304,7 @@ function ConversionsTab({ data, onSync }) {
         </div>
       )}
 
-      {won.length === 0 ? <Empty>No conversions yet. When a lead’s phone matches a finalized TireBase order, hit “Sync TireBase orders” and they’ll show here as won deals with the revenue.</Empty> : (
+      {won.length === 0 ? <Empty>No conversions yet. When you mark a lead as booked with the sale amount, it’ll show here as a won deal with the revenue.</Empty> : (
         <div style={{ display: "grid", gap: "0.5rem" }}>
           {won.map((l) => (
             <div key={l.id} style={{ ...rowStyle, gap: "0.75rem", flexWrap: "wrap" }}>
@@ -360,20 +341,9 @@ function funnelStage(l) {
   return "cold";
 }
 
-function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
+function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
-  const [syncing, setSyncing] = useState(false);
-  const [syncMsg, setSyncMsg] = useState("");
-
-  async function doSync() {
-    setSyncing(true); setSyncMsg("");
-    try {
-      const d = await onSync();
-      setSyncMsg(d && d.closed > 0 ? `✓ Closed ${d.closed} lead${d.closed > 1 ? "s" : ""} from TireBase orders` : "✓ Up to date — no new matches");
-    } catch (e) { setSyncMsg("⚠ Sync failed"); }
-    finally { setSyncing(false); setTimeout(() => setSyncMsg(""), 5000); }
-  }
 
   const leadById = Object.fromEntries(data.leads.map((l) => [l.id, l]));
   const due = data.reminders.filter((r) => isDueOrOverdue(r.due_at));
@@ -441,11 +411,7 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke, onSync }) {
         {chips.map((c) => (
           <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: filter === c.id ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: filter === c.id ? "#C20000" : "rgba(0,0,0,0.6)" }}>{c.label}</button>
         ))}
-        <button onClick={doSync} disabled={syncing} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", borderColor: "rgba(61,214,140,0.4)", color: "#3DD68C" }}>
-          {syncing ? "Syncing..." : "🔄 Sync TireBase orders"}
-        </button>
       </div>
-      {syncMsg && <p style={{ color: syncMsg.includes("⚠") ? "#FF6666" : "#3DD68C", fontSize: "0.8rem", marginTop: "-0.75rem", marginBottom: "1rem" }}>{syncMsg}</p>}
 
       {live.length === 0 && <Empty>No leads here yet. When someone completes the booking form on <strong style={{ color: "#FF3838" }}>tireplugla.com</strong>, they show up here.</Empty>}
       <div style={{ display: "grid", gap: "0.75rem" }}>
@@ -567,8 +533,6 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
   const [services, setServices] = useState(lead.services || {});
   const [writing, setWriting] = useState(false);
   const [msg, setMsg] = useState("");
-  const [pushing, setPushing] = useState(false);
-  const [pushMsg, setPushMsg] = useState(lead.tirebase_quote_id ? { ok: true, text: `In TireBase ✓ (Quote #${lead.tirebase_quote_id})` } : null);
 
   function setRow(i, field, val) { setRows(rows.map((r, idx) => (idx === i ? { ...r, [field]: val } : r))); }
   function addRow() { setRows([...rows, { brand: "", price: "", qty: 4, warranty: "" }]); }
@@ -602,30 +566,6 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       else { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
     } catch (e) { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
     finally { setWriting(false); setTimeout(() => setMsg(""), 3000); }
-  }
-
-  // Push the saved quote into TireBase as a Quote order (live write — confirm first).
-  async function pushToTireBase() {
-    if (!hasQuote) return;
-    const already = lead.tirebase_quote_id;
-    if (!window.confirm(`${already ? `This lead is already in TireBase as Quote #${already}.\n\n` : ""}Create a Quote in TireBase for ${lead.name || "this customer"}? This writes to your live TireBase account.`)) return;
-    setPushing(true); setPushMsg(null);
-    // Make sure the latest quote is saved before pushing.
-    onUpdate("leads", lead.id, { quotes: rows.filter((r) => r.brand || r.price), road_hazard_per_tire: roadHazard, services });
-    try {
-      const res = await fetch("/api/admin/push-to-tirebase", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...auth, lead_id: lead.id }),
-      });
-      const d = await res.json();
-      if (res.ok && d.ok) {
-        lead.tirebase_quote_id = String(d.order_id);
-        setPushMsg({ ok: true, text: `Pushed to TireBase ✓ Quote #${d.order_id}${d.created_customer ? " (new customer created)" : ""}` });
-      } else {
-        setPushMsg({ ok: false, text: d.error || "Push failed." });
-      }
-    } catch (e) { setPushMsg({ ok: false, text: "Push failed — network error." }); }
-    finally { setPushing(false); }
   }
 
   return (
@@ -693,12 +633,6 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
         <button onClick={save} style={ghostBtn}>Save quote</button>
         {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}
         {msg && <span style={{ color: msg.includes("AI busy") ? "#FFB800" : "#3DD68C", fontSize: "0.8rem" }}>{msg}</span>}
-      </div>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center", marginTop: "0.6rem", paddingTop: "0.6rem", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-        <button onClick={pushToTireBase} disabled={pushing || !hasQuote} style={{ ...ghostBtn, opacity: !hasQuote ? 0.4 : 1, borderColor: "#1a1a1a", color: "#1a1a1a", fontWeight: 700 }} title="Create this quote in TireBase">
-          {pushing ? "Pushing…" : "🔗 Push to TireBase"}
-        </button>
-        {pushMsg && <span style={{ color: pushMsg.ok ? "#3DD68C" : "#E5484D", fontSize: "0.8rem" }}>{pushMsg.text}</span>}
       </div>
     </Section>
   );
@@ -1001,40 +935,6 @@ function RepliesTab({ replies, onUpdate }) {
 }
 
 /* ---------------- CEO AGENT ---------------- */
-function CeoAgent({ auth }) {
-  const [briefing, setBriefing] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-
-  async function load() {
-    setLoading(true); setErr("");
-    try {
-      const res = await fetch("/api/admin/ceo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth }) });
-      const d = await res.json();
-      if (res.ok && d.briefing) setBriefing(d.briefing);
-      else setErr(d.error || "Couldn't generate briefing");
-    } catch (e) { setErr("Network error"); }
-    finally { setLoading(false); }
-  }
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
-
-  return (
-    <div style={{ background: "linear-gradient(135deg, rgba(139,124,246,0.13), rgba(0,0,0,0))", border: "1px solid rgba(139,124,246,0.35)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.75rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
-        <span style={{ color: "#A99CF8", fontWeight: 800, fontSize: "0.78rem", letterSpacing: "0.12em", textTransform: "uppercase" }}>🧠 CEO Agent · daily briefing</span>
-        <button onClick={load} disabled={loading} style={{ ...ghostBtn, fontSize: "0.7rem", padding: "0.4rem 0.7rem" }}>{loading ? "Thinking…" : "↻ Refresh"}</button>
-      </div>
-      {loading ? (
-        <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.88rem" }}>Reading today's numbers…</p>
-      ) : err ? (
-        <p style={{ color: "#FF6666", fontSize: "0.85rem" }}>⚠ {err}</p>
-      ) : (
-        <div style={{ color: "rgba(0,0,0,0.8)", fontSize: "0.92rem", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{briefing}</div>
-      )}
-    </div>
-  );
-}
-
 /* ---------------- OVERVIEW (command center) ---------------- */
 function OverviewTab({ auth }) {
   const [d, setD] = useState(null);
@@ -1054,16 +954,12 @@ function OverviewTab({ auth }) {
     return () => { on = false; };
     /* eslint-disable-next-line */
   }, []);
-  const money = (n) => `$${(Number(n) || 0).toLocaleString()}`;
-  const sb = d && d.scoreboard, ls = (d && d.leadStats) || {}, ops = (d && d.ops) || {};
+  const ls = (d && d.leadStats) || {}, ops = (d && d.ops) || {};
   const jobs = ops.jobs || {};
   return (
     <>
       <h1 style={{ color: "#111", fontWeight: 900, fontSize: "1.5rem", margin: "0 0 1.25rem" }}>Overview</h1>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
-        <BigStat label="Today's Revenue" value={sb ? money(sb.revenue) : "—"} color="#1a1a1a" />
-        <BigStat label="Invoices Today" value={sb ? sb.invoices : "—"} color="#1a1a1a" />
-        <BigStat label="Tires Sold Today" value={sb ? sb.services.tires : "—"} color="#1a1a1a" />
         <BigStat label="Active Leads" value={ls.activeLeads != null ? ls.activeLeads : "—"} color="#1a1a1a" />
         <BigStat label="Jobs In Bay" value={jobs.in_bay != null ? jobs.in_bay : "—"} color="#1a1a1a" />
         <BigStat label="Due For Tires" value={ops.dueForTires != null ? ops.dueForTires : "—"} color="#FF1F1F" />
@@ -1193,113 +1089,6 @@ function ShopFloorTab({ auth }) {
   );
 }
 
-/* ---------------- SCOREBOARD (live from TireBase) ---------------- */
-function ScoreboardTab({ auth }) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-
-  async function load() {
-    setLoading(true); setErr("");
-    try {
-      const today = new Date().toLocaleDateString("en-CA");
-      const res = await fetch("/api/admin/scoreboard", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...auth, date: today, store_id: 1 }),
-      });
-      const d = await res.json();
-      if (!res.ok) { setErr(d.error || "Could not load"); setData(null); }
-      else setData(d);
-    } catch (e) { setErr("Network error"); }
-    finally { setLoading(false); }
-  }
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
-
-  if (loading) return <Empty>Loading live numbers from TireBase…</Empty>;
-  if (err) return <p style={{ color: "#FF6666" }}>⚠ {err}</p>;
-  if (!data) return null;
-
-  const goalDefs = [
-    { key: "tires", label: "🛞 Tires Sold", goal: data.goals.tires },
-    { key: "alignments", label: "🎯 Alignments", goal: data.goals.alignments },
-    { key: "tpms", label: "💡 TPMS Sensors", goal: data.goals.tpms },
-    { key: "brakes", label: "🛑 Brake Jobs", goal: data.goals.brakes },
-    { key: "oil", label: "🛢️ Oil Changes", goal: data.goals.oil },
-  ];
-  const payEntries = Object.entries(data.payments || {}).sort((a, b) => b[1] - a[1]);
-
-  return (
-    <>
-      <CeoAgent auth={auth} />
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
-        <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>🟢 Live from TireBase · {data.store} · {data.date}</span>
-        <button onClick={load} style={ghostBtn}>↻ Refresh</button>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
-        <BigStat label="Today's Revenue" value={`$${data.revenue.toLocaleString()}`} color="#8B7CF6" />
-        <BigStat label="Invoices Today" value={data.invoices} color="#FF3838" />
-        <BigStat label="Tires Sold" value={data.services.tires} color="#3DD68C" />
-      </div>
-
-      <h2 style={subHead}>Daily Goals</h2>
-      <div style={{ display: "grid", gap: "0.6rem", marginBottom: "2rem" }}>
-        {goalDefs.map((g) => {
-          const val = data.services[g.key] || 0;
-          const pct = g.goal ? Math.min(100, Math.round((val / g.goal) * 100)) : 0;
-          const color = pct >= 100 ? "#3DD68C" : pct >= 67 ? "#9ACD32" : pct >= 34 ? "#FFB800" : "#FF6666";
-          return (
-            <div key={g.key} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.9rem" }}>{g.label} <span style={{ color: "rgba(0,0,0,0.45)", fontWeight: 500 }}>{val} / {g.goal}</span></span>
-                <span style={{ color, fontWeight: 800 }}>{pct}%</span>
-              </div>
-              <div style={{ height: 6, background: "#ffffff", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${pct}%`, background: color, transition: "width 0.5s" }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
-        <div>
-          <h2 style={subHead}>Payments</h2>
-          {payEntries.length === 0 ? <Empty>No payments yet today.</Empty> : (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-              {payEntries.map(([m, v]) => (
-                <div key={m} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12, padding: "0.85rem 1rem" }}>
-                  <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>{m}</div>
-                  <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1.1rem" }}>${Number(v).toLocaleString()}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <div>
-          <h2 style={subHead}>Staff Performance</h2>
-          {data.staff.length === 0 ? <Empty>No staff-attributed sales today.</Empty> : (
-            <div style={{ display: "grid", gap: "0.5rem" }}>
-              {data.staff.map((s) => {
-                const max = data.staff[0].total || 1;
-                return (
-                  <div key={s.name} style={{ ...rowStyle, padding: "0.7rem 1rem", gap: "0.75rem" }}>
-                    <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem", width: 110, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
-                    <div style={{ flex: 1, height: 6, background: "#ffffff", borderRadius: 4, overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${Math.round((s.total / max) * 100)}%`, background: "#8B7CF6" }} />
-                    </div>
-                    <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${s.total.toLocaleString()}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
 function BigStat({ label, value, color }) {
   return (
     <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
@@ -1837,8 +1626,6 @@ function ReviewSend({ auth, mode }) {
   );
 }
 
-/* ---------------- FINANCE ROBOT (P&L + cost memory) ---------------- */
-const EXPENSE_CATS = ["rent", "utilities", "ads", "supplies", "insurance", "other"];
 /* ---------------- WEEKLY P&L ---------------- */
 const PNL_FLAG = {
   negative: { e: "🟥", bg: "#FFE9EC", label: "Negative profit" },
@@ -1972,7 +1759,7 @@ function PnlTab({ auth }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem" }}>
         <div>
           <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 900 }}>📈 Weekly P&amp;L</h2>
-          <p style={{ margin: "0.2rem 0 0", color: "rgba(0,0,0,0.5)", fontSize: "0.82rem" }}>Upload each day's Sales Journal + Sales Detail. Costs are shared with Finance — fill once, remembered forever.</p>
+          <p style={{ margin: "0.2rem 0 0", color: "rgba(0,0,0,0.5)", fontSize: "0.82rem" }}>Upload each day's Sales Journal + Sales Detail. Tire costs are remembered — fill once, kept forever.</p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <label style={{ fontSize: "0.75rem", color: "rgba(0,0,0,0.55)" }}>Week of</label>
@@ -2142,178 +1929,6 @@ function PnlTab({ auth }) {
           </Section>
         );
       })()}
-    </div>
-  );
-}
-
-function FinanceTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
-  function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
-  function presetLastMonth() { const n = new Date(); return { key: "lastmonth", from: ymd(new Date(n.getFullYear(), n.getMonth() - 1, 1)), to: ymd(new Date(n.getFullYear(), n.getMonth(), 0)) }; }
-  function presetWeek() { const n = new Date(); return { key: "week", from: ymd(mondayOf(n)), to: ymd(n) }; }
-
-  const [range, setRange] = useState(() => presetMonth());
-  const [d, setD] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-  const [costIn, setCostIn] = useState({});
-  const [exp, setExp] = useState({ label: "", category: "rent", amount: "", frequency: "monthly" });
-  const [insights, setInsights] = useState("");
-  const [aiBusy, setAiBusy] = useState(false);
-  const [dlBusy, setDlBusy] = useState(false);
-
-  async function call(body) {
-    const res = await fetch("/api/admin/finance", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
-    const j = await res.json();
-    if (!res.ok) throw new Error(j.error || "Request failed");
-    return j;
-  }
-  async function load(r) {
-    setLoading(true); setErr(""); setInsights("");
-    try { setD(await call({ action: "pnl", from: r.from, to: r.to })); }
-    catch (e) { setErr(e.message); }
-    finally { setLoading(false); }
-  }
-  async function getInsights() {
-    setAiBusy(true);
-    try { const j = await call({ action: "insights", from: range.from, to: range.to }); setInsights(j.insights || ""); }
-    catch (e) { alert(e.message); }
-    finally { setAiBusy(false); }
-  }
-  async function downloadPdf() {
-    setDlBusy(true);
-    try {
-      const res = await fetch("/api/admin/finance-report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, from: range.from, to: range.to, insights }) });
-      if (!res.ok) { alert("Could not generate the PDF."); return; }
-      const blob = await res.blob(); const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = `tireplug-pnl-${range.from}-to-${range.to}.pdf`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    } finally { setDlBusy(false); }
-  }
-  useEffect(() => { load(range); /* eslint-disable-next-line */ }, [range]);
-
-  async function saveCost(p, isProduct) {
-    const v = isProduct ? costIn[p.key] : 0;
-    try { await call({ action: "setCost", description: p.label, unit_cost: v || 0, is_product: isProduct }); await load(range); }
-    catch (e) { alert(e.message); }
-  }
-  async function addExpense() {
-    if (!exp.label || exp.amount === "") return;
-    try { await call({ action: "addExpense", expense: exp }); setExp({ label: "", category: "rent", amount: "", frequency: "monthly" }); await load(range); }
-    catch (e) { alert(e.message); }
-  }
-  async function delExpense(id) { try { await call({ action: "deleteExpense", id }); await load(range); } catch (e) { alert(e.message); } }
-
-  const money = (n) => `$${(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-  const presets = [{ p: presetWeek, l: "This week" }, { p: presetMonth, l: "This month" }, { p: presetLastMonth, l: "Last month" }];
-  const needsCost = d ? d.products.filter((p) => !p.hasCost) : [];
-  const priced = d ? d.products.filter((p) => p.hasCost) : [];
-
-  return (
-    <>
-      <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{x.l}</button>; })}
-        {d && <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{d.from} → {d.to}</span>}
-      </div>
-
-      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
-      {loading || !d ? <Empty>Building your P&amp;L from TireBase…</Empty> : (
-        <>
-          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-            <button onClick={getInsights} disabled={aiBusy} style={{ ...cta, opacity: aiBusy ? 0.6 : 1 }}>{aiBusy ? "Thinking…" : "🤖 AI insights"}</button>
-            <button onClick={downloadPdf} disabled={dlBusy} style={{ ...ghostBtn, opacity: dlBusy ? 0.6 : 1 }}>{dlBusy ? "Preparing…" : "⬇ Download P&L PDF"}</button>
-          </div>
-          {insights && (
-            <div style={{ background: "rgba(139,124,246,0.08)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: "1.5rem", whiteSpace: "pre-wrap", color: "rgba(0,0,0,0.8)", fontSize: "0.86rem", lineHeight: 1.5 }}>
-              <div style={{ color: "#A99CF8", fontWeight: 800, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.5rem" }}>🤖 Finance advisor</div>
-              {insights}
-            </div>
-          )}
-
-          {/* P&L STATEMENT */}
-          <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
-            <PLRow label="Revenue (pre-tax)" value={money(d.revenue)} />
-            <PLRow label="− Tire / product cost (COGS)" value={money(d.cogs)} dim />
-            <PLRow label="= Gross profit" value={money(d.gross)} pct={`${d.grossMargin}%`} strong color="#3DD68C" border />
-            <PLRow label="− Labor (payroll)" value={money(d.labor)} dim />
-            <PLRow label="− Operating expenses" value={money(d.otherOpex)} dim />
-            <PLRow label="= Net profit" value={money(d.net)} pct={`${d.netMargin}%`} strong color={d.net >= 0 ? "#3DD68C" : "#FF6666"} border />
-            <p style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.7rem", marginTop: "0.75rem" }}>Tax excluded (passthrough). Monthly expenses counted across {d.months} month{d.months > 1 ? "s" : ""} in range.</p>
-          </div>
-
-          {/* NEEDS COST — the memory builder */}
-          {needsCost.length > 0 && (
-            <div style={{ marginBottom: "1.75rem" }}>
-              <h2 style={{ ...subHead, color: "#FFB800" }}>⚠ Tires needing a cost ({needsCost.length}) — enter once, remembered forever</h2>
-              <div style={{ display: "grid", gap: "0.5rem" }}>
-                {needsCost.slice(0, 30).map((p) => (
-                  <div key={p.key} style={{ ...rowStyle, gap: "0.6rem", flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, minWidth: 160 }}>
-                      <div style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.84rem" }}>{p.label}</div>
-                      <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.74rem" }}>sold {p.qty} · revenue {money(p.revenue)}</div>
-                    </div>
-                    <input style={{ ...inp, marginBottom: 0, width: 110 }} type="number" placeholder="$ cost ea" value={costIn[p.key] ?? ""} onChange={(e) => setCostIn({ ...costIn, [p.key]: e.target.value })} />
-                    <button onClick={() => saveCost(p, true)} style={cta}>Save cost</button>
-                    <button onClick={() => saveCost(p, false)} style={ghostBtn} title="Labor / service — no product cost">Not a product</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* PER-TIRE MARGINS */}
-          {priced.length > 0 && (
-            <div style={{ marginBottom: "1.75rem" }}>
-              <h2 style={subHead}>Margin by item</h2>
-              <div style={{ display: "grid", gap: "0.4rem" }}>
-                {priced.map((p) => (
-                  <div key={p.key} style={{ ...rowStyle, gap: "0.6rem", padding: "0.6rem 1rem" }}>
-                    <span style={{ flex: 1, color: "#1a1a1a", fontSize: "0.83rem", minWidth: 0 }}>{p.label} <span style={{ color: "rgba(0,0,0,0.45)" }}>×{p.qty}</span></span>
-                    <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>rev {money(p.revenue)} · cost {money(p.cost)}</span>
-                    <span style={{ color: p.margin >= 0 ? "#3DD68C" : "#FF6666", fontWeight: 700, fontSize: "0.82rem", width: 90, textAlign: "right" }}>{money(p.margin)} ({p.marginPct}%)</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* OPERATING EXPENSES */}
-          <h2 style={subHead}>Operating expenses</h2>
-          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center", marginBottom: "0.75rem" }}>
-            <input style={{ ...inp, marginBottom: 0, width: 150 }} placeholder="Label (e.g. Rent)" value={exp.label} onChange={(e) => setExp({ ...exp, label: e.target.value })} />
-            <select style={{ ...inp, marginBottom: 0, width: 120 }} value={exp.category} onChange={(e) => setExp({ ...exp, category: e.target.value })}>
-              {EXPENSE_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <input style={{ ...inp, marginBottom: 0, width: 100 }} type="number" placeholder="$ amount" value={exp.amount} onChange={(e) => setExp({ ...exp, amount: e.target.value })} />
-            <select style={{ ...inp, marginBottom: 0, width: 120 }} value={exp.frequency} onChange={(e) => setExp({ ...exp, frequency: e.target.value })}>
-              <option value="monthly">per month</option>
-              <option value="one_time">one-time</option>
-            </select>
-            <button onClick={addExpense} disabled={!exp.label || exp.amount === ""} style={{ ...cta, opacity: !exp.label || exp.amount === "" ? 0.5 : 1 }}>Add</button>
-          </div>
-          {(d.expenses || []).length === 0 ? <Empty>No operating expenses added yet (rent, utilities, ads…).</Empty> : (
-            <div style={{ display: "grid", gap: "0.4rem" }}>
-              {d.expenses.map((e) => (
-                <div key={e.id} style={{ ...rowStyle, gap: "0.6rem", padding: "0.55rem 1rem" }}>
-                  <span style={{ flex: 1, color: "#1a1a1a", fontSize: "0.84rem" }}>{e.label} <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.74rem" }}>· {e.category} · {e.frequency === "monthly" ? "/mo" : "one-time"}</span></span>
-                  <span style={{ color: "#FF9E9E", fontSize: "0.82rem" }}>{money(e.amount)}</span>
-                  <button onClick={() => delExpense(e.id)} style={{ ...ghostBtn, padding: "0.25rem 0.55rem", fontSize: "0.7rem" }}>✕</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
-}
-function PLRow({ label, value, pct, dim, strong, color, border }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "0.4rem 0", borderTop: border ? "1px solid rgba(0,0,0,0.1)" : "none", marginTop: border ? "0.3rem" : 0 }}>
-      <span style={{ color: dim ? "rgba(0,0,0,0.55)" : "#1a1a1a", fontWeight: strong ? 800 : 500, fontSize: strong ? "0.95rem" : "0.85rem" }}>{label}</span>
-      <span style={{ color: color || (dim ? "rgba(0,0,0,0.6)" : "#1a1a1a"), fontWeight: strong ? 900 : 600, fontSize: strong ? "1.05rem" : "0.9rem" }}>
-        {value}{pct ? <span style={{ color: "rgba(0,0,0,0.5)", fontWeight: 600, fontSize: "0.78rem", marginLeft: 6 }}>{pct}</span> : null}
-      </span>
     </div>
   );
 }
