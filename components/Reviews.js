@@ -1,60 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { REVIEWS_FALLBACK } from '../lib/reviews-fallback';
 
 export default function Reviews() {
   const [isVisible, setIsVisible] = useState(false);
+  const [reviews, setReviews] = useState(REVIEWS_FALLBACK);
   const sectionRef = useRef(null);
 
-  // REAL Google reviews from The Tire Plug
-  const reviews = [
-    {
-      name: 'Jose M.',
-      initial: 'J',
-      rating: 5,
-      date: '11 weeks ago',
-      text: 'Alex offered me three clear options — economical, mid-range, and high-end. No pressure. Honest. One of the best service experiences I\'ve had.',
-      highlight: 'Honest Options',
-    },
-    {
-      name: 'Marvin G.',
-      initial: 'M',
-      rating: 5,
-      date: '40 weeks ago',
-      text: 'Good quality, variety of tires, and multiple quotes so you decide what\'s best. Really good and friendly customer service. 10/10.',
-      highlight: 'Great Variety',
-    },
-    {
-      name: 'Roberto A.',
-      initial: 'R',
-      rating: 5,
-      date: '39 weeks ago',
-      text: 'Bought tires for my Camry, Honda, and now my Nissan. Best price in town every time. Service is good and fast.',
-      highlight: 'Repeat Customer',
-    },
-    {
-      name: 'Judy MC',
-      initial: 'J',
-      rating: 5,
-      date: '4 weeks ago',
-      text: 'Super easy to get tires. Just text them your info and they send quotes and suggestions. So convenient.',
-      highlight: 'Easy Process',
-    },
-    {
-      name: 'Armando A.',
-      initial: 'A',
-      rating: 5,
-      date: '4 weeks ago',
-      text: 'The best service. English or Spanish — they treat you like family. 100% recommended.',
-      highlight: 'Bilingual Service',
-    },
-    {
-      name: 'Sarah K.',
-      initial: 'S',
-      rating: 5,
-      date: '1 month ago',
-      text: 'They gave me three tire options at different price points. No pressure. Refreshing experience.',
-      highlight: 'No Pressure',
-    },
-  ];
+  // Pull the latest live Google reviews; keep the real fallback if unavailable.
+  useEffect(() => {
+    let on = true;
+    fetch('/api/reviews')
+      .then((r) => r.json())
+      .then((d) => { if (on && d && Array.isArray(d.reviews) && d.reviews.length) setReviews(d.reviews); })
+      .catch(() => {});
+    return () => { on = false; };
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -376,19 +336,21 @@ function ReviewCard({ review }) {
         }}>
           {'★'.repeat(review.rating)}
         </div>
-        <div style={{
-          background: 'rgba(255,31,31,0.1)',
-          border: '1px solid rgba(255,31,31,0.25)',
-          color: '#FF3838',
-          padding: '0.2rem 0.65rem',
-          borderRadius: '50px',
-          fontSize: '0.6rem',
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-        }}>
-          {review.highlight}
-        </div>
+        {review.highlight && (
+          <div style={{
+            background: 'rgba(255,31,31,0.1)',
+            border: '1px solid rgba(255,31,31,0.25)',
+            color: '#FF3838',
+            padding: '0.2rem 0.65rem',
+            borderRadius: '50px',
+            fontSize: '0.6rem',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}>
+            {review.highlight}
+          </div>
+        )}
       </div>
 
       {/* Review Text */}

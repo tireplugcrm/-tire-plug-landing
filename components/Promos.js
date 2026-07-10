@@ -37,7 +37,7 @@ export default function Promos() {
   };
 
   return (
-    <section id="promos" style={{ background: '#000', padding: '6rem 2rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+    <section id="promos" style={{ background: '#0a0a0b', padding: '6rem 2rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,31,31,0.05) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
@@ -154,7 +154,7 @@ export default function Promos() {
           <a href="tel:562-500-4625" className="claim-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '1.1rem 2.5rem', fontSize: '1rem', fontWeight: 800, borderRadius: '50px', transition: 'all 0.3s ease', boxShadow: '0 8px 24px rgba(255,31,31,0.25)', letterSpacing: '0.02em', textDecoration: 'none' }}>
             📞 Call to Claim · 562-500-4625
           </a>
-          <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
+          <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
             Or book online in 60 seconds
           </p>
         </div>

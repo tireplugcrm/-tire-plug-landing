@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { REVIEWS_FALLBACK } from '../lib/reviews-fallback';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -118,15 +119,17 @@ const mobileNavStyle = { background: 'transparent', border: 'none', color: '#fff
 
 function ReviewsModal({ isOpen, onClose }) {
   const [currentReview, setCurrentReview] = useState(0);
+  const [reviews, setReviews] = useState(REVIEWS_FALLBACK);
 
-  const reviews = [
-    { name: 'Marcus T.', rating: 5, date: '2 weeks ago', text: 'One of the best service experiences I\'ve had. In and out in 15 minutes for an oil change. The team is professional and pricing is honest.' },
-    { name: 'Sarah K.', rating: 5, date: '1 month ago', text: 'Came in for new tires and they gave me three options at different price points. No pressure, no upsell. Refreshing experience.' },
-    { name: 'David L.', rating: 5, date: '3 weeks ago', text: 'Best tire shop in LA hands down. Got 4 new tires plus alignment and they had me back on the road in under an hour. Great prices too.' },
-    { name: 'Maria R.', rating: 5, date: '1 week ago', text: 'I follow them on Instagram and finally came in. They lived up to the hype. Honest, fast, and the shop is clean. New regular customer.' },
-    { name: 'Carlos M.', rating: 5, date: '2 months ago', text: 'My TPMS light was on for months. Other shops quoted me $400+. The Tire Plug fixed it for $199 and explained everything. Real ones.' },
-    { name: 'Jessica P.', rating: 5, date: '5 days ago', text: 'Got my alignment done here after dealership tried charging me $250. They did it for $75 and it drives perfect now. Highly recommend.' },
-  ];
+  // Pull the latest live Google reviews; keep the real fallback if unavailable.
+  useEffect(() => {
+    let on = true;
+    fetch('/api/reviews')
+      .then((r) => r.json())
+      .then((d) => { if (on && d && Array.isArray(d.reviews) && d.reviews.length) setReviews(d.reviews); })
+      .catch(() => {});
+    return () => { on = false; };
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -141,7 +144,8 @@ function ReviewsModal({ isOpen, onClose }) {
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-  const review = reviews[currentReview];
+  const review = reviews[currentReview] || reviews[0];
+  if (!review) return null;
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(15px)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', animation: 'fadeIn 0.3s ease' }}>

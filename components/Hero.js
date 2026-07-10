@@ -2,11 +2,25 @@ import React, { useEffect, useState } from 'react';
 
 export default function Hero() {
   const [scrollY, setScrollY] = useState(0);
+  // "enhanced" = desktop + motion allowed → play the video background + parallax.
+  // Phones and reduced-motion users get a static poster image (no video download),
+  // which is the single biggest mobile load-speed win.
+  const [enhanced, setEnhanced] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const bigScreen = window.matchMedia('(min-width: 969px)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const on = bigScreen && !reduceMotion;
+    setEnhanced(on);
+    if (!on) return;
+
+    let raf = null;
+    const handleScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { setScrollY(window.scrollY); raf = null; });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', handleScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   const scrollToBooking = () => {
@@ -37,25 +51,40 @@ export default function Hero() {
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
           overflow: 'hidden',
-          transform: `translateY(${scrollY * 0.3}px) scale(1.1)`,
+          transform: enhanced ? `translateY(${scrollY * 0.3}px) scale(1.1)` : 'scale(1.1)',
           transition: 'transform 0.1s ease-out',
         }}
       >
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/shop-exterior.webp"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            filter: 'grayscale(0.2) contrast(1.1) brightness(0.75) saturate(0.95)',
-          }}
-        >
-          <source src="/videos/hero-bg.mp4" type="video/mp4" />
-        </video>
+        {enhanced ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="none"
+            poster="/images/shop-exterior.webp"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: 'grayscale(0.2) contrast(1.1) brightness(0.75) saturate(0.95)',
+            }}
+          >
+            <source src="/videos/hero-bg.mp4" type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src="/images/shop-exterior.webp"
+            alt=""
+            aria-hidden="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: 'grayscale(0.2) contrast(1.1) brightness(0.75) saturate(0.95)',
+            }}
+          />
+        )}
       </div>
 
       {/* Layer 2: Deep cinematic gradient */}
@@ -76,7 +105,7 @@ export default function Hero() {
           right: '-10%',
           width: '800px',
           height: '800px',
-          background: 'radial-gradient(circle, rgba(255,31,31,0.25) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(255,31,31,0.16) 0%, transparent 60%)',
           filter: 'blur(80px)',
           pointerEvents: 'none',
           animation: 'pulse 8s ease-in-out infinite',
@@ -91,7 +120,7 @@ export default function Hero() {
           left: '-10%',
           width: '700px',
           height: '700px',
-          background: 'radial-gradient(circle, rgba(255,31,31,0.18) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(255,31,31,0.12) 0%, transparent 60%)',
           filter: 'blur(100px)',
           pointerEvents: 'none',
           animation: 'pulse 10s ease-in-out infinite 1s',
@@ -235,7 +264,7 @@ export default function Hero() {
           }}
         >
           Tires. Oil. Alignments.<br />
-          <span style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <span style={{ color: 'rgba(255,255,255,0.62)' }}>
             Fast service without dealership pricing.
           </span>
         </p>

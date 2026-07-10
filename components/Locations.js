@@ -36,7 +36,7 @@ export default function Locations() {
       ref={sectionRef}
       id="locations"
       style={{
-        background: '#000',
+        background: '#0a0a0b',
         padding: '6rem 2rem',
         position: 'relative',
         overflow: 'hidden',
