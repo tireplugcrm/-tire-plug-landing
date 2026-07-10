@@ -314,7 +314,7 @@ export default function Hero() {
         >
           <TrustMetric value="4.9" label="Google Rated" />
           <TrustMetric value="10K+" label="Vehicles Serviced" red />
-          <TrustMetric value="2" label="LA Locations" />
+          <TrustMetric value="7 Days" label="Open A Week" />
           <TrustMetric value="15 Min" label="Oil Change" red />
         </div>
       </div>
