@@ -58,8 +58,8 @@ export default function Home() {
 
       <PromoPopup />
       <Header />
-      <Hero />
       <QuoteByText />
+      <Hero />
       <Services />
       <Promos />
       <Reviews />

@@ -34,11 +34,12 @@ export default function QuoteByText() {
   };
 
   return (
-    <section id="quote" style={{ background: '#000', padding: '5rem 2rem', color: '#fff', position: 'relative', overflow: 'hidden', borderTop: '1px solid rgba(255,31,31,0.08)' }}>
-      {/* Ambient glow */}
-      <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '520px', height: '520px', background: 'radial-gradient(circle, rgba(255,31,31,0.10) 0%, transparent 60%)', filter: 'blur(110px)', pointerEvents: 'none' }} />
+    <section id="quote" style={{ background: '#000', padding: '8rem 2rem 4rem', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
+      {/* Ambient glows — top and bottom for a full-screen opening */}
+      <div style={{ position: 'absolute', top: '-8%', right: '-8%', width: '620px', height: '620px', background: 'radial-gradient(circle, rgba(255,31,31,0.14) 0%, transparent 60%)', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: '560px', height: '560px', background: 'radial-gradient(circle, rgba(255,31,31,0.10) 0%, transparent 60%)', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
-      <div style={{ maxWidth: '640px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+      <div style={{ maxWidth: '640px', width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.1rem' }}>
