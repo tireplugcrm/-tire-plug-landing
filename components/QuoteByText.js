@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Fast-path quote: the customer picks a few things, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
@@ -41,6 +41,16 @@ export default function QuoteByText() {
   function toggleService(s) {
     setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   }
+
+  // Pre-select a service when a Services card is tapped.
+  useEffect(() => {
+    const onPick = (e) => {
+      const s = e.detail;
+      if (s) setServices((prev) => (prev.includes(s) ? prev : [...prev, s]));
+    };
+    window.addEventListener('tp-service', onPick);
+    return () => window.removeEventListener('tp-service', onPick);
+  }, []);
   function pickMode(mode) { setSizeMode(mode); setS1(''); setS2(''); setS3(''); }
 
   const serviceText = services.length

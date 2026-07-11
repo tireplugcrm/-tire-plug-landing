@@ -8,11 +8,11 @@ export default function Hero() {
     <section id="top" style={{ background: 'var(--bg)', padding: 'clamp(2.5rem, 7vw, 5rem) 0 3rem' }}>
       <div className="tp-wrap fade-in" style={{ textAlign: 'center' }}>
         <span className="tp-eyebrow">The Tire Plug · Los Angeles</span>
-        <h1 style={{ fontSize: 'clamp(2.4rem, 8vw, 4.4rem)', fontWeight: 700, letterSpacing: '-0.035em', lineHeight: 1.02, margin: '0.9rem 0 0.8rem', textWrap: 'balance' }}>
-          The right tires.<br />Installed today.
+        <h1 style={{ fontSize: 'clamp(2.2rem, 7vw, 4.2rem)', fontWeight: 700, letterSpacing: '-0.035em', lineHeight: 1.03, margin: '0.9rem 0 0.85rem', textWrap: 'balance' }}>
+          The best way to buy tires<br />in Los Angeles.
         </h1>
-        <p style={{ fontSize: 'clamp(1rem, 2.4vw, 1.2rem)', color: 'var(--muted)', maxWidth: '34rem', margin: '0 auto 2rem' }}>
-          Premium tires and honest service in Downtown LA. Order online — we install same-day.
+        <p style={{ fontSize: 'clamp(1rem, 2.4vw, 1.2rem)', color: 'var(--muted)', maxWidth: '35rem', margin: '0 auto 2rem' }}>
+          Order online and get them installed same-day at the city's most-trusted shop. Honest pricing, done right.
         </p>
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => go('quote')} className="tp-btn tp-btn-primary">Get a Quote</button>
