@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-// Fast-path quote: the customer picks a few things, taps the button, and their
+// Fast-path tire quote: the customer enters their size, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
 // hit send. No Twilio, no separate number; the lead lands as a text in the shop's
-// phone (562-500-4625).
+// phone (562-500-4625). New tires are the focus — add-ons happen at checkout.
 const SHOP_SMS = '+15625004625';
-const SERVICES = ['New Tires', 'Used Tires', 'Oil Change', 'Alignment', 'TPMS Sensors', 'Brakes'];
 
 const SIZE_MODES = {
   metric: {
@@ -28,7 +27,6 @@ const SIZE_MODES = {
 
 export default function QuoteByText() {
   const [firstName, setFirstName] = useState('');
-  const [services, setServices] = useState([]);
   const [sizeMode, setSizeMode] = useState('metric');
   const [s1, setS1] = useState('');
   const [s2, setS2] = useState('');
@@ -36,29 +34,13 @@ export default function QuoteByText() {
   const [sizeUnknown, setSizeUnknown] = useState(false);
 
   const cfg = SIZE_MODES[sizeMode];
-  const ready = firstName.trim() && services.length > 0;
+  const size = !sizeUnknown && s1 && s2 && s3 ? `${s1}${cfg.sep[0]}${s2}${cfg.sep[1]}${s3}` : '';
+  const ready = firstName.trim() && (size || sizeUnknown);
 
-  function toggleService(s) {
-    setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
-  }
-
-  // Pre-select a service when a Services card is tapped.
-  useEffect(() => {
-    const onPick = (e) => {
-      const s = e.detail;
-      if (s) setServices((prev) => (prev.includes(s) ? prev : [...prev, s]));
-    };
-    window.addEventListener('tp-service', onPick);
-    return () => window.removeEventListener('tp-service', onPick);
-  }, []);
   function pickMode(mode) { setSizeMode(mode); setS1(''); setS2(''); setS3(''); }
 
-  const serviceText = services.length
-    ? services.slice(0, -1).join(', ') + (services.length > 1 ? ' and ' : '') + services[services.length - 1]
-    : 'a quote';
-  const size = !sizeUnknown && s1 && s2 && s3 ? `${s1}${cfg.sep[0]}${s2}${cfg.sep[1]}${s3}` : '';
-  const sizePart = sizeUnknown ? ' (not sure of my tire size)' : (size ? ` in ${size}` : '');
-  const message = `Hi Tire Plug! I'm ${firstName.trim() || 'a new customer'}. I'm interested in ${serviceText}${sizePart}. Can you send me a price?`;
+  const sizePart = sizeUnknown ? ' (not sure of my size — can you help?)' : (size ? ` in ${size}` : '');
+  const message = `Hi Tire Plug! I'm ${firstName.trim() || 'a new customer'}. I'm looking for new tires${sizePart}. Can you send me a price?`;
   const smsHref = `sms:${SHOP_SMS}?&body=${encodeURIComponent(message)}`;
 
   const handleSend = (e) => {
@@ -71,19 +53,17 @@ export default function QuoteByText() {
 
   return (
     <section id="quote" style={{ background: 'var(--bg-alt)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 0' }}>
-      <div className="tp-wrap" style={{ maxWidth: '600px' }}>
+      <div className="tp-wrap" style={{ maxWidth: '560px' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <span className="tp-eyebrow">Quote by text · 10 seconds</span>
-          <h2 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.6rem)', fontWeight: 700, letterSpacing: '-0.03em', margin: '0.5rem 0 0.5rem' }}>Get a price in seconds</h2>
-          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '1rem' }}>Tell us three things and tap send — we'll text you back a real quote.</p>
+          <span className="tp-eyebrow">Not sure? Text us your size</span>
+          <h2 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.6rem)', fontWeight: 700, letterSpacing: '-0.03em', margin: '0.5rem 0 0.5rem' }}>Get a tire quote by text</h2>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '1rem' }}>Enter your size and tap send — we'll text you back a real price.</p>
         </div>
 
         <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: 'clamp(1.4rem, 4vw, 2rem)', boxShadow: 'var(--shadow)' }}>
-          {/* First name */}
           <label style={labelStyle}>Your first name</label>
           <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Marcus" style={inputStyle} className="tp-field" />
 
-          {/* Tire size */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
             <label style={{ ...labelStyle, marginBottom: 0 }}>Tire size</label>
             <button type="button" onClick={() => setSizeUnknown(!sizeUnknown)} style={{ background: 'none', border: 'none', color: 'var(--ink)', fontSize: '0.78rem', fontWeight: 600, textDecoration: 'underline', padding: 0 }}>
@@ -92,7 +72,7 @@ export default function QuoteByText() {
           </div>
 
           {sizeUnknown ? (
-            <div style={{ background: 'var(--bg-alt)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '0.9rem 1rem', marginBottom: '1.4rem', color: 'var(--ink-soft)', fontSize: '0.9rem', textAlign: 'center' }}>
+            <div style={{ background: 'var(--bg-alt)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '0.9rem 1rem', marginBottom: '1.6rem', color: 'var(--ink-soft)', fontSize: '0.9rem', textAlign: 'center' }}>
               👍 No problem — we'll help you find it when you text.
             </div>
           ) : (
@@ -118,35 +98,18 @@ export default function QuoteByText() {
                   <option value="">{cfg.labels[2]}</option>{cfg.s3.map((v) => <option key={v} value={v}>R{v}</option>)}
                 </select>
               </div>
-              <p style={{ color: 'var(--muted)', fontSize: '0.75rem', margin: '0 0 1.4rem' }}>
+              <p style={{ color: 'var(--muted)', fontSize: '0.75rem', margin: '0 0 1.6rem' }}>
                 It's on your tire's sidewall{size ? ` — you picked ${size}` : `, e.g. ${cfg.example}`}.
               </p>
             </>
           )}
 
-          {/* Services */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
-            <label style={{ ...labelStyle, marginBottom: 0 }}>What do you need?</label>
-            <span style={{ color: 'var(--muted)', fontSize: '0.72rem' }}>Pick all that apply</span>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.75rem' }}>
-            {SERVICES.map((s) => {
-              const on = services.includes(s);
-              return (
-                <button key={s} type="button" onClick={() => toggleService(s)} className="tp-chip" style={{ ...chipStyle, borderRadius: '50px', ...(on ? chipOn : {}) }}>
-                  {on ? '✓ ' : ''}{s}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Send */}
           <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
             Text us · (562) 500-4625
           </a>
           <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '0.75rem', marginTop: '0.85rem' }}>
-            {ready ? 'Opens your texts with everything filled in — just hit send.' : 'Add your name and pick a service to text us.'}
+            {ready ? 'Opens your texts with everything filled in — just hit send.' : 'Add your name and tire size to text us.'}
           </p>
         </div>
       </div>

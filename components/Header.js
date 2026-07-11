@@ -11,8 +11,7 @@ export default function Header() {
   };
 
   const links = [
-    { label: 'Tires', id: 'quote' },
-    { label: 'Services', id: 'services' },
+    { label: 'Shop Tires', id: 'shop' },
     { label: 'Locations', id: 'locations' },
   ];
 
@@ -50,7 +49,7 @@ export default function Header() {
               <button key={l.id} onClick={() => go(l.id)} style={navLink}>{l.label}</button>
             ))}
             <button onClick={() => setReviewsOpen(true)} style={navLink}>Reviews</button>
-            <button onClick={() => go('quote')} className="tp-btn tp-btn-primary" style={{ padding: '0.7rem 1.3rem', fontSize: '0.88rem' }}>Get a Quote</button>
+            <button onClick={() => go('shop')} className="tp-btn tp-btn-primary" style={{ padding: '0.7rem 1.3rem', fontSize: '0.88rem' }}>Shop Tires</button>
           </div>
 
           {/* Mobile hamburger */}
@@ -69,7 +68,7 @@ export default function Header() {
                 <button key={l.id} onClick={() => go(l.id)} style={mobileLink}>{l.label}</button>
               ))}
               <button onClick={() => { setReviewsOpen(true); setMenuOpen(false); }} style={mobileLink}>Reviews</button>
-              <button onClick={() => go('quote')} className="tp-btn tp-btn-primary" style={{ marginTop: '0.75rem', width: '100%' }}>Get a Quote</button>
+              <button onClick={() => go('shop')} className="tp-btn tp-btn-primary" style={{ marginTop: '0.75rem', width: '100%' }}>Shop Tires</button>
             </div>
           </div>
         )}

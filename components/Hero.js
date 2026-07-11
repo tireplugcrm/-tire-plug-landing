@@ -15,8 +15,8 @@ export default function Hero() {
           Order online and get them installed same-day at the city's most-trusted shop. Honest pricing, done right.
         </p>
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => go('quote')} className="tp-btn tp-btn-primary">Get a Quote</button>
-          <button onClick={() => go('services')} className="tp-btn tp-btn-ghost">Our Services</button>
+          <button onClick={() => go('shop')} className="tp-btn tp-btn-primary">Shop Tires</button>
+          <button onClick={() => go('quote')} className="tp-btn tp-btn-ghost">Text us your size</button>
         </div>
         <Wheel style={{ width: 'min(320px, 68vw)', height: 'auto', margin: '2.75rem auto 0', filter: 'drop-shadow(0 26px 36px rgba(20,22,26,0.16))' }} />
       </div>

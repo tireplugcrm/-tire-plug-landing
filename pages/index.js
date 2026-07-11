@@ -2,9 +2,8 @@ import React from 'react';
 import Head from 'next/head';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
-import QuoteByText from '../components/QuoteByText';
-import Services from '../components/Services';
 import ShopTires from '../components/ShopTires';
+import QuoteByText from '../components/QuoteByText';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
 import Footer from '../components/Footer';
@@ -56,9 +55,8 @@ export default function Home() {
 
       <Header />
       <Hero />
-      <QuoteByText />
-      <Services />
       <ShopTires />
+      <QuoteByText />
       <Reviews />
       <Locations />
       <Footer />
