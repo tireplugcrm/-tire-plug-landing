@@ -1,14 +1,12 @@
 import React from 'react';
-import PromoPopup from '../components/PromoPopup';
 import Head from 'next/head';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import QuoteByText from '../components/QuoteByText';
 import Services from '../components/Services';
-import Promos from '../components/Promos';
+import ShopTires from '../components/ShopTires';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
-import BookingForm from '../components/BookingForm';
 import Footer from '../components/Footer';
 
 const SERVICE_NAMES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Change", "Brake Service", "Tire Rotation & Balance", "Tire Repair"];
@@ -56,15 +54,13 @@ export default function Home() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(TIRE_PLUG_SCHEMA) }} />
       </Head>
 
-      <PromoPopup />
       <Header />
-      <QuoteByText />
       <Hero />
+      <QuoteByText />
       <Services />
-      <Promos />
+      <ShopTires />
       <Reviews />
       <Locations />
-      <BookingForm />
       <Footer />
     </>
   );
