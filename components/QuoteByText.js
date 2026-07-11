@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-// Fast-path quote: the customer fills 3 quick fields, taps the button, and their
+// Fast-path quote: the customer picks a few things, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
 // hit send. No Twilio, no separate number, no A2P approval; the lead lands as a
 // real text in the shop's phone (562-500-4625).
@@ -8,17 +8,27 @@ const SHOP_SMS = '+15625004625';
 
 const SERVICES = ['New Tires', 'Used Tires', 'Oil Change', 'Alignment', 'TPMS Sensors', 'Brakes'];
 
+// Tire size dropdowns (the three numbers on the sidewall, e.g. 225 / 45 / R17).
+const WIDTHS = ['155', '165', '175', '185', '195', '205', '215', '225', '235', '245', '255', '265', '275', '285', '295', '305', '315', '325', '335'];
+const ASPECTS = ['30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85'];
+const RIMS = ['13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '24'];
+
 export default function QuoteByText() {
   const [firstName, setFirstName] = useState('');
-  const [vehicle, setVehicle] = useState('');
   const [service, setService] = useState('');
+  const [width, setWidth] = useState('');
+  const [aspect, setAspect] = useState('');
+  const [rim, setRim] = useState('');
+  const [sizeUnknown, setSizeUnknown] = useState(false);
 
   const ready = firstName.trim() && service;
 
+  const size = !sizeUnknown && width && aspect && rim ? `${width}/${aspect}R${rim}` : '';
+  const sizePart = sizeUnknown ? ' (not sure of my tire size)' : (size ? ` in ${size}` : '');
+
   const message =
     `Hi Tire Plug! I'm ${firstName.trim() || 'a new customer'}. ` +
-    `I'm interested in ${service || 'a quote'}` +
-    `${vehicle.trim() ? ` for my ${vehicle.trim()}` : ''}. ` +
+    `I'm interested in ${service || 'a quote'}${sizePart}. ` +
     `Can you send me a price?`;
 
   // "?&body=" is the cross-platform trick that pre-fills the text on both iOS & Android.
@@ -71,16 +81,43 @@ export default function QuoteByText() {
             className="qt-input"
           />
 
-          {/* 2. Vehicle or tire size */}
-          <label style={labelStyle}>Tire size or vehicle</label>
-          <input
-            type="text"
-            value={vehicle}
-            onChange={(e) => setVehicle(e.target.value)}
-            placeholder="225/45R17  —  or  —  2019 Honda Accord"
-            style={inputStyle}
-            className="qt-input"
-          />
+          {/* 2. Tire size (dropdowns) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+            <label style={{ ...labelStyle, marginBottom: 0 }}>Tire size</label>
+            <button
+              type="button"
+              onClick={() => setSizeUnknown(!sizeUnknown)}
+              style={{ background: 'none', border: 'none', color: '#FF6666', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
+            >
+              {sizeUnknown ? 'I know my size' : "Don't know it?"}
+            </button>
+          </div>
+
+          {sizeUnknown ? (
+            <div style={{ background: 'rgba(255,31,31,0.08)', border: '1px solid rgba(255,31,31,0.25)', borderRadius: '10px', padding: '0.9rem 1rem', marginBottom: '1.4rem', color: '#FF6666', fontSize: '0.85rem', textAlign: 'center', fontWeight: 600 }}>
+              👍 No problem — we'll help you find it when you text.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <select value={width} onChange={(e) => setWidth(e.target.value)} style={selectStyle} className="qt-input">
+                <option value="">Width</option>
+                {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
+              </select>
+              <select value={aspect} onChange={(e) => setAspect(e.target.value)} style={selectStyle} className="qt-input">
+                <option value="">Height</option>
+                {ASPECTS.map((a) => <option key={a} value={a}>{a}</option>)}
+              </select>
+              <select value={rim} onChange={(e) => setRim(e.target.value)} style={selectStyle} className="qt-input">
+                <option value="">Rim</option>
+                {RIMS.map((r) => <option key={r} value={r}>R{r}</option>)}
+              </select>
+            </div>
+          )}
+          {!sizeUnknown && (
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', margin: '0 0 1.4rem' }}>
+              It's on your tire's sidewall{size ? ` — you picked ${size}` : ' (e.g. 225 / 45 / R17)'}.
+            </p>
+          )}
 
           {/* 3. Service */}
           <label style={labelStyle}>What do you need?</label>
@@ -194,4 +231,21 @@ const inputStyle = {
   outline: 'none',
   transition: 'all 0.3s ease',
   boxSizing: 'border-box',
+};
+
+const selectStyle = {
+  width: '100%',
+  padding: '0.9rem 0.75rem',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '10px',
+  background: '#141414',
+  color: '#fff',
+  fontSize: '0.95rem',
+  fontFamily: 'inherit',
+  outline: 'none',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  boxSizing: 'border-box',
+  appearance: 'none',
+  WebkitAppearance: 'none',
 };
