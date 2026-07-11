@@ -33,7 +33,7 @@ const SIZE_MODES = {
 
 export default function QuoteByText() {
   const [firstName, setFirstName] = useState('');
-  const [service, setService] = useState('');
+  const [services, setServices] = useState([]);
   const [sizeMode, setSizeMode] = useState('metric');
   const [s1, setS1] = useState('');
   const [s2, setS2] = useState('');
@@ -41,19 +41,28 @@ export default function QuoteByText() {
   const [sizeUnknown, setSizeUnknown] = useState(false);
 
   const cfg = SIZE_MODES[sizeMode];
-  const ready = firstName.trim() && service;
+  const ready = firstName.trim() && services.length > 0;
+
+  function toggleService(s) {
+    setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  }
 
   function pickMode(mode) {
     setSizeMode(mode);
     setS1(''); setS2(''); setS3(''); // values differ between formats — reset
   }
 
+  // Natural-language list: "New Tires", "New Tires and Alignment", "A, B and C".
+  const serviceText = services.length
+    ? services.slice(0, -1).join(', ') + (services.length > 1 ? ' and ' : '') + services[services.length - 1]
+    : 'a quote';
+
   const size = !sizeUnknown && s1 && s2 && s3 ? `${s1}${cfg.sep[0]}${s2}${cfg.sep[1]}${s3}` : '';
   const sizePart = sizeUnknown ? ' (not sure of my tire size)' : (size ? ` in ${size}` : '');
 
   const message =
     `Hi Tire Plug! I'm ${firstName.trim() || 'a new customer'}. ` +
-    `I'm interested in ${service || 'a quote'}${sizePart}. ` +
+    `I'm interested in ${serviceText}${sizePart}. ` +
     `Can you send me a price?`;
 
   // "?&body=" is the cross-platform trick that pre-fills the text on both iOS & Android.
@@ -175,16 +184,19 @@ export default function QuoteByText() {
             </>
           )}
 
-          {/* 3. Service */}
-          <label style={labelStyle}>What do you need?</label>
+          {/* 3. Service (pick any) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+            <label style={{ ...labelStyle, marginBottom: 0 }}>What do you need?</label>
+            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 600 }}>Pick all that apply</span>
+          </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.75rem' }}>
             {SERVICES.map((s) => {
-              const on = service === s;
+              const on = services.includes(s);
               return (
                 <button
                   key={s}
                   type="button"
-                  onClick={() => setService(s)}
+                  onClick={() => toggleService(s)}
                   className="qt-chip"
                   style={{
                     background: on ? 'rgba(255,31,31,0.15)' : 'rgba(255,255,255,0.03)',
@@ -199,7 +211,7 @@ export default function QuoteByText() {
                     transition: 'all 0.25s ease',
                   }}
                 >
-                  {s}
+                  {on ? '✓ ' : ''}{s}
                 </button>
               );
             })}
