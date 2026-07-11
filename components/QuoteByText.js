@@ -8,22 +8,47 @@ const SHOP_SMS = '+15625004625';
 
 const SERVICES = ['New Tires', 'Used Tires', 'Oil Change', 'Alignment', 'TPMS Sensors', 'Brakes'];
 
-// Tire size dropdowns (the three numbers on the sidewall, e.g. 225 / 45 / R17).
-const WIDTHS = ['155', '165', '175', '185', '195', '205', '215', '225', '235', '245', '255', '265', '275', '285', '295', '305', '315', '325', '335'];
-const ASPECTS = ['30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85'];
-const RIMS = ['13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '24'];
+// Tire size comes in two sidewall formats. The customer taps whichever matches
+// their tire, and the three dropdowns + separator adapt.
+//   metric  → 225 / 45 R17   (also commercial: 295/75R22.5)   → "225/45R17"
+//   truck   → 33 x 12.50 R20 (off-road / flotation)           → "33x12.50R20"
+const SIZE_MODES = {
+  metric: {
+    example: '225/45R17',
+    labels: ['Width', 'Height', 'Rim'],
+    sep: ['/', 'R'],
+    s1: ['155', '165', '175', '185', '195', '205', '215', '225', '235', '245', '255', '265', '275', '285', '295', '305', '315', '325', '335'],
+    s2: ['30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85'],
+    s3: ['13', '14', '15', '16', '17', '18', '19', '19.5', '20', '20.5', '21', '22', '22.5', '24', '24.5'],
+  },
+  truck: {
+    example: '33x12.50R20',
+    labels: ['Diameter', 'Width', 'Rim'],
+    sep: ['x', 'R'],
+    s1: ['30', '31', '32', '33', '34', '35', '37', '38', '40'],
+    s2: ['9.50', '10.50', '11.50', '12.50', '13.50', '14.50'],
+    s3: ['15', '16', '17', '18', '20', '22', '24'],
+  },
+};
 
 export default function QuoteByText() {
   const [firstName, setFirstName] = useState('');
   const [service, setService] = useState('');
-  const [width, setWidth] = useState('');
-  const [aspect, setAspect] = useState('');
-  const [rim, setRim] = useState('');
+  const [sizeMode, setSizeMode] = useState('metric');
+  const [s1, setS1] = useState('');
+  const [s2, setS2] = useState('');
+  const [s3, setS3] = useState('');
   const [sizeUnknown, setSizeUnknown] = useState(false);
 
+  const cfg = SIZE_MODES[sizeMode];
   const ready = firstName.trim() && service;
 
-  const size = !sizeUnknown && width && aspect && rim ? `${width}/${aspect}R${rim}` : '';
+  function pickMode(mode) {
+    setSizeMode(mode);
+    setS1(''); setS2(''); setS3(''); // values differ between formats — reset
+  }
+
+  const size = !sizeUnknown && s1 && s2 && s3 ? `${s1}${cfg.sep[0]}${s2}${cfg.sep[1]}${s3}` : '';
   const sizePart = sizeUnknown ? ' (not sure of my tire size)' : (size ? ` in ${size}` : '');
 
   const message =
@@ -81,7 +106,7 @@ export default function QuoteByText() {
             className="qt-input"
           />
 
-          {/* 2. Tire size (dropdowns) */}
+          {/* 2. Tire size */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
             <label style={{ ...labelStyle, marginBottom: 0 }}>Tire size</label>
             <button
@@ -98,25 +123,56 @@ export default function QuoteByText() {
               👍 No problem — we'll help you find it when you text.
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <select value={width} onChange={(e) => setWidth(e.target.value)} style={selectStyle} className="qt-input">
-                <option value="">Width</option>
-                {WIDTHS.map((w) => <option key={w} value={w}>{w}</option>)}
-              </select>
-              <select value={aspect} onChange={(e) => setAspect(e.target.value)} style={selectStyle} className="qt-input">
-                <option value="">Height</option>
-                {ASPECTS.map((a) => <option key={a} value={a}>{a}</option>)}
-              </select>
-              <select value={rim} onChange={(e) => setRim(e.target.value)} style={selectStyle} className="qt-input">
-                <option value="">Rim</option>
-                {RIMS.map((r) => <option key={r} value={r}>R{r}</option>)}
-              </select>
-            </div>
-          )}
-          {!sizeUnknown && (
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', margin: '0 0 1.4rem' }}>
-              It's on your tire's sidewall{size ? ` — you picked ${size}` : ' (e.g. 225 / 45 / R17)'}.
-            </p>
+            <>
+              {/* Format toggle — customer taps whichever matches their sidewall */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                {Object.keys(SIZE_MODES).map((mode) => {
+                  const on = sizeMode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => pickMode(mode)}
+                      className="qt-chip"
+                      style={{
+                        flex: 1,
+                        background: on ? 'rgba(255,31,31,0.15)' : 'rgba(255,255,255,0.03)',
+                        border: on ? '1px solid #FF1F1F' : '1px solid rgba(255,255,255,0.12)',
+                        color: on ? '#FF3838' : 'rgba(255,255,255,0.75)',
+                        padding: '0.6rem 0.5rem',
+                        borderRadius: '10px',
+                        fontSize: '0.82rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        letterSpacing: '0.02em',
+                        transition: 'all 0.25s ease',
+                      }}
+                    >
+                      {SIZE_MODES[mode].example}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <select value={s1} onChange={(e) => setS1(e.target.value)} style={selectStyle} className="qt-input">
+                  <option value="">{cfg.labels[0]}</option>
+                  {cfg.s1.map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+                <select value={s2} onChange={(e) => setS2(e.target.value)} style={selectStyle} className="qt-input">
+                  <option value="">{cfg.labels[1]}</option>
+                  {cfg.s2.map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+                <select value={s3} onChange={(e) => setS3(e.target.value)} style={selectStyle} className="qt-input">
+                  <option value="">{cfg.labels[2]}</option>
+                  {cfg.s3.map((v) => <option key={v} value={v}>R{v}</option>)}
+                </select>
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', margin: '0 0 1.4rem' }}>
+                It's on your tire's sidewall{size ? ` — you picked ${size}` : `, e.g. ${cfg.example}`}.
+              </p>
+            </>
           )}
 
           {/* 3. Service */}
