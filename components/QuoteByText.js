@@ -45,6 +45,18 @@ export default function QuoteByText() {
 
   const handleSend = (e) => {
     if (!ready) { e.preventDefault(); return; }
+    // Save the lead to the admin dashboard BEFORE the phone hands off to Messages.
+    // sendBeacon (with a keepalive fetch fallback) guarantees the request survives
+    // the page losing focus to the SMS app — and never blocks or delays the text.
+    try {
+      const payload = JSON.stringify({ name: firstName.trim(), tireSize: sizeUnknown ? null : size, sizeUnknown });
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        navigator.sendBeacon('/api/text-quote', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/api/text-quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
+    } catch (_) { /* never block the text on a tracking hiccup */ }
+
     if (typeof window !== 'undefined') {
       if (window.gtag) window.gtag('event', 'generate_lead', { method: 'text', currency: 'USD', value: 1 });
       if (window.fbq) window.fbq('track', 'Lead');

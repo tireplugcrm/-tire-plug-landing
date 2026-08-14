@@ -25,6 +25,7 @@ export default function Footer() {
             <button onClick={() => go('quote')} style={footLink}>Get a quote</button>
             <button onClick={() => go('shop')} style={footLink}>Shop tires</button>
             <button onClick={() => go('services')} style={footLink}>Services</button>
+            <a href="/warranty" style={footLink}>Road Hazard Protection</a>
           </div>
 
           {/* Visit */}
