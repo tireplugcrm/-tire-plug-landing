@@ -176,8 +176,8 @@ export default function AdminHub() {
   const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
     { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
-    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
-    { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
+    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "ads", icon: "📣", label: "Ads" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
+    { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "costs", icon: "🧾", label: "Costs" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
@@ -224,6 +224,7 @@ export default function AdminHub() {
           <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} />
         )}
         {tab === "conversions" && <ConversionsTab data={data} />}
+        {tab === "ads" && <AdsTab auth={auth} />}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
         {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
@@ -234,6 +235,7 @@ export default function AdminHub() {
         {tab === "worklog" && <WorkLogTab auth={auth} />}
         {tab === "payroll" && <PayrollTab auth={auth} />}
         {tab === "pnl" && <PnlTab auth={auth} />}
+        {tab === "costs" && <CostsTab auth={auth} />}
         {tab === "customers" && <CustomersTab auth={auth} />}
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         </main>
@@ -1932,6 +1934,412 @@ function PnlTab({ auth }) {
     </div>
   );
 }
+
+/* ---------------- COSTS / BREAK-EVEN ---------------- */
+const COST_META = {
+  rent:      { emoji: "🏠", label: "Rent" },
+  payroll:   { emoji: "💵", label: "Payroll" },
+  marketing: { emoji: "📣", label: "Marketing / Ads" },
+  utilities: { emoji: "💡", label: "Utilities" },
+  insurance: { emoji: "🛡️", label: "Insurance" },
+  supplies:  { emoji: "📦", label: "Supplies" },
+  other:     { emoji: "🧾", label: "Other" },
+};
+const FREQ_LABEL = { monthly: "per month", weekly: "per week", biweekly: "every 2 weeks", yearly: "per year", one_time: "one-time" };
+// Mirror of toMonthly() in the API so the list totals match the server.
+function costToMonthly(amount, frequency) {
+  const a = Number(amount) || 0;
+  if (frequency === "weekly") return a * (52 / 12);
+  if (frequency === "biweekly") return a * (26 / 12);
+  if (frequency === "yearly") return a / 12;
+  if (frequency === "one_time") return 0;
+  return a;
+}
+
+function AdsTab({ auth }) {
+  const [state, setState] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [range, setRange] = useState("last_30d");
+
+  const RANGE_OPTS = [
+    { id: "last_7d", label: "7 days" },
+    { id: "last_30d", label: "30 days" },
+    { id: "last_90d", label: "90 days" },
+    { id: "this_month", label: "This month" },
+  ];
+
+  async function call(body) {
+    const res = await fetch("/api/admin/ads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function load(r = range) {
+    setLoading(true); setErr("");
+    try { setState(await call({ range: r })); }
+    catch (e) { setErr(e.message); } finally { setLoading(false); }
+  }
+  useEffect(() => { load(range); /* eslint-disable-next-line */ }, [range]);
+
+  const money = (n) => `$${Math.round(Number(n) || 0).toLocaleString()}`;
+  const money2 = (n) => `$${(Number(n) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const numf = (n) => Math.round(Number(n) || 0).toLocaleString();
+
+  const card = { background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1.1rem 1.2rem" };
+  const heroNum = { fontSize: "2.1rem", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-0.02em" };
+  const kicker = { margin: 0, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(0,0,0,0.45)" };
+
+  const header = (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+      <div>
+        <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 900 }}>📣 Ads</h2>
+        <p style={{ margin: "0.2rem 0 0", color: "rgba(0,0,0,0.5)", fontSize: "0.82rem" }}>What your Meta ads spent, what came back, and a rough return — all in one place.</p>
+      </div>
+      <div style={{ display: "flex", gap: "0.35rem" }}>
+        {RANGE_OPTS.map((o) => {
+          const on = range === o.id;
+          return (
+            <button key={o.id} onClick={() => setRange(o.id)} style={{ background: on ? "#111" : "#fff", color: on ? "#fff" : "rgba(0,0,0,0.6)", border: "1px solid rgba(0,0,0,0.14)", borderRadius: 8, padding: "0.4rem 0.7rem", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{o.label}</button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  if (state?.needsSetup || (state && !state.ok)) {
+    return (
+      <div>
+        {header}
+        <div style={{ ...card, background: "#FFF7E6", borderColor: "#FFE0A3" }}>
+          <p style={{ margin: 0, fontWeight: 800 }}>Connect your Meta ad account</p>
+          <p style={{ margin: "0.5rem 0 0", color: "rgba(0,0,0,0.72)", lineHeight: 1.6, fontSize: "0.9rem" }}>
+            {state?.error || "Meta Ads isn't connected yet."} To turn this on, add two values in Vercel (Project → Settings → Environment Variables), then redeploy:
+          </p>
+          <ul style={{ margin: "0.6rem 0 0", paddingLeft: "1.1rem", color: "rgba(0,0,0,0.72)", fontSize: "0.88rem", lineHeight: 1.7 }}>
+            <li><b>META_ACCESS_TOKEN</b> — a long-lived token with <i>ads_read</i> (see <b>ADS-SETUP.md</b> for the click-by-click).</li>
+            <li><b>META_AD_ACCOUNT_ID</b> — your ad account number: <b>886261905697554</b>.</li>
+          </ul>
+          <button onClick={() => load()} style={{ ...cta, marginTop: "0.9rem" }}>Check again</button>
+        </div>
+      </div>
+    );
+  }
+
+  const t = state?.totals || {};
+  const campaigns = state?.campaigns || [];
+
+  return (
+    <div>
+      {header}
+      {err && <div style={{ ...card, background: "#FDECEC", borderColor: "#F5B5B5", marginBottom: "0.8rem", fontSize: "0.88rem" }}>⚠️ {err}</div>}
+
+      {loading && !state ? <Empty>Loading ads…</Empty> : (
+        <>
+          {/* ---- Headline numbers ---- */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.8rem", marginBottom: "0.8rem" }}>
+            <div style={{ ...card, background: "#111", color: "#fff", border: "none" }}>
+              <p style={{ ...kicker, color: "rgba(255,255,255,0.6)" }}>Ad spend</p>
+              <div style={{ ...heroNum, margin: "0.35rem 0 0", color: "#fff" }}>{money(t.spend)}</div>
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.74rem", color: "rgba(255,255,255,0.6)" }}>{state?.rangeLabel}</p>
+            </div>
+            <div style={card}>
+              <p style={kicker}>Results (leads / DMs)</p>
+              <div style={{ ...heroNum, margin: "0.35rem 0 0" }}>{numf(t.results)}</div>
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.74rem", color: "rgba(0,0,0,0.45)" }}>counted by Meta</p>
+            </div>
+            <div style={card}>
+              <p style={kicker}>Cost per result</p>
+              <div style={{ ...heroNum, margin: "0.35rem 0 0" }}>{t.costPerResult != null ? money2(t.costPerResult) : "—"}</div>
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.74rem", color: "rgba(0,0,0,0.45)" }}>spend ÷ results</p>
+            </div>
+            <div style={{ ...card, background: t.roas != null && t.roas >= 1 ? "#EAF7EE" : "#fff", borderColor: t.roas != null && t.roas >= 1 ? "#BFE6C9" : "rgba(0,0,0,0.08)" }}>
+              <p style={kicker}>Blended ROAS</p>
+              <div style={{ ...heroNum, margin: "0.35rem 0 0", color: t.roas != null && t.roas >= 1 ? "#137a37" : "#1a1a1a" }}>{t.roas != null ? `${t.roas.toFixed(1)}×` : "—"}</div>
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.74rem", color: "rgba(0,0,0,0.45)" }}>{t.revenue != null ? `${money(t.revenue)} booked` : "no revenue data"}</p>
+            </div>
+          </div>
+
+          {/* ---- Honesty note about the ROAS ---- */}
+          <div style={{ ...card, background: "#F7F8FA", marginBottom: "0.8rem", fontSize: "0.82rem", color: "rgba(0,0,0,0.62)", lineHeight: 1.55 }}>
+            <b>How to read “Blended ROAS”:</b> it's all booked web-lead revenue ({t.bookedCount ?? 0} booked) ÷ ad spend for this window. It's a rough directional number — some of that revenue comes from Google or word-of-mouth, not just ads. <b>True per-ad tracking</b> (knowing exactly which ad drove each booking) is the next step up.
+          </div>
+
+          {/* ---- Per-campaign table ---- */}
+          {campaigns.length === 0 ? (
+            <Empty>No campaigns ran in this window.</Empty>
+          ) : (
+            <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.86rem", minWidth: 640 }}>
+                  <thead>
+                    <tr style={{ textAlign: "left", color: "rgba(0,0,0,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      <th style={{ padding: "0.7rem 1rem" }}>Campaign</th>
+                      <th style={{ padding: "0.7rem 1rem", textAlign: "right" }}>Spend</th>
+                      <th style={{ padding: "0.7rem 1rem", textAlign: "right" }}>Results</th>
+                      <th style={{ padding: "0.7rem 1rem", textAlign: "right" }}>Cost / result</th>
+                      <th style={{ padding: "0.7rem 1rem", textAlign: "right" }}>Reach</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {campaigns.map((c) => (
+                      <tr key={c.id} style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                        <td style={{ padding: "0.7rem 1rem", fontWeight: 700 }}>{c.name}</td>
+                        <td style={{ padding: "0.7rem 1rem", textAlign: "right" }}>{money(c.spend)}</td>
+                        <td style={{ padding: "0.7rem 1rem", textAlign: "right" }}>{numf(c.results)}</td>
+                        <td style={{ padding: "0.7rem 1rem", textAlign: "right" }}>{c.costPerResult != null ? money2(c.costPerResult) : "—"}</td>
+                        <td style={{ padding: "0.7rem 1rem", textAlign: "right", color: "rgba(0,0,0,0.55)" }}>{numf(c.reach)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function CostsTab({ auth }) {
+  const [state, setState] = useState(null);     // API response
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // Preferences that only affect the display math — kept on this device.
+  const [openDays, setOpenDays] = useState(7);
+  const [manualMargin, setManualMargin] = useState(35); // % — used only if there's no P&L yet
+  useEffect(() => {
+    const od = Number(localStorage.getItem("tp_costs_open_days"));
+    if (od >= 1 && od <= 7) setOpenDays(od);
+    const mm = Number(localStorage.getItem("tp_costs_manual_margin"));
+    if (mm > 0 && mm < 100) setManualMargin(mm);
+  }, []);
+  const setOpenDaysP = (n) => { setOpenDays(n); localStorage.setItem("tp_costs_open_days", String(n)); };
+  const setManualMarginP = (n) => { setManualMargin(n); localStorage.setItem("tp_costs_manual_margin", String(n)); };
+
+  // Add / edit form
+  const blank = { id: null, label: "", category: "rent", amount: "", frequency: "monthly" };
+  const [form, setForm] = useState(blank);
+  const editing = !!form.id;
+
+  async function call(body) {
+    const res = await fetch("/api/admin/costs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  async function load() {
+    setLoading(true); setErr("");
+    try { setState(await call({ action: "list" })); }
+    catch (e) { setErr(e.message); } finally { setLoading(false); }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  async function save() {
+    if (!form.label.trim()) { setNote("Give the cost a name (like Rent)."); return; }
+    if (Number.isNaN(parseCost(form.amount))) { setNote("⚠️ Amount must be a number."); return; }
+    setBusy(true); setNote("");
+    try {
+      await call({ action: "save", id: form.id, label: form.label, category: form.category, amount: form.amount, frequency: form.frequency });
+      setForm(blank); setNote("✓ Saved"); await load();
+    } catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
+  }
+  async function remove(id, label) {
+    if (!confirm(`Remove "${label}"?`)) return;
+    setBusy(true);
+    try { await call({ action: "delete", id }); if (form.id === id) setForm(blank); await load(); }
+    catch (e) { setNote(`⚠️ ${e.message}`); } finally { setBusy(false); }
+  }
+  function quickAdd(category) {
+    const m = COST_META[category];
+    setForm({ id: null, label: m.label, category, amount: "", frequency: category === "payroll" ? "weekly" : "monthly" });
+  }
+
+  const money = (n) => `$${Math.round(Number(n) || 0).toLocaleString()}`;
+  const money2 = (n) => `$${(Number(n) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const costs = state?.costs || [];
+  const monthly = state?.monthlyRecurring || 0;
+  const oneTime = state?.oneTimeTotal || 0;
+  const openDaysPerMonth = openDays * (52 / 12);
+  const dailyProfitTarget = openDaysPerMonth > 0 ? monthly / openDaysPerMonth : 0;
+
+  const pnlMargin = state?.margin?.marginPct ?? null;   // 0..1 or null
+  const marginPct = pnlMargin != null ? pnlMargin : manualMargin / 100;
+  const dailySalesTarget = marginPct > 0 ? dailyProfitTarget / marginPct : null;
+
+  const recentDays = state?.margin?.days || 0;
+  const avgDailySales = recentDays > 0 ? state.margin.revenue / recentDays : null;
+
+  const grouped = {};
+  costs.forEach((c) => { (grouped[c.category] || (grouped[c.category] = [])).push(c); });
+
+  const card = { background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1.1rem 1.2rem" };
+  const heroNum = { fontSize: "2.1rem", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-0.02em" };
+
+  if (state?.needsSetup) {
+    return (
+      <div>
+        <h2 style={{ margin: "0 0 0.4rem", fontSize: "1.3rem", fontWeight: 900 }}>🧾 Costs</h2>
+        <div style={{ ...card, background: "#FFF7E6", borderColor: "#FFE0A3" }}>
+          <p style={{ margin: 0, fontWeight: 700 }}>One-time setup needed</p>
+          <p style={{ margin: "0.5rem 0 0", color: "rgba(0,0,0,0.7)", lineHeight: 1.6, fontSize: "0.9rem" }}>
+            Open your Supabase project → SQL Editor → paste the contents of <b>lib/costs-schema.sql</b> and hit Run. Then refresh this page.
+            (If you already ran the Finance setup, this may just be a hiccup — refresh first.)
+          </p>
+          <button onClick={load} style={{ ...cta, marginTop: "0.9rem" }}>Refresh</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ marginBottom: "1rem" }}>
+        <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 900 }}>🧾 Costs &amp; Break-Even</h2>
+        <p style={{ margin: "0.2rem 0 0", color: "rgba(0,0,0,0.5)", fontSize: "0.82rem" }}>Enter your fixed costs (rent, payroll, marketing…) and see exactly how much you need each day to break even.</p>
+      </div>
+
+      {loading && !state ? <Empty>Loading…</Empty> : (
+        <>
+          {/* ---- The two daily targets ---- */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "0.8rem", marginBottom: "0.8rem" }}>
+            <div style={{ ...card, background: "#111", color: "#fff", border: "none" }}>
+              <p style={{ margin: 0, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>Sales you need / day</p>
+              <div style={{ ...heroNum, margin: "0.35rem 0 0", color: "#fff" }}>{dailySalesTarget != null ? money(dailySalesTarget) : "—"}</div>
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.76rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.45 }}>
+                Money rung up each day to cover all costs{marginPct > 0 ? ` (at ${Math.round(marginPct * 100)}% profit margin)` : ""}.
+              </p>
+            </div>
+            <div style={{ ...card, borderColor: "rgba(0,0,0,0.12)" }}>
+              <p style={{ margin: 0, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(0,0,0,0.45)" }}>Profit you need / day</p>
+              <div style={{ ...heroNum, margin: "0.35rem 0 0", color: "#1a1a1a" }}>{money(dailyProfitTarget)}</div>
+              <p style={{ margin: "0.4rem 0 0", fontSize: "0.76rem", color: "rgba(0,0,0,0.5)", lineHeight: 1.45 }}>
+                Profit left <i>after</i> paying for the tires. Anything above this is your take-home.
+              </p>
+            </div>
+          </div>
+
+          {/* ---- How the number is built ---- */}
+          <div style={{ ...card, marginBottom: "0.8rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1.2rem 2rem", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: "1.15rem", fontWeight: 800 }}>{money(monthly)}<span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(0,0,0,0.45)" }}> /month</span></div>
+                <div style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.45)" }}>total fixed costs</div>
+              </div>
+              <div style={{ fontSize: "1.2rem", color: "rgba(0,0,0,0.25)" }}>÷</div>
+              <div>
+                <div style={{ display: "flex", gap: "0.3rem", alignItems: "center" }}>
+                  <label style={{ fontSize: "0.78rem", color: "rgba(0,0,0,0.6)" }}>open</label>
+                  <select value={openDays} onChange={(e) => setOpenDaysP(Number(e.target.value))} style={{ ...miniInp, width: "auto", padding: "0.35rem 0.5rem" }}>
+                    {[5, 6, 7].map((d) => <option key={d} value={d}>{d} days/wk</option>)}
+                  </select>
+                </div>
+                <div style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.45)", marginTop: "0.2rem" }}>≈ {Math.round(openDaysPerMonth)} days/month</div>
+              </div>
+              <div style={{ fontSize: "1.2rem", color: "rgba(0,0,0,0.25)" }}>=</div>
+              <div>
+                <div style={{ fontSize: "1.15rem", fontWeight: 800 }}>{money(dailyProfitTarget)}<span style={{ fontSize: "0.8rem", fontWeight: 600, color: "rgba(0,0,0,0.45)" }}> /day</span></div>
+                <div style={{ fontSize: "0.72rem", color: "rgba(0,0,0,0.45)" }}>break-even profit</div>
+              </div>
+            </div>
+
+            {/* Margin source + recent comparison */}
+            <div style={{ marginTop: "0.9rem", paddingTop: "0.9rem", borderTop: "1px solid rgba(0,0,0,0.07)", fontSize: "0.82rem", color: "rgba(0,0,0,0.65)", lineHeight: 1.6 }}>
+              {pnlMargin != null ? (
+                <>Profit margin <b>{Math.round(pnlMargin * 100)}%</b> — measured from your last {recentDays} day{recentDays === 1 ? "" : "s"} of Weekly P&amp;L.
+                  {avgDailySales != null && (
+                    <> Your recent average is <b>{money(avgDailySales)}/day</b> in sales — {avgDailySales >= (dailySalesTarget || 0)
+                      ? <span style={{ color: "#1a7f4b", fontWeight: 700 }}>above break-even 🎉</span>
+                      : <span style={{ color: "#c02626", fontWeight: 700 }}>{money((dailySalesTarget || 0) - avgDailySales)}/day short</span>}.</>
+                  )}
+                </>
+              ) : (
+                <span style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.4rem" }}>
+                  No Weekly P&amp;L uploaded yet, so I'm estimating sales with a
+                  <input type="number" value={manualMargin} onChange={(e) => setManualMarginP(Number(e.target.value) || 0)} style={{ ...miniInp, width: 60, padding: "0.3rem 0.4rem" }} />
+                  % profit margin. Upload some days in Weekly P&amp;L and this becomes exact.
+                </span>
+              )}
+            </div>
+            {oneTime > 0 && <p style={{ margin: "0.6rem 0 0", fontSize: "0.76rem", color: "rgba(0,0,0,0.45)" }}>Plus {money(oneTime)} in one-time costs (not counted in the daily number).</p>}
+          </div>
+
+          {/* ---- Add / edit a cost ---- */}
+          <Section title={editing ? "Edit cost" : "Add a cost"}>
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.7rem" }}>
+              {["rent", "payroll", "marketing"].map((c) => (
+                <button key={c} onClick={() => quickAdd(c)} style={{ background: "#f1f2f4", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 50, padding: "0.4rem 0.8rem", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                  ＋ {COST_META[c].emoji} {COST_META[c].label}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr auto", gap: "0.5rem", alignItems: "end" }}>
+              <div>
+                <label style={miniLbl}>Name</label>
+                <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="e.g. Olympic rent" style={miniInp} />
+              </div>
+              <div>
+                <label style={miniLbl}>Type</label>
+                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} style={miniInp}>
+                  {Object.keys(COST_META).map((k) => <option key={k} value={k}>{COST_META[k].emoji} {COST_META[k].label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={miniLbl}>Amount</label>
+                <input value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="$" inputMode="decimal" style={miniInp} />
+              </div>
+              <div>
+                <label style={miniLbl}>How often</label>
+                <select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })} style={miniInp}>
+                  {Object.keys(FREQ_LABEL).map((k) => <option key={k} value={k}>{FREQ_LABEL[k]}</option>)}
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: "0.3rem" }}>
+                <button onClick={save} disabled={busy} style={{ ...cta, opacity: busy ? 0.5 : 1, padding: "0.7rem 1rem" }}>{editing ? "Save" : "Add"}</button>
+                {editing && <button onClick={() => setForm(blank)} style={{ ...miniInp, width: "auto", cursor: "pointer", fontWeight: 700 }}>✕</button>}
+              </div>
+            </div>
+            {note && <p style={{ margin: "0.6rem 0 0", fontSize: "0.82rem", color: note.startsWith("✓") ? "#1a7f4b" : "#c02626" }}>{note}</p>}
+          </Section>
+
+          {/* ---- Cost list ---- */}
+          <Section title="Your costs">
+            {err && <p style={{ color: "#c02626", fontSize: "0.85rem" }}>⚠️ {err}</p>}
+            {!costs.length ? <Empty>No costs yet. Add your rent, payroll, and marketing above to see your daily target.</Empty> : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                {Object.keys(grouped).map((cat) => (
+                  <div key={cat}>
+                    {grouped[cat].map((c) => (
+                      <div key={c.id} style={{ display: "flex", alignItems: "center", gap: "0.7rem", padding: "0.6rem 0.8rem", background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 10, marginBottom: "0.35rem" }}>
+                        <span style={{ fontSize: "1.1rem" }}>{(COST_META[c.category] || COST_META.other).emoji}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{c.label}</div>
+                          <div style={{ fontSize: "0.74rem", color: "rgba(0,0,0,0.45)" }}>{money2(c.amount)} {FREQ_LABEL[c.frequency]}{c.frequency !== "monthly" && c.frequency !== "one_time" ? ` · ${money(costToMonthly(c.amount, c.frequency))}/mo` : ""}</div>
+                        </div>
+                        <button onClick={() => setForm({ id: c.id, label: c.label, category: c.category || "other", amount: String(c.amount), frequency: c.frequency || "monthly" })} style={rowBtn}>Edit</button>
+                        <button onClick={() => remove(c.id, c.label)} style={{ ...rowBtn, color: "#c02626" }}>Delete</button>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.6rem 0.8rem", fontWeight: 800, fontSize: "0.9rem", borderTop: "2px solid rgba(0,0,0,0.1)", marginTop: "0.2rem" }}>
+                  <span>Total per month</span><span>{money(monthly)}</span>
+                </div>
+              </div>
+            )}
+          </Section>
+        </>
+      )}
+    </div>
+  );
+}
+const miniLbl = { fontSize: "0.68rem", color: "rgba(0,0,0,0.5)", display: "block", marginBottom: "0.2rem", fontWeight: 600 };
+const rowBtn = { background: "transparent", border: "1px solid rgba(0,0,0,0.14)", borderRadius: 7, padding: "0.35rem 0.6rem", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", color: "#1a1a1a" };
 
 /* ---------------- PAYROLL + PERFORMANCE (Phase 5) ---------------- */
 function PayrollTab({ auth }) {
