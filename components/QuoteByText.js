@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 
-// Fast-path quote: the customer picks a few things, taps the button, and their
+// Fast-path tire quote: the customer enters their size, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
-// hit send. No Twilio, no separate number, no A2P approval; the lead lands as a
-// real text in the shop's phone (562-500-4625).
-const SHOP_SMS = '+15625004625';
+// hit send. No Twilio, no separate number; the lead lands as a text in the shop's
+// texting number (562) 250-3737; calls still go to (562) 500-4625. New tires are the focus — add-ons happen at checkout.
+const SHOP_SMS = '+15622503737';
 
-const SERVICES = ['New Tires', 'Used Tires', 'Oil Change', 'Alignment', 'TPMS Sensors', 'Brakes'];
-
-// Tire size comes in two sidewall formats. The customer taps whichever matches
-// their tire, and the three dropdowns + separator adapt.
-//   metric  → 225 / 45 R17   (also commercial: 295/75R22.5)   → "225/45R17"
-//   truck   → 33 x 12.50 R20 (off-road / flotation)           → "33x12.50R20"
 const SIZE_MODES = {
   metric: {
     example: '225/45R17',
@@ -33,7 +27,6 @@ const SIZE_MODES = {
 
 export default function QuoteByText() {
   const [firstName, setFirstName] = useState('');
-  const [services, setServices] = useState([]);
   const [sizeMode, setSizeMode] = useState('metric');
   const [s1, setS1] = useState('');
   const [s2, setS2] = useState('');
@@ -41,36 +34,29 @@ export default function QuoteByText() {
   const [sizeUnknown, setSizeUnknown] = useState(false);
 
   const cfg = SIZE_MODES[sizeMode];
-  const ready = firstName.trim() && services.length > 0;
-
-  function toggleService(s) {
-    setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
-  }
-
-  function pickMode(mode) {
-    setSizeMode(mode);
-    setS1(''); setS2(''); setS3(''); // values differ between formats — reset
-  }
-
-  // Natural-language list: "New Tires", "New Tires and Alignment", "A, B and C".
-  const serviceText = services.length
-    ? services.slice(0, -1).join(', ') + (services.length > 1 ? ' and ' : '') + services[services.length - 1]
-    : 'a quote';
-
   const size = !sizeUnknown && s1 && s2 && s3 ? `${s1}${cfg.sep[0]}${s2}${cfg.sep[1]}${s3}` : '';
-  const sizePart = sizeUnknown ? ' (not sure of my tire size)' : (size ? ` in ${size}` : '');
+  const ready = firstName.trim() && (size || sizeUnknown);
 
-  const message =
-    `Hi Tire Plug! I'm ${firstName.trim() || 'a new customer'}. ` +
-    `I'm interested in ${serviceText}${sizePart}. ` +
-    `Can you send me a price?`;
+  function pickMode(mode) { setSizeMode(mode); setS1(''); setS2(''); setS3(''); }
 
-  // "?&body=" is the cross-platform trick that pre-fills the text on both iOS & Android.
+  const sizePart = sizeUnknown ? ' (not sure of my size — can you help?)' : (size ? ` in ${size}` : '');
+  const message = `Hi Tire Plug! I'm ${firstName.trim() || 'a new customer'}. I'm looking for new tires${sizePart}. Can you send me a price?`;
   const smsHref = `sms:${SHOP_SMS}?&body=${encodeURIComponent(message)}`;
 
   const handleSend = (e) => {
     if (!ready) { e.preventDefault(); return; }
-    // Count it as a lead for ad tracking (no-op until analytics is installed).
+    // Save the lead to the admin dashboard BEFORE the phone hands off to Messages.
+    // sendBeacon (with a keepalive fetch fallback) guarantees the request survives
+    // the page losing focus to the SMS app — and never blocks or delays the text.
+    try {
+      const payload = JSON.stringify({ name: firstName.trim(), tireSize: sizeUnknown ? null : size, sizeUnknown });
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        navigator.sendBeacon('/api/text-quote', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/api/text-quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
+    } catch (_) { /* never block the text on a tracking hiccup */ }
+
     if (typeof window !== 'undefined') {
       if (window.gtag) window.gtag('event', 'generate_lead', { method: 'text', currency: 'USD', value: 1 });
       if (window.fbq) window.fbq('track', 'Lead');
@@ -78,242 +64,78 @@ export default function QuoteByText() {
   };
 
   return (
-    <section id="quote" style={{ background: '#000', padding: '8rem 2rem 4rem', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-      {/* Ambient glows — top and bottom for a full-screen opening */}
-      <div style={{ position: 'absolute', top: '-8%', right: '-8%', width: '620px', height: '620px', background: 'radial-gradient(circle, rgba(255,31,31,0.14) 0%, transparent 60%)', filter: 'blur(120px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: '560px', height: '560px', background: 'radial-gradient(circle, rgba(255,31,31,0.10) 0%, transparent 60%)', filter: 'blur(120px)', pointerEvents: 'none' }} />
-
-      <div style={{ maxWidth: '640px', width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.1rem' }}>
-            <div style={{ width: '26px', height: '1px', background: 'linear-gradient(90deg, transparent, #FF1F1F)' }} />
-            <span style={{ color: '#FF3838', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase' }}>
-              10-Second Quote
-            </span>
-            <div style={{ width: '26px', height: '1px', background: 'linear-gradient(90deg, #FF1F1F, transparent)' }} />
-          </div>
-          <h2 style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', fontWeight: 900, lineHeight: 0.98, letterSpacing: '-0.03em', textTransform: 'uppercase', margin: '0 0 0.85rem' }}>
-            <span style={{ background: 'linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.85) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Text us. </span>
-            <span style={{ background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 22px rgba(255,31,31,0.35))' }}>Get a price.</span>
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: '1rem', maxWidth: '440px', margin: '0 auto', lineHeight: 1.5 }}>
-            Tell us three things and tap send — we'll text you back a real quote, fast.
-          </p>
+    <section id="quote" style={{ background: 'var(--bg-alt)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 0' }}>
+      <div className="tp-wrap" style={{ maxWidth: '560px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <span className="tp-eyebrow">Not sure? Text us your size</span>
+          <h2 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.6rem)', fontWeight: 700, letterSpacing: '-0.03em', margin: '0.5rem 0 0.5rem' }}>Get a tire quote by text</h2>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '1rem' }}>Enter your size and tap send — we'll text you back a real price.</p>
         </div>
 
-        {/* Card */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(20,20,20,0.85) 0%, rgba(0,0,0,0.95) 100%)', border: '1px solid rgba(255,31,31,0.25)', borderRadius: '20px', padding: '2rem 1.75rem', boxShadow: '0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)' }}>
-          {/* 1. First name */}
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: 'clamp(1.4rem, 4vw, 2rem)', boxShadow: 'var(--shadow)' }}>
           <label style={labelStyle}>Your first name</label>
-          <input
-            type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder="e.g. Marcus"
-            style={inputStyle}
-            className="qt-input"
-          />
+          <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Marcus" style={inputStyle} className="tp-field" />
 
-          {/* 2. Tire size */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
             <label style={{ ...labelStyle, marginBottom: 0 }}>Tire size</label>
-            <button
-              type="button"
-              onClick={() => setSizeUnknown(!sizeUnknown)}
-              style={{ background: 'none', border: 'none', color: '#FF6666', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', padding: 0 }}
-            >
+            <button type="button" onClick={() => setSizeUnknown(!sizeUnknown)} style={{ background: 'none', border: 'none', color: 'var(--ink)', fontSize: '0.78rem', fontWeight: 600, textDecoration: 'underline', padding: 0 }}>
               {sizeUnknown ? 'I know my size' : "Don't know it?"}
             </button>
           </div>
 
           {sizeUnknown ? (
-            <div style={{ background: 'rgba(255,31,31,0.08)', border: '1px solid rgba(255,31,31,0.25)', borderRadius: '10px', padding: '0.9rem 1rem', marginBottom: '1.4rem', color: '#FF6666', fontSize: '0.85rem', textAlign: 'center', fontWeight: 600 }}>
+            <div style={{ background: 'var(--bg-alt)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '0.9rem 1rem', marginBottom: '1.6rem', color: 'var(--ink-soft)', fontSize: '0.9rem', textAlign: 'center' }}>
               👍 No problem — we'll help you find it when you text.
             </div>
           ) : (
             <>
-              {/* Format toggle — customer taps whichever matches their sidewall */}
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.6rem' }}>
                 {Object.keys(SIZE_MODES).map((mode) => {
                   const on = sizeMode === mode;
                   return (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => pickMode(mode)}
-                      className="qt-chip"
-                      style={{
-                        flex: 1,
-                        background: on ? 'rgba(255,31,31,0.15)' : 'rgba(255,255,255,0.03)',
-                        border: on ? '1px solid #FF1F1F' : '1px solid rgba(255,255,255,0.12)',
-                        color: on ? '#FF3838' : 'rgba(255,255,255,0.75)',
-                        padding: '0.6rem 0.5rem',
-                        borderRadius: '10px',
-                        fontSize: '0.82rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        letterSpacing: '0.02em',
-                        transition: 'all 0.25s ease',
-                      }}
-                    >
+                    <button key={mode} type="button" onClick={() => pickMode(mode)} className="tp-chip" style={{ ...chipStyle, flex: 1, ...(on ? chipOn : {}) }}>
                       {SIZE_MODES[mode].example}
                     </button>
                   );
                 })}
               </div>
-
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <select value={s1} onChange={(e) => setS1(e.target.value)} style={selectStyle} className="qt-input">
-                  <option value="">{cfg.labels[0]}</option>
-                  {cfg.s1.map((v) => <option key={v} value={v}>{v}</option>)}
+                <select value={s1} onChange={(e) => setS1(e.target.value)} style={selectStyle} className="tp-field">
+                  <option value="">{cfg.labels[0]}</option>{cfg.s1.map((v) => <option key={v} value={v}>{v}</option>)}
                 </select>
-                <select value={s2} onChange={(e) => setS2(e.target.value)} style={selectStyle} className="qt-input">
-                  <option value="">{cfg.labels[1]}</option>
-                  {cfg.s2.map((v) => <option key={v} value={v}>{v}</option>)}
+                <select value={s2} onChange={(e) => setS2(e.target.value)} style={selectStyle} className="tp-field">
+                  <option value="">{cfg.labels[1]}</option>{cfg.s2.map((v) => <option key={v} value={v}>{v}</option>)}
                 </select>
-                <select value={s3} onChange={(e) => setS3(e.target.value)} style={selectStyle} className="qt-input">
-                  <option value="">{cfg.labels[2]}</option>
-                  {cfg.s3.map((v) => <option key={v} value={v}>R{v}</option>)}
+                <select value={s3} onChange={(e) => setS3(e.target.value)} style={selectStyle} className="tp-field">
+                  <option value="">{cfg.labels[2]}</option>{cfg.s3.map((v) => <option key={v} value={v}>R{v}</option>)}
                 </select>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', margin: '0 0 1.4rem' }}>
+              <p style={{ color: 'var(--muted)', fontSize: '0.75rem', margin: '0 0 1.6rem' }}>
                 It's on your tire's sidewall{size ? ` — you picked ${size}` : `, e.g. ${cfg.example}`}.
               </p>
             </>
           )}
 
-          {/* 3. Service (pick any) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
-            <label style={{ ...labelStyle, marginBottom: 0 }}>What do you need?</label>
-            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 600 }}>Pick all that apply</span>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.75rem' }}>
-            {SERVICES.map((s) => {
-              const on = services.includes(s);
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => toggleService(s)}
-                  className="qt-chip"
-                  style={{
-                    background: on ? 'rgba(255,31,31,0.15)' : 'rgba(255,255,255,0.03)',
-                    border: on ? '1px solid #FF1F1F' : '1px solid rgba(255,255,255,0.12)',
-                    color: on ? '#FF3838' : 'rgba(255,255,255,0.85)',
-                    padding: '0.6rem 1rem',
-                    borderRadius: '50px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.25s ease',
-                  }}
-                >
-                  {on ? '✓ ' : ''}{s}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Send button */}
-          <a
-            href={smsHref}
-            onClick={handleSend}
-            aria-disabled={!ready}
-            className="qt-send"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              width: '100%',
-              background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)',
-              color: '#fff',
-              padding: '1.2rem',
-              fontSize: '0.95rem',
-              fontWeight: 800,
-              borderRadius: '10px',
-              textDecoration: 'none',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.22)',
-              textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-              opacity: ready ? 1 : 0.45,
-              pointerEvents: ready ? 'auto' : 'none',
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            Text The Tire Plug · (562) 500-4625
+          <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
+            Text us · (562) 250-3737
           </a>
-          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '0.9rem', lineHeight: 1.5 }}>
-            {ready
-              ? 'Opens your text messages with everything filled in — just hit send.'
-              : 'Add your name and pick a service to text us.'}
+          <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '0.75rem', marginTop: '0.85rem' }}>
+            {ready ? 'Opens your texts with everything filled in — just hit send.' : 'Add your name and tire size to text us.'}
           </p>
         </div>
       </div>
 
       <style jsx>{`
-        .qt-input:focus {
-          border-color: #FF1F1F !important;
-          background: rgba(255,31,31,0.05) !important;
-          box-shadow: 0 0 20px rgba(255,31,31,0.15);
-        }
-        .qt-chip:hover {
-          border-color: rgba(255,31,31,0.5) !important;
-          transform: translateY(-1px);
-        }
-        .qt-send:hover {
-          transform: translateY(-2px);
-          background: linear-gradient(180deg, #FF3838 0%, #D10000 50%, #9B0000 100%) !important;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 16px 40px rgba(139,0,0,0.6), 0 0 70px rgba(255,42,42,0.45) !important;
-        }
+        :global(.tp-field:focus) { border-color: var(--ink) !important; outline: none; }
+        :global(.tp-chip:hover) { border-color: var(--ink) !important; }
       `}</style>
     </section>
   );
 }
 
-const labelStyle = {
-  display: 'block',
-  color: 'rgba(255,255,255,0.75)',
-  fontSize: '0.7rem',
-  fontWeight: 700,
-  letterSpacing: '0.15em',
-  textTransform: 'uppercase',
-  marginBottom: '0.5rem',
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '1rem 1.15rem',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '10px',
-  background: 'rgba(255,255,255,0.03)',
-  color: '#fff',
-  fontSize: '0.95rem',
-  marginBottom: '1.4rem',
-  fontFamily: 'inherit',
-  outline: 'none',
-  transition: 'all 0.3s ease',
-  boxSizing: 'border-box',
-};
-
-const selectStyle = {
-  width: '100%',
-  padding: '0.9rem 0.75rem',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '10px',
-  background: '#141414',
-  color: '#fff',
-  fontSize: '0.95rem',
-  fontFamily: 'inherit',
-  outline: 'none',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  boxSizing: 'border-box',
-  appearance: 'none',
-  WebkitAppearance: 'none',
-};
+const labelStyle = { display: 'block', color: 'var(--ink-soft)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' };
+const inputStyle = { width: '100%', padding: '0.9rem 1rem', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--bg)', color: 'var(--ink)', fontSize: '0.95rem', marginBottom: '1.4rem', outline: 'none', boxSizing: 'border-box' };
+const selectStyle = { ...inputStyle, marginBottom: 0, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', padding: '0.85rem 0.6rem' };
+const chipStyle = { background: 'var(--bg)', border: '1px solid var(--line)', color: 'var(--ink-soft)', padding: '0.6rem 1rem', borderRadius: 'var(--radius)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s ease' };
+const chipOn = { background: 'var(--ink)', borderColor: 'var(--ink)', color: '#fff' };

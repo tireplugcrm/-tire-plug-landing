@@ -62,7 +62,7 @@ export default function TireSizeGuide() {
             Those numbers on your tire — like <strong style={{ color: "#fff" }}>225/45R17</strong> — tell you exactly what fits your car. Here's what each part means and where to find your size. Or skip the homework: <strong style={{ color: "#fff" }}>snap a photo of your sidewall and text it to us</strong> — we'll read it and quote you in minutes.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
-            <a href="sms:5625004625" style={ctaRed}>📲 Text a Photo for a Quote</a>
+            <a href="sms:15622503737" style={ctaRed}>📲 Text a Photo for a Quote</a>
             <a href="/#booking" style={ctaGhost}>Get a Free Quote</a>
           </div>
         </section>
