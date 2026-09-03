@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Script from "next/script";
 
 /*
   Text-message consent page.
@@ -15,6 +14,16 @@ import Script from "next/script";
     So this page carries the widget and nothing else. No booking form, no promo
     popup, no quote block, no second input anywhere. That makes the attestation
     honest, which is the only reason to have it.
+
+  WHY IT IS A PLAIN <script> AND NOT next/script
+    next/script injects the tag with JavaScript after the page loads. A human
+    sees the chat bubble either way — but anything that FETCHES this page to
+    verify the widget is installed sees no widget at all, because it is not in
+    the server-rendered HTML. A2P verification does exactly that.
+
+    So this is a plain tag that ships in the HTML. The usual argument for
+    next/script is protecting Core Web Vitals; this page has no traffic to
+    protect, and being visibly installed is the entire point of it.
 
   WHY THE WIDGET LOADS HERE AND NOT IN _app
     Loading it site-wide would put a second consent collector on every page
@@ -103,13 +112,12 @@ export default function TextUs() {
         this route on purpose — see the note at the top of the file.
       */}
       {GHL_WIDGET_ID && (
-        <Script
-          id="ghl-chat-widget"
+        // eslint-disable-next-line @next/next/no-sync-scripts
+        <script
           src="https://widgets.leadconnectorhq.com/loader.js"
           data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js"
           data-widget-id={GHL_WIDGET_ID}
           data-source="WEB_USER"
-          strategy="lazyOnload"
         />
       )}
     </>
