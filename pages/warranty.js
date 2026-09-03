@@ -9,6 +9,13 @@ import Footer from "../components/Footer";
 
    To update the effective date, change EFFECTIVE_DATE below. That's it.
 ------------------------------------------------------------------ */
+// Declared here, not at the bottom of the file. As a `const` it sits in the
+// temporal dead zone until the module finishes evaluating — harmless in the
+// browser, fatal when Next pre-renders this page at build time, which is
+// exactly how it broke every deploy: "Cannot access 'u' before
+// initialization" on /warranty.
+const inlineLink = { color: "#ff6666", textDecoration: "none", fontWeight: 700 };
+
 const EFFECTIVE_DATE = "July 27, 2026";
 
 const PHONE_DISPLAY = "(562) 500-4625";
@@ -616,5 +623,3 @@ function Section({ children }) {
     </section>
   );
 }
-
-const inlineLink = { color: "#ff6666", textDecoration: "none", fontWeight: 700 };

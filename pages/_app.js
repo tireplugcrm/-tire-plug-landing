@@ -10,6 +10,7 @@ import Script from 'next/script';
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
+
 export default function App({ Component, pageProps }) {
   return (
     <>
@@ -43,6 +44,7 @@ export default function App({ Component, pageProps }) {
           `}
         </Script>
       )}
+
 
       <Component {...pageProps} />
     </>
