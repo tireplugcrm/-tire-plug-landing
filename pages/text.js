@@ -23,7 +23,7 @@ import Script from "next/script";
 */
 
 const GHL_WIDGET_ID =
-  process.env.NEXT_PUBLIC_GHL_WIDGET_ID ?? "6a99e0c8ba70a028e7b5efbf";
+  process.env.NEXT_PUBLIC_GHL_WIDGET_ID ?? "6a99f879ba70a028e7bf1226";
 
 const wrap = {
   maxWidth: 680,
