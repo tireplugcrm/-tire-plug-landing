@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 // Fast-path tire quote: the customer enters their size, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
 // hit send. No Twilio, no separate number; the lead lands as a text in the shop's
-// phone (562-500-4625). New tires are the focus — add-ons happen at checkout.
-const SHOP_SMS = '+15625004625';
+// texting number (562) 250-3737; calls still go to (562) 500-4625. New tires are the focus — add-ons happen at checkout.
+const SHOP_SMS = '+15622503737';
 
 const SIZE_MODES = {
   metric: {
@@ -118,7 +118,7 @@ export default function QuoteByText() {
 
           <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
-            Text us · (562) 500-4625
+            Text us · (562) 250-3737
           </a>
           <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '0.75rem', marginTop: '0.85rem' }}>
             {ready ? 'Opens your texts with everything filled in — just hit send.' : 'Add your name and tire size to text us.'}
