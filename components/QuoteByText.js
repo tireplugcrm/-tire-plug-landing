@@ -25,7 +25,11 @@ const SIZE_MODES = {
   },
 };
 
-export default function QuoteByText() {
+// variant="section" (default): full-width homepage section with its own heading.
+// variant="hero": just the card, for the "Shop tires by size" box in the promo hero.
+export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
+  const hero = variant === 'hero';
+  const T = theme === 'light' ? LIGHT : THEME;
   const [firstName, setFirstName] = useState('');
   const [sizeMode, setSizeMode] = useState('metric');
   const [s1, setS1] = useState('');
@@ -63,16 +67,15 @@ export default function QuoteByText() {
     }
   };
 
-  return (
-    <section id="quote" style={{ ...THEME, background: 'var(--bg-alt)', color: 'var(--ink)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 1.25rem', scrollMarginTop: '110px' }}>
-      <div className="tp-wrap" style={{ maxWidth: '560px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <span className="tp-eyebrow">Not sure? Text us your size</span>
-          <h2 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.6rem)', fontWeight: 700, letterSpacing: '-0.03em', margin: '0.5rem 0 0.5rem' }}>Get a tire quote by text</h2>
-          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '1rem' }}>Enter your size and tap send — we'll text you back a real price.</p>
-        </div>
-
-        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: 'clamp(1.4rem, 4vw, 2rem)', boxShadow: 'var(--shadow)' }}>
+  const card = (
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: hero ? '1.5rem' : 'clamp(1.4rem, 4vw, 2rem)', boxShadow: 'var(--shadow)', height: hero ? '100%' : 'auto', boxSizing: 'border-box' }}>
+          {hero && (
+            <div style={{ marginBottom: '1.1rem' }}>
+              <span className="tp-eyebrow">Shop tires by size</span>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0.35rem 0 0.25rem' }}>Get your price by text</h2>
+              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>Pick your size, tap send, and we text back a real price.</p>
+            </div>
+          )}
           <label style={labelStyle}>Your first name</label>
           <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Marcus" style={inputStyle} className="tp-field" />
 
@@ -124,20 +127,40 @@ export default function QuoteByText() {
             {ready ? 'Opens your texts with everything filled in — just hit send.' : 'Add your name and tire size to text us.'}
           </p>
         </div>
-      </div>
+  );
 
-      <style jsx>{`
-        :global(.tp-field:focus) { border-color: var(--accent) !important; outline: none; }
-        :global(.tp-chip:hover) { border-color: var(--accent) !important; }
-        :global(#quote .tp-wrap) { margin: 0 auto; }
-        :global(#quote .tp-eyebrow) { color: #FF3838; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; }
-        :global(#quote .tp-btn) { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; border-radius: 50px; font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; text-decoration: none; transition: all 0.3s ease; box-sizing: border-box; }
-        :global(#quote .tp-btn-primary) { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 24px rgba(255, 31, 31, 0.25); }
-        :global(#quote .tp-btn-primary:hover) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255, 31, 31, 0.4); }
-        :global(#quote select option) { background: #111; color: #fff; }
-        :global(#quote input::placeholder) { color: rgba(255, 255, 255, 0.35); }
-      `}</style>
+  if (hero) {
+    return <div className="tp-quote" style={{ ...T, color: 'var(--ink)', height: '100%' }}>{card}<QuoteStyles /></div>;
+  }
+
+  return (
+    <section id="quote" className="tp-quote" style={{ ...T, background: 'var(--bg-alt)', color: 'var(--ink)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 1.25rem', scrollMarginTop: '110px' }}>
+      <div className="tp-wrap" style={{ maxWidth: '560px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <span className="tp-eyebrow">Not sure? Text us your size</span>
+          <h2 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.6rem)', fontWeight: 700, letterSpacing: '-0.03em', margin: '0.5rem 0 0.5rem' }}>Get a tire quote by text</h2>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '1rem' }}>Enter your size and tap send — we'll text you back a real price.</p>
+        </div>
+        {card}
+      </div>
+      <QuoteStyles />
     </section>
+  );
+}
+
+function QuoteStyles() {
+  return (
+    <style jsx global>{`
+      .tp-field:focus { border-color: var(--accent) !important; outline: none; }
+      .tp-chip:hover { border-color: var(--accent) !important; }
+      .tp-quote .tp-wrap { margin: 0 auto; }
+      .tp-quote .tp-eyebrow { color: #FF3838; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; }
+      .tp-quote .tp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; border-radius: 50px; font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; text-decoration: none; transition: all 0.3s ease; box-sizing: border-box; }
+      .tp-quote .tp-btn-primary { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 24px rgba(255, 31, 31, 0.25); }
+      .tp-quote .tp-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255, 31, 31, 0.4); }
+      .tp-quote select option { background: var(--bg); color: var(--ink); }
+      .tp-quote input::placeholder { color: var(--muted); }
+    `}</style>
   );
 }
 
@@ -150,9 +173,17 @@ const THEME = {
   '--radius': '10px', '--radius-lg': '20px', '--shadow': '0 20px 40px rgba(0,0,0,0.35)',
   colorScheme: 'dark',
 };
+// White/black/red version for the white promo hero.
+const LIGHT = {
+  '--bg-alt': '#f5f5f5', '--bg': '#ffffff', '--card': '#ffffff',
+  '--line': '#dcdcdc', '--ink': '#111111', '--ink-soft': '#333333',
+  '--muted': '#6b6b6b', '--accent': '#E01B22',
+  '--radius': '10px', '--radius-lg': '18px', '--shadow': '0 24px 50px rgba(0,0,0,0.10)',
+  colorScheme: 'light',
+};
 
 const labelStyle = { display: 'block', color: 'var(--ink-soft)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' };
 const inputStyle = { width: '100%', padding: '0.9rem 1rem', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--bg)', color: 'var(--ink)', fontSize: '0.95rem', marginBottom: '1.4rem', outline: 'none', boxSizing: 'border-box' };
 const selectStyle = { ...inputStyle, marginBottom: 0, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', padding: '0.85rem 0.6rem' };
 const chipStyle = { background: 'var(--bg)', border: '1px solid var(--line)', color: 'var(--ink-soft)', padding: '0.6rem 1rem', borderRadius: 'var(--radius)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s ease' };
-const chipOn = { background: 'rgba(255,31,31,0.15)', borderColor: 'var(--accent)', color: '#fff' };
+const chipOn = { background: 'rgba(255,31,31,0.12)', borderColor: 'var(--accent)', color: 'var(--ink)' };

@@ -2,8 +2,7 @@ import React from 'react';
 import PromoPopup from '../components/PromoPopup';
 import Head from 'next/head';
 import Header from '../components/Header';
-import Hero from '../components/Hero';
-import QuoteByText from '../components/QuoteByText';
+import PromoHero from '../components/PromoHero';
 import Services from '../components/Services';
 import Promos from '../components/Promos';
 import Reviews from '../components/Reviews';
@@ -58,8 +57,7 @@ export default function Home() {
 
       <PromoPopup />
       <Header />
-      <Hero />
-      <QuoteByText />
+      <PromoHero />
       <Services />
       <Promos />
       <Reviews />

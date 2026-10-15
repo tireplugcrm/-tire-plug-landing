@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { REVIEWS_FALLBACK } from '../lib/reviews-fallback';
 
+// Shop hours (24h). Keep in sync with pages/olympic.js and components/Locations.js.
+const HOURS = { 0: [10, 16], 1: [9, 19], 2: [9, 19], 3: [9, 19], 4: [9, 19], 5: [9, 19], 6: [9, 18] };
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const fmt = (h) => `${h % 12 || 12}${h < 12 ? 'AM' : 'PM'}`;
+
+function shopStatus(now) {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(now);
+  const get = (t) => parts.find((p) => p.type === t)?.value;
+  const day = DAYS.indexOf(get('weekday'));
+  const hour = (Number(get('hour')) % 24) + Number(get('minute')) / 60;
+  const [o, c] = HOURS[day];
+  if (hour >= o && hour < c) return { open: true, text: `Open now · until ${fmt(c)}` };
+  if (hour < o) return { open: false, text: `Closed · opens ${fmt(o)} today` };
+  const next = (day + 1) % 7;
+  return { open: false, text: `Closed · opens ${DAYS[next]} ${fmt(HOURS[next][0])}` };
+}
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,6 +29,27 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Today's hours + open/closed, in shop time (LA). Computed after load so the
+  // server-rendered HTML never disagrees with the visitor's clock.
+  const [status, setStatus] = useState({ open: true, text: 'Open 7 days' });
+  useEffect(() => {
+    const update = () => setStatus(shopStatus(new Date()));
+    update();
+    const t = setInterval(update, 60000);
+    return () => clearInterval(t);
+  }, []);
+
+  // "My tire size": jump to the size finder (homepage) or the homepage finder from other pages.
+  const goToFinder = () => {
+    const el = document.getElementById('finder');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => el.querySelector('select, input')?.focus({ preventScroll: true }), 500);
+    } else {
+      window.location.href = '/#finder';
+    }
+  };
+
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     setMobileMenuOpen(false);
@@ -19,30 +57,33 @@ export default function Header() {
 
   return (
     <>
-      <div className="trust-bar" style={{ background: '#000', borderBottom: '1px solid rgba(255,31,31,0.15)', padding: '0.5rem 2rem', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1001, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2.5rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', flexWrap: 'wrap', letterSpacing: '0.05em' }}>
-        <a href="https://www.instagram.com/tireplugcali" target="_blank" rel="noopener noreferrer" className="ig-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: 'inherit', transition: 'all 0.2s ease', cursor: 'pointer' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="#FF3838"/>
-          </svg>
-          <span style={{ color: '#FF3838', fontWeight: 700 }}>130K</span>
-          <span>Followers</span>
+      <div className="info-bar">
+        <a className="ib-loc" href="/olympic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#E01B22" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+          <span className="ib-text">
+            <span className="ib-label">My location</span>
+            <span className="ib-strong">Downtown LA · Olympic Blvd</span>
+            <span className={`ib-hours ${status.open ? 'open' : 'closed'}`}><i />{status.text}</span>
+          </span>
         </a>
-        <a href="https://www.instagram.com/reel/DI7h0yKTxX5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank" rel="noopener noreferrer" className="ig-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: 'inherit', transition: 'all 0.2s ease', cursor: 'pointer' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-            <path d="M8 5v14l11-7z" fill="#FF3838"/>
-          </svg>
-          <span>Watch our</span>
-          <span style={{ color: '#FF3838', fontWeight: 700 }}>3.4M view</span>
-          <span>video</span>
-        </a>
-        <button onClick={() => setReviewsOpen(true)} className="ig-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: 'inherit', fontFamily: 'inherit', letterSpacing: 'inherit', padding: 0, transition: 'all 0.2s ease' }}>
-          <span style={{ color: '#FFB800', fontSize: '0.85rem', flexShrink: 0 }}>★★★★★</span>
-          <span style={{ color: '#FF3838', fontWeight: 700 }}>10,000+</span>
-          <span>Vehicles Serviced</span>
+        <button type="button" className="ib-size" onClick={goToFinder}>
+          <svg width="40" height="20" viewBox="0 0 40 20" aria-hidden="true"><path d="M3 14l3-6c1-2 3-3 5-3h12c2 0 4 1 6 3l4 3c2 0 4 1 4 3v2H3z" fill="#111"/><circle cx="11" cy="16" r="3" fill="#111" stroke="#fff" strokeWidth="1.5"/><circle cx="30" cy="16" r="3" fill="#111" stroke="#fff" strokeWidth="1.5"/></svg>
+          <span className="ib-text">
+            <span className="ib-label">My tire size</span>
+            <span className="ib-strong">Select your size ✎</span>
+          </span>
         </button>
+        <button type="button" className="ib-reviews" onClick={() => setReviewsOpen(true)}>
+          <span className="stars">★★★★★</span> 10,000+ vehicles serviced
+        </button>
+        <a className="ib-call" href="tel:562-500-4625">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#E01B22" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 013 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>
+          <span className="ib-num">(562) 500-4625</span>
+          <span className="ib-callm">Call</span>
+        </a>
       </div>
 
-      <nav style={{ background: scrolled ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: scrolled ? '0.7rem 2rem' : '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'fixed', top: '38px', left: 0, right: 0, zIndex: 1000, transition: 'all 0.3s ease', borderBottom: scrolled ? '1px solid rgba(255,31,31,0.15)' : 'none' }}>
+      <nav className="tp-nav" style={{ background: scrolled ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: scrolled ? '0.7rem 2rem' : '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'fixed', left: 0, right: 0, zIndex: 1000, transition: 'all 0.3s ease', borderBottom: scrolled ? '1px solid rgba(255,31,31,0.15)' : 'none' }}>
         <div onClick={() => scrollToSection('hero')} className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
           <div className="logo-circle" style={{ width: scrolled ? '50px' : '58px', height: scrolled ? '50px' : '58px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: '0 0 0 2px rgba(255,31,31,0.3), 0 0 20px rgba(255,31,31,0.2)', transition: 'all 0.3s ease', position: 'relative' }}>
             <img src="/images/logo.webp" alt="The Tire Plug" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'center' }} />
@@ -77,10 +118,38 @@ export default function Header() {
       </nav>
 
       <style jsx>{`
+        .info-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1001; height: 56px; box-sizing: border-box;
+          background: #fff; color: #111; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; justify-content: space-between;
+          gap: 1.5rem; padding: 0 2rem; font-family: inherit; }
+        .info-bar a, .info-bar button { display: flex; align-items: center; gap: 0.6rem; color: inherit; text-decoration: none; background: none; border: none; padding: 0; font: inherit; cursor: pointer; text-align: left; }
+        .ib-text { display: flex; flex-direction: column; line-height: 1.15; }
+        .ib-label { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: #6b6b6b; }
+        .ib-strong { font-size: 0.9rem; font-weight: 700; color: #111; }
+        .ib-hours { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 700; margin-top: 1px; }
+        .ib-hours i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+        .ib-hours.open { color: #1a8f3c; }
+        .ib-hours.closed { color: #E01B22; }
+        .ib-reviews { font-size: 0.78rem; color: #333 !important; }
+        .ib-reviews .stars { color: #FFB800; letter-spacing: 1px; }
+        .ib-call { font-weight: 800; font-size: 0.95rem; }
+        .ib-callm { display: none; }
+        .ib-size:hover .ib-strong, .ib-loc:hover .ib-strong, .ib-call:hover .ib-num { color: #E01B22; }
+        .tp-nav { top: 56px; }
+        @media (max-width: 1100px) { .ib-reviews { display: none !important; } }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: block !important; }
-          .trust-bar { font-size: 0.65rem !important; gap: 0.8rem !important; padding: 0.4rem 1rem !important; }
+          .info-bar { height: 48px; padding: 0 0.75rem; gap: 0.5rem; }
+          .tp-nav { top: 48px; }
+          .ib-size, .ib-label { display: none !important; }
+          .ib-loc svg { display: none; }
+          .ib-loc .ib-text { flex-direction: column-reverse; }
+          .ib-strong { font-size: 0.72rem; font-weight: 600; color: #555; }
+          .ib-hours { font-size: 0.8rem; margin: 0 0 1px; }
+          .ib-num { display: none; }
+          .ib-callm { display: inline; }
+          .info-bar .ib-call { background: #E01B22; color: #fff !important; border-radius: 50px; padding: 0.5rem 1rem; font-size: 0.85rem; flex-shrink: 0; }
+          .ib-call svg { fill: #fff; }
         }
         .logo-container:hover .logo-circle {
           box-shadow: 0 0 0 2px rgba(255,31,31,0.6), 0 0 30px rgba(255,31,31,0.4) !important;

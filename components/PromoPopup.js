@@ -6,15 +6,23 @@ export default function PromoPopup() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Let the promo banner be the first thing visitors see: open the popup only after
+  // 20 seconds on the page, or once they scroll past the promos, whichever comes first.
   useEffect(() => {
-    const hasSeenPopup = sessionStorage.getItem('popupShown');
-    if (!hasSeenPopup) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        sessionStorage.setItem('popupShown', 'true');
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    if (sessionStorage.getItem('popupShown')) return;
+    let done = false;
+    const open = () => {
+      if (done) return;
+      done = true;
+      setIsOpen(true);
+      sessionStorage.setItem('popupShown', 'true');
+      cleanup();
+    };
+    const onScroll = () => { if (window.scrollY > window.innerHeight * 1.5) open(); };
+    const timer = setTimeout(open, 20000);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    function cleanup() { clearTimeout(timer); window.removeEventListener('scroll', onScroll); }
+    return cleanup;
   }, []);
 
   useEffect(() => {
