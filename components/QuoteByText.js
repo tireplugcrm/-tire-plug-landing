@@ -64,7 +64,7 @@ export default function QuoteByText() {
   };
 
   return (
-    <section id="quote" style={{ background: 'var(--bg-alt)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 0' }}>
+    <section id="quote" style={{ ...THEME, background: 'var(--bg-alt)', color: 'var(--ink)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 1.25rem', scrollMarginTop: '110px' }}>
       <div className="tp-wrap" style={{ maxWidth: '560px' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <span className="tp-eyebrow">Not sure? Text us your size</span>
@@ -127,15 +127,32 @@ export default function QuoteByText() {
       </div>
 
       <style jsx>{`
-        :global(.tp-field:focus) { border-color: var(--ink) !important; outline: none; }
-        :global(.tp-chip:hover) { border-color: var(--ink) !important; }
+        :global(.tp-field:focus) { border-color: var(--accent) !important; outline: none; }
+        :global(.tp-chip:hover) { border-color: var(--accent) !important; }
+        :global(#quote .tp-wrap) { margin: 0 auto; }
+        :global(#quote .tp-eyebrow) { color: #FF3838; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; }
+        :global(#quote .tp-btn) { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; border-radius: 50px; font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; text-decoration: none; transition: all 0.3s ease; box-sizing: border-box; }
+        :global(#quote .tp-btn-primary) { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 24px rgba(255, 31, 31, 0.25); }
+        :global(#quote .tp-btn-primary:hover) { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255, 31, 31, 0.4); }
+        :global(#quote select option) { background: #111; color: #fff; }
+        :global(#quote input::placeholder) { color: rgba(255, 255, 255, 0.35); }
       `}</style>
     </section>
   );
 }
 
+// This section was written against design tokens the site never defined, so it rendered
+// unstyled. Define them here, matching the dark black/red look of the rest of the homepage.
+const THEME = {
+  '--bg-alt': '#0a0a0b', '--bg': '#141416', '--card': 'rgba(255,255,255,0.03)',
+  '--line': 'rgba(255,255,255,0.12)', '--ink': '#ffffff', '--ink-soft': 'rgba(255,255,255,0.78)',
+  '--muted': 'rgba(255,255,255,0.55)', '--accent': '#FF1F1F',
+  '--radius': '10px', '--radius-lg': '20px', '--shadow': '0 20px 40px rgba(0,0,0,0.35)',
+  colorScheme: 'dark',
+};
+
 const labelStyle = { display: 'block', color: 'var(--ink-soft)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' };
 const inputStyle = { width: '100%', padding: '0.9rem 1rem', border: '1px solid var(--line)', borderRadius: 'var(--radius)', background: 'var(--bg)', color: 'var(--ink)', fontSize: '0.95rem', marginBottom: '1.4rem', outline: 'none', boxSizing: 'border-box' };
 const selectStyle = { ...inputStyle, marginBottom: 0, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', padding: '0.85rem 0.6rem' };
 const chipStyle = { background: 'var(--bg)', border: '1px solid var(--line)', color: 'var(--ink-soft)', padding: '0.6rem 1rem', borderRadius: 'var(--radius)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s ease' };
-const chipOn = { background: 'var(--ink)', borderColor: 'var(--ink)', color: '#fff' };
+const chipOn = { background: 'rgba(255,31,31,0.15)', borderColor: 'var(--accent)', color: '#fff' };

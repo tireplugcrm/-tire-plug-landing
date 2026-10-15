@@ -11,7 +11,7 @@ const DESCRIPTION =
 const IMAGE = "https://tireplugla.com/images/kumho/ecsta-pa71.jpg";
 const ALIGNMENT = 49;
 
-// Prices are per tire, set by The Tire Plug. Specs from Kumho USA (kumhotireusa.com).
+// Prices are per tire INSTALLED (mount + balance included), set by The Tire Plug. Specs from Kumho USA (kumhotireusa.com).
 const MODELS = [
   {
     id: "ecsta-pa71",
@@ -72,6 +72,7 @@ const MODELS = [
 ];
 
 const FAQ = [
+  { q: "Is installation included?", a: "Yes. Every Kumho price on this page is installed: mounting and balancing are included. Tax is extra." },
   { q: "How does the $49 alignment deal work?", a: `Buy a set of 4 Kumho tires and add a 4-wheel alignment for $${ALIGNMENT}. We do it the same visit.` },
   { q: "What warranty comes with Kumho?", a: "Kumho's own programs:", list: [
     "Treadwear warranty: up to 75,000 miles depending on the tire (shown on each tire above)",
@@ -134,7 +135,7 @@ export default function KumhoTires() {
             <div>
               <img className="brand" src="/images/kumho/kumho-logo.png" alt="Kumho Tires" />
               <h1 className="display">Kumho tires.<br /><span className="r">Priced and in stock.</span></h1>
-              <p className="sub serif">Performance, SUV, truck and Tesla EV tires, from {money(Math.min(...allPrices))} a tire.</p>
+              <p className="sub serif">Performance, SUV, truck and Tesla EV tires, from {money(Math.min(...allPrices))} a tire, installed.</p>
               <div className="ctas">
                 <a className="btn btn-red" href="#tires">See tires &amp; prices →</a>
                 <a className="btn btn-ghost" href="tel:5625004625">Call (562) 500-4625</a>
@@ -153,7 +154,7 @@ export default function KumhoTires() {
           <div className="wrap">
             <div className="head">
               <div><span className="eyebrow">The lineup</span><h2 className="display">Pick your <span className="r">Kumho.</span></h2></div>
-              <p>Prices are per tire. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set.</p>
+              <p>Prices are per tire, installed: mounting and balancing included. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set.</p>
             </div>
             <div className="grid">
               {MODELS.map((m) => (
@@ -169,7 +170,7 @@ export default function KumhoTires() {
                     <ul className="ben">{m.benefits.map((b) => <li key={b}>{b}</li>)}</ul>
                     <div className="chips">{m.chips.map((c) => <span key={c}>{c}</span>)}</div>
                     <table>
-                      <thead><tr><th>Size</th><th>Load / speed</th><th>Per tire</th><th>Set of 4</th></tr></thead>
+                      <thead><tr><th>Size</th><th>Load / speed</th><th>Installed</th><th>Set of 4</th></tr></thead>
                       <tbody>
                         {m.sizes.map(([s, ls, p]) => (
                           <tr key={s}>
@@ -224,7 +225,7 @@ export default function KumhoTires() {
             <div className="chips-l">
               {SERVICE_INDEX.map((s) => <a key={s.slug} href={`/${s.slug}`}>{s.label}</a>)}
             </div>
-            <p className="fine">Prices are per tire and subject to availability. Mounting, balancing and tax not included. $49 4-wheel alignment requires purchase of 4 Kumho tires in the same visit.</p>
+            <p className="fine">Prices are per tire, installed (mounting and balancing included), and subject to availability. Tax not included. $49 4-wheel alignment requires purchase of 4 Kumho tires in the same visit.</p>
             <p className="fine">Warranty programs are Kumho's (kumhotireusa.com); exclusions apply and they are not valid on original-equipment tires. Treadwear warranty shown per tire line.</p>
             <p style={{ marginTop: "1.5rem" }}><a href="/" className="back">← Back to The Tire Plug home</a></p>
           </div>

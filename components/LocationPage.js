@@ -36,7 +36,7 @@ export default function LocationPage({ loc }) {
       </Head>
       <Header />
       <main style={{ background: "#000", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
-        <section style={{ padding: "4rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto" }}>
+        <section style={{ padding: "9.5rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto" }}>
           <span style={{ color: "#FF1F1F", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>{loc.tag} · {loc.label}</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>{loc.h1}</h1>
           <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.6, maxWidth: 700 }}>{loc.intro}</p>

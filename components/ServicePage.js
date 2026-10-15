@@ -47,7 +47,7 @@ export default function ServicePage({ svc }) {
       </Head>
       <Header />
       <main style={{ background: "#000", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
-        <section style={{ padding: "4rem 1.5rem 2rem", maxWidth: 940, margin: "0 auto" }}>
+        <section style={{ padding: "9.5rem 1.5rem 2rem", maxWidth: 940, margin: "0 auto" }}>
           <span style={{ color: "#FF1F1F", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>{svc.h1}</h1>
           {svc.intro.map((p, i) => <p key={i} style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>{p}</p>)}
