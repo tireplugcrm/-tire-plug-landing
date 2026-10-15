@@ -91,7 +91,6 @@ export default function Header() {
         </a>
 
         <div className="desktop-nav" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-          <button onClick={() => scrollToSection('services')} style={navLinkStyle} className="nav-link">Services</button>
           <button onClick={() => scrollToSection('hero')} style={navLinkStyle} className="nav-link">Promos</button>
           <button onClick={() => scrollToSection('booking')} style={navLinkStyle} className="nav-link">Book</button>
           <button onClick={() => scrollToSection('locations')} style={navLinkStyle} className="nav-link">Locations</button>
@@ -103,7 +102,6 @@ export default function Header() {
 
         {mobileMenuOpen && (
           <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(0,0,0,0.98)', backdropFilter: 'blur(20px)', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', borderTop: '1px solid rgba(255,31,31,0.15)' }}>
-            <button onClick={() => scrollToSection('services')} style={mobileNavStyle}>Services</button>
             <button onClick={() => scrollToSection('hero')} style={mobileNavStyle}>Promos</button>
             <button onClick={() => scrollToSection('booking')} style={mobileNavStyle}>Book Now</button>
             <button onClick={() => scrollToSection('locations')} style={mobileNavStyle}>Locations</button>

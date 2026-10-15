@@ -3,7 +3,6 @@ import PromoPopup from '../components/PromoPopup';
 import Head from 'next/head';
 import Header from '../components/Header';
 import PromoHero from '../components/PromoHero';
-import Services from '../components/Services';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
 import BookingForm from '../components/BookingForm';
@@ -57,7 +56,6 @@ export default function Home() {
       <PromoPopup />
       <Header />
       <PromoHero />
-      <Services />
       <Reviews />
       <Locations />
       <BookingForm />
