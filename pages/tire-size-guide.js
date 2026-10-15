@@ -54,12 +54,12 @@ export default function TireSizeGuide() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       </Head>
       <Header />
-      <main style={{ background: "#000", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
+      <main style={{ background: "#fff", color: "#111", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
         <section style={{ padding: "9.5rem 1.5rem 2rem", maxWidth: 860, margin: "0 auto" }}>
-          <span style={{ color: "#FF1F1F", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
+          <span style={{ color: "#E01B22", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>What Tire Size Do I Need?</h1>
-          <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>
-            Those numbers on your tire — like <strong style={{ color: "#fff" }}>225/45R17</strong> — tell you exactly what fits your car. Here's what each part means and where to find your size. Or skip the homework: <strong style={{ color: "#fff" }}>snap a photo of your sidewall and text it to us</strong> — we'll read it and quote you in minutes.
+          <p style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>
+            Those numbers on your tire — like <strong style={{ color: "#111" }}>225/45R17</strong> — tell you exactly what fits your car. Here's what each part means and where to find your size. Or skip the homework: <strong style={{ color: "#111" }}>snap a photo of your sidewall and text it to us</strong> — we'll read it and quote you in minutes.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href="sms:15622503737" style={ctaRed}>📲 Text a Photo for a Quote</a>
@@ -67,18 +67,18 @@ export default function TireSizeGuide() {
           </div>
         </section>
 
-        <section style={{ padding: "1rem 1.5rem 2rem", maxWidth: 860, margin: "0 auto", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <section style={{ padding: "1rem 1.5rem 2rem", maxWidth: 860, margin: "0 auto", borderTop: "1px solid #e6e6e6" }}>
           <h2 style={h2}>How to read your tire size</h2>
-          <p style={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.65, marginBottom: "1.25rem", maxWidth: 720 }}>
-            Let's decode a common size — <strong style={{ color: "#fff", fontSize: "1.1rem" }}>225/45R17 94V</strong>:
+          <p style={{ color: "#555", lineHeight: 1.65, marginBottom: "1.25rem", maxWidth: 720 }}>
+            Let's decode a common size — <strong style={{ color: "#111", fontSize: "1.1rem" }}>225/45R17 94V</strong>:
           </p>
           <div style={{ display: "grid", gap: "0.6rem" }}>
             {PARTS.map((p) => (
-              <div key={p.code} style={{ display: "flex", gap: "1rem", alignItems: "flex-start", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "0.9rem 1.1rem" }}>
-                <span style={{ background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 100%)", color: "#fff", fontWeight: 900, borderRadius: 8, padding: "0.35rem 0.7rem", minWidth: 48, textAlign: "center", flexShrink: 0 }}>{p.code}</span>
+              <div key={p.code} style={{ display: "flex", gap: "1rem", alignItems: "flex-start", background: "#fff", border: "1px solid #e6e6e6", boxShadow: "0 6px 18px rgba(0,0,0,0.05)", borderRadius: 12, padding: "0.9rem 1.1rem" }}>
+                <span style={{ background: "linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)", color: "#fff", fontWeight: 900, borderRadius: 8, padding: "0.35rem 0.7rem", minWidth: 48, textAlign: "center", flexShrink: 0 }}>{p.code}</span>
                 <div>
-                  <strong style={{ color: "#fff", display: "block", marginBottom: "0.2rem" }}>{p.label}</strong>
-                  <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "0.95rem", lineHeight: 1.55 }}>{p.text}</span>
+                  <strong style={{ color: "#111", display: "block", marginBottom: "0.2rem" }}>{p.label}</strong>
+                  <span style={{ color: "#555", fontSize: "0.95rem", lineHeight: 1.55 }}>{p.text}</span>
                 </div>
               </div>
             ))}
@@ -89,9 +89,9 @@ export default function TireSizeGuide() {
           <h2 style={h2}>Where to find your tire size</h2>
           <div style={{ display: "grid", gap: "0.6rem" }}>
             {FIND_SPOTS.map((f, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "0.9rem 1.1rem" }}>
-                <strong style={{ color: "#fff", display: "block", marginBottom: "0.2rem" }}>📍 {f.spot}</strong>
-                <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "0.95rem", lineHeight: 1.55 }}>{f.text}</span>
+              <div key={i} style={{ background: "#fff", border: "1px solid #e6e6e6", boxShadow: "0 6px 18px rgba(0,0,0,0.05)", borderRadius: 12, padding: "0.9rem 1.1rem" }}>
+                <strong style={{ color: "#111", display: "block", marginBottom: "0.2rem" }}>📍 {f.spot}</strong>
+                <span style={{ color: "#555", fontSize: "0.95rem", lineHeight: 1.55 }}>{f.text}</span>
               </div>
             ))}
           </div>
@@ -99,8 +99,8 @@ export default function TireSizeGuide() {
 
         <section style={{ padding: "1rem 1.5rem 2rem", maxWidth: 860, margin: "0 auto" }}>
           <h2 style={h2}>Still not sure? Let us do it</h2>
-          <p style={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.65, maxWidth: 720 }}>
-            You don't need to figure any of this out alone. Send us a <strong style={{ color: "#fff" }}>photo of your tire's sidewall</strong> or just your <strong style={{ color: "#fff" }}>year, make and model</strong> by text, and we'll confirm the exact size, check what's in stock, and send you an honest, upfront price — new or used. Same-day installation at our Downtown LA shop.
+          <p style={{ color: "#555", lineHeight: 1.65, maxWidth: 720 }}>
+            You don't need to figure any of this out alone. Send us a <strong style={{ color: "#111" }}>photo of your tire's sidewall</strong> or just your <strong style={{ color: "#111" }}>year, make and model</strong> by text, and we'll confirm the exact size, check what's in stock, and send you an honest, upfront price — new or used. Same-day installation at our Downtown LA shop.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
@@ -111,7 +111,7 @@ export default function TireSizeGuide() {
         <section style={{ padding: "0 1.5rem 2.5rem", maxWidth: 860, margin: "0 auto" }}>
           <h2 style={h2}>Our LA location</h2>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <a href="/olympic" style={locCard}><strong style={{ color: "#fff" }}>Downtown · Olympic Blvd</strong><br /><span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>2331 E Olympic Blvd, LA 90021</span></a>
+            <a href="/olympic" style={locCard}><strong style={{ color: "#111" }}>Downtown · Olympic Blvd</strong><br /><span style={{ color: "#6b6b6b", fontSize: "0.85rem" }}>2331 E Olympic Blvd, LA 90021</span></a>
           </div>
         </section>
 
@@ -120,7 +120,7 @@ export default function TireSizeGuide() {
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             {SERVICE_INDEX.map((s) => <a key={s.slug} href={`/${s.slug}`} style={chipLink}>{s.label}</a>)}
           </div>
-          <p style={{ marginTop: "1.5rem" }}><a href="/" style={{ color: "#FF6666", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
+          <p style={{ marginTop: "1.5rem" }}><a href="/" style={{ color: "#E01B22", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
         </section>
       </main>
       <Footer />
@@ -128,8 +128,8 @@ export default function TireSizeGuide() {
   );
 }
 
-const h2 = { fontSize: "1.4rem", fontWeight: 800, margin: "0 0 1rem" };
-const ctaRed = { background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 100%)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" };
-const ctaGhost = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" };
-const locCard = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "1rem 1.25rem", minWidth: 240, textDecoration: "none", display: "block" };
-const chipLink = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 50, padding: "0.5rem 1rem", color: "#fff", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" };
+const h2 = { fontSize: "1.4rem", fontWeight: 800, margin: "0 0 1rem", color: "#111" };
+const ctaRed = { background: "linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)", color: "#fff", boxShadow: "0 8px 20px rgba(224,27,34,0.2)", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" };
+const ctaGhost = { background: "#fff", border: "1px solid #dcdcdc", color: "#111", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" };
+const locCard = { background: "#fff", border: "1px solid #e6e6e6", boxShadow: "0 6px 18px rgba(0,0,0,0.05)", borderRadius: 14, padding: "1rem 1.25rem", minWidth: 240, textDecoration: "none", display: "block" };
+const chipLink = { background: "#fff", border: "1px solid #e6e6e6", borderRadius: 50, padding: "0.5rem 1rem", color: "#111", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" };

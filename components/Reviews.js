@@ -104,7 +104,7 @@ export default function Reviews() {
             <span style={{ display: 'block', color: '#111' }}>
               Trusted By
             </span>
-            <span style={{ display: 'block', background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', }}>
+            <span style={{ display: 'block', color: '#E01B22' }}>
               LA Drivers.
             </span>
           </h2>

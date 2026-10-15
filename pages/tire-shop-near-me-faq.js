@@ -90,12 +90,12 @@ export default function TireShopFaq() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       </Head>
       <Header />
-      <main style={{ background: "#000", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
+      <main style={{ background: "#fff", color: "#111", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
         <section style={{ padding: "9.5rem 1.5rem 2rem", maxWidth: 860, margin: "0 auto" }}>
-          <span style={{ color: "#FF1F1F", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
+          <span style={{ color: "#E01B22", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>Tire Shop Near Me — Los Angeles FAQ</h1>
-          <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>
-            Looking for a tire shop near you in Los Angeles? Here are honest answers to the questions we hear most — about pricing, same-day install, used tires, brands and what we offer. Still have a question? Call or text us at <a href="tel:5625004625" style={{ color: "#FF6666", fontWeight: 700 }}>(562) 500-4625</a>.
+          <p style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>
+            Looking for a tire shop near you in Los Angeles? Here are honest answers to the questions we hear most — about pricing, same-day install, used tires, brands and what we offer. Still have a question? Call or text us at <a href="tel:5625004625" style={{ color: "#E01B22", fontWeight: 700 }}>(562) 500-4625</a>.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
@@ -108,16 +108,16 @@ export default function TireShopFaq() {
             {FAQS.map((f, i) => {
               const isOpen = open === i;
               return (
-                <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, overflow: "hidden" }}>
+                <div key={i} style={{ background: "#fff", border: "1px solid #e6e6e6", borderRadius: 14, overflow: "hidden", boxShadow: "0 6px 18px rgba(0,0,0,0.05)" }}>
                   <button
                     onClick={() => setOpen(isOpen ? -1 : i)}
-                    style={{ width: "100%", textAlign: "left", background: "none", border: "none", color: "#fff", padding: "1.1rem 1.25rem", fontSize: "1.02rem", fontWeight: 700, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", fontFamily: "inherit", lineHeight: 1.35 }}
+                    style={{ width: "100%", textAlign: "left", background: "none", border: "none", color: "#111", padding: "1.1rem 1.25rem", fontSize: "1.02rem", fontWeight: 700, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", fontFamily: "inherit", lineHeight: 1.35 }}
                   >
                     <span>{f.q}</span>
-                    <span style={{ color: "#FF6666", flexShrink: 0, transform: isOpen ? "rotate(45deg)" : "none", transition: "transform 0.2s", fontSize: "1.4rem", lineHeight: 1 }}>+</span>
+                    <span style={{ color: "#E01B22", flexShrink: 0, transform: isOpen ? "rotate(45deg)" : "none", transition: "transform 0.2s", fontSize: "1.4rem", lineHeight: 1 }}>+</span>
                   </button>
                   {isOpen && (
-                    <p style={{ color: "rgba(255,255,255,0.78)", fontSize: "0.97rem", lineHeight: 1.65, padding: "0 1.25rem 1.25rem", margin: 0 }}>{f.a}</p>
+                    <p style={{ color: "#555", fontSize: "0.97rem", lineHeight: 1.65, padding: "0 1.25rem 1.25rem", margin: 0 }}>{f.a}</p>
                   )}
                 </div>
               );
@@ -128,7 +128,7 @@ export default function TireShopFaq() {
         <section style={{ padding: "0 1.5rem 2.5rem", maxWidth: 860, margin: "0 auto" }}>
           <h2 style={h2}>Our LA location</h2>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <a href="/olympic" style={locCard}><strong style={{ color: "#fff" }}>Downtown · Olympic Blvd</strong><br /><span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem" }}>2331 E Olympic Blvd, LA 90021</span></a>
+            <a href="/olympic" style={locCard}><strong style={{ color: "#111" }}>Downtown · Olympic Blvd</strong><br /><span style={{ color: "#6b6b6b", fontSize: "0.85rem" }}>2331 E Olympic Blvd, LA 90021</span></a>
           </div>
         </section>
 
@@ -138,7 +138,7 @@ export default function TireShopFaq() {
             {SERVICE_INDEX.map((s) => <a key={s.slug} href={`/${s.slug}`} style={chipLink}>{s.label}</a>)}
             <a href="/tire-size-guide" style={chipLink}>Tire Size Guide</a>
           </div>
-          <p style={{ marginTop: "1.5rem" }}><a href="/" style={{ color: "#FF6666", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
+          <p style={{ marginTop: "1.5rem" }}><a href="/" style={{ color: "#E01B22", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
         </section>
       </main>
       <Footer />
@@ -146,8 +146,8 @@ export default function TireShopFaq() {
   );
 }
 
-const h2 = { fontSize: "1.4rem", fontWeight: 800, margin: "0 0 1rem" };
-const ctaRed = { background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 100%)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" };
-const ctaGhost = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" };
-const locCard = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "1rem 1.25rem", minWidth: 240, textDecoration: "none", display: "block" };
-const chipLink = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 50, padding: "0.5rem 1rem", color: "#fff", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" };
+const h2 = { fontSize: "1.4rem", fontWeight: 800, margin: "0 0 1rem", color: "#111" };
+const ctaRed = { background: "linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)", color: "#fff", boxShadow: "0 8px 20px rgba(224,27,34,0.2)", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" };
+const ctaGhost = { background: "#fff", border: "1px solid #dcdcdc", color: "#111", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" };
+const locCard = { background: "#fff", border: "1px solid #e6e6e6", boxShadow: "0 6px 18px rgba(0,0,0,0.05)", borderRadius: 14, padding: "1rem 1.25rem", minWidth: 240, textDecoration: "none", display: "block" };
+const chipLink = { background: "#fff", border: "1px solid #e6e6e6", borderRadius: 50, padding: "0.5rem 1rem", color: "#111", fontSize: "0.85rem", fontWeight: 600, textDecoration: "none" };

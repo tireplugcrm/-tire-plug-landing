@@ -114,53 +114,23 @@ export default function BookingForm() {
     <section
       id="booking"
       style={{
-        background: '#000',
+        background: '#f5f5f5',
         padding: '4rem 2rem 5rem',
-        color: '#fff',
+        color: '#111',
         position: 'relative',
         overflow: 'hidden',
-        borderTop: '1px solid rgba(255,31,31,0.08)',
+        borderTop: '1px solid #e6e6e6',
       }}
     >
-      {/* Cinematic atmosphere layers */}
+      {/* Subtle background texture (no white text sits on it, so no dark overlay) */}
       <div style={{
         position: 'absolute',
         top: 0, left: 0, right: 0, bottom: 0,
         backgroundImage: 'url(/images/lift-bay.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        filter: 'brightness(0.15) contrast(1.1) saturate(0.7) blur(8px)',
-        opacity: 0.5,
-        pointerEvents: 'none',
-      }} />
-
-      {/* Dark gradient overlay */}
-      <div style={{
-        position: 'absolute',
-        top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(180deg, #000 0%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.9) 70%, #000 100%)',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Red ambient glows */}
-      <div style={{
-        position: 'absolute',
-        top: '15%',
-        left: '-10%',
-        width: '600px',
-        height: '600px',
-        background: 'radial-gradient(circle, rgba(255,31,31,0.12) 0%, transparent 60%)',
-        filter: 'blur(120px)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '10%',
-        right: '-10%',
-        width: '500px',
-        height: '500px',
-        background: 'radial-gradient(circle, rgba(255,31,31,0.1) 0%, transparent 60%)',
-        filter: 'blur(120px)',
+        filter: 'grayscale(1) blur(8px)',
+        opacity: 0.04,
         pointerEvents: 'none',
       }} />
 
@@ -168,11 +138,11 @@ export default function BookingForm() {
         {/* CINEMATIC HEADER */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, transparent, #FF1F1F)' }} />
-            <span style={{ color: '#FF3838', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.35em', textTransform: 'uppercase' }}>
+            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, transparent, #E01B22)' }} />
+            <span style={{ color: '#E01B22', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.35em', textTransform: 'uppercase' }}>
               Service Request
             </span>
-            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, #FF1F1F, transparent)' }} />
+            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, #E01B22, transparent)' }} />
           </div>
 
           <h2 style={{
@@ -185,27 +155,20 @@ export default function BookingForm() {
           }}>
             <span style={{
               display: 'block',
-              background: 'linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.85) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              color: '#111',
             }}>
               Ready to Drive?
             </span>
             <span style={{
               display: 'block',
-              background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              filter: 'drop-shadow(0 0 30px rgba(255,31,31,0.4))',
+              color: '#E01B22',
             }}>
               Done Right Starts Here.
             </span>
           </h2>
 
           <p style={{
-            color: 'rgba(255,255,255,0.6)',
+            color: '#555',
             fontSize: '1rem',
             maxWidth: '500px',
             margin: '0 auto',
@@ -217,46 +180,33 @@ export default function BookingForm() {
 
         {/* CINEMATIC FORM CARD */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(20,20,20,0.85) 0%, rgba(0,0,0,0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,31,31,0.25)',
+          background: '#fff',
+          border: '1px solid #e6e6e6',
           borderRadius: '20px',
           padding: '2.5rem 2.25rem',
-          boxShadow: '0 30px 80px rgba(0,0,0,0.5), 0 0 80px rgba(255,31,31,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
+          boxShadow: '0 6px 18px rgba(0,0,0,0.05)',
           position: 'relative',
           overflow: 'hidden',
         }}>
-          {/* Metallic top edge highlight */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: '10%',
-            right: '10%',
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent, rgba(255,31,31,0.6), transparent)',
-            pointerEvents: 'none',
-          }} />
 
           {!submitted ? (
             <>
               {/* Progress bar (no step counter text) */}
               <div style={{ marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase' }}>
+                  <span style={{ color: '#6b6b6b', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase' }}>
                     Progress
                   </span>
-                  <span style={{ color: '#FF3838', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>
+                  <span style={{ color: '#E01B22', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>
                     {Math.round((currentStep / totalSteps) * 100)}%
                   </span>
                 </div>
-                <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '3px', background: '#e6e6e6', borderRadius: '2px', overflow: 'hidden' }}>
                   <div style={{
                     height: '100%',
                     width: `${(currentStep / totalSteps) * 100}%`,
-                    background: 'linear-gradient(90deg, #FF1F1F, #FF3838)',
+                    background: 'linear-gradient(90deg, #E01B22, #FF3B42)',
                     transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: '0 0 10px rgba(255,31,31,0.6)',
                   }} />
                 </div>
               </div>
@@ -277,9 +227,9 @@ export default function BookingForm() {
                             onClick={() => setServiceTiming(option.value)}
                             className="option-btn"
                             style={{
-                              background: isSelected ? (option.hot ? 'rgba(255,68,68,0.15)' : 'rgba(255,31,31,0.15)') : 'rgba(255,255,255,0.03)',
-                              border: isSelected ? (option.hot ? '1px solid #ff4444' : '1px solid #FF1F1F') : '1px solid rgba(255,255,255,0.1)',
-                              color: '#fff',
+                              background: isSelected ? 'rgba(224,27,34,0.08)' : '#fff',
+                              border: isSelected ? '1px solid rgba(224,27,34,0.3)' : '1px solid #dcdcdc',
+                              color: '#111',
                               padding: '1rem',
                               borderRadius: '12px',
                               cursor: 'pointer',
@@ -290,16 +240,16 @@ export default function BookingForm() {
                               alignItems: 'center',
                               gap: '0.75rem',
                               position: 'relative',
-                              boxShadow: isSelected ? '0 0 20px rgba(255,31,31,0.2)' : 'none',
+                              boxShadow: 'none',
                             }}
                           >
                             <span style={{ fontSize: '1.4rem' }}>{option.icon}</span>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: isSelected ? (option.hot ? '#ff7777' : '#FF3838') : '#fff' }}>{option.label}</span>
-                              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)' }}>{option.sub}</span>
+                              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: isSelected ? '#E01B22' : '#111' }}>{option.label}</span>
+                              <span style={{ fontSize: '0.72rem', color: '#6b6b6b' }}>{option.sub}</span>
                             </div>
                             {option.hot && (
-                              <span style={{ background: 'rgba(255,68,68,0.2)', color: '#ff7777', fontSize: '0.55rem', padding: '0.25rem 0.55rem', borderRadius: '50px', fontWeight: 800, letterSpacing: '0.08em', border: '1px solid rgba(255,68,68,0.3)' }}>HOT</span>
+                              <span style={{ background: 'rgba(224,27,34,0.08)', color: '#E01B22', fontSize: '0.55rem', padding: '0.25rem 0.55rem', borderRadius: '50px', fontWeight: 800, letterSpacing: '0.08em', border: '1px solid rgba(224,27,34,0.3)' }}>HOT</span>
                             )}
                           </button>
                         );
@@ -307,9 +257,9 @@ export default function BookingForm() {
                     </div>
 
                     {serviceTiming === 'ASAP' && (
-                      <div style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'center', boxShadow: '0 0 30px rgba(255,68,68,0.1)' }}>
-                        <p style={{ color: '#ff7777', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🚨 Need service now?</p>
-                        <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #ff4444 0%, #c20000 100%)', color: '#fff', padding: '0.85rem 2rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', boxShadow: '0 8px 24px rgba(255,68,68,0.4)' }}>
+                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px solid rgba(224,27,34,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'center' }}>
+                        <p style={{ color: '#E01B22', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🚨 Need service now?</p>
+                        <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '0.85rem 2rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(224,27,34,0.2)' }}>
                           📞 Call Now: 562-500-4625
                         </a>
                       </div>
@@ -332,9 +282,9 @@ export default function BookingForm() {
                             onClick={() => toggleService(service.id)}
                             className="option-btn"
                             style={{
-                              background: isSelected ? 'rgba(255,31,31,0.15)' : service.featured ? 'rgba(255,31,31,0.04)' : 'rgba(255,255,255,0.03)',
-                              border: isSelected ? '1px solid #FF1F1F' : service.featured ? '1px solid rgba(255,31,31,0.25)' : '1px solid rgba(255,255,255,0.08)',
-                              color: '#fff',
+                              background: isSelected ? 'rgba(224,27,34,0.08)' : '#fff',
+                              border: isSelected ? '1px solid rgba(224,27,34,0.3)' : service.featured ? '1px solid rgba(224,27,34,0.2)' : '1px solid #dcdcdc',
+                              color: '#111',
                               padding: '0.85rem 0.75rem',
                               borderRadius: '12px',
                               cursor: 'pointer',
@@ -344,21 +294,21 @@ export default function BookingForm() {
                               display: 'flex',
                               flexDirection: 'column',
                               gap: '0.25rem',
-                              boxShadow: isSelected ? '0 0 15px rgba(255,31,31,0.2)' : 'none',
+                              boxShadow: 'none',
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: isSelected ? 700 : 600, color: isSelected ? '#FF3838' : '#fff' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: isSelected ? 700 : 600, color: isSelected ? '#E01B22' : '#111' }}>
                               <span>{service.icon}</span><span>{service.label}</span>
                             </div>
-                            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', paddingLeft: '1.25rem' }}>{service.subtitle}</span>
+                            <span style={{ fontSize: '0.7rem', color: '#6b6b6b', paddingLeft: '1.25rem' }}>{service.subtitle}</span>
                           </button>
                         );
                       })}
                     </div>
 
                     {hasNewTires && (
-                      <div style={{ background: 'rgba(255,31,31,0.05)', border: '1px solid rgba(255,31,31,0.2)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem' }}>
-                        <p style={{ color: '#FF3838', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>What type of tires?</p>
+                      <div style={{ background: '#f5f5f5', border: '1px solid #e6e6e6', borderRadius: '12px', padding: '1rem', marginBottom: '1rem' }}>
+                        <p style={{ color: '#E01B22', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>What type of tires?</p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
                           {tireTypes.map(type => (
                             <button
@@ -367,9 +317,9 @@ export default function BookingForm() {
                               onClick={() => setTireType(type.value)}
                               className="option-btn"
                               style={{
-                                background: tireType === type.value ? 'rgba(255,31,31,0.15)' : 'rgba(255,255,255,0.03)',
-                                border: tireType === type.value ? '1px solid #FF1F1F' : '1px solid rgba(255,255,255,0.1)',
-                                color: '#fff',
+                                background: tireType === type.value ? 'rgba(224,27,34,0.08)' : '#fff',
+                                border: tireType === type.value ? '1px solid rgba(224,27,34,0.3)' : '1px solid #dcdcdc',
+                                color: '#111',
                                 padding: '0.85rem 1rem',
                                 borderRadius: '12px',
                                 cursor: 'pointer',
@@ -381,8 +331,8 @@ export default function BookingForm() {
                                 gap: '0.25rem',
                               }}
                             >
-                              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: tireType === type.value ? '#FF3838' : '#fff' }}>{type.label}</span>
-                              <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)' }}>{type.sub}</span>
+                              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: tireType === type.value ? '#E01B22' : '#111' }}>{type.label}</span>
+                              <span style={{ fontSize: '0.72rem', color: '#6b6b6b' }}>{type.sub}</span>
                             </button>
                           ))}
                         </div>
@@ -390,7 +340,7 @@ export default function BookingForm() {
                     )}
 
                     {selectedServices.length > 0 && (
-                      <div style={{ background: 'rgba(255,31,31,0.08)', border: '1px dashed rgba(255,31,31,0.4)', borderRadius: '10px', padding: '0.6rem 1rem', color: '#FF3838', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em' }}>
+                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px dashed rgba(224,27,34,0.3)', borderRadius: '10px', padding: '0.6rem 1rem', color: '#E01B22', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em' }}>
                         ✓ {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} added
                       </div>
                     )}
@@ -425,11 +375,11 @@ export default function BookingForm() {
                         <input type="text" name="tireRim" placeholder="Rim" value={formData.tireRim} onChange={handleChange} style={inlineInputStyle} className="inline-input" />
                       </div>
                     ) : (
-                      <div style={{ background: 'rgba(255,31,31,0.08)', border: '1px solid rgba(255,31,31,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', color: '#FF3838', fontSize: '0.9rem', textAlign: 'center', fontWeight: 600 }}>
+                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px solid rgba(224,27,34,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', color: '#E01B22', fontSize: '0.9rem', textAlign: 'center', fontWeight: 600 }}>
                         ✓ We will help you find your tire size
                       </div>
                     )}
-                    <button type="button" onClick={() => setTireSizeUnknown(!tireSizeUnknown)} style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', padding: '0.85rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit', letterSpacing: '0.05em', transition: 'all 0.3s ease' }} className="toggle-btn">
+                    <button type="button" onClick={() => setTireSizeUnknown(!tireSizeUnknown)} style={{ width: '100%', background: '#fff', border: '1px solid #dcdcdc', color: '#111', padding: '0.85rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit', letterSpacing: '0.05em', transition: 'all 0.3s ease' }} className="toggle-btn">
                       {tireSizeUnknown ? 'I know my tire size' : "Don't know your tire size?"}
                     </button>
                   </div>
@@ -450,15 +400,15 @@ export default function BookingForm() {
                         type="checkbox"
                         checked={smsConsent}
                         onChange={(e) => setSmsConsent(e.target.checked)}
-                        style={{ marginTop: '0.2rem', width: '18px', height: '18px', accentColor: '#FF1F1F', flexShrink: 0, cursor: 'pointer' }}
+                        style={{ marginTop: '0.2rem', width: '18px', height: '18px', accentColor: '#E01B22', flexShrink: 0, cursor: 'pointer' }}
                       />
-                      <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.72rem', lineHeight: 1.5 }}>
+                      <span style={{ color: '#555', fontSize: '0.72rem', lineHeight: 1.5 }}>
                         <strong>(Optional)</strong> Yes, text me about my request. I agree to receive text messages from The Tire Plug
                         about my quote, appointment, and service updates. Msg frequency varies. Msg &amp; data
                         rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of
                         purchase. See our{' '}
-                        <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#FF3838', textDecoration: 'underline' }}>Privacy Policy</a>{' '}&amp;{' '}
-                        <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#FF3838', textDecoration: 'underline' }}>Terms</a>.
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#E01B22', textDecoration: 'underline' }}>Privacy Policy</a>{' '}&amp;{' '}
+                        <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#E01B22', textDecoration: 'underline' }}>Terms</a>.
                       </span>
                     </label>
                   </div>
@@ -473,9 +423,9 @@ export default function BookingForm() {
                       className="back-btn"
                       style={{
                         flex: 1,
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        color: '#fff',
+                        background: '#fff',
+                        border: '1px solid #dcdcdc',
+                        color: '#111',
                         padding: '1.15rem',
                         fontSize: '0.85rem',
                         fontWeight: 700,
@@ -499,7 +449,7 @@ export default function BookingForm() {
                       style={{
                         flex: 2,
                         position: 'relative',
-                        background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)',
+                        background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)',
                         color: '#fff',
                         padding: '1.15rem',
                         fontSize: '0.9rem',
@@ -509,8 +459,7 @@ export default function BookingForm() {
                         cursor: 'pointer',
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,80,80,0.3), 0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.25)',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                        boxShadow: '0 8px 20px rgba(224,27,34,0.2)',
                         fontFamily: 'inherit',
                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                         overflow: 'hidden',
@@ -527,7 +476,7 @@ export default function BookingForm() {
                       style={{
                         flex: 2,
                         position: 'relative',
-                        background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)',
+                        background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)',
                         color: '#fff',
                         padding: '1.15rem',
                         fontSize: '0.9rem',
@@ -537,8 +486,7 @@ export default function BookingForm() {
                         cursor: submitting ? 'not-allowed' : 'pointer',
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,80,80,0.3), 0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.25)',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                        boxShadow: '0 8px 20px rgba(224,27,34,0.2)',
                         fontFamily: 'inherit',
                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                         overflow: 'hidden',
@@ -551,9 +499,9 @@ export default function BookingForm() {
                 </div>
 
                 {/* Contact footer */}
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)', fontSize: '0.72rem', letterSpacing: '0.05em' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid #e6e6e6', color: '#6b6b6b', fontSize: '0.72rem', letterSpacing: '0.05em' }}>
                   <span>📞 562-500-4625</span>
-                  <span style={{ color: 'rgba(255,31,31,0.3)' }}>·</span>
+                  <span style={{ color: '#E01B22' }}>·</span>
                   <span>📸 @tireplugcali</span>
                 </div>
               </form>
@@ -561,14 +509,14 @@ export default function BookingForm() {
           ) : (
             <div style={{ textAlign: 'center', padding: '3rem 0' }}>
               <div style={{ fontSize: '4rem', marginBottom: '1.25rem' }}>🎉</div>
-              <h2 style={{ color: '#fff', fontSize: '2rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
-                You're <span style={{ background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>In.</span>
+              <h2 style={{ color: '#111', fontSize: '2rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
+                You're <span style={{ color: '#E01B22' }}>In.</span>
               </h2>
-              <p style={{ color: '#fff', fontSize: '1.05rem', marginBottom: '0.5rem', fontWeight: 600 }}>We've got your request.</p>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
+              <p style={{ color: '#111', fontSize: '1.05rem', marginBottom: '0.5rem', fontWeight: 600 }}>We've got your request.</p>
+              <p style={{ color: '#555', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
                 {serviceTiming === 'ASAP' ? "We'll call you right away!" : "We'll text or call you shortly with your quote."}
               </p>
-              <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', padding: '1rem 2.25rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: '0 10px 30px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.25)' }}>
+              <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '1rem 2.25rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(224,27,34,0.2)' }}>
                 Or Call Now
               </a>
             </div>
@@ -580,23 +528,21 @@ export default function BookingForm() {
         @media (max-width: 600px) {
           .timing-grid, .services-grid { grid-template-columns: 1fr !important; }
         }
-        .inline-input:focus { 
-          border-color: #FF1F1F !important; 
-          background: rgba(255,31,31,0.05) !important; 
-          box-shadow: 0 0 20px rgba(255,31,31,0.15);
+        .inline-input::placeholder { color: #8a8a8a; }
+        .inline-input:focus {
+          border-color: #E01B22 !important;
+          background: #fff !important;
         }
-        .option-btn:hover { 
-          background: rgba(255,31,31,0.08) !important; 
-          border-color: rgba(255,31,31,0.4) !important; 
+        .option-btn:hover {
+          background: rgba(224,27,34,0.08) !important;
+          border-color: rgba(224,27,34,0.3) !important;
           transform: translateY(-1px);
         }
         .toggle-btn:hover {
-          background: rgba(255,31,31,0.05) !important;
-          border-color: rgba(255,31,31,0.3) !important;
+          border-color: #E01B22 !important;
         }
         .back-btn:hover {
-          background: rgba(255,255,255,0.08) !important;
-          border-color: rgba(255,255,255,0.25) !important;
+          border-color: #E01B22 !important;
         }
         .cinematic-cta::before {
           content: '';
@@ -614,8 +560,8 @@ export default function BookingForm() {
         }
         .cinematic-cta:hover:not(:disabled) {
           transform: translateY(-3px) scale(1.01);
-          background: linear-gradient(180deg, #FF3838 0%, #D10000 50%, #9B0000 100%) !important;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,100,100,0.6), 0 16px 40px rgba(139,0,0,0.7), 0 0 80px rgba(255,42,42,0.6) !important;
+          background: linear-gradient(135deg, #FF3B42 0%, #C00000 100%) !important;
+          box-shadow: 0 10px 24px rgba(224,27,34,0.25) !important;
           letter-spacing: 0.22em !important;
         }
         .cinematic-cta:active:not(:disabled) {
@@ -631,10 +577,10 @@ export default function BookingForm() {
 const inlineInputStyle = {
   width: '100%',
   padding: '1rem 1.15rem',
-  border: '1px solid rgba(255,255,255,0.1)',
+  border: '1px solid #dcdcdc',
   borderRadius: '10px',
-  background: 'rgba(255,255,255,0.03)',
-  color: '#fff',
+  background: '#fff',
+  color: '#111',
   fontSize: '0.95rem',
   marginBottom: '0.6rem',
   fontFamily: 'inherit',
@@ -644,7 +590,7 @@ const inlineInputStyle = {
 };
 
 const stepLabelStyle = {
-  color: '#fff',
+  color: '#111',
   fontSize: '1.4rem',
   marginBottom: '0.35rem',
   letterSpacing: '-0.02em',
@@ -653,7 +599,7 @@ const stepLabelStyle = {
 };
 
 const stepSubStyle = {
-  color: 'rgba(255,255,255,0.55)',
+  color: '#555',
   fontSize: '0.82rem',
   marginBottom: '1.25rem',
   letterSpacing: '0.02em',

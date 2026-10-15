@@ -36,11 +36,12 @@ export default function Locations() {
       ref={sectionRef}
       id="locations"
       style={{
-        background: '#0a0a0b',
+        background: '#f5f5f5',
+        color: '#111',
         padding: '6rem 2rem',
         position: 'relative',
         overflow: 'hidden',
-        borderTop: '1px solid rgba(255,31,31,0.08)',
+        borderTop: '1px solid #e6e6e6',
       }}
     >
       {/* Ambient red glows */}
@@ -51,7 +52,7 @@ export default function Locations() {
         transform: 'translateX(-50%)',
         width: '900px',
         height: '600px',
-        background: 'radial-gradient(ellipse, rgba(255,31,31,0.08) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse, rgba(224,27,34,0.04) 0%, transparent 60%)',
         filter: 'blur(120px)',
         pointerEvents: 'none',
       }} />
@@ -60,11 +61,11 @@ export default function Locations() {
         {/* Section Header */}
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, transparent, #FF1F1F)' }} />
-            <span style={{ color: '#FF3838', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase' }}>
+            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, transparent, #E01B22)' }} />
+            <span style={{ color: '#E01B22', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase' }}>
               Our Locations
             </span>
-            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, #FF1F1F, transparent)' }} />
+            <div style={{ width: '30px', height: '1px', background: 'linear-gradient(90deg, #E01B22, transparent)' }} />
           </div>
           <h2 style={{
             fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
@@ -75,10 +76,10 @@ export default function Locations() {
             maxWidth: '800px',
             margin: '0 auto',
           }}>
-            <span style={{ background: 'linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.85) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ color: '#111' }}>
               One Location.
             </span>{' '}
-            <span style={{ background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 25px rgba(255,31,31,0.4))' }}>
+            <span style={{ color: '#E01B22' }}>
               One Standard.
             </span>
           </h2>
@@ -121,10 +122,11 @@ function LocationCard({ location, delay, isVisible }) {
       className="location-card"
       style={{
         position: 'relative',
-        background: '#0a0a0a',
+        background: '#fff',
         borderRadius: '20px',
         overflow: 'hidden',
-        border: '1px solid rgba(255,31,31,0.15)',
+        border: '1px solid #e6e6e6',
+        boxShadow: '0 6px 18px rgba(0,0,0,0.05)',
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
         transition: `opacity 1s ease ${delay}s, transform 1s ease ${delay}s, border-color 0.4s ease, box-shadow 0.4s ease`,
@@ -145,7 +147,7 @@ function LocationCard({ location, delay, isVisible }) {
             backgroundImage: `url(${location.image})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'brightness(0.6) contrast(1.1) saturate(0.9)',
+            filter: 'brightness(0.85) contrast(1.05)',
             transition: 'transform 6s ease, filter 0.6s ease',
           }}
         />
@@ -154,19 +156,7 @@ function LocationCard({ location, delay, isVisible }) {
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 60%, #0a0a0a 100%)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Red ambient corner glow */}
-        <div style={{
-          position: 'absolute',
-          top: '-30%',
-          right: '-20%',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(255,31,31,0.25) 0%, transparent 60%)',
-          filter: 'blur(60px)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.7) 100%)',
           pointerEvents: 'none',
         }} />
 
@@ -182,14 +172,13 @@ function LocationCard({ location, delay, isVisible }) {
           backdropFilter: 'blur(15px)',
           padding: '0.45rem 1rem',
           borderRadius: '50px',
-          border: '1px solid rgba(255,31,31,0.4)',
+          border: '1px solid rgba(224,27,34,0.5)',
         }}>
           <div style={{
             width: '6px',
             height: '6px',
             borderRadius: '50%',
-            background: '#FF1F1F',
-            boxShadow: '0 0 8px #FF1F1F',
+            background: '#E01B22',
             animation: 'livePulse 2s ease-in-out infinite',
           }} />
           <span style={{
@@ -211,7 +200,7 @@ function LocationCard({ location, delay, isVisible }) {
           right: '1.75rem',
         }}>
           <p style={{
-            color: '#FF3838',
+            color: '#FF3B42',
             fontSize: '0.7rem',
             fontWeight: 700,
             letterSpacing: '0.3em',
@@ -227,7 +216,6 @@ function LocationCard({ location, delay, isVisible }) {
             lineHeight: 1,
             textTransform: 'uppercase',
             color: '#fff',
-            textShadow: '0 4px 20px rgba(0,0,0,0.6)',
           }}>
             {location.label}
           </h3>
@@ -246,20 +234,20 @@ function LocationCard({ location, delay, isVisible }) {
               width: '36px',
               height: '36px',
               borderRadius: '8px',
-              background: 'rgba(255,31,31,0.08)',
-              border: '1px solid rgba(255,31,31,0.2)',
+              background: 'rgba(224,27,34,0.08)',
+              border: '1px solid rgba(224,27,34,0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#FF3838"/>
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#E01B22"/>
               </svg>
             </div>
             <div style={{ flex: 1 }}>
               <p style={{
-                color: '#fff',
+                color: '#111',
                 fontSize: '1rem',
                 fontWeight: 700,
                 marginBottom: '0.2rem',
@@ -268,7 +256,7 @@ function LocationCard({ location, delay, isVisible }) {
                 {location.address}
               </p>
               <p style={{
-                color: 'rgba(255,255,255,0.5)',
+                color: '#6b6b6b',
                 fontSize: '0.85rem',
                 lineHeight: 1.3,
               }}>
@@ -285,20 +273,20 @@ function LocationCard({ location, delay, isVisible }) {
               width: '36px',
               height: '36px',
               borderRadius: '8px',
-              background: 'rgba(255,31,31,0.08)',
-              border: '1px solid rgba(255,31,31,0.2)',
+              background: 'rgba(224,27,34,0.08)',
+              border: '1px solid rgba(224,27,34,0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.2 14.2L11 13V7h1.5v5.25l4.5 2.67-.8 1.28z" fill="#FF3838"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.2 14.2L11 13V7h1.5v5.25l4.5 2.67-.8 1.28z" fill="#E01B22"/>
               </svg>
             </div>
             <div style={{ flex: 1 }}>
               <p style={{
-                color: '#fff',
+                color: '#111',
                 fontSize: '0.9rem',
                 fontWeight: 600,
                 marginBottom: '0.25rem',
@@ -306,7 +294,7 @@ function LocationCard({ location, delay, isVisible }) {
                 {location.hours}
               </p>
               <p style={{
-                color: 'rgba(255,255,255,0.5)',
+                color: '#6b6b6b',
                 fontSize: '0.8rem',
               }}>
                 {location.sundayHours}
@@ -322,13 +310,13 @@ function LocationCard({ location, delay, isVisible }) {
           gap: '0.5rem',
           marginBottom: '2rem',
           paddingBottom: '1.5rem',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid #e6e6e6',
         }}>
           {location.highlights.map((highlight, idx) => (
             <span key={idx} style={{
-              background: 'rgba(255,31,31,0.06)',
-              border: '1px solid rgba(255,31,31,0.15)',
-              color: 'rgba(255,255,255,0.75)',
+              background: 'rgba(224,27,34,0.08)',
+              border: '1px solid rgba(224,27,34,0.3)',
+              color: '#111',
               padding: '0.35rem 0.8rem',
               borderRadius: '50px',
               fontSize: '0.7rem',
@@ -350,7 +338,7 @@ function LocationCard({ location, delay, isVisible }) {
             style={{
               flex: 1,
               position: 'relative',
-              background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)',
+              background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)',
               color: '#fff',
               fontSize: '0.78rem',
               fontWeight: 800,
@@ -365,8 +353,7 @@ function LocationCard({ location, delay, isVisible }) {
               justifyContent: 'center',
               gap: '0.5rem',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,80,80,0.3), 0 6px 16px rgba(139,0,0,0.4), 0 0 30px rgba(255,42,42,0.2)',
-              textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+              boxShadow: '0 8px 20px rgba(224,27,34,0.2)',
               overflow: 'hidden',
             }}
           >
@@ -380,10 +367,9 @@ function LocationCard({ location, delay, isVisible }) {
             className="loc-cta-secondary"
             style={{
               flex: 1,
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: '#fff',
+              background: '#fff',
+              border: '1px solid #dcdcdc',
+              color: '#111',
               fontSize: '0.78rem',
               fontWeight: 700,
               padding: '0.95rem 1rem',
@@ -398,7 +384,7 @@ function LocationCard({ location, delay, isVisible }) {
               transition: 'all 0.3s ease',
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#111">
               <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
             </svg>
             Call Shop
@@ -408,21 +394,21 @@ function LocationCard({ location, delay, isVisible }) {
 
       <style jsx>{`
         .location-card:hover {
-          border-color: rgba(255,31,31,0.4) !important;
-          box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 80px rgba(255,31,31,0.15);
+          border-color: #E01B22 !important;
+          box-shadow: 0 12px 28px rgba(0,0,0,0.08) !important;
         }
         .location-card:hover .card-image {
           transform: scale(1.08);
-          filter: brightness(0.7) contrast(1.15) saturate(1) !important;
+          filter: brightness(0.9) contrast(1.05) !important;
         }
         .loc-cta-primary:hover {
           transform: translateY(-2px);
-          background: linear-gradient(180deg, #FF3838 0%, #D10000 50%, #9B0000 100%) !important;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,100,100,0.5), 0 10px 24px rgba(139,0,0,0.5), 0 0 50px rgba(255,42,42,0.4) !important;
+          background: linear-gradient(135deg, #FF3B42 0%, #C20000 100%) !important;
+          box-shadow: 0 10px 24px rgba(224,27,34,0.25) !important;
         }
         .loc-cta-secondary:hover {
-          background: rgba(255,31,31,0.08) !important;
-          border-color: rgba(255,31,31,0.4) !important;
+          background: #fff !important;
+          border-color: #E01B22 !important;
           transform: translateY(-2px);
         }
         @keyframes livePulse {

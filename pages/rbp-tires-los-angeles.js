@@ -265,14 +265,15 @@ export default function RbpTires() {
 
       <style jsx global>{`
         .rbp {
-          --ink: #0a0a0a; --ink-2: #141414; --card: #171717; --paper: #f2efe8; --muted: #9a978f;
-          --line: rgba(242,239,232,.12); --red: #e01b22; --red-2: #ff3b42; --gutter: 24px;
+          --ink: #ffffff; --ink-2: #f5f5f5; --card: #ffffff; --paper: #111111; --muted: #6b6b6b;
+          --line: #e6e6e6; --red: #e01b22; --red-2: #ff3b42; --gutter: 24px;
+          --shadow: 0 6px 18px rgba(0,0,0,.05);
           background: var(--ink); color: var(--paper);
           font-family: "Archivo", system-ui, sans-serif; line-height: 1.5;
         }
         .rbp .wrap { max-width: 1160px; margin: 0 auto; padding: 0 var(--gutter); }
         .rbp .eyebrow {
-          font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--red-2);
+          font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--red);
           display: inline-flex; align-items: center; gap: 12px;
         }
         .rbp .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--red); }
@@ -286,45 +287,46 @@ export default function RbpTires() {
           padding: 15px 22px; border-radius: 6px; border: 1px solid transparent; transition: transform .15s, background .15s;
         }
         .rbp .btn:hover { transform: translateY(-1px); }
-        .rbp .btn-red { background: var(--red); color: #fff; }
-        .rbp .btn-red:hover { background: var(--red-2); }
-        .rbp .btn-ghost { border-color: var(--line); background: rgba(255,255,255,.03); color: var(--paper); }
-        .rbp .btn-ghost:hover { border-color: rgba(242,239,232,.35); }
+        .rbp .btn-red { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 20px rgba(224,27,34,.2); }
+        .rbp .btn-red:hover { background: linear-gradient(135deg, #FF3B42 0%, #C40000 100%); }
+        .rbp .btn-ghost { border-color: #dcdcdc; background: #fff; color: #111; }
+        .rbp .btn-ghost:hover { border-color: var(--red); }
 
         .rbp .hero { position: relative; overflow: hidden; padding: 170px 0 40px;
-          background: radial-gradient(700px 520px at 80% 45%, rgba(224,27,34,.38), transparent 70%), linear-gradient(180deg, var(--ink-2), var(--ink)); }
+          background: radial-gradient(700px 520px at 80% 45%, rgba(224,27,34,.05), transparent 70%), #fff; }
         .rbp .hero-grid { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 24px; }
         .rbp .hero h1 { font-size: clamp(64px, 10vw, 136px); margin-top: 18px; }
-        .rbp .hero .sub { font-size: clamp(26px, 3vw, 36px); line-height: 1.12; margin-top: 18px; max-width: 520px; color: rgba(242,239,232,.9); }
+        .rbp .hero .sub { font-size: clamp(26px, 3vw, 36px); line-height: 1.12; margin-top: 18px; max-width: 520px; color: #333; }
         .rbp .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
         .rbp .hero .tire { width: 120%; max-width: 620px; transform: rotate(-9deg); margin-left: -4%;
-          filter: drop-shadow(0 40px 50px rgba(0,0,0,.7)) drop-shadow(0 0 60px rgba(224,27,34,.25)); }
+          filter: drop-shadow(0 24px 30px rgba(0,0,0,.15)); }
         .rbp .perks { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 48px; }
-        .rbp .perks div { border: 1px solid var(--line); background: rgba(20,20,20,.8); border-radius: 8px; padding: 16px 18px; }
+        .rbp .perks div { border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); border-radius: 8px; padding: 16px 18px; }
         .rbp .perks small { display: block; font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
         .rbp .perks b { display: block; margin-top: 4px; font-weight: 800; font-stretch: 82%; font-size: 21px; text-transform: uppercase; line-height: 1.1; }
 
         .rbp .block { padding: 96px 0; border-top: 1px solid var(--line); scroll-margin-top: 110px; }
+        .rbp #road-hazard, .rbp .more { background: var(--ink-2); }
         .rbp .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; }
         .rbp .head h2 { font-size: clamp(54px, 7vw, 96px); margin-top: 14px; }
         .rbp .head p { max-width: 420px; color: var(--muted); font-size: 17px; }
 
-        .rbp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+        .rbp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.08); border: 1px solid rgba(224,27,34,.3); color: #111; text-decoration: none; }
         .rbp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
-        .rbp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
+        .rbp .install span { font-size: 15px; color: #333; }
         .rbp .tabs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 22px; }
         .rbp .tab {
           appearance: none; cursor: pointer; text-align: left; color: var(--paper); font-family: inherit;
-          background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px 12px; transition: border-color .15s, background .15s;
+          background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 8px; padding: 14px 16px 12px; transition: border-color .15s, background .15s;
         }
         .rbp .tab b { display: block; font-weight: 900; font-stretch: 62%; font-size: 44px; line-height: .9; }
         .rbp .tab span { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); }
-        .rbp .tab:hover { border-color: rgba(242,239,232,.3); }
-        .rbp .tab[aria-selected="true"] { background: var(--red); border-color: var(--red); }
+        .rbp .tab:hover { border-color: var(--red); }
+        .rbp .tab[aria-selected="true"] { background: var(--red); border-color: var(--red); color: #fff; }
         .rbp .tab[aria-selected="true"] span { color: rgba(255,255,255,.85); }
-        .rbp .tab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+        .rbp .tab:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
 
-        .rbp .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 28px 20px; }
+        .rbp .panel { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 10px; padding: 8px 28px 20px; }
         .rbp .group + .group { margin-top: 18px; }
         .rbp .group h3 { display: flex; justify-content: space-between; align-items: baseline; padding: 18px 0 4px; font-weight: 800; font-stretch: 85%; font-size: 19px; text-transform: uppercase; }
         .rbp .group h3 span { font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 12px; letter-spacing: .12em; color: var(--muted); }
@@ -332,17 +334,17 @@ export default function RbpTires() {
         .rbp th { text-align: left; font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 14px 0 10px; border-bottom: 1px solid var(--line); }
         .rbp td { padding: 14px 0; border-bottom: 1px solid var(--line); }
         .rbp th:last-child, .rbp td:last-child, .rbp th:nth-last-child(2), .rbp td.price { text-align: right; }
-        .rbp td.inst { font-weight: 800; font-stretch: 80%; font-size: 18px; color: rgba(242,239,232,.75); padding-left: 14px; white-space: nowrap; }
+        .rbp td.inst { font-weight: 800; font-stretch: 80%; font-size: 18px; color: #555; padding-left: 14px; white-space: nowrap; }
         .rbp th.inst { padding-left: 14px; }
         .rbp td.size { font-weight: 800; font-stretch: 80%; font-size: 24px; }
-        .rbp td.size i { font-style: normal; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 11px; color: var(--ink); background: var(--paper); padding: 2px 6px; border-radius: 3px; margin-left: 8px; vertical-align: 4px; }
-        .rbp td.spec { font-family: "JetBrains Mono", monospace; font-size: 14px; color: rgba(242,239,232,.7); }
+        .rbp td.size i { font-style: normal; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 11px; color: #fff; background: #111; padding: 2px 6px; border-radius: 3px; margin-left: 8px; vertical-align: 4px; }
+        .rbp td.spec { font-family: "JetBrains Mono", monospace; font-size: 14px; color: #555; }
         .rbp td.price { font-weight: 900; font-stretch: 66%; font-size: 34px; line-height: 1; }
-        .rbp td.price .c { color: var(--red-2); font-size: 20px; vertical-align: 10px; margin-right: 1px; }
+        .rbp td.price .c { color: var(--red); font-size: 20px; vertical-align: 10px; margin-right: 1px; }
         .rbp .panel .foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 20px; color: var(--muted); font-size: 14px; }
 
         .rbp .rh { display: grid; grid-template-columns: .8fr 1.2fr; gap: 40px; align-items: start; }
-        .rbp .stat-card { position: sticky; top: 130px; background: var(--red); border-radius: 12px; padding: 34px 32px; overflow: hidden; }
+        .rbp .stat-card { position: sticky; top: 130px; background: var(--red); color: #fff; border-radius: 12px; padding: 34px 32px; overflow: hidden; box-shadow: 0 8px 20px rgba(224,27,34,.2); }
         .rbp .stat-card .v { font-weight: 900; font-stretch: 62%; font-size: 160px; line-height: .8; }
         .rbp .stat-card .l { font-weight: 900; font-stretch: 72%; font-size: 40px; line-height: .95; text-transform: uppercase; margin-top: 10px; }
         .rbp .stat-card p { margin-top: 18px; font-size: 17px; color: rgba(255,255,255,.9); }
@@ -357,15 +359,15 @@ export default function RbpTires() {
           padding: 24px 0; font-weight: 900; font-stretch: 70%; font-size: clamp(26px, 3vw, 34px); text-transform: uppercase; line-height: 1;
         }
         .rbp summary::-webkit-details-marker { display: none; }
-        .rbp summary::after { content: "+"; flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 22px; color: var(--red-2); transition: transform .2s; }
+        .rbp summary::after { content: "+"; flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 22px; color: var(--red); background: #fff; transition: transform .2s; }
         .rbp details[open] summary::after { transform: rotate(45deg); }
-        .rbp summary:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
-        .rbp .ans { padding: 0 0 26px; color: rgba(242,239,232,.85); font-size: 18px; max-width: 640px; }
+        .rbp summary:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
+        .rbp .ans { padding: 0 0 26px; color: #333; font-size: 18px; max-width: 640px; }
         .rbp .ans ul { margin: 10px 0 0 20px; }
         .rbp .ans li { margin: 4px 0; }
 
         .rbp .visit { display: grid; grid-template-columns: 1.2fr .8fr; gap: 24px; }
-        .rbp .visit .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 34px; }
+        .rbp .visit .card { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 12px; padding: 34px; }
         .rbp .visit h2 { font-size: clamp(54px, 7vw, 92px); }
         .rbp .visit .addr { font-size: 24px; font-weight: 800; margin-top: 22px; }
         .rbp .visit .meta { color: var(--muted); margin-top: 6px; }
@@ -375,18 +377,19 @@ export default function RbpTires() {
         .rbp .more { padding: 64px 0 80px; }
         .rbp .more-h { font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; }
         .rbp .chips { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 2rem; }
-        .rbp .chips a { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 50px; padding: .5rem 1rem; color: #fff; font-size: .85rem; font-weight: 600; }
+        .rbp .chips a { background: #fff; border: 1px solid #dcdcdc; border-radius: 50px; padding: .5rem 1rem; color: #111; font-size: .85rem; font-weight: 600; text-decoration: none; }
+        .rbp .chips a:hover { border-color: var(--red); }
         .rbp .fine { color: var(--muted); font-size: 13.5px; line-height: 1.6; max-width: 900px; margin-top: 8px; }
-        .rbp .back { color: #FF6666; font-weight: 700; }
+        .rbp .back { color: var(--red); font-weight: 700; }
 
         @media (max-width: 900px) {
           .rbp .hero-grid, .rbp .rh, .rbp .visit { grid-template-columns: 1fr; }
           .rbp .hero-grid > * { min-width: 0; }
           .rbp .hero .tire { width: 92%; margin: 10px auto 0; }
           .rbp .perks { grid-template-columns: repeat(2, 1fr); }
-          .rbp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+          .rbp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.08); border: 1px solid rgba(224,27,34,.3); color: #111; text-decoration: none; }
         .rbp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
-        .rbp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
+        .rbp .install span { font-size: 15px; color: #333; }
         .rbp .tabs { grid-template-columns: repeat(4, 1fr); }
           .rbp .stat-card { position: static; }
           .rbp .block { padding: 72px 0; }

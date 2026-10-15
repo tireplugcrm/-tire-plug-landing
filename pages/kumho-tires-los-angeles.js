@@ -240,14 +240,15 @@ export default function KumhoTires() {
 
       <style jsx global>{`
         .kp {
-          --ink: #0a0a0a; --ink-2: #141414; --card: #171717; --paper: #f2efe8; --muted: #9a978f;
-          --line: rgba(242,239,232,.12); --red: #e01b22; --red-2: #ff3b42; --gutter: 24px;
+          --ink: #ffffff; --ink-2: #f5f5f5; --card: #ffffff; --paper: #111111; --muted: #6b6b6b;
+          --line: #e6e6e6; --red: #e01b22; --red-2: #ff3b42; --gutter: 24px;
+          --shadow: 0 6px 18px rgba(0,0,0,.05);
           background: var(--ink); color: var(--paper);
           font-family: "Archivo", system-ui, sans-serif; line-height: 1.5;
         }
         .kp .wrap { max-width: 1160px; margin: 0 auto; padding: 0 var(--gutter); }
         .kp .eyebrow {
-          font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--red-2);
+          font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--red);
           display: inline-flex; align-items: center; gap: 12px;
         }
         .kp .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--red); }
@@ -260,18 +261,19 @@ export default function KumhoTires() {
           padding: 15px 22px; border-radius: 6px; border: 1px solid transparent; transition: transform .15s, background .15s;
         }
         .kp .btn:hover { transform: translateY(-1px); }
-        .kp .btn-red { background: var(--red); color: #fff; }
-        .kp .btn-red:hover { background: var(--red-2); }
-        .kp .btn-ghost { border-color: var(--line); background: rgba(255,255,255,.03); color: var(--paper); }
+        .kp .btn-red { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 20px rgba(224,27,34,.2); }
+        .kp .btn-red:hover { background: linear-gradient(135deg, #FF3B42 0%, #C40000 100%); }
+        .kp .btn-ghost { border-color: #dcdcdc; background: #fff; color: #111; }
+        .kp .btn-ghost:hover { border-color: var(--red); }
         .kp .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 
         .kp .hero { padding: 170px 0 72px; position: relative; overflow: hidden;
-          background: radial-gradient(700px 520px at 80% 45%, rgba(224,27,34,.32), transparent 70%), linear-gradient(180deg, var(--ink-2), var(--ink)); }
+          background: radial-gradient(700px 520px at 80% 45%, rgba(224,27,34,.05), transparent 70%), #fff; }
         .kp .hero-grid { display: grid; grid-template-columns: 1.3fr .7fr; align-items: center; gap: 40px; }
         .kp .brand { height: 54px; border-radius: 3px; }
         .kp .hero h1 { font-size: clamp(60px, 9vw, 124px); margin-top: 24px; }
-        .kp .hero .sub { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.15; margin-top: 18px; max-width: 560px; color: rgba(242,239,232,.9); }
-        .kp .deal { background: var(--red); color: #fff; border-radius: 14px; padding: 32px 30px; box-shadow: 0 30px 60px rgba(224,27,34,.25); }
+        .kp .hero .sub { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.15; margin-top: 18px; max-width: 560px; color: #333; }
+        .kp .deal { background: var(--red); color: #fff; border-radius: 14px; padding: 32px 30px; box-shadow: 0 8px 20px rgba(224,27,34,.2); }
         .kp .deal-k { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; opacity: .9; }
         .kp .deal-v { font-weight: 900; font-stretch: 62%; font-size: 150px; line-height: .8; margin-top: 14px; }
         .kp .deal-v .c { font-size: 60px; vertical-align: 56px; margin-right: 2px; }
@@ -279,36 +281,37 @@ export default function KumhoTires() {
         .kp .deal p { margin-top: 12px; font-size: 16px; opacity: .92; }
 
         .kp .block { padding: 96px 0; border-top: 1px solid var(--line); scroll-margin-top: 110px; }
+        .kp #faq, .kp .more { background: var(--ink-2); }
         .kp .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; }
         .kp .head h2 { font-size: clamp(54px, 7vw, 96px); margin-top: 14px; }
         .kp .head p { max-width: 420px; color: var(--muted); font-size: 17px; }
 
-        .kp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+        .kp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.08); border: 1px solid rgba(224,27,34,.3); color: #111; text-decoration: none; }
         .kp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
-        .kp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
+        .kp .install span { font-size: 15px; color: #333; }
         .kp .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
-        .kp .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 200px 1fr; scroll-margin-top: 110px; }
-        .kp .card.tesla { border-color: rgba(224,27,34,.6); box-shadow: 0 0 0 1px rgba(224,27,34,.25); }
-        .kp .photo { position: relative; background: #fff; display: grid; place-items: center; padding: 12px; }
+        .kp .card { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 200px 1fr; scroll-margin-top: 110px; }
+        .kp .card.tesla { border-color: rgba(224,27,34,.6); box-shadow: 0 0 0 1px rgba(224,27,34,.25), var(--shadow); }
+        .kp .photo { position: relative; background: #fff; border-right: 1px solid var(--line); display: grid; place-items: center; padding: 12px; }
         .kp .photo img { width: 100%; height: 100%; max-height: 260px; object-fit: contain; }
         .kp .photo img.ph-logo { max-width: 150px; height: auto; }
         .kp .flag { position: absolute; top: 10px; left: 10px; background: var(--red); color: #fff; font-family: "JetBrains Mono", monospace; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 5px 8px; border-radius: 3px; }
         .kp .body { padding: 22px 22px 18px; }
-        .kp .cat { font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--red-2); }
+        .kp .cat { font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); }
         .kp h3 { font-weight: 900; font-stretch: 70%; font-size: 34px; text-transform: uppercase; line-height: 1; margin-top: 6px; }
         .kp h3 span { font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 13px; color: var(--muted); vertical-align: 6px; letter-spacing: .08em; }
         .kp .fits { color: var(--muted); font-size: 15px; margin-top: 4px; }
         .kp .ben { list-style: none; margin: 14px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
-        .kp .ben li { font-size: 14.5px; padding-left: 18px; position: relative; color: rgba(242,239,232,.88); }
-        .kp .ben li::before { content: "✓"; position: absolute; left: 0; color: var(--red-2); font-weight: 800; }
+        .kp .ben li { font-size: 14.5px; padding-left: 18px; position: relative; color: #333; }
+        .kp .ben li::before { content: "✓"; position: absolute; left: 0; color: var(--red); font-weight: 800; }
         .kp .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-        .kp .chips span { font-size: 12px; font-weight: 700; border: 1px solid var(--line); border-radius: 50px; padding: 4px 10px; background: rgba(255,255,255,.04); }
+        .kp .chips span { font-size: 12px; font-weight: 700; border: 1px solid rgba(224,27,34,.3); border-radius: 50px; padding: 4px 10px; background: rgba(224,27,34,.08); color: #111; }
         .kp table { width: 100%; border-collapse: collapse; margin-top: 14px; }
         .kp th { text-align: left; font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 8px 0 6px; border-bottom: 1px solid var(--line); }
         .kp td { padding: 10px 0; border-bottom: 1px solid var(--line); }
         .kp th:nth-child(n+3), .kp td:nth-child(n+3) { text-align: right; }
         .kp td.size { font-weight: 800; font-stretch: 80%; font-size: 19px; }
-        .kp td.spec { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: rgba(242,239,232,.7); }
+        .kp td.spec { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: #555; }
         .kp td.price { font-weight: 900; font-stretch: 66%; font-size: 28px; line-height: 1; }
         .kp td.set { color: var(--muted); font-size: 14px; font-weight: 700; padding-left: 10px; }
 
@@ -317,13 +320,13 @@ export default function KumhoTires() {
         .kp summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px;
           padding: 24px 0; font-weight: 900; font-stretch: 70%; font-size: clamp(24px, 3vw, 32px); text-transform: uppercase; line-height: 1; }
         .kp summary::-webkit-details-marker { display: none; }
-        .kp summary::after { content: "+"; flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 22px; color: var(--red-2); transition: transform .2s; }
+        .kp summary::after { content: "+"; flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 22px; color: var(--red); background: #fff; transition: transform .2s; }
         .kp details[open] summary::after { transform: rotate(45deg); }
-        .kp summary:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
-        .kp .ans { padding: 0 0 26px; color: rgba(242,239,232,.85); font-size: 18px; max-width: 760px; }
+        .kp summary:focus-visible { outline: 2px solid #111; outline-offset: 4px; }
+        .kp .ans { padding: 0 0 26px; color: #333; font-size: 18px; max-width: 760px; }
         .kp .ans ul { margin: 10px 0 0 20px; }
 
-        .kp .card-v { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 34px; }
+        .kp .card-v { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 12px; padding: 34px; }
         .kp .card-v h2 { font-size: clamp(54px, 7vw, 92px); }
         .kp .addr { font-size: 24px; font-weight: 800; margin-top: 22px; }
         .kp .meta { color: var(--muted); margin-top: 6px; }
@@ -331,14 +334,15 @@ export default function KumhoTires() {
         .kp .more { padding: 64px 0 80px; }
         .kp .more-h { font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; }
         .kp .chips-l { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 2rem; }
-        .kp .chips-l a { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 50px; padding: .5rem 1rem; color: #fff; font-size: .85rem; font-weight: 600; }
+        .kp .chips-l a { background: #fff; border: 1px solid #dcdcdc; border-radius: 50px; padding: .5rem 1rem; color: #111; font-size: .85rem; font-weight: 600; text-decoration: none; }
+        .kp .chips-l a:hover { border-color: var(--red); }
         .kp .fine { color: var(--muted); font-size: 13.5px; line-height: 1.6; max-width: 900px; margin-top: 8px; }
-        .kp .back { color: #FF6666; font-weight: 700; }
+        .kp .back { color: var(--red); font-weight: 700; }
 
         @media (max-width: 1000px) {
-          .kp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+          .kp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.08); border: 1px solid rgba(224,27,34,.3); color: #111; text-decoration: none; }
         .kp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
-        .kp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
+        .kp .install span { font-size: 15px; color: #333; }
         .kp .grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 900px) {
@@ -349,6 +353,7 @@ export default function KumhoTires() {
           .kp { --gutter: 16px; }
           .kp .hero { padding-top: 150px; }
           .kp .card { grid-template-columns: 1fr; }
+          .kp .photo { border-right: 0; border-bottom: 1px solid var(--line); }
           .kp .photo img { max-height: 200px; }
           .kp .ben { grid-template-columns: 1fr; }
           .kp .deal-v { font-size: 120px; }

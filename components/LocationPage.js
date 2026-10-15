@@ -35,11 +35,11 @@ export default function LocationPage({ loc }) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       </Head>
       <Header />
-      <main style={{ background: "#000", color: "#fff", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
+      <main style={{ background: "#fff", color: "#111", fontFamily: "system-ui, -apple-system, sans-serif", minHeight: "60vh" }}>
         <section style={{ padding: "9.5rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto" }}>
-          <span style={{ color: "#FF1F1F", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>{loc.tag} · {loc.label}</span>
+          <span style={{ color: "#E01B22", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>{loc.tag} · {loc.label}</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>{loc.h1}</h1>
-          <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "1.05rem", lineHeight: 1.6, maxWidth: 700 }}>{loc.intro}</p>
+          <p style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.6, maxWidth: 700 }}>{loc.intro}</p>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", margin: "2rem 0 1.5rem" }}>
             <div style={card}><div style={cardLabel}>📍 Address</div><div style={cardVal}>{loc.street}<br />Los Angeles, CA {loc.zip}</div></div>
             <div style={card}><div style={cardLabel}>🕐 Hours</div><div style={cardVal}>{(loc.hoursLines || ["Mon–Sat · 9AM–6PM", loc.sundayText]).map((line, i) => (<React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>))}</div></div>
@@ -52,7 +52,7 @@ export default function LocationPage({ loc }) {
           </div>
         </section>
 
-        <section style={{ padding: "1.5rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <section style={{ padding: "1.5rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto", borderTop: "1px solid #e6e6e6" }}>
           <h2 style={h2}>Services at our {loc.label} tire shop</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "0.6rem" }}>
             {SERVICES.map((s) => <div key={s} style={chip}>{s}</div>)}
@@ -61,11 +61,11 @@ export default function LocationPage({ loc }) {
 
         <section style={{ padding: "0 1.5rem 4rem", maxWidth: 940, margin: "0 auto" }}>
           <h2 style={h2}>Proudly serving {loc.areaText}</h2>
-          <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.6, maxWidth: 720 }}>
+          <p style={{ color: "#555", lineHeight: 1.6, maxWidth: 720 }}>
             Drivers around {loc.neighborhoods.join(", ")} trust The Tire Plug for honest pricing and same-day tire service.
-            Come by {loc.street} in Los Angeles or call <a href="tel:5625004625" style={{ color: "#FF6666" }}>(562) 500-4625</a> for a fast quote on new or used tires, an alignment, or an oil change.
+            Come by {loc.street} in Los Angeles or call <a href="tel:5625004625" style={{ color: "#E01B22" }}>(562) 500-4625</a> for a fast quote on new or used tires, an alignment, or an oil change.
           </p>
-          <p style={{ marginTop: "1.25rem" }}><a href="/" style={{ color: "#FF6666", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
+          <p style={{ marginTop: "1.25rem" }}><a href="/" style={{ color: "#E01B22", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
         </section>
       </main>
       <Footer />
@@ -73,10 +73,10 @@ export default function LocationPage({ loc }) {
   );
 }
 
-const card = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "1rem 1.25rem", minWidth: 200 };
-const cardLabel = { color: "#FF6666", fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" };
-const cardVal = { color: "#fff", fontSize: "0.95rem", lineHeight: 1.5 };
+const card = { background: "#fff", border: "1px solid #e6e6e6", boxShadow: "0 6px 18px rgba(0,0,0,0.05)", borderRadius: 14, padding: "1rem 1.25rem", minWidth: 200 };
+const cardLabel = { color: "#E01B22", fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" };
+const cardVal = { color: "#111", fontSize: "0.95rem", lineHeight: 1.5 };
 const h2 = { fontSize: "1.4rem", fontWeight: 800, margin: "0 0 1rem" };
-const chip = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "0.7rem 1rem", color: "rgba(255,255,255,0.85)", fontSize: "0.88rem", fontWeight: 600 };
-const ctaRed = { background: "linear-gradient(180deg, #FF2A2A 0%, #C20000 100%)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" };
-const ctaGhost = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" };
+const chip = { background: "#f5f5f5", border: "1px solid #e6e6e6", borderRadius: 10, padding: "0.7rem 1rem", color: "#111", fontSize: "0.88rem", fontWeight: 600 };
+const ctaRed = { background: "linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)", color: "#fff", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 800, textDecoration: "none", fontSize: "0.9rem", boxShadow: "0 8px 20px rgba(224,27,34,0.2)" };
+const ctaGhost = { background: "#fff", border: "1px solid #dcdcdc", color: "#111", padding: "0.85rem 1.5rem", borderRadius: 10, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" };
