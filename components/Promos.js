@@ -150,6 +150,15 @@ export default function Promos() {
           })}
         </div>
 
+        <a href="/rbp-tires-los-angeles" className="promo-card rbp-banner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', flexWrap: 'wrap', maxWidth: '900px', margin: '1.25rem auto 0', background: 'linear-gradient(135deg, rgba(255,31,31,0.16) 0%, rgba(255,31,31,0.03) 100%)', border: '1px solid rgba(255,31,31,0.35)', borderRadius: '20px', padding: '1.75rem', color: '#fff', textDecoration: 'none', transition: 'all 0.3s ease' }}>
+          <div>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#FF3838', textTransform: 'uppercase', letterSpacing: '0.12em' }}>New · RBP Repulsor A/T</span>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.01em', margin: '0.35rem 0 0.25rem' }}>All-terrain tires from $95 — every size priced</h3>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>15" to 24" · 2-year road hazard · Next-day warranty exchange</p>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', padding: '0.8rem 1.4rem', borderRadius: '50px', fontWeight: 800, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>See sizes &amp; prices →</span>
+        </a>
+
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
           <a href="tel:562-500-4625" className="claim-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '1.1rem 2.5rem', fontSize: '1rem', fontWeight: 800, borderRadius: '50px', transition: 'all 0.3s ease', boxShadow: '0 8px 24px rgba(255,31,31,0.25)', letterSpacing: '0.02em', textDecoration: 'none' }}>
             📞 Call to Claim · 562-500-4625
