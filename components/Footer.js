@@ -169,6 +169,7 @@ export default function Footer() {
           <p style={{ marginTop: '0.75rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', letterSpacing: '0.04em', lineHeight: 1.8 }}>
             <a href="/new-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>New Tires</a>{' · '}
             <a href="/rbp-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>RBP Tires</a>{' · '}
+            <a href="/kumho-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Kumho Tires</a>{' · '}
             <a href="/used-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Used Tires</a>{' · '}
             <a href="/wheel-alignment-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Wheel Alignment</a>{' · '}
             <a href="/oil-change-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Oil Change</a>{' · '}
