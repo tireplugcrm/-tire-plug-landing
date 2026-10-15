@@ -83,7 +83,7 @@ export default function Header() {
         </a>
       </div>
 
-      <nav className="tp-nav" style={{ background: scrolled ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: scrolled ? '0.7rem 2rem' : '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'fixed', left: 0, right: 0, zIndex: 1000, transition: 'all 0.3s ease', borderBottom: scrolled ? '1px solid rgba(255,31,31,0.15)' : 'none' }}>
+      <nav className="tp-nav" style={{ background: '#0a0a0a', padding: scrolled ? '0.7rem 2rem' : '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'fixed', left: 0, right: 0, zIndex: 1000, transition: 'all 0.3s ease', borderBottom: '1px solid #222' }}>
         <div onClick={() => scrollToSection('hero')} className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
           <div className="logo-circle" style={{ width: scrolled ? '50px' : '58px', height: scrolled ? '50px' : '58px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: '0 0 0 2px rgba(255,31,31,0.3), 0 0 20px rgba(255,31,31,0.2)', transition: 'all 0.3s ease', position: 'relative' }}>
             <img src="/images/logo.webp" alt="The Tire Plug" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'center' }} />
@@ -140,7 +140,8 @@ export default function Header() {
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: block !important; }
           .info-bar { height: 48px; padding: 0 0.75rem; gap: 0.5rem; }
-          .tp-nav { top: 48px; }
+          .tp-nav { top: 48px; padding: 0.5rem 1rem !important; }
+          .tp-nav .logo-circle { width: 44px !important; height: 44px !important; }
           .ib-size, .ib-label { display: none !important; }
           .ib-loc svg { display: none; }
           .ib-loc .ib-text { flex-direction: column-reverse; }

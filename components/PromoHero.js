@@ -198,7 +198,7 @@ export default function PromoHero() {
           .ph-finder { max-width: 560px; width: 100%; margin: 0 auto; }
         }
         @media (max-width: 640px) {
-          .ph { padding-top: 134px; }
+          .ph { padding-top: 105px; }
           .ph-bar { font-size: 0.85rem; padding: 0.6rem 1rem; }
           .ph-wrap { padding: 0 1rem; margin-top: 1rem; }
           .ph-carousel { min-height: 0; }
