@@ -179,7 +179,7 @@ export default function Footer() {
           }} className="footer-grid">
             {/* LEFT: Logo + Identity */}
             <div>
-              {/* Circular logo + text */}
+              {/* Circular logo */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div style={{
                   width: '70px',
@@ -190,7 +190,6 @@ export default function Footer() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   overflow: 'hidden',
-                  boxShadow: '0 0 0 2px rgba(224,27,34,0.5)',
                   flexShrink: 0,
                 }}>
                   <img
@@ -198,27 +197,6 @@ export default function Footer() {
                     alt="The Tire Plug"
                     style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'center' }}
                   />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-                  <span style={{
-                    color: 'rgba(255,255,255,0.6)',
-                    fontSize: '0.65rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    marginBottom: '0.3rem',
-                  }}>
-                    The
-                  </span>
-                  <span style={{
-                    color: '#fff',
-                    fontSize: '1.4rem',
-                    fontWeight: 900,
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase',
-                  }}>
-                    Tire <span style={{ color: '#E01B22' }}>Plug</span>
-                  </span>
                 </div>
               </div>
 
