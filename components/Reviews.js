@@ -32,11 +32,12 @@ export default function Reviews() {
       ref={sectionRef}
       id="reviews"
       style={{
-        background: '#000',
+        background: '#fff',
+        color: '#111',
         padding: '6rem 2rem',
         position: 'relative',
         overflow: 'hidden',
-        borderTop: '1px solid rgba(255,31,31,0.08)',
+        borderTop: '1px solid #ececec',
       }}
     >
       {/* Ambient red glows */}
@@ -46,7 +47,7 @@ export default function Reviews() {
         left: '-15%',
         width: '600px',
         height: '600px',
-        background: 'radial-gradient(circle, rgba(255,31,31,0.1) 0%, transparent 60%)',
+        background: 'radial-gradient(circle, rgba(255,31,31,0.06) 0%, transparent 60%)',
         filter: 'blur(100px)',
         pointerEvents: 'none',
       }} />
@@ -56,7 +57,7 @@ export default function Reviews() {
         right: '-10%',
         width: '500px',
         height: '500px',
-        background: 'radial-gradient(circle, rgba(255,31,31,0.08) 0%, transparent 60%)',
+        background: 'radial-gradient(circle, rgba(255,31,31,0.05) 0%, transparent 60%)',
         filter: 'blur(100px)',
         pointerEvents: 'none',
       }} />
@@ -100,10 +101,10 @@ export default function Reviews() {
             textTransform: 'uppercase',
             marginBottom: '2rem',
           }}>
-            <span style={{ display: 'block', background: 'linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.85) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ display: 'block', color: '#111' }}>
               Trusted By
             </span>
-            <span style={{ display: 'block', background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 25px rgba(255,31,31,0.4))' }}>
+            <span style={{ display: 'block', background: 'linear-gradient(180deg, #FF3838 0%, #B30000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', }}>
               LA Drivers.
             </span>
           </h2>
@@ -111,7 +112,7 @@ export default function Reviews() {
           {/* Subline */}
           <p style={{
             fontSize: '1.05rem',
-            color: 'rgba(255,255,255,0.6)',
+            color: '#555',
             lineHeight: 1.6,
             marginBottom: '2.5rem',
             maxWidth: '420px',
@@ -148,7 +149,7 @@ export default function Reviews() {
             position: 'relative',
             height: '600px',
             overflow: 'hidden',
-            maskImage: 'linear-gradient(180deg, transparent 0%, #000 10%, #000 90%, transparent 100%)',
+            maskImage: 'linear-gradient(180deg, transparent 0%, #000 6%, #000 94%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 10%, #000 90%, transparent 100%)',
           }}
         >
@@ -192,7 +193,7 @@ function StatBlock({ value, label, red, icon, iconColor }) {
   return (
     <div style={{
       padding: '1.25rem 0',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
+      borderTop: '1px solid #e6e6e6',
     }}>
       <div style={{
         display: 'flex',
@@ -208,9 +209,8 @@ function StatBlock({ value, label, red, icon, iconColor }) {
         <span style={{
           fontSize: '2rem',
           fontWeight: 800,
-          color: red ? '#FF3838' : '#fff',
+          color: red ? '#E01B22' : '#111',
           letterSpacing: '-0.03em',
-          textShadow: red ? '0 0 20px rgba(255,31,31,0.3)' : 'none',
           lineHeight: 1,
         }}>
           {value}
@@ -218,7 +218,7 @@ function StatBlock({ value, label, red, icon, iconColor }) {
       </div>
       <span style={{
         fontSize: '0.7rem',
-        color: 'rgba(255,255,255,0.5)',
+        color: '#6b6b6b',
         letterSpacing: '0.2em',
         textTransform: 'uppercase',
         fontWeight: 500,
@@ -235,9 +235,9 @@ function ReviewCard({ review }) {
     <div
       className="review-card"
       style={{
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,31,31,0.02) 100%)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,31,31,0.12)',
+        background: '#fff',
+        border: '1px solid #e6e6e6',
+        boxShadow: '0 6px 18px rgba(0,0,0,0.05)',
         borderRadius: '14px',
         padding: '1.5rem',
         transition: 'all 0.4s ease',
@@ -281,14 +281,12 @@ function ReviewCard({ review }) {
             color: '#fff',
             fontWeight: 800,
             fontSize: '0.95rem',
-            border: '1px solid rgba(255,255,255,0.15)',
-            boxShadow: '0 0 15px rgba(255,31,31,0.3)',
           }}>
             {review.initial}
           </div>
           <div>
             <div style={{
-              color: '#fff',
+              color: '#111',
               fontSize: '0.9rem',
               fontWeight: 700,
               marginBottom: '0.15rem',
@@ -296,7 +294,7 @@ function ReviewCard({ review }) {
               {review.name}
             </div>
             <div style={{
-              color: 'rgba(255,255,255,0.4)',
+              color: '#8a8a8a',
               fontSize: '0.7rem',
               letterSpacing: '0.05em',
             }}>
@@ -309,7 +307,7 @@ function ReviewCard({ review }) {
         <div style={{
           width: '20px',
           height: '20px',
-          opacity: 0.6,
+          opacity: 0.9,
         }}>
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -338,9 +336,9 @@ function ReviewCard({ review }) {
         </div>
         {review.highlight && (
           <div style={{
-            background: 'rgba(255,31,31,0.1)',
-            border: '1px solid rgba(255,31,31,0.25)',
-            color: '#FF3838',
+            background: 'rgba(224,27,34,0.08)',
+            border: '1px solid rgba(224,27,34,0.3)',
+            color: '#E01B22',
             padding: '0.2rem 0.65rem',
             borderRadius: '50px',
             fontSize: '0.6rem',
@@ -355,7 +353,7 @@ function ReviewCard({ review }) {
 
       {/* Review Text */}
       <p style={{
-        color: 'rgba(255,255,255,0.85)',
+        color: '#333',
         fontSize: '0.9rem',
         lineHeight: 1.5,
         position: 'relative',
@@ -367,9 +365,9 @@ function ReviewCard({ review }) {
 
       <style jsx>{`
         .review-card:hover {
-          border-color: rgba(255,31,31,0.35) !important;
+          border-color: #E01B22 !important;
           transform: translateY(-3px);
-          box-shadow: 0 12px 32px rgba(255,31,31,0.15);
+          box-shadow: 0 12px 28px rgba(0,0,0,0.08) !important;
         }
         .review-card:hover .card-glow {
           opacity: 1 !important;

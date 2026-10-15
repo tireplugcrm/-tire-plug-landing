@@ -4,7 +4,6 @@ import Head from 'next/head';
 import Header from '../components/Header';
 import PromoHero from '../components/PromoHero';
 import Services from '../components/Services';
-import Promos from '../components/Promos';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
 import BookingForm from '../components/BookingForm';
@@ -59,7 +58,6 @@ export default function Home() {
       <Header />
       <PromoHero />
       <Services />
-      <Promos />
       <Reviews />
       <Locations />
       <BookingForm />
