@@ -3,61 +3,13 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
+import { RBP_AT as AT, RBP_RT as RT, RBP_CATALOG as CATALOG, INSTALL_FROM as INSTALL } from "../lib/tire-catalog";
 
 const URL = "https://tireplugla.com/rbp-tires-los-angeles";
 const TITLE = "RBP Repulsor A/T Tires in Los Angeles | Every Size Priced | The Tire Plug";
 const DESCRIPTION =
   "RBP Repulsor A/T Plateau all-terrain tires in 15\" to 24\" at The Tire Plug, 2331 E Olympic Blvd, Los Angeles. Every size priced, 2-year road hazard coverage, next-day warranty exchange. Open 7 days, no appointment. Call (562) 500-4625.";
 const IMAGE = "https://tireplugla.com/images/rbp/repulsor-at-plateau.png";
-
-const AT = "Repulsor A/T Plateau";
-const RT = "Repulsor R/T";
-// Install + balance starts at this per wheel, on top of the product-only price.
-const INSTALL = 25;
-// Prices per tire, tire only (install not included). Each size: [size, load/speed, ply, price]
-const CATALOG = [
-  { rim: 15, groups: [{ model: AT, note: "All-terrain", sizes: [
-    ["235/75R15", "109T", "", 99], ["255/70R15", "108S", "", 109], ["265/70R15", "112S", "", 125],
-    ["31X10.50R15LT", "109S", "C/6", 130], ["LT235/75R15", "116/113R", "E/10", 125],
-  ] }] },
-  { rim: 16, groups: [{ model: AT, note: "All-terrain", sizes: [
-    ["245/70R16", "106S", "", 95], ["245/75R16", "115T", "", 95], ["255/70R16", "115T", "", 125],
-    ["265/70R16", "112T", "", 100], ["265/75R16", "116T", "", 125], ["LT215/85R16", "115/112R", "E/10", 125],
-    ["LT225/75R16", "115/112S", "E/10", 115], ["LT235/85R16", "120/116S", "E/10", 130], ["LT245/75R16", "120/116S", "E/10", 110],
-    ["LT265/70R16", "117/114S", "D/8", 130], ["LT265/75R16", "123/120S", "E/10", 135], ["LT285/75R16", "126/123R", "E/10", 160],
-    ["LT315/75R16", "127/124R", "E/10", 210],
-  ] }] },
-  { rim: 17, groups: [{ model: AT, note: "All-terrain", sizes: [
-    ["225/65R17", "106T", "", 100], ["235/65R17", "104H", "", 115], ["245/65R17", "111T", "", 110],
-    ["245/70R17", "114T", "", 110], ["255/65R17", "114T", "", 110], ["255/70R17", "112T", "", 120],
-    ["265/65R17", "116T", "", 125], ["265/70R17", "115T", "", 125], ["285/70R17", "117T", "", 145],
-    ["LT235/70R17", "120/117R", "E/10", 130], ["LT235/80R17", "120/117R", "E/10", 125], ["LT245/70R17", "119/116S", "E/10", 115],
-    ["LT265/70R17", "123/120S", "E/10", 140], ["LT285/70R17", "126/123S", "E/10", 155],
-  ] }] },
-  { rim: 18, groups: [{ model: AT, note: "All-terrain", sizes: [
-    ["245/60R18", "105H", "", 135], ["255/70R18", "113T", "", 130], ["265/60R18", "114T", "", 125],
-    ["265/65R18", "114T", "", 135], ["265/70R18", "116T", "", 130], ["275/65R18", "116T", "", 150],
-    ["LT265/65R18", "122/119R", "E/10", 165], ["LT265/70R18", "124/121S", "E/10", 140], ["LT275/65R18", "123/120S", "E/10", 150],
-    ["LT275/70R18", "125/122S", "E/10", 155], ["LT285/65R18", "125/122S", "E/10", 165], ["LT295/70R18", "129/126R", "E/10", 195],
-    ["LT305/65R18", "128/125R", "F/12", 210], ["LT325/65R18", "121/118T", "D/8", 205],
-  ] }] },
-  { rim: 20, groups: [{ model: AT, note: "All-terrain", sizes: [
-    ["265/50R20", "111H", "", 140], ["275/55R20", "117T", "", 135], ["275/60R20", "115T", "", 145],
-    ["35X12.50R20LT", "125R", "F/12", 200], ["LT265/60R20", "121/118S", "E/10", 165], ["LT275/65R20", "126/123S", "E/10", 155],
-    ["LT285/60R20", "125/122R", "E/10", 175],
-  ] }] },
-  { rim: 22, groups: [
-    { model: AT, note: "All-terrain", sizes: [["285/45R22", "114T", "", 150]] },
-    { model: RT, note: "Rugged-terrain", sizes: [["33X13.50R22", "109Q", "F/12", 230], ["35X13.50R22", "122Q", "F/12", 270], ["305/45R22", "118V", "", 175]] },
-  ] },
-  { rim: 24, groups: [
-    { model: AT, note: "All-terrain", sizes: [["305/35R24", "112H", "", 180]] },
-    { model: RT, note: "Rugged-terrain", sizes: [
-      ["33X12.50R24", "106Q", "F/12", 230], ["35X12.50R24", "116Q", "F/12", 275], ["33X13.50R24", "102Q", "F/12", 240],
-      ["35X13.50R24", "118Q", "E/10", 225], ["305/35R24", "112V", "", 190], ["285/40R24", "112H", "", 185],
-    ] },
-  ] },
-];
 
 const FAQ = [
   { q: "What if my tire pops?", a: "Bring the tire and your receipt to The Tire Plug. We inspect it. If it can be safely plugged or patched, we repair it. If it can't, it's a warranty claim and your replacement tire is ready the next day." },

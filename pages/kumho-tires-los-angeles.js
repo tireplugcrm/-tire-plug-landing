@@ -3,6 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
+import { KUMHO_MODELS as MODELS } from "../lib/tire-catalog";
 
 const URL = "https://tireplugla.com/kumho-tires-los-angeles";
 const TITLE = "Kumho Tires in Los Angeles | Ecsta, Crugen, Road Venture, Tesla EV | The Tire Plug";
@@ -15,65 +16,6 @@ const ALIGNMENT = 49;
 // Mount + balance is extra, from $INSTALL per wheel.
 const INSTALL = 25;
 // Specs from Kumho USA (kumhotireusa.com).
-const MODELS = [
-  {
-    id: "ecsta-pa71",
-    name: "Ecsta Sport A/S",
-    code: "PA71",
-    category: "Ultra-high-performance all-season",
-    fits: "sport sedans, coupes & EVs",
-    img: "/images/kumho/ecsta-pa71.jpg",
-    benefits: ["Strong grip, wet or dry", "Sharp, responsive handling", "Even wear for longer tread life", "Quieter ride"],
-    chips: ["50,000-mile treadwear warranty"],
-    sizes: [["225/40ZR18", "92Y XL", 99.75], ["235/40ZR18", "95Y XL", 112.25], ["235/45ZR18", "98Y XL", 109.75]],
-  },
-  {
-    id: "majesty-9-ta91",
-    name: "Majesty 9 Solus TA91 EV",
-    code: "TA91",
-    category: "Grand touring all-season · EV",
-    fits: "Tesla & electric vehicles",
-    img: "/images/kumho/majesty-9-ta91.jpg",
-    tesla: true,
-    benefits: ["Noise-reducing foam inside the tire", "Built for EV torque and weight", "Quiet, comfortable ride", "All-season grip"],
-    chips: ["Foam for Teslas", "50,000-mile treadwear warranty"],
-    sizes: [["255/45R19", "104V XL", 154.75]],
-  },
-  {
-    id: "crugen-hp71",
-    name: "Crugen HP71",
-    code: "HP71",
-    category: "All-season touring for SUVs & CUVs",
-    fits: "SUVs & crossovers",
-    img: "/images/kumho/crugen-hp71.jpg",
-    benefits: ["Wet grip, resists hydroplaning", "Quiet, comfortable ride", "Long tread life", "Extra winter traction"],
-    chips: ["65,000-mile treadwear warranty"],
-    sizes: [["235/55R18", "104V XL", 99.75]],
-  },
-  {
-    id: "road-venture-ht52",
-    name: "Road Venture HT",
-    code: "HT52",
-    category: "All-season highway terrain",
-    fits: "trucks & SUVs",
-    img: "/images/kumho/road-venture-ht52.jpg",
-    benefits: ["Long tread life", "Resists hydroplaning", "Snow grip (3PMSF rated)", "Quiet on the highway"],
-    chips: ["75,000-mile treadwear warranty", "3PMSF snow rated"],
-    sizes: [["265/70R17", "115T", 139.75]],
-  },
-  {
-    id: "road-venture-rt51",
-    name: "Road Venture RT",
-    code: "RT51",
-    category: "Rugged terrain",
-    fits: "trucks & SUVs",
-    img: "/images/kumho/road-venture-rt51.jpg",
-    benefits: ["Strong wet traction and braking", "Better grip off the pavement", "Resists cuts and chips", "Rim protection, stone ejectors"],
-    chips: ["50,000-mile treadwear warranty"],
-    sizes: [["265/70R17", "116T XL", 174.0]],
-  },
-];
-
 const FAQ = [
   { q: "Is installation included?", a: `Prices shown are for the tire only. Install and balance start at $${INSTALL} per wheel. Get it installed today at our Downtown LA location.` },
   { q: "How does the $49 alignment deal work?", a: `Buy a set of 4 Kumho tires and add a 4-wheel alignment for $${ALIGNMENT}. We do it the same visit.` },

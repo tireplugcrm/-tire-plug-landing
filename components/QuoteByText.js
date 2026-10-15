@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sizeToSlug } from '../lib/tire-catalog';
 
 // Fast-path tire quote: the customer enters their size, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
@@ -72,8 +73,8 @@ export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
           {hero && (
             <div style={{ marginBottom: '1.1rem' }}>
               <span className="tp-eyebrow">Shop tires by size</span>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0.35rem 0 0.25rem' }}>Get your price by text</h2>
-              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>Pick your size, tap send, and we text back a real price.</p>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0.35rem 0 0.25rem' }}>Find tires in your size</h2>
+              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>Pick your size to see every option and price, or text us for a quote.</p>
             </div>
           )}
           <label style={labelStyle}>Your first name</label>
@@ -119,7 +120,12 @@ export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
             </>
           )}
 
-          <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none' }}>
+          {hero && size && (
+            <a href={`/tires/${sizeToSlug(size)}`} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', marginBottom: '0.6rem' }}>
+              See tires in {size} →
+            </a>
+          )}
+          <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none', ...(hero && size ? { background: '#fff', color: '#111', border: '1px solid #dcdcdc', boxShadow: 'none' } : {}) }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
             Text us · (562) 250-3737
           </a>
