@@ -84,15 +84,11 @@ export default function Header() {
       </div>
 
       <nav className="tp-nav" style={{ background: '#0a0a0a', padding: scrolled ? '0.7rem 2rem' : '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'fixed', left: 0, right: 0, zIndex: 1000, transition: 'all 0.3s ease', borderBottom: '1px solid #222' }}>
-        <div onClick={() => scrollToSection('hero')} className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-          <div className="logo-circle" style={{ width: scrolled ? '50px' : '58px', height: scrolled ? '50px' : '58px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: '0 0 0 2px rgba(255,31,31,0.3), 0 0 20px rgba(255,31,31,0.2)', transition: 'all 0.3s ease', position: 'relative' }}>
+        <a href="/" aria-label="The Tire Plug home" className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+          <div className="logo-circle" style={{ width: scrolled ? '50px' : '58px', height: scrolled ? '50px' : '58px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', transition: 'all 0.3s ease', position: 'relative' }}>
             <img src="/images/logo.webp" alt="The Tire Plug" style={{ width: '130%', height: '130%', objectFit: 'cover', objectPosition: 'center' }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-            <span style={{ color: '#fff', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.7, marginBottom: '0.2rem' }}>The</span>
-            <span style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Tire <span style={{ color: '#FF1F1F' }}>Plug</span></span>
-          </div>
-        </div>
+        </a>
 
         <div className="desktop-nav" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
           <button onClick={() => scrollToSection('services')} style={navLinkStyle} className="nav-link">Services</button>
@@ -153,8 +149,7 @@ export default function Header() {
           .ib-call svg { fill: #fff; }
         }
         .logo-container:hover .logo-circle {
-          box-shadow: 0 0 0 2px rgba(255,31,31,0.6), 0 0 30px rgba(255,31,31,0.4) !important;
-          transform: scale(1.05);
+                    transform: scale(1.05);
         }
         .ig-link:hover { transform: scale(1.05); }
         .ig-link:hover span { color: #fff !important; }

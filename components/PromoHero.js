@@ -6,6 +6,7 @@ import QuoteByText from './QuoteByText';
 const SLIDES = [
   {
     kicker: 'Kumho special',
+    brand: { src: '/images/kumho/kumho-logo.png', alt: 'Kumho Tires', h: 40 },
     title: ['Buy 4 Kumho tires,', 'get a 4-wheel alignment'],
     price: '$49',
     sub: 'Ecsta · Crugen · Road Venture · Tesla-ready TA91 EV. From $99.75 a tire. Install & balance from $25 per wheel.',
@@ -15,6 +16,7 @@ const SLIDES = [
   },
   {
     kicker: 'New · RBP Repulsor A/T',
+    brand: { src: '/images/rbp/rbp-logo-white.png', alt: 'RBP', h: 30 },
     title: ['All-terrain tires', 'from'],
     price: '$95',
     sub: '15" to 24", every size priced. 2-year road hazard coverage.',
@@ -101,6 +103,7 @@ export default function PromoHero() {
           <div className={`ph-slide${s.photo ? ' photo' : ''}`} key={i} aria-live="polite">
             {s.photo && <img className="ph-bg" src={s.img} alt="" aria-hidden="true" />}
             <div className="ph-copy">
+              {s.brand && <img className="ph-brand" src={s.brand.src} alt={s.brand.alt} style={{ height: s.brand.h }} />}
               <span className="ph-kicker">{s.kicker}</span>
               <h1 className="ph-title">
                 <span>{s.title[0]}</span>
@@ -133,6 +136,12 @@ export default function PromoHero() {
         <div className="ph-finder" id="finder">
           <QuoteByText variant="hero" theme="light" />
         </div>
+      </div>
+
+      <div className="ph-brands">
+        <span className="ph-brands-label">Brands we carry</span>
+        <a href="/kumho-tires-los-angeles" aria-label="Shop Kumho tires"><img src="/images/kumho/kumho-logo.png" alt="Kumho Tires" style={{ height: 44 }} /></a>
+        <a href="/rbp-tires-los-angeles" aria-label="Shop RBP tires"><img src="/images/rbp/rbp-logo.png" alt="RBP" style={{ height: 30 }} /></a>
       </div>
 
       <div className="ph-trust">
@@ -184,6 +193,12 @@ export default function PromoHero() {
 
         .ph-finder { display: flex; flex-direction: column; justify-content: center; scroll-margin-top: 150px; }
 
+        .ph-brand { display: block; width: auto; margin-bottom: 0.9rem; }
+        .ph-brands { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; display: flex; align-items: center; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
+        .ph-brands-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6b6b; }
+        .ph-brands a { display: flex; align-items: center; padding: 0.6rem 1.1rem; border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; transition: transform 0.2s ease, border-color 0.2s ease; }
+        .ph-brands a:hover { transform: translateY(-2px); border-color: #E01B22; }
+        .ph-brands img { width: auto; display: block; }
         .ph-trust { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
         .ph-trust div { border: 1px solid #e6e6e6; background: #fff; border-radius: 12px; padding: 0.9rem 1rem; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
         .ph-trust b { display: block; font-size: 1.4rem; font-weight: 800; color: #111; }
@@ -206,6 +221,9 @@ export default function PromoHero() {
           .ph-tire { max-height: 190px; order: -1; justify-self: center; width: auto; }
           .ph-ctas .ghost { display: none; }
           .ph-trust { grid-template-columns: repeat(2, 1fr); padding: 0 1rem; }
+          .ph-brands { gap: 0.75rem 1rem; padding: 0 1rem; }
+          .ph-brands-label { width: 100%; text-align: center; }
+          .ph-brand { margin-bottom: 0.6rem; }
         }
       `}</style>
     </section>
