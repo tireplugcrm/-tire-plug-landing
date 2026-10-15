@@ -30,7 +30,7 @@ const MODELS = [
     code: "TA91",
     category: "Grand touring all-season · EV",
     fits: "Tesla & electric vehicles",
-    img: null,
+    img: "/images/kumho/majesty-9-ta91.jpg",
     tesla: true,
     benefits: ["Noise-reducing foam inside the tire", "Built for EV torque and weight", "Quiet, comfortable ride", "All-season grip"],
     chips: ["Foam for Teslas", "50,000-mile treadwear warranty"],
