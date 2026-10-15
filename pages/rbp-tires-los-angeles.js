@@ -12,7 +12,7 @@ const IMAGE = "https://tireplugla.com/images/rbp/repulsor-at-plateau.png";
 
 const AT = "Repulsor A/T Plateau";
 const RT = "Repulsor R/T";
-// Mount + balance per tire, charged on top of the RBP tire-only price.
+// Install + balance starts at this per wheel, on top of the product-only price.
 const INSTALL = 25;
 // Prices per tire, tire only (install not included). Each size: [size, load/speed, ply, price]
 const CATALOG = [
@@ -157,8 +157,9 @@ export default function RbpTires() {
           <div className="wrap">
             <div className="head">
               <div><span className="eyebrow">Size catalog</span><h2 className="display">Find your <span className="r">size.</span></h2></div>
-              <p>Pick your rim size. Prices are per tire. Mounting &amp; balancing is ${INSTALL} per tire; the Installed column includes it. Don't see your size? Call or text us.</p>
+              <p>Pick your rim size. Prices are per tire, product only. Don't see your size? Call or text us and we'll check.</p>
             </div>
+            <a className="install" href="tel:5625004625"><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
             <div className="tabs" role="tablist" aria-label="Rim size" onKeyDown={onTabKey}>
               {CATALOG.map((c, i) => (
                 <button
@@ -175,7 +176,7 @@ export default function RbpTires() {
                 <div className="group" key={g.model}>
                   <h3>{g.model}<span>{g.note}</span></h3>
                   <table>
-                    <thead><tr><th>Size</th><th>Load / speed</th><th className="ply">Ply</th><th>Tire only</th><th className="inst">Installed</th></tr></thead>
+                    <thead><tr><th>Size</th><th>Load / speed</th><th className="ply">Ply</th><th>Per tire</th></tr></thead>
                     <tbody>
                       {g.sizes.map(([s, ls, ply, p]) => (
                         <tr key={s}>
@@ -183,7 +184,6 @@ export default function RbpTires() {
                           <td className="spec">{ls}</td>
                           <td className="spec ply">{ply || "—"}</td>
                           <td className="price"><span className="c">$</span>{p}</td>
-                          <td className="inst">${p + INSTALL}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -191,7 +191,7 @@ export default function RbpTires() {
                 </div>
               ))}
               <div className="foot">
-                <span>{allSizes(cur).length} sizes in {cur.rim}". Tire-only price + ${INSTALL} per tire for mounting &amp; balancing. Tax not included.</span>
+                <span>{allSizes(cur).length} sizes in {cur.rim}". Product-only prices. Install &amp; balance start at ${INSTALL} per wheel.</span>
                 <a className="btn btn-red" href="tel:5625004625">Call to reserve</a>
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function RbpTires() {
             <div className="chips">
               {SERVICE_INDEX.map((s) => <a key={s.slug} href={`/${s.slug}`}>{s.label}</a>)}
             </div>
-            <p className="fine">Prices are per tire, tire only, and subject to availability. Mounting and balancing: ${INSTALL} per tire. Tax not included.</p>
+            <p className="fine">Prices are per tire, product only, and subject to availability. Install and balance start at ${INSTALL} per wheel. Tax not included.</p>
             <p className="fine">Rolling Big Promise road hazard coverage applies to RBP Repulsor A/T Plateau and Guarantor H/T bought on or after Jan 1, 2026, per RBP terms: 2 years or 3/32" tread, whichever comes first. Product registration and original sales invoice required. Repulsor R/T sizes carry RBP's standard road hazard program. 50,000-mile limited treadwear warranty applies to Repulsor A/T Plateau.</p>
             <p style={{ marginTop: "1.5rem" }}><a href="/" className="back">← Back to The Tire Plug home</a></p>
           </div>
@@ -309,6 +309,9 @@ export default function RbpTires() {
         .rbp .head h2 { font-size: clamp(54px, 7vw, 96px); margin-top: 14px; }
         .rbp .head p { max-width: 420px; color: var(--muted); font-size: 17px; }
 
+        .rbp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+        .rbp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
+        .rbp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
         .rbp .tabs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 22px; }
         .rbp .tab {
           appearance: none; cursor: pointer; text-align: left; color: var(--paper); font-family: inherit;
@@ -381,7 +384,10 @@ export default function RbpTires() {
           .rbp .hero-grid > * { min-width: 0; }
           .rbp .hero .tire { width: 92%; margin: 10px auto 0; }
           .rbp .perks { grid-template-columns: repeat(2, 1fr); }
-          .rbp .tabs { grid-template-columns: repeat(4, 1fr); }
+          .rbp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+        .rbp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
+        .rbp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
+        .rbp .tabs { grid-template-columns: repeat(4, 1fr); }
           .rbp .stat-card { position: static; }
           .rbp .block { padding: 72px 0; }
         }

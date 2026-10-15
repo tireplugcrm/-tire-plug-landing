@@ -11,7 +11,10 @@ const DESCRIPTION =
 const IMAGE = "https://tireplugla.com/images/kumho/ecsta-pa71.jpg";
 const ALIGNMENT = 49;
 
-// Prices are per tire INSTALLED (mount + balance included), set by The Tire Plug. Specs from Kumho USA (kumhotireusa.com).
+// Prices are per tire, product only (install not included), set by The Tire Plug.
+// Mount + balance is extra, from $INSTALL per wheel.
+const INSTALL = 25;
+// Specs from Kumho USA (kumhotireusa.com).
 const MODELS = [
   {
     id: "ecsta-pa71",
@@ -22,7 +25,7 @@ const MODELS = [
     img: "/images/kumho/ecsta-pa71.jpg",
     benefits: ["Strong grip, wet or dry", "Sharp, responsive handling", "Even wear for longer tread life", "Quieter ride"],
     chips: ["50,000-mile treadwear warranty"],
-    sizes: [["225/40ZR18", "92Y XL", 124.75], ["235/40ZR18", "95Y XL", 137.25], ["235/45ZR18", "98Y XL", 134.75]],
+    sizes: [["225/40ZR18", "92Y XL", 99.75], ["235/40ZR18", "95Y XL", 112.25], ["235/45ZR18", "98Y XL", 109.75]],
   },
   {
     id: "majesty-9-ta91",
@@ -34,7 +37,7 @@ const MODELS = [
     tesla: true,
     benefits: ["Noise-reducing foam inside the tire", "Built for EV torque and weight", "Quiet, comfortable ride", "All-season grip"],
     chips: ["Foam for Teslas", "50,000-mile treadwear warranty"],
-    sizes: [["255/45R19", "104V XL", 179.75]],
+    sizes: [["255/45R19", "104V XL", 154.75]],
   },
   {
     id: "crugen-hp71",
@@ -45,7 +48,7 @@ const MODELS = [
     img: "/images/kumho/crugen-hp71.jpg",
     benefits: ["Wet grip, resists hydroplaning", "Quiet, comfortable ride", "Long tread life", "Extra winter traction"],
     chips: ["65,000-mile treadwear warranty"],
-    sizes: [["235/55R18", "104V XL", 124.75]],
+    sizes: [["235/55R18", "104V XL", 99.75]],
   },
   {
     id: "road-venture-ht52",
@@ -56,7 +59,7 @@ const MODELS = [
     img: "/images/kumho/road-venture-ht52.jpg",
     benefits: ["Long tread life", "Resists hydroplaning", "Snow grip (3PMSF rated)", "Quiet on the highway"],
     chips: ["75,000-mile treadwear warranty", "3PMSF snow rated"],
-    sizes: [["265/70R17", "115T", 164.75]],
+    sizes: [["265/70R17", "115T", 139.75]],
   },
   {
     id: "road-venture-rt51",
@@ -67,12 +70,12 @@ const MODELS = [
     img: "/images/kumho/road-venture-rt51.jpg",
     benefits: ["Strong wet traction and braking", "Better grip off the pavement", "Resists cuts and chips", "Rim protection, stone ejectors"],
     chips: ["50,000-mile treadwear warranty"],
-    sizes: [["265/70R17", "116T XL", 199.0]],
+    sizes: [["265/70R17", "116T XL", 174.0]],
   },
 ];
 
 const FAQ = [
-  { q: "Is installation included?", a: "Yes. Every Kumho price on this page is installed: mounting and balancing are included. Tax is extra." },
+  { q: "Is installation included?", a: `Prices shown are for the tire only. Install and balance start at $${INSTALL} per wheel. Get it installed today at our Downtown LA location.` },
   { q: "How does the $49 alignment deal work?", a: `Buy a set of 4 Kumho tires and add a 4-wheel alignment for $${ALIGNMENT}. We do it the same visit.` },
   { q: "What warranty comes with Kumho?", a: "Kumho's own programs:", list: [
     "Treadwear warranty: up to 75,000 miles depending on the tire (shown on each tire above)",
@@ -135,7 +138,7 @@ export default function KumhoTires() {
             <div>
               <img className="brand" src="/images/kumho/kumho-logo.png" alt="Kumho Tires" />
               <h1 className="display">Kumho tires.<br /><span className="r">Priced and in stock.</span></h1>
-              <p className="sub serif">Performance, SUV, truck and Tesla EV tires, from {money(Math.min(...allPrices))} a tire, installed.</p>
+              <p className="sub serif">Performance, SUV, truck and Tesla EV tires, from {money(Math.min(...allPrices))} a tire.</p>
               <div className="ctas">
                 <a className="btn btn-red" href="#tires">See tires &amp; prices →</a>
                 <a className="btn btn-ghost" href="tel:5625004625">Call (562) 500-4625</a>
@@ -154,8 +157,9 @@ export default function KumhoTires() {
           <div className="wrap">
             <div className="head">
               <div><span className="eyebrow">The lineup</span><h2 className="display">Pick your <span className="r">Kumho.</span></h2></div>
-              <p>Prices are per tire, installed: mounting and balancing included. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set.</p>
+              <p>Prices are per tire, product only. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set.</p>
             </div>
+            <a className="install" href="tel:5625004625"><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
             <div className="grid">
               {MODELS.map((m) => (
                 <article className={`card${m.tesla ? " tesla" : ""}`} key={m.id} id={m.id}>
@@ -170,7 +174,7 @@ export default function KumhoTires() {
                     <ul className="ben">{m.benefits.map((b) => <li key={b}>{b}</li>)}</ul>
                     <div className="chips">{m.chips.map((c) => <span key={c}>{c}</span>)}</div>
                     <table>
-                      <thead><tr><th>Size</th><th>Load / speed</th><th>Installed</th><th>Set of 4</th></tr></thead>
+                      <thead><tr><th>Size</th><th>Load / speed</th><th>Per tire</th><th>Set of 4</th></tr></thead>
                       <tbody>
                         {m.sizes.map(([s, ls, p]) => (
                           <tr key={s}>
@@ -225,7 +229,7 @@ export default function KumhoTires() {
             <div className="chips-l">
               {SERVICE_INDEX.map((s) => <a key={s.slug} href={`/${s.slug}`}>{s.label}</a>)}
             </div>
-            <p className="fine">Prices are per tire, installed (mounting and balancing included), and subject to availability. Tax not included. $49 4-wheel alignment requires purchase of 4 Kumho tires in the same visit.</p>
+            <p className="fine">Prices are per tire, product only, and subject to availability. Install and balance start at ${INSTALL} per wheel. Tax not included. $49 4-wheel alignment requires purchase of 4 Kumho tires in the same visit.</p>
             <p className="fine">Warranty programs are Kumho's (kumhotireusa.com); exclusions apply and they are not valid on original-equipment tires. Treadwear warranty shown per tire line.</p>
             <p style={{ marginTop: "1.5rem" }}><a href="/" className="back">← Back to The Tire Plug home</a></p>
           </div>
@@ -279,6 +283,9 @@ export default function KumhoTires() {
         .kp .head h2 { font-size: clamp(54px, 7vw, 96px); margin-top: 14px; }
         .kp .head p { max-width: 420px; color: var(--muted); font-size: 17px; }
 
+        .kp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+        .kp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
+        .kp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
         .kp .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
         .kp .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 200px 1fr; scroll-margin-top: 110px; }
         .kp .card.tesla { border-color: rgba(224,27,34,.6); box-shadow: 0 0 0 1px rgba(224,27,34,.25); }
@@ -329,7 +336,10 @@ export default function KumhoTires() {
         .kp .back { color: #FF6666; font-weight: 700; }
 
         @media (max-width: 1000px) {
-          .kp .grid { grid-template-columns: 1fr; }
+          .kp .install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: -12px 0 22px; padding: 14px 18px; border-radius: 10px; background: rgba(224,27,34,.12); border: 1px solid rgba(224,27,34,.45); color: var(--paper); text-decoration: none; }
+        .kp .install b { font-weight: 900; font-stretch: 75%; font-size: 20px; text-transform: uppercase; }
+        .kp .install span { font-size: 15px; color: rgba(242,239,232,.85); }
+        .kp .grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 900px) {
           .kp .hero-grid { grid-template-columns: 1fr; }
