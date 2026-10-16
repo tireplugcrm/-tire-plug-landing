@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T06:56:41.534Z",
+  "updatedAt": "2026-10-16T07:01:11.514Z",
   "source": "tekmetric-csv",
   "tires": [
     {
@@ -2520,7 +2520,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "Agility UHP AS",
+      "model": "Agility SUV",
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
@@ -2528,15 +2528,6 @@
         "partNumber": "BKH4120191"
       },
       "level": "in"
-    },
-    {
-      "brand": "Blackhawk",
-      "model": "Agility SUV",
-      "key": "235/55R19",
-      "rim": 19,
-      "lt": false,
-      "specs": {},
-      "level": "low"
     },
     {
       "brand": "Jinyu",
