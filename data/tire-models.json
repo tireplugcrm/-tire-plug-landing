@@ -1762,6 +1762,266 @@
         "FK510"
       ],
       "source": "https://green.falkentire.com/azenis/fk510"
+    },
+    "Goodyear|Assurance RangeMax": {
+      "category": "EV/Hybrid All-Season Touring",
+      "about": "An all-season tire built for EVs and hybrids, with ultra-low rolling resistance to help extend driving range. Wide grooves resist hydroplaning, and a dense network of sipes adds winter grip.",
+      "features": [
+        "All-season tire for EVs and hybrids",
+        "Ultra-low rolling resistance for better vehicle range",
+        "Circumferential and lateral grooves push water out to resist hydroplaning",
+        "Sipes bite into the road for winter traction",
+        "Eco-friendly rubber compound"
+      ],
+      "img": "/images/tires/goodyear-assurance-rangemax.webp",
+      "aliases": [
+        "Assurance Rangemax",
+        "Goodyear RangeMax"
+      ],
+      "source": "https://simpletire.com/brands/goodyear-tires/assurance-rangemax"
+    },
+    "Goodyear|Assurance Finesse": {
+      "category": "All-Season Touring",
+      "about": "Premium ride quality with confident all-season traction and better fuel efficiency. Built for sedans, crossovers and SUVs.",
+      "features": [
+        "Patented tread pattern for a comfortable, quiet ride",
+        "Fuel-saving tread compound grips in wet, dry, snow and ice",
+        "Low rolling resistance for eco-friendly driving",
+        "Optimized road contact area for reliable tread life",
+        "55,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/goodyear-assurance-finesse.webp",
+      "aliases": [],
+      "source": "https://www.goodyear.com/en-us/tires/assurance-finesse_15645"
+    },
+    "Goodyear|Eagle RS-A": {
+      "category": "All-Season Performance",
+      "about": "A performance tire with all-season traction in dry, wet and snowy conditions.",
+      "features": [
+        "Asymmetric tread for traction, cornering grip and a quiet ride",
+        "Aggressive shoulder blocks for confident handling",
+        "Wide lateral grooves for wet and snow performance"
+      ],
+      "img": "/images/tires/goodyear-eagle-rs-a.webp",
+      "aliases": [
+        "Eagle RSA",
+        "Eagle RS A"
+      ],
+      "source": "https://www.goodyear.com/en-us/tires/eagle-rs-a_67"
+    },
+    "Goodyear|Eagle F1": {
+      "category": "Summer Ultra-High Performance",
+      "about": "Goodyear's ultra-high-performance summer tire for wet and dry roads, with an asymmetric tread for quick, precise handling.",
+      "features": [
+        "Puts more rubber on the road for dry grip and stability",
+        "Flexible tread compound for wet-road traction",
+        "Asymmetric tread pattern for quick response in turns",
+        "Low road noise and lightweight construction",
+        "30,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/goodyear-eagle-f1.webp",
+      "aliases": [
+        "Eagle F1 Asymmetric 6",
+        "Eagle F1 Asym 6",
+        "F1 Asymmetric 6"
+      ],
+      "source": "https://www.goodyear.com/en-us/tires/eagle-f1-asymmetric-6_24789"
+    },
+    "Goodyear|Wrangler AT/S": {
+      "category": "All-Terrain All-Season (SUV/Light Truck)",
+      "about": "A tough all-terrain tire with better traction on and off the road.",
+      "features": [
+        "Self-cleaning Dual Traction Lug Channels clear mud, water and snow",
+        "Wraparound shoulder design for looks and off-road traction",
+        "Wide, deep lateral grooves for snow and off-road grip",
+        "Tough tread compound for rugged off-road handling"
+      ],
+      "img": "/images/tires/goodyear-wrangler-at-s.webp",
+      "aliases": [
+        "Wrangler ATS",
+        "Wrangler A/T S"
+      ],
+      "source": "https://www.goodyear.com/en-us/tires/wrangler-ats_352"
+    },
+    "Goodyear|Wrangler Fortitude HT": {
+      "category": "Highway All-Season (SUV/Light Truck)",
+      "about": "A highway tire for trucks and SUVs, built for the demands of everyday driving. Reinforced construction handles heavy loads, and the tread is designed for a quiet ride and long wear.",
+      "features": [
+        "Reinforced construction stands up to heavy loads",
+        "Optimized tread design for a quiet, comfortable ride",
+        "Durable tread compound extends tread life",
+        "Full-depth sipes and biting edges for snow traction",
+        "Four deep aqua grooves resist hydroplaning",
+        "65,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/goodyear-wrangler-fortitude-ht.webp",
+      "aliases": [
+        "Fortitude HT",
+        "Wrangler Fortitude H/T"
+      ],
+      "source": "https://www.goodyear.com/en-us/tires/wrangler-fortitude-ht_13373"
+    },
+    "Goodyear|Wrangler SR-A": {
+      "category": "Highway All-Season (Pickup/SUV)",
+      "about": "Goodyear's highway tire for pickups and SUVs, with better wet traction, optimized tread wear and a quiet ride. It is original equipment on leading pickup trucks.",
+      "features": [
+        "Zigzag microgrooves for traction in rain, snow and ice",
+        "TredLock microgrooves add biting edges and cornering grip",
+        "Wide circumferential grooves move water away",
+        "Exclusive wet-traction compound",
+        "50,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/goodyear-wrangler-sr-a.webp",
+      "aliases": [
+        "Wrangler SRA",
+        "Wrangler SR A"
+      ],
+      "source": "https://www.goodyear.com/en-us/tires/wrangler-sr-a_364"
+    },
+    "Goodyear|Wrangler Territory RT": {
+      "category": "Rugged Terrain (Light Truck)",
+      "about": "A rugged-terrain tire for light trucks, pickups, SUVs and crossovers that need reliable off-road traction. It also handles confidently on the road.",
+      "features": [
+        "Rugged-terrain tread",
+        "Off-road traction combined with stable on-road handling",
+        "Black sidewall",
+        "Light-truck (LT) Load Range C, 6-ply construction"
+      ],
+      "img": "/images/tires/goodyear-wrangler-territory-rt.webp",
+      "aliases": [
+        "Territory RT",
+        "Wrangler Territory R/T"
+      ],
+      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-rt"
+    },
+    "Michelin|Primacy A/S": {
+      "category": "All-Season Touring",
+      "about": "Michelin's eco-focused all-season tire, built for better fuel economy with all-season traction and a quiet ride. Its compounds keep rolling resistance low while holding grip on wet, dry and snowy roads.",
+      "features": [
+        "Low rolling resistance to maximize fuel economy",
+        "Engineered to reduce road noise",
+        "Grip on wet, dry and light-snow roads",
+        "Michelin Promise Plan: 60-day satisfaction guarantee and roadside assistance"
+      ],
+      "img": "/images/tires/michelin-primacy-a-s.webp",
+      "aliases": [
+        "Primacy All Season",
+        "Primacy AS"
+      ],
+      "source": "https://www.michelinman.com/auto/tires/michelin-primacy-a-s"
+    },
+    "Michelin|Pilot Sport 4": {
+      "category": "High Performance Summer",
+      "about": "Michelin's high-performance summer road tire, built for precise handling and steering control that lasts. Dynamic Response Technology passes steering inputs to the road quickly, and the tread keeps its grip on wet roads.",
+      "features": [
+        "Dynamic Response Technology for precise steering",
+        "High responsiveness and steering control on wet roads",
+        "Strong wet braking that holds up as the tire wears",
+        "Long tread life for a summer tire"
+      ],
+      "img": "/images/tires/michelin-pilot-sport-4.webp",
+      "aliases": [
+        "PS4"
+      ],
+      "source": "https://www.michelinman.com/auto/tires/michelin-pilot-sport-4"
+    },
+    "Michelin|Pilot Sport 4 S": {
+      "category": "Max Performance Summer",
+      "about": "Michelin's flagship max-performance summer tire for road and occasional track use, derived from the Pilot Super Sport. Multi-Compound Construction puts dry and wet grip where it is needed.",
+      "features": [
+        "Excellent handling and control, even at high speed",
+        "Exceptional dry grip and wet braking",
+        "Dynamic Response Technology for very precise steering",
+        "Original equipment on Mercedes-AMG, Ferrari and Porsche"
+      ],
+      "img": "/images/tires/michelin-pilot-sport-4-s.webp",
+      "aliases": [
+        "Pilot Sport 4S",
+        "PS4S"
+      ],
+      "source": "https://www.michelinman.com/auto/tires/michelin-pilot-sport-4-s"
+    },
+    "Pirelli|P Zero (PZ4)": {
+      "category": "Ultra High Performance Summer",
+      "about": "The fourth generation of Pirelli's P Zero, developed with carmakers so each version is a perfect fit for its vehicle.",
+      "features": [
+        "High-silica inner tread for wet safety, traction and comfort",
+        "Siping and pitch sequence for low noise and low rolling resistance",
+        "Tread compounds tuned for wet grip and mileage",
+        "Original equipment on BMW, Porsche, Mercedes and Aston Martin"
+      ],
+      "img": "/images/tires/pirelli-p-zero-pz4.webp",
+      "aliases": [
+        "P Zero PZ4",
+        "P-Zero PZ4",
+        "New P Zero",
+        "PZ4"
+      ],
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/new-p-zero"
+    },
+    "Pirelli|Scorpion Verde All Season": {
+      "category": "All-Season SUV/Crossover Touring",
+      "about": "An all-season tire for crossovers and SUVs focused on comfort, safety and performance on any road, with strong lateral stability and traction on wet and lightly snow-covered roads.",
+      "features": [
+        "Dense siping for wet and winter traction",
+        "Large contact patch with four grooves for handling and water drainage",
+        "Pitch sequence tuned to reduce interior noise",
+        "M+S rated all-season"
+      ],
+      "img": "/images/tires/pirelli-scorpion-verde-all-season.webp",
+      "aliases": [
+        "Scorpion Verde A/S",
+        "Scorpion Verde AS",
+        "Scorpion Verde All-Season"
+      ],
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/scorpion-verde-all-season"
+    },
+    "GT Radial|Champiro SX2": {
+      "category": "Extreme Performance Summer",
+      "about": "An extreme-performance summer tire with an asymmetric tread and high-grip silica compound, for more grip, response and control in dry and wet conditions on the street or at the track.",
+      "features": [
+        "Extra-large dual shoulder blocks for cornering grip",
+        "Wide center rib for handling, traction and braking",
+        "Asymmetric tread tuned for track and street",
+        "Silica compound for dry and wet traction"
+      ],
+      "img": "/images/tires/gt-radial-champiro-sx2.webp",
+      "aliases": [
+        "Champiro SX 2"
+      ],
+      "source": "https://www.gtradial-us.com/sport/champiro-sx2/"
+    },
+    "GT Radial|Maxmiler Pro": {
+      "category": "Commercial Van All-Season",
+      "about": "An all-season tire for light commercial vans such as the Ford Transit, Nissan NV and RAM ProMaster, with a reinforced sidewall for heavy loads.",
+      "features": [
+        "Square footprint for even wear and longer tread life",
+        "Large siped shoulder blocks for stability and braking",
+        "Wide grooves to resist hydroplaning",
+        "Reinforced sidewall for heavy loads",
+        "M+S rated"
+      ],
+      "img": "/images/tires/gt-radial-maxmiler-pro.webp",
+      "aliases": [
+        "MaxMiler Pro"
+      ],
+      "source": "https://www.gtradial-us.com/assets/pdf/maxmiler-pro.pdf"
+    },
+    "GT Radial|Adventuro ATX": {
+      "category": "On/Off-Road All-Terrain",
+      "about": "An all-terrain tire that balances on-road and off-road performance, Three-Peak Mountain Snowflake rated for winter traction.",
+      "features": [
+        "3PMS rated for snow",
+        "Sidewall cleats for grip in loose surfaces",
+        "Interlocked center rib for on-road stability",
+        "Cut- and chip-resistant compound",
+        "50,000-mile limited warranty"
+      ],
+      "img": "/images/tires/gt-radial-adventuro-atx.webp",
+      "aliases": [
+        "Adventuro A/TX"
+      ],
+      "source": "https://www.gtradial-us.com/suv-pickup/adventuro-atx/"
     }
   }
 }
