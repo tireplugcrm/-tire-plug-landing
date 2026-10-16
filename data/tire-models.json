@@ -1743,6 +1743,25 @@
         "Wrangler Territory A/T"
       ],
       "source": "https://spec.tireweb.com/tires/332459"
+    },
+    "Falken|Azenis FK510": {
+      "category": "Summer Ultra High Performance",
+      "about": "Falken's latest-generation ultra high performance summer tire for premium and luxury sport vehicles, built for strong dry and wet grip and precise handling. It is offered in 17- to 22-inch sizes, including staggered fitments.",
+      "features": [
+        "Wide shoulder blocks for high-speed cornering grip",
+        "Optimized void ratio and variable sipe depth for stability",
+        "Hybrid aramid/nylon undertread cap ply for precise high-speed handling",
+        "4D Nano Design compound for wear and wet traction",
+        "Four circumferential grooves to resist hydroplaning",
+        "Tension Control Technology casing to absorb shock while keeping steering precise",
+        "Road Hazard Protection and 30-Day Ride Guarantee (US and Canada)"
+      ],
+      "img": "/images/tires/falken-azenis-fk510.webp",
+      "aliases": [
+        "Azenis FK-510",
+        "FK510"
+      ],
+      "source": "https://green.falkentire.com/azenis/fk510"
     }
   }
 }

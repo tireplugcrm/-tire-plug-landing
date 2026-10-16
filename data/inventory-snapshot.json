@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T07:08:02.514Z",
+  "updatedAt": "2026-10-16T20:41:49.793Z",
   "source": "tekmetric-csv",
   "tires": [
     {
@@ -378,6 +378,19 @@
       "level": "low"
     },
     {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "235/75R15",
+      "rim": 15,
+      "lt": false,
+      "specs": {
+        "partNumber": "RBPSMGHT1575010",
+        "loadIndex": "109",
+        "speed": "T"
+      },
+      "level": "in"
+    },
+    {
       "brand": "Dunlop",
       "model": "Blue Response A/S",
       "key": "185/55R16",
@@ -488,21 +501,6 @@
         "speed": "V",
         "utqg": "600 A A",
         "sidewall": "BW",
-        "warranty": 70000
-      },
-      "level": "in"
-    },
-    {
-      "brand": "Lexani",
-      "model": "Quattro Tempo Tour AW",
-      "key": "205/60R16",
-      "rim": 16,
-      "lt": false,
-      "specs": {
-        "partNumber": "LXSMQTT1660010",
-        "loadIndex": "96",
-        "speed": "V",
-        "sidewall": "MBW",
         "warranty": 70000
       },
       "level": "in"
@@ -658,6 +656,20 @@
       "lt": false,
       "specs": {},
       "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXHT-206",
+      "key": "225/70R16",
+      "rim": 16,
+      "lt": false,
+      "specs": {
+        "partNumber": "LXST2061670070",
+        "loadIndex": "101",
+        "speed": "T",
+        "warranty": 50000
+      },
+      "level": "in"
     },
     {
       "brand": "Falken",
@@ -848,6 +860,20 @@
         "speed": "T",
         "sidewall": "BSW",
         "warranty": 60000
+      },
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Wildpeak A/T4W",
+      "key": "265/75R16",
+      "rim": 16,
+      "lt": false,
+      "specs": {
+        "partNumber": "FLK28844301",
+        "loadIndex": "116",
+        "speed": "T",
+        "warranty": 55000
       },
       "level": "in"
     },
@@ -1404,6 +1430,35 @@
       "level": "in"
     },
     {
+      "brand": "Lexani",
+      "model": "LXHT-206",
+      "key": "235/65R17",
+      "rim": 17,
+      "lt": false,
+      "specs": {
+        "partNumber": "LXST2061765030",
+        "loadIndex": "103",
+        "speed": "T",
+        "warranty": 50000
+      },
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "235/65R17",
+      "rim": 17,
+      "lt": false,
+      "specs": {
+        "partNumber": "rbpsmght1765030",
+        "loadIndex": "104",
+        "speed": "T",
+        "sidewall": "MBW",
+        "warranty": 60000
+      },
+      "level": "in"
+    },
+    {
       "brand": "Lionhart",
       "model": "Imara H/T",
       "key": "235/80R17",
@@ -1482,6 +1537,19 @@
       "rim": 17,
       "lt": false,
       "specs": {},
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXHT-206",
+      "key": "245/75R17",
+      "rim": 17,
+      "lt": true,
+      "specs": {
+        "partNumber": "LXST2061775010",
+        "loadRange": "E",
+        "warranty": 50000
+      },
       "level": "in"
     },
     {
@@ -2158,19 +2226,6 @@
       "level": "low"
     },
     {
-      "brand": "Blackhawk",
-      "model": "Agility SUV",
-      "key": "255/65R18",
-      "rim": 18,
-      "lt": false,
-      "specs": {
-        "partNumber": "BKH4120151",
-        "loadIndex": "111",
-        "speed": "T"
-      },
-      "level": "in"
-    },
-    {
       "brand": "RBP",
       "model": "Repulsor A/T Plateau",
       "key": "255/70R18",
@@ -2387,6 +2442,20 @@
       "level": "in"
     },
     {
+      "brand": "Falken",
+      "model": "Azenis FK510",
+      "key": "235/35R19",
+      "rim": 19,
+      "lt": false,
+      "specs": {
+        "partNumber": "FLK28032322",
+        "loadIndex": "91",
+        "speed": "Y",
+        "loadRange": "XL"
+      },
+      "level": "low"
+    },
+    {
       "brand": "Arroyo",
       "model": "Grand Sport A/S",
       "key": "235/40R19",
@@ -2582,6 +2651,19 @@
       "lt": false,
       "specs": {},
       "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "245/40R19",
+      "rim": 19,
+      "lt": false,
+      "specs": {
+        "partNumber": "LXHHFG1940030",
+        "loadIndex": "98",
+        "speed": "Y"
+      },
+      "level": "in"
     },
     {
       "brand": "Lexani",
@@ -2791,6 +2873,15 @@
     {
       "brand": "Lexani",
       "model": "Freccia GT-S",
+      "key": "275/35R19",
+      "rim": 19,
+      "lt": false,
+      "specs": {},
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
       "key": "275/40R19",
       "rim": 19,
       "lt": false,
@@ -2804,6 +2895,19 @@
       "rim": 19,
       "lt": false,
       "specs": {},
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Azenis FK510",
+      "key": "305/30R19",
+      "rim": 19,
+      "lt": false,
+      "specs": {
+        "partNumber": "FLK28035941",
+        "loadIndex": "102",
+        "speed": "Y"
+      },
       "level": "low"
     },
     {
@@ -2832,6 +2936,19 @@
       "lt": false,
       "specs": {},
       "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Thirty",
+      "key": "235/55R20",
+      "rim": 20,
+      "lt": false,
+      "specs": {
+        "partNumber": "LXST302055030",
+        "loadIndex": "102",
+        "speed": "H"
+      },
+      "level": "in"
     },
     {
       "brand": "Pirelli",
@@ -3155,7 +3272,7 @@
       "rim": 20,
       "lt": false,
       "specs": {},
-      "level": "in"
+      "level": "low"
     },
     {
       "brand": "Nitto",
@@ -3266,6 +3383,19 @@
       "rim": 20,
       "lt": false,
       "specs": {},
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "275/60R20",
+      "rim": 20,
+      "lt": false,
+      "specs": {
+        "partNumber": "RBPSMGHT2060010",
+        "loadIndex": "115",
+        "speed": "H"
+      },
       "level": "in"
     },
     {
@@ -3401,12 +3531,42 @@
       "level": "in"
     },
     {
+      "brand": "Groundspeed",
+      "model": "Voyager SV",
+      "key": "265/35R22",
+      "rim": 22,
+      "lt": false,
+      "specs": {
+        "partNumber": "115241",
+        "loadIndex": "102",
+        "speed": "W",
+        "utqg": "500 A A",
+        "sidewall": "BW",
+        "warranty": 50000
+      },
+      "level": "in"
+    },
+    {
       "brand": "Lexani",
       "model": "Volt-EC",
       "key": "265/35R22",
       "rim": 22,
       "lt": false,
       "specs": {},
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Thirty",
+      "key": "265/35R22",
+      "rim": 22,
+      "lt": false,
+      "specs": {
+        "partNumber": "LXST302235010",
+        "loadIndex": "102",
+        "speed": "W",
+        "warranty": 55000
+      },
       "level": "in"
     },
     {
