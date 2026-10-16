@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
+import { sendWelcomeEmail } from '../../lib/welcome-email.js';
 import { sendSms } from '../../lib/sms.js';
 import { digits10 } from '../../lib/phone.js';
 import { GREETING_TEXT } from '../../lib/shop-facts.js';
@@ -58,12 +59,14 @@ export default async function handler(req, res) {
   try {
     // ---- Newsletter / discount-popup signup ----
     if (isSubscriber) {
-      await supabaseAdmin.from('subscribers').insert({
+      const { error: subErr } = await supabaseAdmin.from('subscribers').insert({
         name: name || null,
         email: email || null,
         source: source || 'Website Discount Popup',
         tags,
       });
+      // New signup (not a repeat of an address we have): send the welcome email right away.
+      if (!subErr && email) await sendWelcomeEmail({ name, email });
       return res.status(200).json({ success: true, pipeline: 'SUBSCRIBER', tags });
     }
 

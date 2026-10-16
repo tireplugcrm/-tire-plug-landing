@@ -7,13 +7,15 @@
  *   { action: "send", segment, channel, subject, body }   -> { sent, failed, reachable }
  *
  * Compliance: SMS only goes to customers with sms_opt_in = true (+ a phone).
- * Email goes to customers with an email on file and always carries an opt-out line.
+ * Email goes to customers with an email on file, in the branded template with an unsubscribe
+ * link (lib/email.js); unsubscribed or bounced addresses are skipped.
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { sendSms } from "../../../lib/sms.js";
 import { SHOP_FACTS, AI_VOICE } from "../../../lib/shop-facts.js";
 import { fetchAllCustomers } from "../../../lib/customers-data.js";
+import { renderPromo, sendBatch, suppressedSet, unsubPageUrl, personalize, textVersion } from "../../../lib/email.js";
 
 export const maxDuration = 60;
 const MODEL = process.env.LEADS_AI_MODEL || "claude-sonnet-4-6";
@@ -53,20 +55,6 @@ async function askClaude(prompt) {
   return (data.content || []).map((b) => (b.type === "text" ? b.text : "")).join("").trim();
 }
 
-async function sendEmail(to, subject, body) {
-  const key = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM;
-  if (!key || !from) return false;
-  const html = `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.5">${body.replace(/\n/g, "<br>")}<hr style="border:none;border-top:1px solid #eee;margin:20px 0"><p style="color:#888;font-size:12px">The Tire Plug · Los Angeles · Reply STOP or unsubscribe to opt out.</p></div>`;
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject: subject || "The Tire Plug", html, reply_to: process.env.RESEND_REPLY_TO || undefined }),
-    });
-    return r.ok;
-  } catch (e) { return false; }
-}
-
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const auth = await requireAdmin(req);
@@ -85,7 +73,7 @@ SHOP FACTS (only facts you may state; never invent prices): ${SHOP_FACTS}
 AUDIENCE: ${INTENT[segment] || INTENT.all}
 Write ${isEmail ? "a short marketing EMAIL" : "a short marketing SMS (under 320 characters)"} to send to this audience.
 Use {name} where the customer's first name should go. Do NOT invent specific prices — refer to "a great deal" / "special pricing" or tell them to call 562-500-4625 for a quote.
-${isEmail ? "Start with a line 'SUBJECT: <subject>' then a blank line then the email body. End the body with an opt-out note." : "End with 'Reply STOP to opt out.'"}
+${isEmail ? "Start with a line 'SUBJECT: <subject>' then a blank line then the email body. Do not add an opt-out line or signature; the email template adds the unsubscribe link, logo and shop address." : "End with 'Reply STOP to opt out.'"}
 Output ONLY the message.`;
       const out = await askClaude(prompt);
       if (!out) return res.status(502).json({ error: "AI returned nothing." });
@@ -114,13 +102,28 @@ Output ONLY the message.`;
       if (reach.length === 0) return res.status(400).json({ error: "No reachable recipients in this segment for that channel." });
 
       let sent = 0, failed = 0;
-      const cap = reach.slice(0, 1000);
-      for (const c of cap) {
-        const msg = body.replace(/\{name\}/gi, first(c.name)).replace(/\{first\}/gi, first(c.name));
-        let ok = false;
-        if (channel === "email") ok = await sendEmail(c.email, subject, msg);
-        else { const r = await sendSms({ to: c.phone, body: msg }); ok = r.ok; }
-        if (ok) sent += 1; else failed += 1;
+      if (channel === "email") {
+        // Branded template + unsubscribe link, batched; unsubscribed/bounced addresses skipped.
+        const blocked = await suppressedSet();
+        const seen = new Set();
+        const msgs = reach.map((c) => ({ ...c, email: c.email.trim().toLowerCase() }))
+          .filter((c) => !blocked.has(c.email) && !seen.has(c.email) && seen.add(c.email))
+          .slice(0, 1000)
+          .map((c) => {
+            const unsubUrl = unsubPageUrl(c.email);
+            const msg = personalize(body, { name: c.name });
+            return { to: c.email, subject: personalize(subject || "A note from The Tire Plug", { name: c.name }), text: textVersion(msg, unsubUrl),
+              html: renderPromo({ subject, message: msg, unsubUrl, why: "You're getting this because you're a customer of The Tire Plug." }),
+              tags: { kind: "customers", segment } };
+          });
+        const out = await sendBatch(msgs);
+        sent = out.sent; failed = out.failed;
+      } else {
+        for (const c of reach.slice(0, 1000)) {
+          const msg = body.replace(/\{name\}/gi, first(c.name)).replace(/\{first\}/gi, first(c.name));
+          const r = await sendSms({ to: c.phone, body: msg });
+          if (r.ok) sent += 1; else failed += 1;
+        }
       }
       await supabaseAdmin.from("customer_campaigns").insert({ segment, channel, subject: subject || null, body, recipients: reach.length, sent });
       return res.status(200).json({ sent, failed, reachable: reach.length });

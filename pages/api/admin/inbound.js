@@ -74,6 +74,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Could not save reply." });
   }
 
+  // A business we cold-emailed wrote back: mark it so the follow-up never goes out.
+  if (from.email) {
+    try {
+      await supabaseAdmin.from("business_prospects").update({ status: "replied", replied_at: new Date().toISOString() })
+        .ilike("email", from.email.trim()).in("status", ["new", "emailed"]);
+    } catch (err) {
+      console.error("Prospect reply mark error (non-blocking):", err);
+    }
+  }
+
   // Safety net: also forward the reply to your inbox so it's never missed.
   const forwardTo = process.env.RESEND_FORWARD_TO;
   if (forwardTo && process.env.RESEND_API_KEY) {

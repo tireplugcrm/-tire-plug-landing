@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Head from "next/head";
 import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
+import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
@@ -176,7 +177,7 @@ export default function AdminHub() {
   const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
     { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
-    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
+    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "businesses", icon: "🏢", label: "Businesses" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
     { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
@@ -225,7 +226,8 @@ export default function AdminHub() {
         )}
         {tab === "conversions" && <ConversionsTab data={data} />}
         {tab === "subscribers" && <SubscribersTab subs={data.subscribers} onUpdate={update} />}
-        {tab === "email" && <EmailTab auth={auth} leads={data.leads} subs={data.subscribers} campaigns={data.campaigns} />}
+        {tab === "email" && <EmailTab auth={auth} campaigns={data.campaigns} onChanged={() => loadWith(authObj())} />}
+        {tab === "businesses" && <BusinessesTab auth={auth} />}
         {tab === "replies" && <RepliesTab replies={data.replies} onUpdate={update} />}
         {tab === "training" && <TrainingTab auth={auth} />}
         {tab === "hiring" && <HiringTab />}
@@ -805,103 +807,6 @@ function SubscribersTab({ subs, onUpdate }) {
           </button>
         </div>
       ))}
-    </div>
-  );
-}
-
-/* ---------------- EMAIL ---------------- */
-function EmailTab({ auth, leads, subs, campaigns }) {
-  const [audience, setAudience] = useState("subscribers");
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
-  const [result, setResult] = useState(null);
-  const [confirm, setConfirm] = useState(false);
-
-  const leadCount = leads.filter((l) => l.email && l.status !== "dead").length;
-  const subCount = subs.filter((s) => s.email && s.status === "active").length;
-  const counts = { leads: leadCount, subscribers: subCount, both: leadCount + subCount };
-
-  async function send() {
-    setSending(true); setResult(null);
-    try {
-      const res = await fetch("/api/admin/send-email", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...auth, audience, subject, message }),
-      });
-      const d = await res.json();
-      if (!res.ok) setResult({ error: d.error || "Send failed" });
-      else setResult({ ok: true, sent: d.sent, errors: d.errors, total: d.total });
-    } catch (e) { setResult({ error: "Network error" }); }
-    finally { setSending(false); setConfirm(false); }
-  }
-
-  const audiences = [
-    { id: "subscribers", label: "Subscribers", n: counts.subscribers },
-    { id: "leads", label: "Leads", n: counts.leads },
-    { id: "both", label: "Everyone", n: counts.both },
-  ];
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "2rem" }}>
-      <div style={{ display: "grid", gap: "1.25rem", maxWidth: 640 }}>
-        <div>
-          <label style={fieldLabel}>Send to</label>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-            {audiences.map((a) => (
-              <button key={a.id} onClick={() => setAudience(a.id)} style={{ ...ghostBtn, flex: 1, background: audience === a.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: audience === a.id ? "#FF1F1F" : "rgba(0,0,0,0.1)" }}>
-                {a.label} <span style={{ color: "rgba(0,0,0,0.55)" }}>({a.n})</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label style={fieldLabel}>Subject line</label>
-          <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. $20 off any oil change this week" style={inp} />
-        </div>
-        <div>
-          <label style={fieldLabel}>Message</label>
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={8} placeholder={"Write your message here.\n\nLeave a blank line between paragraphs."} style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
-          <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem", marginTop: "0.4rem" }}>Your message gets wrapped in the red/black Tire Plug email design automatically. Replies come back to you.</p>
-        </div>
-
-        {!confirm ? (
-          <button onClick={() => setConfirm(true)} disabled={!subject || !message} style={{ ...cta, opacity: !subject || !message ? 0.4 : 1 }}>Review &amp; send</button>
-        ) : (
-          <div style={{ background: "rgba(255,31,31,0.08)", border: "1px solid rgba(255,31,31,0.3)", borderRadius: 12, padding: "1rem" }}>
-            <p style={{ color: "#1a1a1a", fontSize: "0.9rem", marginBottom: "0.75rem" }}>
-              Send <strong style={{ color: "#FF3838" }}>“{subject}”</strong> to <strong style={{ color: "#FF3838" }}>{counts[audience]}</strong> {audience === "both" ? "people" : audience}?
-            </p>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={send} disabled={sending} style={cta}>{sending ? "Sending..." : "Yes, send it"}</button>
-              <button onClick={() => setConfirm(false)} style={ghostBtn}>Cancel</button>
-            </div>
-          </div>
-        )}
-
-        {result && (
-          <p style={{ color: result.error ? "#FF6666" : "#3DD68C", fontSize: "0.85rem" }}>
-            {result.error ? `⚠ ${result.error}` : `✓ Sent to ${result.sent} of ${result.total}${result.errors ? ` (${result.errors} failed)` : ""}.`}
-          </p>
-        )}
-      </div>
-
-      {campaigns.length > 0 && (
-        <div>
-          <h2 style={subHead}>Recent sends</h2>
-          <div style={{ display: "grid", gap: "0.5rem" }}>
-            {campaigns.map((c) => (
-              <div key={c.id} style={{ ...rowStyle, padding: "0.7rem 1rem" }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem" }}>{c.subject}</div>
-                  <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>to {c.audience} · {fmtDate(c.created_at, true)}</div>
-                </div>
-                <span style={{ color: "#3DD68C", fontSize: "0.78rem", fontWeight: 700 }}>{c.sent_count}/{c.recipient_count} sent</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
