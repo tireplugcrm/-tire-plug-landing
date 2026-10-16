@@ -4694,6 +4694,15 @@
       "warranty": 50000,
       "treadDepth32": 9,
       "source": "https://groundspeedtires.com/tires/passenger/voyager-sv"
+    },
+    "Lexani|LX-Thirty|235/55R20": {
+      "partNumber": "LXST302055030",
+      "loadIndex": "102",
+      "speed": "H",
+      "loadRange": "XL",
+      "sidewall": "BSW",
+      "warranty": 55000,
+      "source": "Turbo Tires invoice 9891915 (10/16/26): P235/55R20 LEXANI LX-THIRTY 102H BLK 55K RH XL"
     }
   }
 }
