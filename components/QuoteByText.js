@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { sizeToSlug } from '../lib/tire-catalog';
+import TireSizeSearch from './TireSizeSearch';
 
 // Fast-path tire quote: the customer enters their size, taps the button, and their
 // own phone's Messages app opens with a pre-written text to the shop — they just
@@ -27,10 +27,34 @@ const SIZE_MODES = {
 };
 
 // variant="section" (default): full-width homepage section with its own heading.
-// variant="hero": just the card, for the "Shop tires by size" box in the promo hero.
+// variant="hero": the "Shop tires by size" box in the promo hero. No texting there: picking a
+// size goes straight to /tires/<size>, which shows what's in stock and every option we carry.
 export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
-  const hero = variant === 'hero';
   const T = theme === 'light' ? LIGHT : THEME;
+  if (variant === 'hero') return <HeroSizeFinder T={T} />;
+  return <TextQuote T={T} />;
+}
+
+function HeroSizeFinder({ T }) {
+  return (
+    <div className="tp-quote" style={{ ...T, color: 'var(--ink)', height: '100%' }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', boxShadow: 'var(--shadow)', height: '100%', boxSizing: 'border-box' }}>
+        <div style={{ marginBottom: '1.1rem' }}>
+          <span className="tp-eyebrow">Shop tires by size</span>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0.35rem 0 0.25rem' }}>Find tires in your size</h2>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>Pick your size to see what's in stock today and every option we carry.</p>
+        </div>
+        <TireSizeSearch />
+        <p style={{ textAlign: 'center', fontSize: '0.8rem', margin: '0.85rem 0 0' }}>
+          <a href="/tire-size-guide" style={{ color: 'var(--ink)', fontWeight: 600 }}>Don't know your size?</a>
+        </p>
+      </div>
+      <QuoteStyles />
+    </div>
+  );
+}
+
+function TextQuote({ T }) {
   const [firstName, setFirstName] = useState('');
   const [sizeMode, setSizeMode] = useState('metric');
   const [s1, setS1] = useState('');
@@ -69,14 +93,7 @@ export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
   };
 
   const card = (
-        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: hero ? '1.5rem' : 'clamp(1.4rem, 4vw, 2rem)', boxShadow: 'var(--shadow)', height: hero ? '100%' : 'auto', boxSizing: 'border-box' }}>
-          {hero && (
-            <div style={{ marginBottom: '1.1rem' }}>
-              <span className="tp-eyebrow">Shop tires by size</span>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0.35rem 0 0.25rem' }}>Find tires in your size</h2>
-              <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.9rem' }}>Pick your size to see every option and price, or text us for a quote.</p>
-            </div>
-          )}
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-lg)', padding: 'clamp(1.4rem, 4vw, 2rem)', boxShadow: 'var(--shadow)', boxSizing: 'border-box' }}>
           <label style={labelStyle}>Your first name</label>
           <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Marcus" style={inputStyle} className="tp-field" />
 
@@ -120,12 +137,7 @@ export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
             </>
           )}
 
-          {hero && size && (
-            <a href={`/tires/${sizeToSlug(size)}`} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', marginBottom: '0.6rem' }}>
-              See tires in {size} →
-            </a>
-          )}
-          <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none', ...(hero && size ? { background: '#fff', color: '#111', border: '1px solid #dcdcdc', boxShadow: 'none' } : {}) }}>
+          <a href={smsHref} onClick={handleSend} aria-disabled={!ready} className="tp-btn tp-btn-primary" style={{ width: '100%', padding: '1.05rem', opacity: ready ? 1 : 0.45, pointerEvents: ready ? 'auto' : 'none' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
             Text us · (562) 250-3737
           </a>
@@ -134,10 +146,6 @@ export default function QuoteByText({ variant = 'section', theme = 'dark' }) {
           </p>
         </div>
   );
-
-  if (hero) {
-    return <div className="tp-quote" style={{ ...T, color: 'var(--ink)', height: '100%' }}>{card}<QuoteStyles /></div>;
-  }
 
   return (
     <section id="quote" className="tp-quote" style={{ ...T, background: 'var(--bg-alt)', color: 'var(--ink)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', padding: 'clamp(3rem, 7vw, 5rem) 1.25rem', scrollMarginTop: '110px' }}>
