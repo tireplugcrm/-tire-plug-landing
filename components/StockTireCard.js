@@ -46,7 +46,8 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
             {t.logo
               ? <img className={`stc-logo-top${t.logoDark ? ' on-dark' : ''}`} src={t.logo} alt={t.brand} />
               : <span className="stc-word">{t.brand}</span>}
-            <img className="stc-img" src={t.img} alt={`${t.brand} ${t.model} tire`} loading="lazy" />
+            <img className={`stc-img${t.imgGeneric ? ' generic' : ''}`} src={t.img} alt={t.imgGeneric ? '' : `${t.brand} ${t.model} tire`} loading="lazy" />
+            {t.imgGeneric && <span className="stc-illus">Image for illustration</span>}
           </div>
         ) : t.logo
           ? <img className={`stc-logo-big${t.logoDark ? ' on-dark' : ''}`} src={t.logo} alt={t.brand} />
@@ -78,6 +79,8 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
         .stc-shot { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; width: 100%; }
         .stc-logo-top { width: 85%; max-height: 34px; object-fit: contain; }
         .stc-img { width: 100%; max-height: 170px; object-fit: contain; mix-blend-mode: multiply; }
+        .stc-img.generic { max-height: 120px; }
+        .stc-illus { font-size: 0.65rem; color: #9a9a9a; }
         .stc-logo-big { width: 80%; max-height: 70px; object-fit: contain; }
         .on-dark { background: #111; padding: 8px 10px; border-radius: 8px; box-sizing: border-box; }
         .stc-word-big { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; color: #111; text-align: center; line-height: 1.05; word-break: break-word; }

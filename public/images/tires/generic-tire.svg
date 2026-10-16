@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="400" height="400">
+  <defs>
+    <radialGradient id="rubber" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#3a3a3a"/>
+      <stop offset="100%" stop-color="#141414"/>
+    </radialGradient>
+    <radialGradient id="rim" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#f2f2f2"/>
+      <stop offset="100%" stop-color="#9a9a9a"/>
+    </radialGradient>
+    <g id="lug"><rect x="-4" y="-98" width="8" height="12" rx="1.5" fill="#0b0b0b"/></g>
+    <g id="spoke"><path d="M-7 -14 L-11 -52 Q0 -56 11 -52 L7 -14 Z" fill="#7d7d7d"/></g>
+  </defs>
+  <g transform="translate(100 100)">
+    <circle r="97" fill="url(#rubber)"/>
+    <g>
+      <use href="#lug"/><use href="#lug" transform="rotate(10)"/><use href="#lug" transform="rotate(20)"/><use href="#lug" transform="rotate(30)"/><use href="#lug" transform="rotate(40)"/><use href="#lug" transform="rotate(50)"/>
+      <use href="#lug" transform="rotate(60)"/><use href="#lug" transform="rotate(70)"/><use href="#lug" transform="rotate(80)"/><use href="#lug" transform="rotate(90)"/><use href="#lug" transform="rotate(100)"/><use href="#lug" transform="rotate(110)"/>
+      <use href="#lug" transform="rotate(120)"/><use href="#lug" transform="rotate(130)"/><use href="#lug" transform="rotate(140)"/><use href="#lug" transform="rotate(150)"/><use href="#lug" transform="rotate(160)"/><use href="#lug" transform="rotate(170)"/>
+      <use href="#lug" transform="rotate(180)"/><use href="#lug" transform="rotate(190)"/><use href="#lug" transform="rotate(200)"/><use href="#lug" transform="rotate(210)"/><use href="#lug" transform="rotate(220)"/><use href="#lug" transform="rotate(230)"/>
+      <use href="#lug" transform="rotate(240)"/><use href="#lug" transform="rotate(250)"/><use href="#lug" transform="rotate(260)"/><use href="#lug" transform="rotate(270)"/><use href="#lug" transform="rotate(280)"/><use href="#lug" transform="rotate(290)"/>
+      <use href="#lug" transform="rotate(300)"/><use href="#lug" transform="rotate(310)"/><use href="#lug" transform="rotate(320)"/><use href="#lug" transform="rotate(330)"/><use href="#lug" transform="rotate(340)"/><use href="#lug" transform="rotate(350)"/>
+    </g>
+    <circle r="80" fill="#1f1f1f"/>
+    <circle r="78" fill="none" stroke="#2e2e2e" stroke-width="2"/>
+    <circle r="60" fill="url(#rim)"/>
+    <circle r="60" fill="none" stroke="#6f6f6f" stroke-width="2"/>
+    <g fill="#4a4a4a">
+      <circle r="50" fill="#5a5a5a"/>
+    </g>
+    <use href="#spoke"/><use href="#spoke" transform="rotate(72)"/><use href="#spoke" transform="rotate(144)"/><use href="#spoke" transform="rotate(216)"/><use href="#spoke" transform="rotate(288)"/>
+    <circle r="16" fill="url(#rim)" stroke="#6f6f6f" stroke-width="1.5"/>
+    <circle r="5" fill="#5a5a5a"/>
+  </g>
+</svg>
