@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T07:01:11.514Z",
+  "updatedAt": "2026-10-16T07:08:02.514Z",
   "source": "tekmetric-csv",
   "tires": [
     {
@@ -2552,17 +2552,6 @@
       "level": "in"
     },
     {
-      "brand": "Pirelli",
-      "model": "Scorpion All Season Plus 3",
-      "key": "235/55R19",
-      "rim": 19,
-      "lt": false,
-      "specs": {
-        "partNumber": "3920800"
-      },
-      "level": "in"
-    },
-    {
       "brand": "Arisun",
       "model": "Aggressor ZS03",
       "key": "245/35R19",
@@ -3437,6 +3426,17 @@
       "lt": false,
       "specs": {
         "partNumber": "mic38984"
+      },
+      "level": "in"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "key": "275/50R22",
+      "rim": 22,
+      "lt": false,
+      "specs": {
+        "partNumber": "3920800"
       },
       "level": "in"
     },

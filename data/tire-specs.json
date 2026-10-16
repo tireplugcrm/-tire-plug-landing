@@ -4515,6 +4515,18 @@
       "weightLbs": 37.2,
       "treadDepth32": 10,
       "source": "https://spec.tireweb.com/tires/332459"
+    },
+    "Pirelli|Scorpion All Season Plus 3|275/50R22": {
+      "partNumber": "3920800",
+      "loadIndex": "111",
+      "speed": "H",
+      "loadRange": "SL",
+      "utqg": "800 A A",
+      "sidewall": "BSW",
+      "overallDiameter": 32.9,
+      "loadLbs": 2403,
+      "warranty": 70000,
+      "source": "https://wheelwiz.ca/products/p-3920800"
     }
   }
 }
