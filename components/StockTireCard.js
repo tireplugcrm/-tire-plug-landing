@@ -23,7 +23,12 @@ function specRows(s) {
   ].filter(([, v]) => v);
 }
 
-export default function StockTireCard({ tire: t, size, smsHref }) {
+const LEVELS = { in: 'In stock', low: 'Low stock', nextday: 'Next-day' };
+const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
+
+// `cta` / `ready` let the next-day section reuse the card ("Text to order", "Installed tomorrow").
+// A tire with `price` shows it, with the set-of-4 total.
+export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to reserve', ready = 'Ready to install today' }) {
   const s = t.specs || {};
   const rows = specRows(s);
   const fit = [size, s.loadIndex ? `${s.loadIndex}${s.speed || ''}` : '', s.loadRange === 'XL' ? 'XL' : ''].filter(Boolean).join(' ');
@@ -40,7 +45,7 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
   return (
     <li className="stc">
       <div className="stc-ph">
-        <span className={`stc-lvl ${t.level}`}>{t.level === 'in' ? 'In stock' : 'Low stock'}</span>
+        <span className={`stc-lvl ${t.level}`}>{LEVELS[t.level] || LEVELS.low}</span>
         {t.img ? (
           <div className="stc-shot">
             {t.logo
@@ -58,9 +63,16 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
         {t.category && <div className="stc-cat">{t.category}</div>}
         <div className="stc-fit">✓ Fits {fit}</div>
         {chips.length > 0 && <div className="stc-chips">{chips.map((c) => <span key={c}>{c}</span>)}</div>}
-        <div className="stc-ready">Ready to install today</div>
+        {t.price != null && (
+          <div className="stc-price">
+            <div><b>{money(t.price)}</b><span>per tire</span></div>
+            <div className="stc-set">{money(t.price * 4)} <span>set of 4</span></div>
+          </div>
+        )}
+        {t.priceNote && <div className="stc-pnote">{t.priceNote}</div>}
+        <div className="stc-ready">{ready}</div>
         <div className="stc-ctas">
-          <a className="stc-btn red" href={smsHref}>Text to reserve</a>
+          <a className="stc-btn red" href={smsHref}>{cta}</a>
           <a className="stc-btn ghost" href="tel:5625004625">Call</a>
         </div>
         {(rows.length > 0 || t.about || t.features.length > 0) && (
@@ -87,6 +99,12 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
         .stc-lvl { position: absolute; top: 10px; left: 10px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3rem 0.55rem; border-radius: 6px; }
         .stc-lvl.in { background: #e8f6ec; color: #1b6b34; }
         .stc-lvl.low { background: #fff3e0; color: #9a5300; }
+        .stc-lvl.nextday { background: #e8f0fe; color: #1a4fb5; }
+        .stc-price { display: flex; align-items: flex-end; justify-content: space-between; gap: 0.5rem; margin-top: 0.2rem; }
+        .stc-price b { font-size: 1.6rem; font-weight: 900; line-height: 1; color: #111; }
+        .stc-price span { display: block; color: #6b6b6b; font-size: 0.75rem; }
+        .stc-set { text-align: right; font-weight: 800; color: #444; font-size: 0.95rem; }
+        .stc-pnote { color: #1b6b34; font-size: 0.78rem; font-weight: 700; }
         .stc-body { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
         .stc-word { font-size: 0.78rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #6b6b6b; }
         h3 { font-size: 1.2rem; font-weight: 800; margin: 0; line-height: 1.15; }

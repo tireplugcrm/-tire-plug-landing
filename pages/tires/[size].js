@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import TireSizeSearch from "../../components/TireSizeSearch";
 import StockTireCard from "../../components/StockTireCard";
 import { INSTALL_FROM, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
-import { allSizes, stockForSize } from "../../lib/inventory";
+import { allSizes, stockForSize, nextDayForSize } from "../../lib/inventory";
 
 // One page per tire size, e.g. /tires/265-70r17: what's on our shelf in that size (from Tekmetric),
 // then every tire we can order in it, cheapest first.
@@ -24,16 +24,18 @@ export async function getStaticProps({ params }) {
   if (sizeToSlug(key) !== params.size) return { redirect: { destination: `/tires/${sizeToSlug(key)}`, permanent: true } };
   const tires = tiresForSize(key);
   const stock = await stockForSize(key);
+  const nextDay = await nextDayForSize(key);
   const rim = Number(key.match(/R(\d{2})$/)[1]);
   const nearby = (await allSizes()).filter((s) => s.rim === rim && s.key !== key).slice(0, 12);
-  return { props: { sizeKey: key, tires, stock, nearby }, revalidate: 3600 };
+  return { props: { sizeKey: key, tires, stock, nextDay, nearby }, revalidate: 3600 };
 }
 
-export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
+export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], nearby }) {
   const display = sizeKey.replace("X", "x");
   const url = `https://tireplugla.com/tires/${sizeToSlug(sizeKey)}`;
   const has = tires.length > 0;
   const inStock = stock.length > 0;
+  const hasNextDay = nextDay.length > 0;
   const from = has ? tires[0].price : null;
   const stockBrands = [...new Set(stock.map((t) => t.brand))].join(", ");
   const title = has
@@ -67,6 +69,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
 
   const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;
   const smsAsk = `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'm looking for tires in ${display}. Can you send me options and prices?`)}`;
+  const smsNextDay = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next-day install. Can you order a set for me?`)}`;
   const smsStock = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price, and can you hold a set for me?`)}`;
 
   return (
@@ -76,7 +79,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href={url} />
-        {!has && !inStock && <meta name="robots" content="noindex, follow" />}
+        {!has && !inStock && !hasNextDay && <meta name="robots" content="noindex, follow" />}
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={url} />
@@ -93,6 +96,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
               <h1>{display} <span>tires</span></h1>
               <p className="lead">
                 {inStock && <><b>{stock.length} in stock</b> at our shop today. </>}
+                {hasNextDay && <><b>{nextDay.length} more next day</b>, priced below Amazon and Walmart. </>}
                 {has
                   ? <>{tires.length} option{tires.length > 1 ? "s" : ""} from <b>{money(from)}</b> per tire. Cheapest first.</>
                   : inStock
@@ -124,7 +128,19 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
             </section>
           )}
 
-          {has && inStock && <h2 className="order-h">More options we can order</h2>}
+          {hasNextDay && (
+            <section className="stock nextday">
+              <h2>Next-day order</h2>
+              <p className="nd-sub">Order today, installed tomorrow. Priced to beat Amazon and Walmart by at least $5 a tire. Install &amp; balance from ${INSTALL_FROM} per wheel.</p>
+              <ul className="list">
+                {nextDay.map((t) => (
+                  <StockTireCard key={`nd-${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsNextDay(t)} cta="Text to order" ready="Installed tomorrow" />
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {has && (inStock || hasNextDay) && <h2 className="order-h">More options we can order</h2>}
 
           {has ? (
             <ul className="list">
@@ -228,6 +244,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
         .ts .btn.ghost { background: #fff; color: #111; border: 1px solid #dcdcdc; flex: 0 0 auto; padding-left: 1.2rem; padding-right: 1.2rem; }
         .ts .more { color: #E01B22; font-size: 0.82rem; font-weight: 700; text-decoration: none; margin-top: 0.2rem; }
         .ts .stock { margin-bottom: 2rem; }
+        .ts .nd-sub { color: #555; font-size: 0.9rem; margin: -0.4rem 0 0.9rem; }
         .ts .stock h2, .ts .order-h { font-size: 1.3rem; font-weight: 900; margin: 0 0 0.75rem; }
         .ts .empty { background: #f5f5f5; border: 1px solid #e6e6e6; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; }
         .ts .empty h2 { font-size: 1.6rem; font-weight: 900; margin: 0 0 0.5rem; }
