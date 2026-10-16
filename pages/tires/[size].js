@@ -3,6 +3,7 @@ import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import TireSizeSearch from "../../components/TireSizeSearch";
+import StockTireCard from "../../components/StockTireCard";
 import { INSTALL_FROM, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
 import { allSizes, stockForSize } from "../../lib/inventory";
 
@@ -66,7 +67,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
 
   const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;
   const smsAsk = `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'm looking for tires in ${display}. Can you send me options and prices?`)}`;
-  const smsStock = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price?`)}`;
+  const smsStock = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price, and can you hold a set for me?`)}`;
 
   return (
     <>
@@ -115,16 +116,9 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
           {inStock && (
             <section className="stock">
               <h2>In stock at our shop</h2>
-              <ul className="stock-list">
+              <ul className="list">
                 {stock.map((t) => (
-                  <li key={`${t.brand}-${t.model}-${t.lt}`}>
-                    <div className="who">
-                      <b>{t.brand}</b> {t.model}
-                      <div className="spec"><span>{display}</span>{t.lt && <i>LT</i>}</div>
-                    </div>
-                    <span className={`lvl ${t.level}`}>{t.level === "in" ? "In stock" : "Low stock"}</span>
-                    <a className="btn red" href={smsStock(t)}>Text for price</a>
-                  </li>
+                  <StockTireCard key={`${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsStock(t)} />
                 ))}
               </ul>
             </section>
@@ -235,15 +229,6 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
         .ts .more { color: #E01B22; font-size: 0.82rem; font-weight: 700; text-decoration: none; margin-top: 0.2rem; }
         .ts .stock { margin-bottom: 2rem; }
         .ts .stock h2, .ts .order-h { font-size: 1.3rem; font-weight: 900; margin: 0 0 0.75rem; }
-        .ts .stock-list { list-style: none; padding: 0; margin: 0; border: 1px solid #e6e6e6; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
-        .ts .stock-list li { display: grid; grid-template-columns: 1fr auto 150px; align-items: center; gap: 0.75rem; padding: 0.85rem 1.1rem; border-top: 1px solid #f0f0f0; }
-        .ts .stock-list li:first-child { border-top: none; }
-        .ts .stock-list .who { font-size: 1rem; }
-        .ts .stock-list .spec { margin-top: 0.3rem; }
-        .ts .lvl { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 6px; white-space: nowrap; }
-        .ts .lvl.in { background: #e8f6ec; color: #1b6b34; }
-        .ts .lvl.low { background: #fff3e0; color: #9a5300; }
-        .ts .stock-list .btn { padding: 0.6rem 0.9rem; font-size: 0.85rem; }
         .ts .empty { background: #f5f5f5; border: 1px solid #e6e6e6; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; }
         .ts .empty h2 { font-size: 1.6rem; font-weight: 900; margin: 0 0 0.5rem; }
         .ts .empty p { color: #555; margin: 0 auto 1rem; max-width: 520px; }
@@ -266,10 +251,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
           .ts-top { padding-top: 8.5rem; }
           .ts .card { grid-template-columns: 110px 1fr; }
           .ts .ph img { max-height: 130px; }
-          .ts .price { font-size: 1.7rem; }
-          .ts .stock-list li { grid-template-columns: 1fr auto; }
-          .ts .stock-list .btn { grid-column: 1 / -1; }
-        }
+          .ts .price { font-size: 1.7rem; }        }
       `}</style>
     </>
   );

@@ -1,0 +1,368 @@
+{
+  "_about": "What each tire model is, shown on /tires/<size> cards. Key: 'Brand|Model'. img is a path under /public (leave null until we have a photo).",
+  "models": {
+    "Lexani|Quattro Tempo Tour AW": {
+      "category": "All-weather touring",
+      "about": "A touring tire for daily commuting and road trips, made to handle rain, light snow and dry roads.",
+      "features": [
+        "M+S rated",
+        "3PMSF severe-snow rated",
+        "70,000-mile limited treadwear warranty"
+      ],
+      "img": null,
+      "aliases": [
+        "Quattro Tempo AW"
+      ],
+      "source": "https://lexanitires.com/en/quattro-tempo-tour-aw"
+    },
+    "Lexani|LX-Twenty": {
+      "category": "High-performance all-season",
+      "about": "Lexani's main high-performance all-season tire for cars, built for sporty handling in a very wide range of low-profile sizes from 17 to 30 inches.",
+      "features": [
+        "55,000-mile limited mileage warranty"
+      ],
+      "img": null,
+      "aliases": [
+        "LX-TWENTY",
+        "LX-20",
+        "LX Twenty"
+      ],
+      "source": "https://lexanitires.com/en/lx-twenty-1196"
+    },
+    "Lexani|LXUHP-207": {
+      "category": "Ultra-high performance all-season",
+      "about": "An ultra-high performance all-season car tire that pairs sporty grip with a long treadwear rating.",
+      "features": [
+        "50,000-mile limited mileage warranty"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://lexanitires.com/en/lxuhp-207-1195"
+    },
+    "Lexani|LXTR-203": {
+      "category": "All-season touring",
+      "about": "An affordable all-season passenger tire meant as an everyday replacement for the tires that came on the car.",
+      "features": [
+        "M+S rated",
+        "50,000-mile limited mileage warranty"
+      ],
+      "img": null,
+      "aliases": [
+        "LX-203"
+      ],
+      "source": "https://lexanitires.com/en/lxtr-203-1193"
+    },
+    "Lexani|LXHT-206": {
+      "category": "SUV and light truck highway all-season",
+      "about": "A highway all-season tire for SUVs, vans and light trucks, aimed at a quiet, comfortable ride.",
+      "features": [
+        "50,000-mile limited mileage warranty (P-metric sizes)"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://lexanitires.com/en/lxht-206-1194"
+    },
+    "Lexani|RFX Plus": {
+      "category": "Run-flat all-season performance",
+      "about": "A run-flat all-season tire that lets you keep driving a short distance at reduced speed after losing air pressure.",
+      "features": [
+        "Run-flat: up to 50 miles under 50 mph"
+      ],
+      "img": null,
+      "aliases": [
+        "LX-RFX PLUS",
+        "RFX PLUS",
+        "LX-REX PLUS"
+      ],
+      "source": "https://lexanitires.com/en/rfx-plus"
+    },
+    "Lexani|Volt-EC": {
+      "category": "EV ultra-high performance all-season",
+      "about": "An ultra-high performance all-season tire tuned for electric vehicles, focused on low rolling resistance and reduced road noise.",
+      "features": [
+        "Built for EVs",
+        "Low rolling resistance",
+        "55,000-mile limited mileage warranty"
+      ],
+      "img": null,
+      "aliases": [
+        "Voltec EV",
+        "Volt EC",
+        "Voltec"
+      ],
+      "source": "https://lexanitires.com/en/volt-ec"
+    },
+    "Lexani|Freccia GT-S": {
+      "category": "Summer ultra-high performance",
+      "about": "Lexani's summer performance tire, made for maximum dry and wet grip in warm weather rather than year-round use.",
+      "features": [
+        "Summer tire",
+        "2-year limited warranty"
+      ],
+      "img": null,
+      "aliases": [
+        "Freccia GTS"
+      ],
+      "source": "https://lexanitires.com/en/freccia-gt-s"
+    },
+    "Lexani|LX-Thirty": {
+      "category": "Ultra-high performance SUV all-season",
+      "about": "An ultra-high performance all-season tire for SUVs and trucks running large-diameter wheels.",
+      "features": [
+        "55,000-mile limited mileage warranty"
+      ],
+      "img": null,
+      "aliases": [
+        "LX-THIRTY",
+        "LX THIRTY"
+      ],
+      "source": "https://lexanitires.com/en/lx-thirty-1197"
+    },
+    "Lionhart|Ramani A/S": {
+      "category": "All-season passenger touring",
+      "about": "Lionhart's everyday all-season passenger tire, built for long tread life with good wet and dry grip. Wide drainage grooves, a continuous center rib and a semi-closed shoulder keep road noise down.",
+      "features": [
+        "50,000-mile treadwear warranty",
+        "Wide grooves for water evacuation",
+        "Continuous center rib for straight-line stability",
+        "Semi-closed shoulder for lower road noise"
+      ],
+      "img": null,
+      "aliases": [
+        "Ramani AS",
+        "Ramani"
+      ],
+      "source": "https://lionharttires.com/tire/ramani-as/"
+    },
+    "Lionhart|LH-501": {
+      "category": "All-season passenger",
+      "about": "A budget OE-replacement all-season passenger tire focused on a quiet, comfortable ride, high mileage and steady wet and dry traction.",
+      "features": [
+        "M+S rated",
+        "40,000-mile treadwear warranty"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://lionharttires.com/tire/lh-501/"
+    },
+    "Lionhart|LH-503": {
+      "category": "High-performance all-season",
+      "about": "A high-performance all-season tire for sedans and coupes, pairing sharp steering response with grooves that resist hydroplaning.",
+      "features": [
+        "40,000-mile treadwear warranty",
+        "Four circumferential plus V-shaped grooves for wet traction"
+      ],
+      "img": null,
+      "aliases": [
+        "LX-503"
+      ],
+      "source": "https://lionharttires.com/tire/lh-503/"
+    },
+    "Lionhart|LH-FIVE": {
+      "category": "Ultra-high-performance all-season",
+      "about": "Lionhart's ultra-high-performance all-season tire for sports cars and daily drivers on large wheels, with a performance compound for wet and dry grip at speed.",
+      "features": [
+        "40,000-mile treadwear warranty",
+        "Performance tread compound"
+      ],
+      "img": null,
+      "aliases": [
+        "LH-Five"
+      ],
+      "source": "https://lionharttires.com/tire/lh-five/"
+    },
+    "Lionhart|LH-TEN": {
+      "category": "Ultra-high-performance all-season (SUV/truck)",
+      "about": "An ultra-high-performance all-season tire for SUVs, crossovers and trucks on large-diameter wheels, balancing high-speed ability with ride comfort.",
+      "features": [
+        "40,000-mile treadwear warranty",
+        "Performance tread compound"
+      ],
+      "img": null,
+      "aliases": [
+        "LH-Ten"
+      ],
+      "source": "https://lionharttires.com/tire/lh-ten/"
+    },
+    "Lionhart|Lionclaw HT": {
+      "category": "Highway terrain (SUV/light truck)",
+      "about": "An all-season highway tire for SUVs, pickups and vans that aims for a quiet ride and long tread life, with reinforced shoulders and a stiff center rib.",
+      "features": [
+        "40,000-mile treadwear warranty (P-metric sizes)",
+        "Reinforced shoulders",
+        "Rigid center rib"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://lionharttires.com/tire/lionclaw-ht/"
+    },
+    "Lionhart|Imara H/T": {
+      "category": "Highway terrain (SUV/light truck)",
+      "about": "A highway-terrain tire tuned for a quiet, controlled ride, with varied tread blocks to cut noise and four wide grooves to clear water.",
+      "features": [
+        "Four wide grooves for wet traction",
+        "Multi-angle tread blocks"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://lionharttires.com/tire/imara-ht/"
+    },
+    "RBP|Guarantor H/T": {
+      "category": "Highway all-season",
+      "about": "RBP's highway-terrain tire for SUVs, crossovers and light trucks, built for a quiet, comfortable ride and long tread life on daily drives and road trips.",
+      "features": [
+        "M+S rated",
+        "60,000-mile limited treadwear warranty",
+        "Road hazard protection and 2-year limited replacement (Rolling Big Promise)"
+      ],
+      "img": null,
+      "aliases": [
+        "Guarantor HT",
+        "GUARANTOR H/T"
+      ],
+      "source": "https://rbptires.com/tire/guarantor-ht/"
+    },
+    "RBP|Repulsor A/T Plateau": {
+      "category": "All-terrain",
+      "about": "An all-terrain tire for trucks, SUVs and crossovers that handles trails, snow and highway miles with one tread.",
+      "features": [
+        "3PMSF severe-snow rated",
+        "Sawtooth groove edges and dense siping",
+        "Stone-resistant blade-style sidewall",
+        "50,000-mile limited treadwear warranty",
+        "Road hazard protection and 2-year limited replacement (Rolling Big Promise)"
+      ],
+      "img": "/images/rbp/repulsor-at-plateau.png",
+      "aliases": [
+        "Repulsor AT Plateau"
+      ],
+      "source": "https://rbptires.com/tire/repulsor-at-plateau/"
+    },
+    "RBP|Conveyor ST": {
+      "category": "Special trailer (ST)",
+      "about": "RBP's trailer tire for utility, boat and cargo trailers, made for long-distance and regional towing.",
+      "features": [
+        "All-season tread",
+        "Reinforced build for heavy loads",
+        "12-month road hazard coverage"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://rbptires.com/tire/conveyor-st/"
+    },
+    "RBP|Distributor": {
+      "category": "Commercial van",
+      "about": "RBP's commercial van tire for fleet and delivery vans such as the Transit, Sprinter, ProMaster and Express.",
+      "features": [
+        "M+S rated",
+        "Stone-rejecting narrow grooves",
+        "40,000-mile limited treadwear warranty",
+        "12-month road hazard coverage"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://rbptires.com/tire/distributor/"
+    },
+    "Falken|Sincera SN250 A/S": {
+      "category": "All-season touring",
+      "about": "An everyday touring all-season tire for passenger cars, tuned for long tread life and a quiet ride.",
+      "features": [
+        "80,000-mile treadwear warranty (T-rated sizes)",
+        "75,000-mile treadwear warranty (H/V-rated sizes)",
+        "Tread pattern designed to cut road noise"
+      ],
+      "img": null,
+      "aliases": [
+        "Sincera SN250",
+        "Sincera sn250"
+      ],
+      "source": "https://tiresize.com/tires/Falken/Sincera-SN250-AS.htm"
+    },
+    "Falken|Sincera ST80 A/S": {
+      "category": "All-season touring",
+      "about": "A passenger all-season touring tire that uses a symmetrical rib design and dense siping for even wear and grip in the wet.",
+      "features": [
+        "70,000-mile treadwear warranty",
+        "Four circumferential grooves for water and slush evacuation",
+        "Solid center rib for stability",
+        "High sipe density for wet and light-snow grip"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://www.tires-easy.com/brands/falken-tires/s/sincera-st80-a-s"
+    },
+    "Falken|Ziex ZE960 A/S": {
+      "category": "All-season high performance",
+      "about": "A high-performance all-season tire that uses a silica compound and wet-focused siping to grip in all four seasons.",
+      "features": [
+        "65,000-mile treadwear warranty (H/V-rated sizes)",
+        "45,000-mile treadwear warranty (W-rated sizes)",
+        "Flask Siping for hydroplaning resistance",
+        "Canyon Groove technology for snow traction",
+        "Silica-based tread compound"
+      ],
+      "img": null,
+      "aliases": [],
+      "source": "https://tiresize.com/tires/Falken/Ziex-ZE960-AS.htm"
+    },
+    "Falken|Wildpeak H/T02": {
+      "category": "Truck/SUV all-season highway",
+      "about": "A durable highway tire for pickups that is built for work, towing and hauling. Its LT sizes carry an HD rating from testing on 3/4-ton diesel trucks.",
+      "features": [
+        "70,000-mile treadwear warranty (P-metric/metric sizes)",
+        "50,000-mile treadwear warranty (LT sizes)",
+        "Reinforced upper sidewall",
+        "HD rating on LT sizes"
+      ],
+      "img": null,
+      "aliases": [
+        "Wildpeak HT02 HD",
+        "Wildpeak HT02"
+      ],
+      "source": "https://tiresize.com/tires/Falken/Wildpeak-HT02.htm"
+    },
+    "Falken|Wildpeak A/T4W": {
+      "category": "All-terrain",
+      "about": "An all-terrain tire for trucks and SUVs, with a rugged tread built for both pavement and off-road traction.",
+      "features": [
+        "65,000-mile treadwear warranty (P-metric/metric sizes)",
+        "60,000-mile treadwear warranty (LT sizes)",
+        "Wear-resistant tread compound"
+      ],
+      "img": null,
+      "aliases": [
+        "Wildpeak A/T4W HD"
+      ],
+      "source": "https://tiresize.com/tires/Falken/Wildpeak-AT4W.htm"
+    },
+    "Falken|Rubitrek A/T": {
+      "category": "All-terrain (crossover/SUV)",
+      "about": "A lighter-duty all-terrain tire for SUVs and crossovers that balances long wear with rain and snow traction.",
+      "features": [
+        "3PMSF (Three Peak Mountain Snowflake) rated",
+        "55,000-mile treadwear warranty",
+        "3D Canyon Sipes",
+        "Silica tread compound"
+      ],
+      "img": null,
+      "aliases": [
+        "Rubitrek A/T01"
+      ],
+      "source": "https://tiresize.com/tires/Falken/Rubitrek-AT.htm"
+    },
+    "Falken|Azenis FK460 A/S": {
+      "category": "All-season ultra-high performance",
+      "about": "An ultra-high-performance all-season tire for sporty cars, built for sharp dry handling and confident wet grip year-round.",
+      "features": [
+        "50,000-mile treadwear warranty",
+        "4D Nano Technology tread compound",
+        "Interlocking sipes for bad-weather traction and lower noise"
+      ],
+      "img": null,
+      "aliases": [
+        "AZENIS FK460"
+      ],
+      "source": "https://tiresize.com/tires/Falken/Azenis-FK460-AS.htm"
+    }
+  }
+}

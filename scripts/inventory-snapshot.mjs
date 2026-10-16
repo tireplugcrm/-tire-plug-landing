@@ -6,8 +6,10 @@
  * Takes the CSV from Tekmetric (Inventory -> Download CSV) and writes
  * data/inventory-snapshot.json, which lib/inventory.js serves to the /tires pages
  * until the Tekmetric API is connected. Commit and push the JSON to publish it.
+ * Re-run it after editing data/tire-models.json so model aliases are applied.
  *
- * WHAT GOES PUBLIC: brand, model, size and a stock level ("in" or "low").
+ * WHAT GOES PUBLIC: brand, model, size, the tire's published specs (load/speed,
+ * UTQG, warranty...) and a stock level ("in" or "low").
  * Never cost, never retail, never the exact count. The JSON ends up in the page
  * source, so anything written here is readable by anyone.
  */
@@ -16,7 +18,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data", "inventory-snapshot.json");
+const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data");
+const OUT = path.join(DATA, "inventory-snapshot.json");
+
+// Tekmetric has the same tire line typed several ways ("LX-Twenty", "LX-TWENTY", "LX-20").
+// data/tire-models.json lists each line's aliases; stock is merged under the real name.
+const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+const CANON = new Map();
+for (const [id, m] of Object.entries(JSON.parse(fs.readFileSync(path.join(DATA, "tire-models.json"), "utf8")).models)) {
+  const [brand, model] = id.split("|");
+  for (const name of [model, ...(m.aliases || [])]) CANON.set(`${norm(brand)}|${norm(name)}`, model);
+}
 const LOW_AT = 3; // 1-3 available shows "Low stock"
 
 // Tekmetric has the same brand typed several ways.
@@ -53,11 +65,13 @@ for (const r of rows) {
   if (!size || !brandRaw) { skipped += available; continue; }
 
   const brand = BRANDS[brandRaw.toLowerCase()] || brandRaw;
-  const model = col(r, "Tire Model");
+  const model = CANON.get(`${norm(brand)}|${norm(col(r, "Tire Model"))}`) || col(r, "Tire Model");
   const lt = /\bLT\b/i.test(col(r, "Tire Type")) || /\blt\b/.test(details) || size.lt;
   const id = `${brand}|${model.toLowerCase()}|${size.key}|${lt}`;
-  const cur = byTire.get(id) || { brand, model, key: size.key, rim: size.rim, lt, available: 0 };
+  const cur = byTire.get(id) || { brand, model, key: size.key, rim: size.rim, lt, available: 0, specs: {} };
   cur.available += available;
+  // Same tire on several Tekmetric lines: keep the first value found for each spec.
+  for (const [k, v] of Object.entries(specsOf(r))) if (v && !cur.specs[k]) cur.specs[k] = v;
   byTire.set(id, cur);
 }
 
@@ -69,6 +83,25 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify({ updatedAt: new Date().toISOString(), source: "tekmetric-csv", tires }, null, 2) + "\n");
 console.log(`${tires.length} in-stock tires across ${new Set(tires.map((t) => t.key)).size} sizes -> ${path.relative(process.cwd(), OUT)}`);
 if (skipped) console.log(`${skipped} units skipped: no size or brand in Tekmetric`);
+
+// The public spec fields Tekmetric has for a line (most lines only have a few).
+// Load Index sometimes holds the speed too ("111T", "94 V").
+function specsOf(r) {
+  const [, load, speedIn] = col(r, "Load Index").match(/^(\d{2,3}(?:\/\d{2,3})?)\s*([A-Z])?$/i) || [];
+  const utqg = [col(r, "Treadwear"), col(r, "Traction"), col(r, "Temperature")];
+  const warranty = Number(col(r, "Mileage Warranty").replace(/[^\d]/g, ""));
+  const range = col(r, "Load Range").toUpperCase();
+  return {
+    partNumber: col(r, "Part Number"),
+    loadIndex: load || "",
+    speed: (col(r, "Speed Rating") || speedIn || "").toUpperCase(),
+    loadRange: /^(XL|SL|[A-F])$/.test(range) ? range : "",
+    utqg: utqg.every(Boolean) ? utqg.join(" ") : "",
+    sidewall: col(r, "Side Wall Style").toUpperCase(),
+    warranty: warranty >= 10000 ? warranty : 0,
+    runFlat: /^yes$/i.test(col(r, "Run Flat")),
+  };
+}
 
 // Tekmetric splits the size into Width / Ratio / Diameter. Flotation sizes come
 // through as Width "35X" (or "35"), Ratio 12.5. Returns the site's search key.

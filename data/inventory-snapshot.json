@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T05:40:53.776Z",
+  "updatedAt": "2026-10-16T06:07:44.892Z",
   "source": "tekmetric-csv",
   "tires": [
     {
@@ -8,6 +8,7 @@
       "key": "155/80R13",
       "rim": 13,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -16,6 +17,7 @@
       "key": "175/70R13",
       "rim": 13,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -24,14 +26,24 @@
       "key": "175/80R13",
       "rim": 13,
       "lt": false,
+      "specs": {
+        "partNumber": "rbphfct1380020"
+      },
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani AS",
+      "model": "Ramani A/S",
       "key": "185/70R14",
       "rim": 14,
       "lt": false,
+      "specs": {
+        "partNumber": "LHGSRAS1470010",
+        "loadIndex": "88",
+        "speed": "T",
+        "loadRange": "B",
+        "warranty": 50000
+      },
       "level": "in"
     },
     {
@@ -40,14 +52,21 @@
       "key": "185/80R14",
       "rim": 14,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani AS",
+      "model": "Ramani A/S",
       "key": "195/70R14",
       "rim": 14,
       "lt": false,
+      "specs": {
+        "partNumber": "lhgsras1470020",
+        "loadIndex": "91",
+        "speed": "T",
+        "warranty": 50000
+      },
       "level": "in"
     },
     {
@@ -56,6 +75,7 @@
       "key": "195/75R14",
       "rim": 14,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -64,6 +84,14 @@
       "key": "205/75R14",
       "rim": 14,
       "lt": false,
+      "specs": {
+        "partNumber": "1024735",
+        "loadIndex": "95",
+        "speed": "T",
+        "utqg": "680 A A",
+        "sidewall": "WSW",
+        "warranty": 70000
+      },
       "level": "low"
     },
     {
@@ -72,6 +100,7 @@
       "key": "205/75R14",
       "rim": 14,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -80,6 +109,7 @@
       "key": "31X10.50R15",
       "rim": 15,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -88,6 +118,7 @@
       "key": "175/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -96,6 +127,7 @@
       "key": "175/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -104,6 +136,7 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -112,6 +145,7 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -120,6 +154,7 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -128,6 +163,9 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {
+        "partNumber": "3402000189"
+      },
       "level": "in"
     },
     {
@@ -136,6 +174,7 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -144,6 +183,7 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -152,6 +192,11 @@
       "key": "195/50R15",
       "rim": 15,
       "lt": false,
+      "specs": {
+        "partNumber": "LXST2031550010",
+        "loadIndex": "82",
+        "speed": "V"
+      },
       "level": "in"
     },
     {
@@ -160,6 +205,7 @@
       "key": "195/60R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -168,6 +214,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -176,14 +223,18 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "Sincera SN250",
+      "model": "Sincera SN250 A/S",
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {
+        "partNumber": "flk28294543"
+      },
       "level": "in"
     },
     {
@@ -192,6 +243,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -200,6 +252,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -208,6 +261,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -216,6 +270,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -224,6 +279,7 @@
       "key": "205/50R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -232,6 +288,7 @@
       "key": "205/55R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -240,6 +297,13 @@
       "key": "205/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {
+        "partNumber": "b529",
+        "loadIndex": "94",
+        "speed": "H",
+        "utqg": "540 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
@@ -248,6 +312,7 @@
       "key": "205/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -256,6 +321,7 @@
       "key": "205/70R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -264,6 +330,13 @@
       "key": "215/65R15",
       "rim": 15,
       "lt": false,
+      "specs": {
+        "partNumber": "lxst2031565040",
+        "loadIndex": "100",
+        "speed": "H",
+        "utqg": "500 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
@@ -272,6 +345,7 @@
       "key": "225/70R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -280,6 +354,7 @@
       "key": "225/75R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -288,6 +363,7 @@
       "key": "225/75R15",
       "rim": 15,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -296,6 +372,9 @@
       "key": "225/75R15",
       "rim": 15,
       "lt": false,
+      "specs": {
+        "partNumber": "rbphfct1575030"
+      },
       "level": "low"
     },
     {
@@ -304,6 +383,7 @@
       "key": "185/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -312,6 +392,7 @@
       "key": "195/45R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -320,14 +401,16 @@
       "key": "195/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani",
+      "model": "Ramani A/S",
       "key": "195/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -336,6 +419,7 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -344,6 +428,7 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -352,14 +437,16 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Falken",
-      "model": "ZIEX ZE960 A/S",
+      "model": "Ziex ZE960 A/S",
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -368,6 +455,7 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -376,6 +464,7 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -384,6 +473,7 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -392,6 +482,14 @@
       "key": "205/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {
+        "partNumber": "as117",
+        "loadIndex": "92",
+        "speed": "V",
+        "utqg": "600 A A",
+        "sidewall": "BW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
@@ -400,6 +498,13 @@
       "key": "205/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {
+        "partNumber": "LXSMQTT1660010",
+        "loadIndex": "96",
+        "speed": "V",
+        "sidewall": "MBW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
@@ -408,6 +513,7 @@
       "key": "205/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -416,6 +522,7 @@
       "key": "205/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -424,6 +531,7 @@
       "key": "205/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -432,14 +540,18 @@
       "key": "205/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Falken",
-      "model": "Sincera sn250",
+      "model": "Sincera SN250 A/S",
       "key": "215/55R16",
       "rim": 16,
       "lt": false,
+      "specs": {
+        "partNumber": "flk28291662"
+      },
       "level": "in"
     },
     {
@@ -448,6 +560,7 @@
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -456,6 +569,7 @@
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -464,6 +578,7 @@
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -472,6 +587,7 @@
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -480,14 +596,22 @@
       "key": "215/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "215/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {
+        "partNumber": "RBPSMGHT1670010",
+        "loadIndex": "99",
+        "speed": "T",
+        "sidewall": "BSW",
+        "warranty": 60000
+      },
       "level": "in"
     },
     {
@@ -496,6 +620,7 @@
       "key": "215/85R16",
       "rim": 16,
       "lt": true,
+      "specs": {},
       "level": "low"
     },
     {
@@ -504,14 +629,16 @@
       "key": "215/85R16",
       "rim": 16,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "LX-203",
+      "model": "LXTR-203",
       "key": "225/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -520,6 +647,7 @@
       "key": "225/60R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -528,14 +656,16 @@
       "key": "225/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Falken",
-      "model": "Wildpeak HT02 HD",
+      "model": "Wildpeak H/T02",
       "key": "225/75R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -544,6 +674,7 @@
       "key": "225/75R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -552,6 +683,7 @@
       "key": "225/75R16",
       "rim": 16,
       "lt": true,
+      "specs": {},
       "level": "low"
     },
     {
@@ -560,6 +692,7 @@
       "key": "225/75R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -568,6 +701,7 @@
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -576,6 +710,7 @@
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -584,6 +719,7 @@
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -592,6 +728,7 @@
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -600,6 +737,7 @@
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -608,6 +746,7 @@
       "key": "235/85R16",
       "rim": 16,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -616,6 +755,7 @@
       "key": "245/75R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -624,6 +764,7 @@
       "key": "245/75R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -632,6 +773,7 @@
       "key": "245/75R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -640,6 +782,7 @@
       "key": "255/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -648,6 +791,7 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -656,6 +800,7 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -664,6 +809,7 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -672,6 +818,13 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {
+        "partNumber": "734070640",
+        "loadIndex": "112",
+        "speed": "T",
+        "utqg": "580 A B",
+        "sidewall": "B/TL"
+      },
       "level": "in"
     },
     {
@@ -680,14 +833,22 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
+      "specs": {
+        "partNumber": "RBPSMGHT1670060",
+        "loadIndex": "112",
+        "speed": "T",
+        "sidewall": "BSW",
+        "warranty": 60000
+      },
       "level": "in"
     },
     {
@@ -696,6 +857,11 @@
       "key": "35X12.50R17",
       "rim": 17,
       "lt": true,
+      "specs": {
+        "partNumber": "bkhh1600467K",
+        "loadIndex": "125",
+        "speed": "Q"
+      },
       "level": "in"
     },
     {
@@ -704,6 +870,7 @@
       "key": "195/60R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -712,6 +879,7 @@
       "key": "205/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -720,6 +888,15 @@
       "key": "205/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "6032",
+        "loadIndex": "93",
+        "speed": "V",
+        "loadRange": "XL",
+        "utqg": "700 A A",
+        "sidewall": "BSW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
@@ -728,6 +905,7 @@
       "key": "215/40R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -736,6 +914,7 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -744,6 +923,7 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -752,6 +932,7 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -760,14 +941,16 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani",
+      "model": "Ramani A/S",
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -776,6 +959,13 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "20000520",
+        "loadIndex": "91",
+        "speed": "W",
+        "loadRange": "XL",
+        "sidewall": "MBW"
+      },
       "level": "in"
     },
     {
@@ -784,6 +974,7 @@
       "key": "215/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -792,6 +983,7 @@
       "key": "215/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -800,6 +992,7 @@
       "key": "215/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -808,14 +1001,16 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "ZIEX ZE960 A/S",
+      "model": "Ziex ZE960 A/S",
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -824,6 +1019,14 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "100UA3521",
+        "loadIndex": "94",
+        "speed": "V",
+        "utqg": "600 A A",
+        "sidewall": "BW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
@@ -832,6 +1035,7 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -840,6 +1044,13 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "2345773",
+        "loadIndex": "98",
+        "speed": "W",
+        "loadRange": "XL",
+        "sidewall": "MBW"
+      },
       "level": "in"
     },
     {
@@ -848,6 +1059,7 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -856,6 +1068,11 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "3529250703",
+        "loadIndex": "94",
+        "speed": "V"
+      },
       "level": "low"
     },
     {
@@ -864,22 +1081,37 @@
       "key": "215/60R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "215/60R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "RBPSMGHT1760010",
+        "loadIndex": "96",
+        "speed": "T",
+        "sidewall": "BK",
+        "warranty": 60000
+      },
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "215/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "RBPSMGHT1765010",
+        "loadIndex": "98",
+        "speed": "T",
+        "sidewall": "BSW",
+        "warranty": 60000
+      },
       "level": "in"
     },
     {
@@ -888,6 +1120,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -896,6 +1129,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -904,6 +1138,9 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "KUM2330472"
+      },
       "level": "low"
     },
     {
@@ -912,6 +1149,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -920,6 +1158,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -928,6 +1167,7 @@
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -936,14 +1176,26 @@
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "ags011",
+        "loadIndex": "98",
+        "speed": "W",
+        "utqg": "500 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "ZIEX ZE960 AS",
+      "model": "Ziex ZE960 A/S",
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "FLK28962772",
+        "loadIndex": "94",
+        "speed": "V"
+      },
       "level": "in"
     },
     {
@@ -952,14 +1204,16 @@
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "LX-503",
+      "model": "LH-503",
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -968,6 +1222,7 @@
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -976,6 +1231,7 @@
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -984,6 +1240,7 @@
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -992,14 +1249,22 @@
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani AS",
+      "model": "Ramani A/S",
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "lhgsras1755020",
+        "loadIndex": "101",
+        "speed": "W",
+        "loadRange": "XL",
+        "warranty": 50000
+      },
       "level": "in"
     },
     {
@@ -1008,6 +1273,7 @@
       "key": "225/60R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1016,6 +1282,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1024,6 +1291,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1032,6 +1300,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1040,6 +1309,11 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "221018504",
+        "speed": "H",
+        "sidewall": "BK"
+      },
       "level": "in"
     },
     {
@@ -1048,6 +1322,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1056,6 +1331,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1064,30 +1340,40 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "Quattro Tempo AW",
+      "model": "Quattro Tempo Tour AW",
       "key": "235/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "LXSMQTT1745030",
+        "loadIndex": "97",
+        "speed": "V",
+        "sidewall": "BSW",
+        "warranty": 50000
+      },
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani",
+      "model": "Ramani A/S",
       "key": "235/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1096,6 +1382,7 @@
       "key": "235/50R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1104,6 +1391,7 @@
       "key": "235/55R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1112,6 +1400,7 @@
       "key": "235/60R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1120,6 +1409,7 @@
       "key": "235/80R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1128,6 +1418,7 @@
       "key": "245/40R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1136,6 +1427,7 @@
       "key": "245/40R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1144,6 +1436,7 @@
       "key": "245/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1152,14 +1445,16 @@
       "key": "245/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "LX-503",
+      "model": "LH-503",
       "key": "245/45R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1168,6 +1463,7 @@
       "key": "245/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1176,6 +1472,7 @@
       "key": "245/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1184,6 +1481,7 @@
       "key": "245/75R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1192,6 +1490,7 @@
       "key": "245/75R17",
       "rim": 17,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1200,14 +1499,16 @@
       "key": "255/40R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Falken",
-      "model": "Rubitrek A/T01",
+      "model": "Rubitrek A/T",
       "key": "265/65R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1216,6 +1517,13 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": false,
+      "specs": {
+        "partNumber": "221018835",
+        "loadIndex": "115",
+        "speed": "T",
+        "utqg": "600 A B",
+        "sidewall": "BSW"
+      },
       "level": "in"
     },
     {
@@ -1224,6 +1532,12 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": true,
+      "specs": {
+        "partNumber": "2020765",
+        "speed": "Q",
+        "loadRange": "E",
+        "sidewall": "OWL"
+      },
       "level": "in"
     },
     {
@@ -1232,14 +1546,18 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "Wildpeak A/T4W HD",
+      "model": "Wildpeak A/T4W",
       "key": "285/70R17",
       "rim": 17,
       "lt": true,
+      "specs": {
+        "partNumber": "flk28840612"
+      },
       "level": "in"
     },
     {
@@ -1248,6 +1566,7 @@
       "key": "285/70R17",
       "rim": 17,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1256,6 +1575,13 @@
       "key": "285/70R17",
       "rim": 17,
       "lt": true,
+      "specs": {
+        "partNumber": "115081",
+        "loadIndex": "121",
+        "speed": "Q",
+        "sidewall": "BW",
+        "warranty": 50000
+      },
       "level": "in"
     },
     {
@@ -1264,6 +1590,7 @@
       "key": "285/70R17",
       "rim": 17,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1272,6 +1599,7 @@
       "key": "285/70R17",
       "rim": 17,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1280,6 +1608,7 @@
       "key": "35X12.50R18",
       "rim": 18,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1288,6 +1617,13 @@
       "key": "215/35R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "lxst2071835010",
+        "loadIndex": "84",
+        "speed": "W",
+        "utqg": "500 A A",
+        "sidewall": "BW"
+      },
       "level": "low"
     },
     {
@@ -1296,6 +1632,7 @@
       "key": "215/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1304,6 +1641,7 @@
       "key": "215/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1312,14 +1650,16 @@
       "key": "215/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani",
+      "model": "Ramani A/S",
       "key": "215/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1328,6 +1668,7 @@
       "key": "225/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1336,6 +1677,7 @@
       "key": "225/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1344,14 +1686,16 @@
       "key": "225/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "Ramani",
+      "model": "Ramani A/S",
       "key": "225/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1360,14 +1704,26 @@
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "221019048",
+        "loadIndex": "95",
+        "speed": "W",
+        "loadRange": "XL",
+        "utqg": "480 A A"
+      },
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "ZIEX ZE960 AS",
+      "model": "Ziex ZE960 A/S",
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "FLK28963824",
+        "loadIndex": "95",
+        "speed": "W"
+      },
       "level": "in"
     },
     {
@@ -1376,14 +1732,23 @@
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "100ua3503",
+        "loadIndex": "95",
+        "speed": "V",
+        "loadRange": "XL",
+        "sidewall": "MBW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "LX-RFX PLUS",
+      "model": "RFX Plus",
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1392,6 +1757,7 @@
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1400,6 +1766,7 @@
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1408,6 +1775,12 @@
       "key": "225/50R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "th61486",
+        "loadIndex": "95",
+        "speed": "V",
+        "sidewall": "BSW"
+      },
       "level": "in"
     },
     {
@@ -1416,6 +1789,9 @@
       "key": "225/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "brd012-563"
+      },
       "level": "low"
     },
     {
@@ -1424,6 +1800,7 @@
       "key": "225/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1432,6 +1809,7 @@
       "key": "225/60R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1440,6 +1818,7 @@
       "key": "225/60R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1448,14 +1827,22 @@
       "key": "235/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "lxst2071840030",
+        "loadIndex": "95",
+        "speed": "W",
+        "utqg": "500 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "ZIEX ZE960 A/S",
+      "model": "Ziex ZE960 A/S",
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1464,6 +1851,13 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "706038163",
+        "loadIndex": "94",
+        "speed": "V",
+        "utqg": "400 A A",
+        "sidewall": "VSB"
+      },
       "level": "in"
     },
     {
@@ -1472,6 +1866,12 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "100ua3500",
+        "loadIndex": "94",
+        "speed": "V",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
@@ -1480,6 +1880,14 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "2372533",
+        "loadIndex": "98",
+        "speed": "Y",
+        "loadRange": "XL",
+        "utqg": "560 AA A",
+        "warranty": 50000
+      },
       "level": "in"
     },
     {
@@ -1488,14 +1896,22 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "lxst2071845040",
+        "loadIndex": "98",
+        "speed": "W",
+        "utqg": "500 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Voltec EV",
+      "model": "Volt-EC",
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1504,6 +1920,7 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1512,6 +1929,14 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "3445900",
+        "loadIndex": "94",
+        "speed": "V",
+        "utqg": "500 A A",
+        "sidewall": "BSW",
+        "warranty": 45000
+      },
       "level": "low"
     },
     {
@@ -1520,6 +1945,7 @@
       "key": "235/50R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1528,6 +1954,7 @@
       "key": "235/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1536,6 +1963,7 @@
       "key": "235/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1544,6 +1972,7 @@
       "key": "235/60R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1552,6 +1981,7 @@
       "key": "235/60R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1560,6 +1990,12 @@
       "key": "235/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "th85680",
+        "loadIndex": "106",
+        "speed": "T",
+        "sidewall": "BSW"
+      },
       "level": "in"
     },
     {
@@ -1568,6 +2004,7 @@
       "key": "235/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1576,6 +2013,7 @@
       "key": "235/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1584,6 +2022,11 @@
       "key": "245/35R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "Lxhhfg1835020",
+        "loadIndex": "92",
+        "speed": "Y"
+      },
       "level": "low"
     },
     {
@@ -1592,6 +2035,9 @@
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "adv1951348404"
+      },
       "level": "low"
     },
     {
@@ -1600,14 +2046,16 @@
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "RFX PLUS",
+      "model": "RFX Plus",
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1616,6 +2064,7 @@
       "key": "245/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1624,6 +2073,7 @@
       "key": "245/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1632,6 +2082,7 @@
       "key": "245/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1640,6 +2091,7 @@
       "key": "245/50R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1648,6 +2100,7 @@
       "key": "245/50R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1656,6 +2109,7 @@
       "key": "245/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1664,6 +2118,7 @@
       "key": "245/60R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1672,6 +2127,7 @@
       "key": "255/35R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1680,6 +2136,7 @@
       "key": "255/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1688,6 +2145,7 @@
       "key": "255/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1696,6 +2154,7 @@
       "key": "255/55R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1704,14 +2163,26 @@
       "key": "255/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "BKH4120151",
+        "loadIndex": "111",
+        "speed": "T"
+      },
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Repulsor AT Plateau",
+      "model": "Repulsor A/T Plateau",
       "key": "255/70R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "rbpsmpat1870010",
+        "loadIndex": "113",
+        "speed": "T",
+        "sidewall": "BSW",
+        "warranty": 50000
+      },
       "level": "low"
     },
     {
@@ -1720,14 +2191,22 @@
       "key": "265/35R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "265/60R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "rbpsmght1860030",
+        "loadIndex": "110",
+        "speed": "H",
+        "sidewall": "BK",
+        "warranty": 60000
+      },
       "level": "low"
     },
     {
@@ -1736,6 +2215,13 @@
       "key": "265/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "827041973",
+        "loadIndex": "114",
+        "speed": "T",
+        "utqg": "680 A B",
+        "sidewall": "BW"
+      },
       "level": "low"
     },
     {
@@ -1744,6 +2230,7 @@
       "key": "265/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1752,6 +2239,14 @@
       "key": "265/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {
+        "partNumber": "92962",
+        "loadIndex": "114",
+        "speed": "T",
+        "utqg": "540 A B",
+        "sidewall": "BW",
+        "warranty": 55000
+      },
       "level": "in"
     },
     {
@@ -1760,6 +2255,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1768,6 +2264,7 @@
       "key": "275/40R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1776,6 +2273,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1784,6 +2282,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1792,6 +2291,12 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": true,
+      "specs": {
+        "partNumber": "796392833",
+        "speed": "Q",
+        "loadRange": "C",
+        "sidewall": "BSW"
+      },
       "level": "in"
     },
     {
@@ -1800,14 +2305,22 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "RBP",
-      "model": "Repulsor AT Plateau",
+      "model": "Repulsor A/T Plateau",
       "key": "275/70R18",
       "rim": 18,
       "lt": true,
+      "specs": {
+        "partNumber": "rbpsmpat1870040",
+        "loadIndex": "125",
+        "speed": "S",
+        "loadRange": "E",
+        "warranty": 50000
+      },
       "level": "low"
     },
     {
@@ -1816,6 +2329,7 @@
       "key": "295/45R18",
       "rim": 18,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1824,6 +2338,7 @@
       "key": "135/70R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1832,6 +2347,7 @@
       "key": "195/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1840,6 +2356,7 @@
       "key": "225/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1848,6 +2365,7 @@
       "key": "225/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1856,6 +2374,7 @@
       "key": "225/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1864,6 +2383,7 @@
       "key": "225/45R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1872,6 +2392,7 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1880,6 +2401,7 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1888,6 +2410,7 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1896,6 +2419,13 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "221022589",
+        "loadIndex": "96",
+        "speed": "Y",
+        "loadRange": "XL",
+        "utqg": "480 A A"
+      },
       "level": "in"
     },
     {
@@ -1904,14 +2434,23 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "100ua3506",
+        "loadIndex": "96",
+        "speed": "V",
+        "loadRange": "XL",
+        "sidewall": "BSW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Voltec EV",
+      "model": "Volt-EC",
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -1920,6 +2459,12 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lxhhfg1940020",
+        "loadIndex": "96",
+        "speed": "Y",
+        "sidewall": "BSW"
+      },
       "level": "in"
     },
     {
@@ -1928,14 +2473,16 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1944,14 +2491,22 @@
       "key": "235/45R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "235/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lhst51950020",
+        "loadIndex": "103",
+        "speed": "V",
+        "loadRange": "XL",
+        "sidewall": "MBW"
+      },
       "level": "in"
     },
     {
@@ -1960,6 +2515,7 @@
       "key": "235/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1968,6 +2524,9 @@
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "BKH4120191"
+      },
       "level": "in"
     },
     {
@@ -1976,6 +2535,7 @@
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -1984,14 +2544,20 @@
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Volt EC",
+      "model": "Volt-EC",
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lxstv1955010",
+        "loadIndex": "105",
+        "speed": "Y"
+      },
       "level": "in"
     },
     {
@@ -2000,6 +2566,9 @@
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "3920800"
+      },
       "level": "in"
     },
     {
@@ -2008,6 +2577,12 @@
       "key": "245/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "th43468",
+        "loadIndex": "93",
+        "speed": "W",
+        "sidewall": "MBW"
+      },
       "level": "low"
     },
     {
@@ -2016,6 +2591,7 @@
       "key": "245/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2024,6 +2600,7 @@
       "key": "245/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2032,6 +2609,7 @@
       "key": "245/45R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2040,6 +2618,7 @@
       "key": "245/45R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2048,6 +2627,7 @@
       "key": "245/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2056,14 +2636,18 @@
       "key": "245/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "AZENIS FK460",
+      "model": "Azenis FK460 A/S",
       "key": "255/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "flk28105973"
+      },
       "level": "low"
     },
     {
@@ -2072,14 +2656,22 @@
       "key": "255/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "255/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lhst51935010",
+        "loadIndex": "96",
+        "speed": "W",
+        "utqg": "320 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
@@ -2088,14 +2680,22 @@
       "key": "255/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "LX-20",
+      "model": "LX-Twenty",
       "key": "255/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lxst201940030",
+        "loadIndex": "100",
+        "speed": "W",
+        "utqg": "320 A A",
+        "sidewall": "BW"
+      },
       "level": "low"
     },
     {
@@ -2104,14 +2704,16 @@
       "key": "255/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "255/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2120,14 +2722,24 @@
       "key": "255/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "3769700"
+      },
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "LX-20",
+      "model": "LX-Twenty",
       "key": "255/55R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lxst201955010",
+        "loadIndex": "111",
+        "speed": "V",
+        "utqg": "320 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
@@ -2136,6 +2748,12 @@
       "key": "255/60R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "th19869",
+        "loadIndex": "109",
+        "speed": "H",
+        "utqg": "500 A A"
+      },
       "level": "in"
     },
     {
@@ -2144,6 +2762,12 @@
       "key": "265/30R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "lxhhfg1930020",
+        "loadIndex": "93",
+        "speed": "Y",
+        "sidewall": "MBW"
+      },
       "level": "low"
     },
     {
@@ -2152,6 +2776,7 @@
       "key": "265/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2160,6 +2785,7 @@
       "key": "265/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2168,6 +2794,7 @@
       "key": "265/35R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2176,14 +2803,18 @@
       "key": "265/50R19",
       "rim": 19,
       "lt": false,
+      "specs": {
+        "partNumber": "715422"
+      },
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "Freccia GTS",
+      "model": "Freccia GT-S",
       "key": "275/40R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2192,6 +2823,7 @@
       "key": "275/45R19",
       "rim": 19,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2200,6 +2832,7 @@
       "key": "35X12.50R20",
       "rim": 20,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2208,6 +2841,7 @@
       "key": "235/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2216,6 +2850,7 @@
       "key": "235/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2224,6 +2859,7 @@
       "key": "235/55R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2232,6 +2868,7 @@
       "key": "245/30R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2240,6 +2877,7 @@
       "key": "245/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2248,6 +2886,7 @@
       "key": "245/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2256,6 +2895,7 @@
       "key": "245/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2264,6 +2904,7 @@
       "key": "245/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2272,6 +2913,7 @@
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2280,6 +2922,7 @@
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2288,6 +2931,9 @@
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "bkh1601012"
+      },
       "level": "in"
     },
     {
@@ -2296,14 +2942,25 @@
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "102215387",
+        "loadIndex": "99",
+        "speed": "V",
+        "utqg": "500 A A"
+      },
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Volt EC",
+      "model": "Volt-EC",
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "lxstv2045040",
+        "loadIndex": "103",
+        "speed": "Y"
+      },
       "level": "in"
     },
     {
@@ -2312,6 +2969,7 @@
       "key": "245/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2320,6 +2978,7 @@
       "key": "245/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2328,6 +2987,14 @@
       "key": "245/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "1993600",
+        "loadIndex": "102",
+        "speed": "H",
+        "utqg": "520 A A",
+        "sidewall": "BSW",
+        "warranty": 65000
+      },
       "level": "in"
     },
     {
@@ -2336,6 +3003,9 @@
       "key": "255/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "115791"
+      },
       "level": "in"
     },
     {
@@ -2344,6 +3014,7 @@
       "key": "255/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2352,6 +3023,7 @@
       "key": "255/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2360,6 +3032,7 @@
       "key": "255/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2368,6 +3041,7 @@
       "key": "255/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2376,6 +3050,11 @@
       "key": "255/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "BKH4120146",
+        "loadIndex": "109",
+        "speed": "V"
+      },
       "level": "in"
     },
     {
@@ -2384,6 +3063,7 @@
       "key": "255/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2392,6 +3072,7 @@
       "key": "255/55R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2400,14 +3081,20 @@
       "key": "265/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "Volt EC",
+      "model": "Volt-EC",
       "key": "265/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "lxstv2045030",
+        "loadIndex": "108",
+        "speed": "Y"
+      },
       "level": "in"
     },
     {
@@ -2416,6 +3103,7 @@
       "key": "265/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2424,6 +3112,7 @@
       "key": "265/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2432,6 +3121,7 @@
       "key": "265/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2440,6 +3130,13 @@
       "key": "265/50R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "lxsmqtt2050030",
+        "loadIndex": "111",
+        "speed": "V",
+        "sidewall": "BSW",
+        "warranty": 70000
+      },
       "level": "in"
     },
     {
@@ -2448,14 +3145,22 @@
       "key": "265/60R20",
       "rim": 20,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "275/30R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "LHST52030050",
+        "loadIndex": "97",
+        "speed": "W",
+        "utqg": "320 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
@@ -2464,6 +3169,12 @@
       "key": "275/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "LXHHFG2035020",
+        "loadIndex": "102",
+        "speed": "Y",
+        "sidewall": "MBW"
+      },
       "level": "low"
     },
     {
@@ -2472,6 +3183,7 @@
       "key": "275/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2480,6 +3192,7 @@
       "key": "275/40R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2488,6 +3201,13 @@
       "key": "275/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "221018983",
+        "loadIndex": "110",
+        "speed": "V",
+        "loadRange": "XL",
+        "sidewall": "MBW"
+      },
       "level": "in"
     },
     {
@@ -2496,14 +3216,16 @@
       "key": "275/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "LX-THIRTY",
+      "model": "LX-Thirty",
       "key": "275/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2512,6 +3234,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2520,6 +3243,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2528,14 +3252,22 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
+      "specs": {
+        "partNumber": "rbpsmght2055010",
+        "loadIndex": "117",
+        "speed": "H",
+        "sidewall": "BK",
+        "warranty": 60000
+      },
       "level": "low"
     },
     {
@@ -2544,14 +3276,16 @@
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Falken",
-      "model": "Rubitrek A/T01",
+      "model": "Rubitrek A/T",
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2560,6 +3294,7 @@
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2568,6 +3303,7 @@
       "key": "285/30R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2576,6 +3312,7 @@
       "key": "285/60R20",
       "rim": 20,
       "lt": true,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2584,14 +3321,16 @@
       "key": "295/45R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "LX-TWENTY",
+      "model": "LX-Twenty",
       "key": "305/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2600,6 +3339,7 @@
       "key": "315/35R20",
       "rim": 20,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2608,30 +3348,40 @@
       "key": "255/35R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "Voltec EV",
+      "model": "Volt-EC",
       "key": "255/35R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "255/40R21",
       "rim": 21,
       "lt": false,
+      "specs": {
+        "partNumber": "lhst52140030",
+        "loadIndex": "102",
+        "speed": "Y",
+        "utqg": "320 A A",
+        "sidewall": "BW"
+      },
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Voltec EV",
+      "model": "Volt-EC",
       "key": "275/35R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2640,6 +3390,7 @@
       "key": "275/35R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2648,6 +3399,7 @@
       "key": "275/45R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2656,6 +3408,7 @@
       "key": "285/45R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2664,6 +3417,7 @@
       "key": "315/40R21",
       "rim": 21,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2672,22 +3426,25 @@
       "key": "255/30R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Voltec EV",
+      "model": "Volt-EC",
       "key": "265/35R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "LX-TWENTY",
+      "model": "LX-Twenty",
       "key": "275/40R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2696,22 +3453,27 @@
       "key": "275/50R22",
       "rim": 22,
       "lt": false,
+      "specs": {
+        "partNumber": "mic38984"
+      },
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "GUARANTOR H/T",
+      "model": "Guarantor H/T",
       "key": "275/50R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lexani",
-      "model": "Voltec EV",
+      "model": "Volt-EC",
       "key": "285/35R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2720,14 +3482,29 @@
       "key": "285/40R22",
       "rim": 22,
       "lt": false,
+      "specs": {
+        "partNumber": "AGS129",
+        "loadIndex": "110",
+        "speed": "Y",
+        "loadRange": "XL",
+        "utqg": "500 A A",
+        "sidewall": "BSW"
+      },
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Five",
+      "model": "LH-FIVE",
       "key": "285/40R22",
       "rim": 22,
       "lt": false,
+      "specs": {
+        "partNumber": "LHST52240010",
+        "loadIndex": "110",
+        "speed": "V",
+        "utqg": "320 A A",
+        "sidewall": "B/TL"
+      },
       "level": "low"
     },
     {
@@ -2736,6 +3513,7 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2744,14 +3522,16 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "RBP",
-      "model": "Guarantor HT",
+      "model": "Guarantor H/T",
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2760,6 +3540,7 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2768,14 +3549,16 @@
       "key": "295/30R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "LX-TWENTY",
+      "model": "LX-Twenty",
       "key": "305/30R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2784,14 +3567,16 @@
       "key": "305/40R22",
       "rim": 22,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Ten",
+      "model": "LH-TEN",
       "key": "275/25R24",
       "rim": 24,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2800,22 +3585,30 @@
       "key": "275/25R24",
       "rim": 24,
       "lt": false,
+      "specs": {
+        "partNumber": "tvpgts59",
+        "loadIndex": "96",
+        "speed": "W",
+        "sidewall": "BK"
+      },
       "level": "low"
     },
     {
       "brand": "Lexani",
-      "model": "LX THIRTY",
+      "model": "LX-Thirty",
       "key": "275/30R24",
       "rim": 24,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Ten",
+      "model": "LH-TEN",
       "key": "275/30R24",
       "rim": 24,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2824,14 +3617,16 @@
       "key": "285/40R24",
       "rim": 24,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
       "brand": "Lionhart",
-      "model": "LH-Ten",
+      "model": "LH-TEN",
       "key": "295/35R24",
       "rim": 24,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2840,6 +3635,7 @@
       "key": "305/35R24",
       "rim": 24,
       "lt": false,
+      "specs": {},
       "level": "in"
     },
     {
@@ -2848,6 +3644,7 @@
       "key": "295/25R26",
       "rim": 26,
       "lt": false,
+      "specs": {},
       "level": "low"
     },
     {
@@ -2856,6 +3653,9 @@
       "key": "305/30R26",
       "rim": 26,
       "lt": false,
+      "specs": {
+        "partNumber": "221022640"
+      },
       "level": "low"
     },
     {
@@ -2864,6 +3664,9 @@
       "key": "305/30R26",
       "rim": 26,
       "lt": false,
+      "specs": {
+        "partNumber": "CVPGT19"
+      },
       "level": "low"
     }
   ]
