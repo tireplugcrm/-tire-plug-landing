@@ -1,0 +1,2870 @@
+{
+  "updatedAt": "2026-10-16T05:40:53.776Z",
+  "source": "tekmetric-csv",
+  "tires": [
+    {
+      "brand": "Remington",
+      "model": "Touring L/X",
+      "key": "155/80R13",
+      "rim": 13,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Delium",
+      "model": "Evotechno",
+      "key": "175/70R13",
+      "rim": 13,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Conveyor ST",
+      "key": "175/80R13",
+      "rim": 13,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani AS",
+      "key": "185/70R14",
+      "rim": 14,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "ATLander",
+      "model": "VANPlus C18",
+      "key": "185/80R14",
+      "rim": 14,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani AS",
+      "key": "195/70R14",
+      "rim": 14,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Tornel",
+      "model": "Classic",
+      "key": "195/75R14",
+      "rim": 14,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Kinergy ST H735",
+      "key": "205/75R14",
+      "rim": 14,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Conveyor ST",
+      "key": "205/75R14",
+      "rim": 14,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "31X10.50R15",
+      "rim": 15,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Dunlop",
+      "model": "Blue Response A/S",
+      "key": "175/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "175/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Street-H HH11",
+      "key": "185/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Sincera SN250 A/S",
+      "key": "185/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager GT",
+      "key": "185/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Jinyu",
+      "model": "A1 All Season Touring",
+      "key": "185/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "185/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Nexen",
+      "model": "N'Priz AH5",
+      "key": "185/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "195/50R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "195/60R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Eco Pro A/S",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Street-H HH11",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Sincera SN250",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Landspider",
+      "model": "Citytraxx G/P",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-501",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "205/50R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Yokohama",
+      "model": "Advan Fleva V701",
+      "key": "205/55R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Champiro Touring AS",
+      "key": "205/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "205/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "205/70R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "215/65R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aresta ZG02",
+      "key": "225/70R15",
+      "rim": 15,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aresta ZG02",
+      "key": "225/75R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Kinergy ST",
+      "key": "225/75R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Conveyor ST",
+      "key": "225/75R15",
+      "rim": 15,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Dunlop",
+      "model": "Blue Response A/S",
+      "key": "185/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "195/45R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "195/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani",
+      "key": "195/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Sincera ST80 A/S",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "ZIEX ZE960 A/S",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Solus TA11",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "205/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "205/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-501",
+      "key": "205/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "HH11",
+      "key": "205/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "205/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Kinergy PT",
+      "key": "205/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Sincera sn250",
+      "key": "215/55R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "HH11",
+      "key": "215/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Sincera SN250 A/S",
+      "key": "215/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GeoDrive",
+      "model": "",
+      "key": "215/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXTR-203",
+      "key": "215/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Street-H HH11",
+      "key": "215/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "215/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aresta HT ZG04",
+      "key": "215/85R16",
+      "rim": 16,
+      "lt": true,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "215/85R16",
+      "rim": 16,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-203",
+      "key": "225/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-501",
+      "key": "225/60R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-501",
+      "key": "225/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Wildpeak HT02 HD",
+      "key": "225/75R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Firestone",
+      "model": "Transforce HT3",
+      "key": "225/75R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXHT-206",
+      "key": "225/75R16",
+      "rim": 16,
+      "lt": true,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "225/75R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler LMD",
+      "key": "235/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance All-Season",
+      "key": "235/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Kinergy ST",
+      "key": "235/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Landspider",
+      "model": "H/T",
+      "key": "235/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Distributor",
+      "key": "235/65R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "235/85R16",
+      "rim": 16,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aresta ZG02",
+      "key": "245/75R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler HT02",
+      "key": "245/75R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "245/75R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "255/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Eco Pro HT",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Wildpeak A/T4W",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Firestone",
+      "model": "Destination AT2",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory MT",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Lionclaw HT",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler R/T",
+      "key": "35X12.50R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Landsail",
+      "model": "RapidDragon RD-3 AS",
+      "key": "195/60R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Street-H HU02",
+      "key": "205/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "Weatherpeak",
+      "key": "205/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Mileking",
+      "model": "LECP mk927",
+      "key": "215/40R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Ventus V2 Concept2",
+      "key": "215/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "215/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "215/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-503",
+      "key": "215/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani",
+      "key": "215/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Royal Black",
+      "model": "Racing Trac",
+      "key": "215/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "215/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Street-H HH11",
+      "key": "215/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Ziex ZE960 A/S",
+      "key": "215/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "ZIEX ZE960 A/S",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Jinyu",
+      "model": "A1 All Season Touring",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Solus 4S HA32",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Prinx",
+      "model": "HiCITY HP HH2",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "American Roadstar",
+      "model": "Pro A/S",
+      "key": "215/60R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "215/60R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "215/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "225/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Ziex ZE960 A/S",
+      "key": "225/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Solus TA51A",
+      "key": "225/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Landspider",
+      "model": "Citytraxx G/P",
+      "key": "225/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "225/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aggressor ZP11",
+      "key": "225/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport AS",
+      "key": "225/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "ZIEX ZE960 AS",
+      "key": "225/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "225/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LX-503",
+      "key": "225/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport AS",
+      "key": "225/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "225/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Ziex ZE960 A/S",
+      "key": "225/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "225/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani AS",
+      "key": "225/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility SUV",
+      "key": "225/60R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "BFGoodrich",
+      "model": "Advantage Control",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility SUV",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Street-H HH11",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Sincera SN250 A/S",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Kinergy 4S2 X",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo AW",
+      "key": "235/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani",
+      "key": "235/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "235/50R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager HP",
+      "key": "235/55R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXHT-206",
+      "key": "235/60R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Imara H/T",
+      "key": "235/80R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "245/40R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-FIVE",
+      "key": "245/40R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "245/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "245/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LX-503",
+      "key": "245/45R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler HT02",
+      "key": "245/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Lionclaw HT",
+      "key": "245/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Firestone",
+      "model": "Transforce HT3",
+      "key": "245/75R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "245/75R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager HP",
+      "key": "255/40R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Rubitrek A/T01",
+      "key": "265/65R17",
+      "rim": 17,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Rotator HT",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Dynapro MT2 RT05",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Wildpeak A/T4W HD",
+      "key": "285/70R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory MT",
+      "key": "285/70R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager AT",
+      "key": "285/70R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "285/70R17",
+      "rim": 17,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Toyo",
+      "model": "Open Country H/T^II",
+      "key": "285/70R17",
+      "rim": 17,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler R/T",
+      "key": "35X12.50R18",
+      "rim": 18,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "215/35R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-503",
+      "key": "215/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "215/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "215/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani",
+      "key": "215/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager HP",
+      "key": "225/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "225/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "225/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Ramani",
+      "key": "225/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "225/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "ZIEX ZE960 AS",
+      "key": "225/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "225/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-RFX PLUS",
+      "key": "225/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "225/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-FIVE",
+      "key": "225/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aggressor ZP01",
+      "key": "225/50R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "Turanza Prestige BLK",
+      "key": "225/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "225/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "225/60R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Jinyu",
+      "model": "A1 All Season Touring",
+      "key": "225/60R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "235/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "ZIEX ZE960 A/S",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Eagle LS-2",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Ecsta Sport AS PA71",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Voltec EV",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Otani",
+      "model": "KN1000",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "PZero All Season",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "235/50R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Crugen EV HP71",
+      "key": "235/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXHT-206",
+      "key": "235/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler A/T",
+      "key": "235/60R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "235/60R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aggressor ZP11",
+      "key": "235/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "WeatherPeak",
+      "key": "235/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor H/T",
+      "key": "235/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "245/35R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Advanta",
+      "model": "Advanta HP Z-02",
+      "key": "245/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "245/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "RFX PLUS",
+      "key": "245/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP AS",
+      "key": "245/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "Weatherpeak",
+      "key": "245/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager HP",
+      "key": "245/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "245/50R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "245/50R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aresta ZG02",
+      "key": "245/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "245/60R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "255/35R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager HP",
+      "key": "255/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-503",
+      "key": "255/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LXUHP-207",
+      "key": "255/55R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility SUV",
+      "key": "255/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor AT Plateau",
+      "key": "255/70R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "265/35R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "265/60R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory HT",
+      "key": "265/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "265/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Primacy LTX",
+      "key": "265/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "265/70R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "275/40R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler R/T",
+      "key": "275/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "Weatherpeak",
+      "key": "275/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory MT",
+      "key": "275/65R18",
+      "rim": 18,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "275/65R18",
+      "rim": 18,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor AT Plateau",
+      "key": "275/70R18",
+      "rim": 18,
+      "lt": true,
+      "level": "low"
+    },
+    {
+      "brand": "Toyo",
+      "model": "Proxes",
+      "key": "295/45R18",
+      "rim": 18,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Kumho",
+      "model": "131",
+      "key": "135/70R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Landsail",
+      "model": "RapidDragon AD-3 AS",
+      "key": "195/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "225/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Azenis FK460 A/S",
+      "key": "225/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "225/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "225/45R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Continental",
+      "model": "Pro Contact RX",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Dunlop",
+      "model": "Blue Response A/S",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Voltec EV",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "235/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance MaxLife",
+      "key": "235/45R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "235/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Vantage",
+      "model": "UHP VT31387",
+      "key": "235/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP",
+      "key": "235/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility SUV",
+      "key": "235/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Jinyu",
+      "model": "A1 Touring A/S",
+      "key": "235/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Volt EC",
+      "key": "235/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion AS PLUS 3",
+      "key": "235/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aggressor ZS03",
+      "key": "245/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "245/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager HP",
+      "key": "245/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "245/45R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "245/45R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility A/S",
+      "key": "245/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility SUV",
+      "key": "245/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "AZENIS FK460",
+      "key": "255/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "255/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "255/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "255/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-20",
+      "key": "255/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Pilot Sport A/S",
+      "key": "255/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "255/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion (A0) (+)",
+      "key": "255/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-20",
+      "key": "255/55R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aggressor ZP02",
+      "key": "255/60R19",
+      "rim": 19,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "265/30R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Falken",
+      "model": "Azenis FK460 A/S",
+      "key": "265/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "265/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-FIVE",
+      "key": "265/35R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager GTS A/S",
+      "key": "265/50R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GTS",
+      "key": "275/40R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "275/45R19",
+      "rim": 19,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "35X12.50R20",
+      "rim": 20,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "235/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "235/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion AS+3",
+      "key": "235/55R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "245/30R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-FIVE",
+      "key": "245/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP A/S",
+      "key": "245/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Hankook",
+      "model": "Ventus S1 AS",
+      "key": "245/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "245/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport AS",
+      "key": "245/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "HU01",
+      "key": "245/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility UHP",
+      "key": "245/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Eagle Touring",
+      "key": "245/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Volt EC",
+      "key": "245/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Agility SUV",
+      "key": "245/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager SV",
+      "key": "245/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion STR",
+      "key": "245/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "V. HP",
+      "key": "255/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "255/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "Potenza S005",
+      "key": "255/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "255/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "255/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "AGILITY SUV",
+      "key": "255/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "255/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "255/55R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "265/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Volt EC",
+      "key": "265/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler HT02",
+      "key": "265/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "Voyager SV",
+      "key": "265/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Landspider",
+      "model": "Citytraxx H/P",
+      "key": "265/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Quattro Tempo Tour AW",
+      "key": "265/50R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "265/60R20",
+      "rim": 20,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "275/30R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Freccia GT-S",
+      "key": "275/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "275/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Nitto",
+      "model": "NT555 G2",
+      "key": "275/40R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "275/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Groundspeed",
+      "model": "V. SV 110W",
+      "key": "275/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-THIRTY",
+      "key": "275/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "Dueler H/L Alenza",
+      "key": "275/55R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion STR",
+      "key": "275/55R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "275/55R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "275/55R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Blackhawk",
+      "model": "Ridgecrawler HT02",
+      "key": "275/60R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Falken",
+      "model": "Rubitrek A/T01",
+      "key": "275/60R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "275/60R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "285/30R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "285/60R20",
+      "rim": 20,
+      "lt": true,
+      "level": "in"
+    },
+    {
+      "brand": "Hankook",
+      "model": "S-Evo Z",
+      "key": "295/45R20",
+      "rim": 20,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-TWENTY",
+      "key": "305/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Thirty",
+      "key": "315/35R20",
+      "rim": 20,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Landsail",
+      "model": "Rapid Dragon RD3",
+      "key": "255/35R21",
+      "rim": 21,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Voltec EV",
+      "key": "255/35R21",
+      "rim": 21,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "255/40R21",
+      "rim": 21,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Voltec EV",
+      "key": "275/35R21",
+      "rim": 21,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "275/35R21",
+      "rim": 21,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Thirty",
+      "key": "275/45R21",
+      "rim": 21,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "285/45R21",
+      "rim": 21,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "315/40R21",
+      "rim": 21,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport A/S",
+      "key": "255/30R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Voltec EV",
+      "key": "265/35R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-TWENTY",
+      "key": "275/40R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Defender LTX",
+      "key": "275/50R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "GUARANTOR H/T",
+      "key": "275/50R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "Voltec EV",
+      "key": "285/35R22",
+      "rim": 22,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport AS",
+      "key": "285/40R22",
+      "rim": 22,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Five",
+      "key": "285/40R22",
+      "rim": 22,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "285/45R22",
+      "rim": 22,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Eagle sport A/S",
+      "key": "285/45R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Guarantor HT",
+      "key": "285/45R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "RBP",
+      "model": "Repulsor A/T Plateau",
+      "key": "285/45R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-TEN",
+      "key": "295/30R22",
+      "rim": 22,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-TWENTY",
+      "key": "305/30R22",
+      "rim": 22,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "305/40R22",
+      "rim": 22,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Ten",
+      "key": "275/25R24",
+      "rim": 24,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Venom Power",
+      "model": "Ragnarok GTS",
+      "key": "275/25R24",
+      "rim": 24,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX THIRTY",
+      "key": "275/30R24",
+      "rim": 24,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Ten",
+      "key": "275/30R24",
+      "rim": 24,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Arroyo",
+      "model": "Grand Sport AS",
+      "key": "285/40R24",
+      "rim": 24,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "LH-Ten",
+      "key": "295/35R24",
+      "rim": 24,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Arisun",
+      "model": "Aresta ZG02",
+      "key": "305/35R24",
+      "rim": 24,
+      "lt": false,
+      "level": "in"
+    },
+    {
+      "brand": "Lexani",
+      "model": "LX-Twenty",
+      "key": "295/25R26",
+      "rim": 26,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Evoluxx",
+      "model": "Capricorn UHP",
+      "key": "305/30R26",
+      "rim": 26,
+      "lt": false,
+      "level": "low"
+    },
+    {
+      "brand": "Venom Power",
+      "model": "Ragnarok GTS",
+      "key": "305/30R26",
+      "rim": 26,
+      "lt": false,
+      "level": "low"
+    }
+  ]
+}

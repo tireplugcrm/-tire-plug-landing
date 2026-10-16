@@ -1,7 +1,7 @@
-import { sizeIndex } from "../lib/tire-catalog";
+import { allSizes } from "../lib/inventory";
 
 // Generated sitemap: the fixed pages below plus one entry per tire size page (/tires/<size>),
-// so every size added to lib/tire-catalog.js reaches Google automatically.
+// so every size added to lib/tire-catalog.js or stocked in Tekmetric reaches Google automatically.
 const BASE = "https://tireplugla.com";
 const PAGES = [
   ["/", "weekly", "1.0"],
@@ -24,7 +24,7 @@ const PAGES = [
 ];
 
 export async function getServerSideProps({ res }) {
-  const sizes = sizeIndex().map((s) => [`/tires/${s.slug}`, "weekly", "0.7"]);
+  const sizes = (await allSizes()).map((s) => [`/tires/${s.slug}`, "weekly", "0.7"]);
   const urls = [...PAGES, ...sizes]
     .map(([path, freq, prio]) => `  <url><loc>${BASE}${path}</loc><changefreq>${freq}</changefreq><priority>${prio}</priority></url>`)
     .join("\n");

@@ -3,11 +3,12 @@ import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import TireSizeSearch from "../../components/TireSizeSearch";
-import { INSTALL_FROM, sizeIndex } from "../../lib/tire-catalog";
+import { INSTALL_FROM } from "../../lib/tire-catalog";
+import { allSizes } from "../../lib/inventory";
 
-// /tires: search by size, plus every size we list (grouped by rim) for browsing and for Google.
+// /tires: search by size, plus every size we list or have in stock (grouped by rim) for browsing and for Google.
 export async function getStaticProps() {
-  return { props: { sizes: sizeIndex() }, revalidate: 3600 };
+  return { props: { sizes: await allSizes() }, revalidate: 3600 };
 }
 
 const URL = "https://tireplugla.com/tires";
@@ -47,7 +48,10 @@ export default function TiresIndex({ sizes }) {
               <div className="chips">
                 {sizes.filter((s) => s.rim === rim).map((s) => (
                   <a key={s.key} href={`/tires/${s.slug}`}>
-                    {s.key.replace("X", "x")} <span>{s.count > 1 ? `${s.count} options · ` : ""}from {money(s.from)}</span>
+                    {s.key.replace("X", "x")} <span>{s.from != null
+                      ? `${s.count > 1 ? `${s.count} options · ` : ""}from ${money(s.from)}`
+                      : "in stock"}</span>
+                    {s.stock > 0 && s.from != null && <i className="dot" title="In stock" />}
                   </a>
                 ))}
               </div>
@@ -75,6 +79,7 @@ export default function TiresIndex({ sizes }) {
         .ti .chips a { background: #fff; border: 1px solid #dcdcdc; border-radius: 50px; padding: 0.45rem 0.9rem; color: #111; font-weight: 700; font-size: 0.88rem; text-decoration: none; }
         .ti .chips a span { color: #6b6b6b; font-weight: 500; margin-left: 0.25rem; }
         .ti .chips a:hover { border-color: #E01B22; }
+        .ti .chips .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #1b9a4a; margin-left: 0.4rem; vertical-align: middle; }
         .ti .note { color: #555; margin-top: 1.5rem; }
         .ti .note a { color: #E01B22; font-weight: 700; }
         @media (max-width: 560px) { .ti-top { padding-top: 8.5rem; } }
