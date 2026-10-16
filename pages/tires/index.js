@@ -57,7 +57,7 @@ export default function TiresIndex({ sizes }) {
               </div>
             </div>
           ))}
-          <p className="note">Don't see your size? Pick it above anyway, or text us at <a href="sms:+15622503737">(562) 250-3737</a>. We can usually get it fast.</p>
+          <p className="note">Don't see your size? Pick it above anyway, or text us at <a href="sms:+15625004625">(562) 500-4625</a>. We can usually get it fast.</p>
         </section>
       </main>
       <Footer />

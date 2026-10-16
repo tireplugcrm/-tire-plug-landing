@@ -11,7 +11,7 @@ import { allSizes, stockForSize } from "../../lib/inventory";
 // then every tire we can order in it, cheapest first.
 // Listed and stocked sizes are prebuilt; any other valid size renders on demand with a "text us" fallback.
 const SIZE_RE = /^(\d{3}\/\d{2}R\d{2}|\d{2}X\d{1,2}\.\d{2}R\d{2})$/;
-const SMS = "+15622503737";
+const SMS = "+15625004625";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
 export async function getStaticPaths() {
@@ -160,7 +160,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nearby }) {
               <h2>Text us your size</h2>
               <p>We'll check every brand we can get in {display} and text you back real prices, usually within minutes.</p>
               <div className="ctas">
-                <a className="btn red" href={smsAsk}>Text us · (562) 250-3737</a>
+                <a className="btn red" href={smsAsk}>Text us · (562) 500-4625</a>
                 <a className="btn ghost" href="tel:5625004625">Call (562) 500-4625</a>
               </div>
             </div>
