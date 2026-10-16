@@ -141,8 +141,8 @@ export default function TextUs() {
           </a>
           <br />
           Text:{" "}
-          <a href="sms:+15622503737" style={{ color: "#0071c5" }}>
-            562-250-3737
+          <a href="sms:+15625004625" style={{ color: "#0071c5" }}>
+            562-500-4625
           </a>
           <br />
           Email:{" "}
