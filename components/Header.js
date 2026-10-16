@@ -50,9 +50,17 @@ export default function Header() {
     }
   };
 
+  // Homepage sections; from any other page, go to the homepage section instead.
   const scrollToSection = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     setMobileMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    else window.location.href = `/#${id}`;
+  };
+
+  const openReviews = () => {
+    setMobileMenuOpen(false);
+    setReviewsOpen(true);
   };
 
   return (
@@ -101,12 +109,17 @@ export default function Header() {
         <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>{mobileMenuOpen ? '✕' : '☰'}</button>
 
         {mobileMenuOpen && (
-          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(0,0,0,0.98)', backdropFilter: 'blur(20px)', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', borderTop: '1px solid rgba(255,31,31,0.15)' }}>
-            <button onClick={() => scrollToSection('hero')} style={mobileNavStyle}>Promos</button>
-            <button onClick={() => scrollToSection('booking')} style={mobileNavStyle}>Book Now</button>
-            <button onClick={() => scrollToSection('locations')} style={mobileNavStyle}>Locations</button>
-            <a href="/careers" style={{ ...mobileNavStyle, textDecoration: 'none', color: '#FF3838' }}>Careers — We're Hiring</a>
-            <a href="tel:562-500-4625" style={{ background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '1rem', borderRadius: '4px', textAlign: 'center', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none' }}>📞 Click to Call</a>
+          <div className="mm">
+            <button type="button" onClick={() => { setMobileMenuOpen(false); goToFinder(); }}>Shop tires by size<span>›</span></button>
+            <button type="button" onClick={() => scrollToSection('hero')}>Promos<span>›</span></button>
+            <button type="button" onClick={() => scrollToSection('booking')}>Book an appointment<span>›</span></button>
+            <button type="button" onClick={() => scrollToSection('locations')}>Location &amp; hours<span>›</span></button>
+            <button type="button" onClick={openReviews}>Reviews <em>★★★★★</em><span>›</span></button>
+            <a href="/careers" className="mm-hire">Careers · We're hiring<span>›</span></a>
+            <div className="mm-ctas">
+              <a href="tel:562-500-4625" className="mm-call">Call (562) 500-4625</a>
+              <a href="sms:+15625004625" className="mm-text">Text us</a>
+            </div>
           </div>
         )}
       </nav>
@@ -129,6 +142,17 @@ export default function Header() {
         .ib-callm { display: none; }
         .ib-size:hover .ib-strong, .ib-loc:hover .ib-strong, .ib-call:hover .ib-num { color: #E01B22; }
         .tp-nav { top: 56px; }
+        .mm { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 3px solid #E01B22;
+          box-shadow: 0 16px 32px rgba(0,0,0,0.25); display: flex; flex-direction: column; padding: 0.25rem 1rem 1rem; max-height: calc(100vh - 110px); overflow-y: auto; }
+        .mm > button, .mm > a { display: flex; align-items: center; gap: 0.5rem; width: 100%; background: none; border: none; border-bottom: 1px solid #eee;
+          padding: 1rem 0.25rem; font: inherit; font-size: 1.02rem; font-weight: 700; color: #111; text-align: left; text-decoration: none; cursor: pointer; }
+        .mm > button span, .mm > a span { margin-left: auto; color: #bbb; font-size: 1.4rem; line-height: 1; }
+        .mm em { font-style: normal; color: #FFB800; font-size: 0.8rem; letter-spacing: 1px; }
+        .mm .mm-hire { color: #E01B22; }
+        .mm-ctas { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.6rem; margin-top: 1rem; }
+        .mm-ctas a { display: flex; align-items: center; justify-content: center; padding: 0.95rem 0.5rem; border-radius: 50px; font-weight: 800; font-size: 0.92rem; text-decoration: none; }
+        .mm-call { background: #E01B22; color: #fff; }
+        .mm-text { background: #fff; color: #111; border: 2px solid #111; }
         @media (max-width: 1100px) { .ib-reviews { display: none !important; } }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
@@ -178,7 +202,6 @@ export default function Header() {
 }
 
 const navLinkStyle = { background: 'transparent', border: 'none', color: '#fff', fontSize: '0.8rem', fontWeight: 600, transition: 'color 0.3s ease', cursor: 'pointer', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'inherit' };
-const mobileNavStyle = { background: 'transparent', border: 'none', color: '#fff', fontSize: '1.1rem', fontWeight: 600, textAlign: 'left', padding: '0.5rem 0', cursor: 'pointer', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'inherit' };
 
 function ReviewsModal({ isOpen, onClose }) {
   const [currentReview, setCurrentReview] = useState(0);
