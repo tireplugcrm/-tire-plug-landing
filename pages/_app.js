@@ -1,6 +1,12 @@
 import '../styles/globals.css';
+import { useEffect } from 'react';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
+import { trackContactClicks } from '../lib/track';
 
+// Vercel Web Analytics (visitors, pages, referrers) is always on; turn it on for the
+// project in the Vercel dashboard (Analytics tab → Enable).
+//
 // Analytics scaffolding. These switch on automatically once the IDs are set as
 // Vercel env vars — no code change needed:
 //   NEXT_PUBLIC_GA_ID          e.g. "G-XXXXXXXXXX"   (Google Analytics 4)
@@ -11,6 +17,9 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export default function App({ Component, pageProps }) {
+  // Text / Call taps anywhere on the site (see lib/track.js)
+  useEffect(() => trackContactClicks(), []);
+
   return (
     <>
       {GA_ID && (
@@ -45,6 +54,7 @@ export default function App({ Component, pageProps }) {
       )}
 
       <Component {...pageProps} />
+      <Analytics />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useId, useState } from 'react';
 import { useRouter } from 'next/router';
 import { sizeToSlug } from '../lib/tire-catalog';
+import { track } from '../lib/track';
 
 // Size picker that sends the customer to /tires/<size> with every option we carry.
 // Same dropdown values as the text-quote finder, so any real tire size can be picked;
@@ -39,7 +40,9 @@ export default function TireSizeSearch({ initial, compact = false }) {
   const go = (e) => {
     e.preventDefault();
     if (!ready) return;
-    router.push(`/tires/${sizeToSlug(cfg.build(s1, s2, s3))}`);
+    const size = cfg.build(s1, s2, s3);
+    track('Size search', { size }, { event: 'Search', params: { search_string: size } });
+    router.push(`/tires/${sizeToSlug(size)}`);
   };
 
   return (
