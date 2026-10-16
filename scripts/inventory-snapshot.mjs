@@ -24,11 +24,15 @@ const OUT = path.join(DATA, "inventory-snapshot.json");
 // Tekmetric has the same tire line typed several ways ("LX-Twenty", "LX-TWENTY", "LX-20").
 // data/tire-models.json lists each line's aliases; stock is merged under the real name.
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+const MODELS_FILE = JSON.parse(fs.readFileSync(path.join(DATA, "tire-models.json"), "utf8"));
 const CANON = new Map();
-for (const [id, m] of Object.entries(JSON.parse(fs.readFileSync(path.join(DATA, "tire-models.json"), "utf8")).models)) {
+for (const [id, m] of Object.entries(MODELS_FILE.models)) {
   const [brand, model] = id.split("|");
   for (const name of [model, ...(m.aliases || [])]) CANON.set(`${norm(brand)}|${norm(name)}`, model);
 }
+// Single sizes Tekmetric files under the wrong model (checked against part numbers / maker size lists):
+// "Brand|Model as typed|SIZE" -> real model.
+const REMAP = new Map(Object.entries(MODELS_FILE.remap || {}).map(([k, v]) => [k.split("|").map(norm).join("|"), v]));
 const LOW_AT = 3; // 1-3 available shows "Low stock"
 
 // Tekmetric has the same brand typed several ways.
@@ -65,7 +69,10 @@ for (const r of rows) {
   if (!size || !brandRaw) { skipped += available; continue; }
 
   const brand = BRANDS[brandRaw.toLowerCase()] || brandRaw;
-  const model = CANON.get(`${norm(brand)}|${norm(col(r, "Tire Model"))}`) || col(r, "Tire Model");
+  const typed = col(r, "Tire Model");
+  const named = CANON.get(`${norm(brand)}|${norm(typed)}`) || typed;
+  const fixed = REMAP.get(`${norm(brand)}|${norm(typed)}|${norm(size.key)}`) || REMAP.get(`${norm(brand)}|${norm(named)}|${norm(size.key)}`);
+  const model = fixed ? CANON.get(`${norm(brand)}|${norm(fixed)}`) || fixed : named;
   const lt = /\bLT\b/i.test(col(r, "Tire Type")) || /\blt\b/.test(details) || size.lt;
   const id = `${brand}|${model.toLowerCase()}|${size.key}|${lt}`;
   const cur = byTire.get(id) || { brand, model, key: size.key, rim: size.rim, lt, available: 0, specs: {} };

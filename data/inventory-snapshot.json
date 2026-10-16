@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-16T06:29:01.487Z",
+  "updatedAt": "2026-10-16T06:56:41.534Z",
   "source": "tekmetric-csv",
   "tires": [
     {
       "brand": "Remington",
-      "model": "Touring L/X",
+      "model": "Touring LX",
       "key": "155/80R13",
       "rim": 13,
       "lt": false,
@@ -159,7 +159,7 @@
     },
     {
       "brand": "Jinyu",
-      "model": "A1 All Season Touring",
+      "model": "A1 Touring AS",
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
@@ -293,7 +293,7 @@
     },
     {
       "brand": "GT Radial",
-      "model": "Champiro Touring AS",
+      "model": "Champiro Touring A/S",
       "key": "205/65R15",
       "rim": 15,
       "lt": false,
@@ -359,7 +359,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "Kinergy ST",
+      "model": "Kinergy ST H735",
       "key": "225/75R15",
       "rim": 15,
       "lt": false,
@@ -536,7 +536,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "Kinergy PT",
+      "model": "Kinergy PT H737",
       "key": "205/70R16",
       "rim": 16,
       "lt": false,
@@ -715,7 +715,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "Kinergy ST",
+      "model": "Kinergy ST H735",
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
@@ -724,7 +724,7 @@
     },
     {
       "brand": "Landspider",
-      "model": "H/T",
+      "model": "Citytraxx H/T",
       "key": "235/65R16",
       "rim": 16,
       "lt": false,
@@ -787,7 +787,7 @@
     },
     {
       "brand": "Arroyo",
-      "model": "Eco Pro HT",
+      "model": "Eco Pro H/T",
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
@@ -805,7 +805,7 @@
     },
     {
       "brand": "Firestone",
-      "model": "Destination AT2",
+      "model": "Destination A/T2",
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
@@ -814,7 +814,7 @@
     },
     {
       "brand": "Goodyear",
-      "model": "Wrangler Territory MT",
+      "model": "Wrangler Territory AT",
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
@@ -884,7 +884,7 @@
     },
     {
       "brand": "Bridgestone",
-      "model": "Weatherpeak",
+      "model": "WeatherPeak",
       "key": "205/50R17",
       "rim": 17,
       "lt": false,
@@ -901,7 +901,7 @@
     },
     {
       "brand": "Mileking",
-      "model": "LECP mk927",
+      "model": "MK927",
       "key": "215/40R17",
       "rim": 17,
       "lt": false,
@@ -910,7 +910,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "Ventus V2 Concept2",
+      "model": "Ventus V2 Concept2 H457",
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
@@ -1031,7 +1031,7 @@
     },
     {
       "brand": "Jinyu",
-      "model": "A1 All Season Touring",
+      "model": "A1 Touring AS",
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
@@ -1064,7 +1064,7 @@
     },
     {
       "brand": "Prinx",
-      "model": "HiCITY HP HH2",
+      "model": "HiCity HH2",
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
@@ -1134,7 +1134,7 @@
     },
     {
       "brand": "Kumho",
-      "model": "Solus TA51A",
+      "model": "Solus TA51a",
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
@@ -1145,7 +1145,7 @@
     },
     {
       "brand": "Landspider",
-      "model": "Citytraxx G/P",
+      "model": "Citytraxx H/P",
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
@@ -1305,7 +1305,7 @@
     },
     {
       "brand": "Evoluxx",
-      "model": "Capricorn UHP",
+      "model": "Capricorn 4X4 HP",
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
@@ -1327,7 +1327,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "Kinergy 4S2 X",
+      "model": "Kinergy 4S2 X H750A",
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
@@ -1595,7 +1595,7 @@
     },
     {
       "brand": "Toyo",
-      "model": "Open Country H/T^II",
+      "model": "Open Country H/T II",
       "key": "285/70R17",
       "rim": 17,
       "lt": true,
@@ -1785,7 +1785,7 @@
     },
     {
       "brand": "Bridgestone",
-      "model": "Turanza Prestige BLK",
+      "model": "Turanza Prestige",
       "key": "225/55R18",
       "rim": 18,
       "lt": false,
@@ -1814,7 +1814,7 @@
     },
     {
       "brand": "Jinyu",
-      "model": "A1 All Season Touring",
+      "model": "A1 Touring AS",
       "key": "225/60R18",
       "rim": 18,
       "lt": false,
@@ -1876,7 +1876,7 @@
     },
     {
       "brand": "Kumho",
-      "model": "Ecsta Sport AS PA71",
+      "model": "Ecsta Sport A/S",
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
@@ -1925,7 +1925,7 @@
     },
     {
       "brand": "Pirelli",
-      "model": "PZero All Season",
+      "model": "P Zero All Season",
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
@@ -2031,7 +2031,7 @@
     },
     {
       "brand": "Advanta",
-      "model": "Advanta HP Z-02",
+      "model": "HPZ-02",
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
@@ -2069,7 +2069,7 @@
     },
     {
       "brand": "Bridgestone",
-      "model": "Weatherpeak",
+      "model": "WeatherPeak",
       "key": "245/45R18",
       "rim": 18,
       "lt": false,
@@ -2278,7 +2278,7 @@
     },
     {
       "brand": "Bridgestone",
-      "model": "Weatherpeak",
+      "model": "WeatherPeak",
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
@@ -2325,7 +2325,7 @@
     },
     {
       "brand": "Toyo",
-      "model": "Proxes",
+      "model": "Proxes ST III",
       "key": "295/45R18",
       "rim": 18,
       "lt": false,
@@ -2334,7 +2334,7 @@
     },
     {
       "brand": "Kumho",
-      "model": "131",
+      "model": "Spare 131",
       "key": "135/70R19",
       "rim": 19,
       "lt": false,
@@ -2343,7 +2343,7 @@
     },
     {
       "brand": "Landsail",
-      "model": "RapidDragon AD-3 AS",
+      "model": "RapidDragon RD-3 AS",
       "key": "195/50R19",
       "rim": 19,
       "lt": false,
@@ -2397,7 +2397,7 @@
     },
     {
       "brand": "Continental",
-      "model": "Pro Contact RX",
+      "model": "ProContact RX",
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
@@ -2511,7 +2511,7 @@
     },
     {
       "brand": "Vantage",
-      "model": "UHP VT31387",
+      "model": "UHP",
       "key": "235/50R19",
       "rim": 19,
       "lt": false,
@@ -2540,7 +2540,7 @@
     },
     {
       "brand": "Jinyu",
-      "model": "A1 Touring A/S",
+      "model": "A1 Touring AS",
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
@@ -2562,7 +2562,7 @@
     },
     {
       "brand": "Pirelli",
-      "model": "Scorpion AS PLUS 3",
+      "model": "Scorpion All Season Plus 3",
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
@@ -2623,7 +2623,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "Agility A/S",
+      "model": "Agility UHP AS",
       "key": "245/50R19",
       "rim": 19,
       "lt": false,
@@ -2700,7 +2700,7 @@
     },
     {
       "brand": "Michelin",
-      "model": "Pilot Sport A/S",
+      "model": "Pilot Sport All Season 4",
       "key": "255/40R19",
       "rim": 19,
       "lt": false,
@@ -2718,7 +2718,7 @@
     },
     {
       "brand": "Pirelli",
-      "model": "Scorpion (A0) (+)",
+      "model": "Scorpion (AO) Elect",
       "key": "255/50R19",
       "rim": 19,
       "lt": false,
@@ -2744,7 +2744,7 @@
     },
     {
       "brand": "Arisun",
-      "model": "Aggressor ZP02",
+      "model": "Aresta ZG02",
       "key": "255/60R19",
       "rim": 19,
       "lt": false,
@@ -2799,7 +2799,7 @@
     },
     {
       "brand": "Groundspeed",
-      "model": "Voyager GTS A/S",
+      "model": "Voyager GT-AS",
       "key": "265/50R19",
       "rim": 19,
       "lt": false,
@@ -2855,7 +2855,7 @@
     },
     {
       "brand": "Pirelli",
-      "model": "Scorpion AS+3",
+      "model": "Scorpion All Season Plus 3",
       "key": "235/55R20",
       "rim": 20,
       "lt": false,
@@ -2891,7 +2891,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "Ventus S1 AS",
+      "model": "Ventus S1 AS H125",
       "key": "245/40R20",
       "rim": 20,
       "lt": false,
@@ -2915,15 +2915,6 @@
       "lt": false,
       "specs": {},
       "level": "in"
-    },
-    {
-      "brand": "Blackhawk",
-      "model": "HU01",
-      "key": "245/45R20",
-      "rim": 20,
-      "lt": false,
-      "specs": {},
-      "level": "low"
     },
     {
       "brand": "Blackhawk",
@@ -3212,7 +3203,7 @@
     },
     {
       "brand": "Groundspeed",
-      "model": "V. SV 110W",
+      "model": "Voyager SV",
       "key": "275/45R20",
       "rim": 20,
       "lt": false,
@@ -3230,7 +3221,7 @@
     },
     {
       "brand": "Bridgestone",
-      "model": "Dueler H/L Alenza",
+      "model": "Dueler H/L Alenza Plus",
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
@@ -3317,7 +3308,7 @@
     },
     {
       "brand": "Hankook",
-      "model": "S-Evo Z",
+      "model": "Ventus S1 evo Z K129",
       "key": "295/45R20",
       "rim": 20,
       "lt": false,
@@ -3344,7 +3335,7 @@
     },
     {
       "brand": "Landsail",
-      "model": "Rapid Dragon RD3",
+      "model": "RapidDragon RD-3 AS",
       "key": "255/35R21",
       "rim": 21,
       "lt": false,
@@ -3449,7 +3440,7 @@
     },
     {
       "brand": "Michelin",
-      "model": "Defender LTX",
+      "model": "Defender LTX M/S2",
       "key": "275/50R22",
       "rim": 22,
       "lt": false,
@@ -3518,7 +3509,7 @@
     },
     {
       "brand": "Goodyear",
-      "model": "Eagle sport A/S",
+      "model": "Eagle Sport All-Season",
       "key": "285/45R22",
       "rim": 22,
       "lt": false,

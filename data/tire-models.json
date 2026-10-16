@@ -1,5 +1,12 @@
 {
   "_about": "What each tire model is, shown on /tires/<size> cards. Key: 'Brand|Model'. img is a path under /public (leave null until we have a photo).",
+  "remap": {
+    "Evoluxx|Capricorn UHP|225/65R17": "Capricorn 4X4 HP",
+    "Landspider|Citytraxx G/P|225/45R17": "Citytraxx H/P",
+    "Arisun|Aggressor ZP02|255/60R19": "Aresta ZG02",
+    "Goodyear|Wrangler Territory MT|265/70R16": "Wrangler Territory AT",
+    "Blackhawk|HU01|245/45R20": "Agility UHP AS"
+  },
   "models": {
     "Lexani|Quattro Tempo Tour AW": {
       "category": "All-weather touring",
@@ -365,97 +372,1376 @@
       "source": "https://tiresize.com/tires/Falken/Azenis-FK460-AS.htm"
     },
     "Evoluxx|Capricorn UHP": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "All-Season Ultra High Performance (passenger/SUV)",
+      "about": "An all-season ultra-high-performance tire for cars and SUVs that aims for sharp handling, wet grip and high-speed durability at a budget price.",
+      "features": [
+        "Siping and compound for dry, wet and winter traction",
+        "Three center ribs for steering response and stability",
+        "Continuous center rib reduces road vibration",
+        "Heat-resistant compound and reinforced structure for high-speed durability",
+        "Four circumferential grooves plus lateral grooves resist hydroplaning",
+        "Shoulder blocks add biting edges for cornering"
+      ],
       "img": "/images/tires/evoluxx-capricorn-uhp.webp",
-      "aliases": []
+      "aliases": [
+        "Capricorn U.H.P"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/evoluxx-tires/capricorn-uhp/235-40r19-96y-xl-33687"
     },
     "Evoluxx|Rotator H/T": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Highway All-Season (SUV/Light Truck)",
+      "about": "A highway-terrain all-season tire for SUVs and light trucks built for stable, even-wearing, quiet road driving.",
+      "features": [
+        "Long interlocking center rib and wide shoulder blocks for stability and even wear",
+        "Quiet, comfortable ride",
+        "Improved braking",
+        "M+S rated",
+        "55,000-mile limited treadwear warranty"
+      ],
       "img": "/images/tires/evoluxx-rotator-h-t.webp",
       "aliases": [
         "Rotator HT"
-      ]
+      ],
+      "source": "https://www.giga-tires.com/265-70-17/evoluxx-tires/rotator-h-t/tirecode/221018835"
     },
     "GT Radial|Maxtour LX": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Grand Touring & CUV All-Season",
+      "about": "A quiet, long-wearing grand-touring all-season tire for sedans and crossovers, mostly built at Giti's South Carolina plant and backed by a 70,000-mile tread warranty.",
+      "features": [
+        "Harmonically optimized pitch sequencing for reduced road noise",
+        "Asymmetric tread pattern tuned for all-season performance",
+        "Stiff tread blocks for precise handling and steering response",
+        "Independent shoulder groove for improved handling",
+        "Additional shoulder channels evacuate water to reduce hydroplaning",
+        "Full-depth sipes for grip throughout tire life",
+        "M+S rated",
+        "Made in USA (select sizes may be made at international facility)",
+        "70,000-mile limited tread life warranty",
+        "Road hazard warranty",
+        "24-hour roadside assistance",
+        "Test drive program"
+      ],
       "img": "/images/tires/gt-radial-maxtour-lx.webp",
-      "aliases": []
+      "aliases": [
+        "MAXTOUR LX",
+        "Maxtour-LX"
+      ],
+      "source": "https://www.gtradial-us.com/comfort/maxtour-lx/"
     },
     "Blackhawk|Agility UHP AS": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Ultra-high-performance all-season",
+      "about": "An all-season ultra-high-performance tire for sport sedans and coupes, with an asymmetric tread and outer shoulder blocks for cornering grip.",
+      "features": [
+        "50,000-mile limited treadwear warranty",
+        "Asymmetric tread"
+      ],
       "img": "/images/tires/blackhawk-agility-uhp-as.webp",
       "aliases": [
         "Agility UHP",
-        "Agility UHP A/S"
-      ]
+        "Agility UHP A/S",
+        "Agility A/S"
+      ],
+      "source": "https://www.tires-easy.com/tires/blackhawk-tires/s/agility-uhp-as"
     },
     "Blackhawk|Street-H HH11": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "All-season passenger touring",
+      "about": "A budget-friendly all-season touring tire for cars, with a non-directional silica tread tuned for a quiet, smooth daily ride.",
+      "features": [
+        "Variable-pitch tread for lower noise",
+        "Silica compound"
+      ],
       "img": "/images/tires/blackhawk-street-h-hh11.webp",
       "aliases": [
         "HH11"
-      ]
+      ],
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/hh11/"
     },
     "Blackhawk|Agility SUV": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "All-season touring CUV/SUV",
+      "about": "An all-season touring tire for crossovers and SUVs, built for a quiet, comfortable ride and good wet grip in city and highway driving.",
+      "features": [
+        "60,000-mile limited treadwear warranty"
+      ],
       "img": "/images/tires/blackhawk-agility-suv.webp",
-      "aliases": []
+      "aliases": [
+        "AGILITY SUV"
+      ],
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/agility-suv/"
     },
     "Blackhawk|Ridgecrawler HT02": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Highway all-season light truck/SUV",
+      "about": "A highway all-season tire for pickups and SUVs, made for smooth, quiet, long-wearing on-road miles.",
+      "features": [
+        "Four circumferential grooves"
+      ],
       "img": "/images/tires/blackhawk-ridgecrawler-ht02.webp",
-      "aliases": []
+      "aliases": [
+        "HT02",
+        "Ridgecrawler"
+      ],
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/ht02/"
     },
     "Arisun|Aresta ZG02": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Truck/SUV Highway All Season",
+      "about": "A quiet all-season highway tire for SUVs, crossovers and light trucks that uses wide grooves and a stiff center rib to stay stable and resist hydroplaning.",
+      "features": [
+        "Circumferential grooves channel water to reduce hydroplaning",
+        "Tread design meant to lower road noise and vibration",
+        "Compound intended to resist uneven wear",
+        "High-stiffness center rib for precise steering response",
+        "Zig-zag snow sipes for year-round traction"
+      ],
       "img": "/images/tires/arisun-aresta-zg02.webp",
-      "aliases": []
+      "aliases": [
+        "ZG02"
+      ],
+      "source": "https://simpletire.com/brands/arisun-tires/aresta-zg02"
     },
     "Arroyo|Grand Sport A/S": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "All-Season Performance (Passenger)",
+      "about": "An all-season performance tire with an asymmetric tread, built for cornering grip, quick steering response and wet-road handling.",
+      "features": [
+        "Four wide longitudinal grooves for water evacuation and wet handling",
+        "Anti-eccentric-wear blocks on the outer shoulder for even contact pressure",
+        "Partial slanted grooves to reduce noise and aid cornering stability",
+        "Wide grooves and fine sipes to cut through water film and reduce noise",
+        "Pitch sequence tuned to reduce noise resonance",
+        "Made in Thailand"
+      ],
       "img": "/images/tires/arroyo-grand-sport-a-s.webp",
-      "aliases": []
+      "aliases": [
+        "Grand Sport AS"
+      ],
+      "source": "https://www.arroyotires.com/products/grand-sport-a-s"
     },
     "Groundspeed|Voyager HP": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Passenger UHP all-season",
+      "about": "An ultra-high-performance all-season tire that uses a silica compound for handling, grip and fuel economy on performance cars.",
+      "features": [
+        "Stabilized shoulder blocks for handling and stability",
+        "Noise-absorbing tread design with fine grooves",
+        "Three wide circumferential grooves to evacuate water",
+        "GX Silica Compound",
+        "Asymmetrical tread pattern",
+        "Wide arc grooves for snow grip",
+        "3D shoulder grooves for even wear and dry braking",
+        "M+S rated",
+        "GroundUp 40K warranty",
+        "Road Hazard Coverage"
+      ],
       "img": "/images/tires/groundspeed-voyager-hp.webp",
       "aliases": [
         "V. HP"
-      ]
+      ],
+      "source": "https://groundspeedtires.com/tires/passenger/voyager-hp"
     },
     "Goodyear|Wrangler Territory MT": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Mud-terrain (light truck)",
+      "about": "A mild mud-terrain truck tire, fitted as original equipment on off-road trims, with an open tread that clears muck while staying fairly civil on pavement.",
+      "features": [
+        "Open tread pattern to clear mud, dirt, rocks, water and slush",
+        "Wrap-around shoulder lugs for grip in deep mud and snow",
+        "Sequenced pitch pattern to reduce road noise and vibration",
+        "Original Equipment on select trucks/SUVs",
+        "Symmetrical tread design",
+        "Not 3PMS rated"
+      ],
       "img": "/images/tires/goodyear-wrangler-territory-mt.webp",
-      "aliases": []
+      "aliases": [],
+      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-mt"
     },
     "Dunlop|Blue Response A/S": {
-      "category": null,
-      "about": null,
-      "features": [],
+      "category": "Premium all-season touring",
+      "about": "Dunlop's premium all-season touring tire for cars and crossovers, focused on long tread life and efficiency.",
+      "features": [
+        "Silica-enhanced tread compound for fuel economy and wet, dry and light-snow traction",
+        "Round profile and 3D Waveform Grooves to cut rolling resistance and noise",
+        "Grooves help resist hydroplaning as the tire wears",
+        "80,000-mile limited tread life warranty"
+      ],
       "img": "/images/tires/dunlop-blue-response-a-s.webp",
-      "aliases": []
+      "aliases": [
+        "BluResponse A/S"
+      ],
+      "source": "https://www.dunloptires.com/blue-response"
+    },
+    "Blackhawk|Ridgecrawler R/T": {
+      "category": "Rugged-terrain light truck",
+      "about": "A rugged-terrain tire for trucks and 4x4s that mixes aggressive off-road bite and sidewall lugs with a livable highway ride.",
+      "features": [
+        "3PMSF severe-snow rated",
+        "Sidewall biters",
+        "Studdable"
+      ],
+      "img": "/images/tires/blackhawk-ridgecrawler-r-t.webp",
+      "aliases": [],
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/rt/"
+    },
+    "Blackhawk|Ridgecrawler A/T": {
+      "category": "All-terrain light truck/SUV",
+      "about": "An all-terrain tire for trucks and SUVs with deep lugs and staggered shoulder blocks for traction on and off pavement.",
+      "features": [
+        "3PMSF severe-snow rated",
+        "50,000-mile limited treadwear warranty"
+      ],
+      "img": "/images/tires/blackhawk-ridgecrawler-a-t.webp",
+      "aliases": [
+        "All Terrain"
+      ],
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/at/"
+    },
+    "Blackhawk|Ridgecrawler LMD": {
+      "category": "Commercial van (last-mile delivery)",
+      "about": "A commercial tire for cargo and delivery vans, with deep siped tread and a reinforced casing for heavy daily loads.",
+      "features": [
+        "Reinforced commercial casing"
+      ],
+      "img": "/images/tires/blackhawk-ridgecrawler-lmd.webp",
+      "aliases": [
+        "LMD"
+      ],
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/lmd/"
+    },
+    "Blackhawk|Street-H HU02": {
+      "category": "Ultra-high-performance summer",
+      "about": "A summer ultra-high-performance tire for sport coupes and sedans, built for dry grip and wet-water evacuation, not for cold weather.",
+      "features": [
+        "Summer tire",
+        "Rim protector",
+        "40,000-mile limited treadwear warranty"
+      ],
+      "img": "/images/tires/blackhawk-street-h-hu02.webp",
+      "aliases": [
+        "HU02"
+      ],
+      "source": "https://simpletire.com/brands/blackhawk-tires/street-h-hu02"
+    },
+    "Blackhawk|Street-H HU01": {
+      "category": "Ultra-high-performance all-season",
+      "about": "A directional ultra-high-performance all-season tire for coupes and sedans, with a solid center rib for high-speed stability.",
+      "features": [
+        "Directional tread",
+        "50,000-mile limited treadwear warranty"
+      ],
+      "img": "/images/tires/blackhawk-street-h-hu01.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/blackhawk-tires/street-h-hu01"
+    },
+    "Arroyo|Eco Pro A/S": {
+      "category": "All-Season Passenger",
+      "about": "An all-season passenger tire focused on fuel efficiency, a comfortable ride and confident handling on wet roads.",
+      "features": [
+        "Four wide longitudinal grooves for drainage and wet-road handling",
+        "Grooves of varying depth with sipes to break up water film and reduce noise",
+        "Continuous center ribs for steering stability and straight tracking at speed",
+        "Optimized pitch sequence for a quieter ride",
+        "Made in Thailand"
+      ],
+      "img": "/images/tires/arroyo-eco-pro-a-s.webp",
+      "aliases": [
+        "Eco Pro AS"
+      ],
+      "source": "https://www.arroyotires.com/products/eco-pro-a-s"
+    },
+    "Arroyo|Eco Pro H/T": {
+      "category": "All-Season Highway Touring (Light Truck/SUV)",
+      "about": "A highway all-season touring tire for light trucks and SUVs, designed for stable, precise handling and long tread life.",
+      "features": [
+        "Four wide longitudinal grooves for water evacuation and wet handling",
+        "Three directional continuous center ribs for straight-line stability",
+        "Cross-interlocking grooves for grip and lower noise",
+        "Five-variable-pitch pattern to reduce noise resonance",
+        "Main-groove depth optimized for mileage; shoulder-groove depth to reduce heat",
+        "Made in Thailand"
+      ],
+      "img": "/images/tires/arroyo-eco-pro-h-t.webp",
+      "aliases": [
+        "Eco Pro HT"
+      ],
+      "source": "https://www.arroyotires.com/products/eco-pro-h-t"
+    },
+    "Groundspeed|Voyager GT": {
+      "category": "Passenger all-season touring",
+      "about": "An all-season touring tire built for long tread life, wet grip and a quiet, comfortable ride.",
+      "features": [
+        "3D shoulder grooves for lower road noise",
+        "Long-wear tread compound",
+        "Asymmetrical tread pattern",
+        "Three wide vertical grooves for water evacuation",
+        "Wear-resistant shoulder design",
+        "Wide arc grooves for snow grip",
+        "M+S rated",
+        "GroundUP! 50K mileage warranty",
+        "Road Hazard Coverage"
+      ],
+      "img": "/images/tires/groundspeed-voyager-gt.webp",
+      "aliases": [],
+      "source": "https://groundspeedtires.com/tires/passenger/voyager-gt"
+    },
+    "Groundspeed|Voyager AT": {
+      "category": "Light truck all-terrain",
+      "about": "An all-season all-terrain tire for light trucks and SUVs that aims to give off-road traction without giving up on-road manners.",
+      "features": [
+        "All-terrain tread for loose and uneven surfaces",
+        "All-season compound",
+        "Self-cleaning wide grooves and staggered blocks",
+        "Stepped shoulder design for cornering grip",
+        "Stable tread elements to resist irregular wear",
+        "50,000-mile treadlife warranty"
+      ],
+      "img": "/images/tires/groundspeed-voyager-at.webp",
+      "aliases": [],
+      "source": "https://www.prioritytire.com/by-brand/groundspeed-tires/voyager-at/285-70r17-121-118q-e-10-ply-55172"
+    },
+    "Groundspeed|Voyager GT-AS": {
+      "category": "Passenger all-season touring",
+      "about": "A year-round touring tire tuned for dry, wet and light winter traction with even wear and good fuel economy.",
+      "features": [
+        "Four wide circumferential grooves to resist hydroplaning",
+        "3D shoulder grooves for dry braking",
+        "Simulation-optimized pattern blocks for a quiet ride",
+        "Asymmetrical tread pattern",
+        "Lateral grooves and siping for winter traction",
+        "Optimal middle pattern for highway stability",
+        "Fuel-efficient footprint",
+        "GroundUp! 60K mileage warranty"
+      ],
+      "img": "/images/tires/groundspeed-voyager-gt-as.webp",
+      "aliases": [
+        "Voyager GTS A/S"
+      ],
+      "source": "https://groundspeedtires.com/tires/passenger/voyager-gt-as"
+    },
+    "Groundspeed|Voyager SV": {
+      "category": "Passenger CUV/SUV highway all-season",
+      "about": "A premium highway all-season tire for SUVs and crossovers that is built for comfort and wet and dry traction at highway speeds.",
+      "features": [
+        "Large shoulder design for cornering stability",
+        "Siped center control rib",
+        "Grip-optimized tread with vertical and horizontal grooves",
+        "Wide wet-traction grooves",
+        "M+S rated",
+        "Asymmetrical tread pattern",
+        "3D shoulder grooves",
+        "Variable-pitch tread for a quiet ride",
+        "GroundUp 50K warranty",
+        "Road Hazard Coverage"
+      ],
+      "img": "/images/tires/groundspeed-voyager-sv.webp",
+      "aliases": [
+        "V. SV 110W"
+      ],
+      "source": "https://groundspeedtires.com/tires/passenger/voyager-sv"
+    },
+    "Arisun|Aresta HT ZG04": {
+      "category": "Light Truck Highway",
+      "about": "A heavy-duty highway light-truck tire built with a strong casing and durable compound for load capacity and long tread life on CUVs, SUVs and pickups.",
+      "features": [
+        "Angled tread blocks and dense siping for dry, wet and light winter traction",
+        "Robust construction and long-lasting compound for durability and load capacity",
+        "Four wide grooves for water evacuation",
+        "Optimized design for a quieter ride"
+      ],
+      "img": "/images/tires/arisun-aresta-ht-zg04.webp",
+      "aliases": [
+        "ZG04",
+        "Aresta H/T ZG04"
+      ],
+      "source": "https://simpletire.com/brands/arisun-tires/zg04"
+    },
+    "Arisun|Aggressor ZP11": {
+      "category": "Passenger All Season Touring",
+      "about": "An everyday all-season touring tire for sedans, compacts and SUVs that pairs a symmetric tread with wide grooves and sipes for wet and light-snow grip.",
+      "features": [
+        "Symmetric tread pattern",
+        "Wide circumferential grooves for wet traction",
+        "Multiple sipes for light snow and wet conditions",
+        "Durable tread compound"
+      ],
+      "img": "/images/tires/arisun-aggressor-zp11.webp",
+      "aliases": [
+        "ZP11"
+      ],
+      "source": "https://www.giga-tires.com/235-65-18/arisun-tires/zp11/tirecode/TH85680"
+    },
+    "Arisun|Aggressor ZP01": {
+      "category": "Passenger All Season Touring",
+      "about": "A value-oriented all-season touring tire for cars and SUVs with a continuous center rib for handling and grooves that clear water.",
+      "features": [
+        "Siping and wide grooves for year-round traction",
+        "Circumferential grooves to resist hydroplaning",
+        "Shoulder blocks to reduce road noise",
+        "Solid center rib for steering response"
+      ],
+      "img": "/images/tires/arisun-aggressor-zp01.webp",
+      "aliases": [
+        "ZP01"
+      ],
+      "source": "https://simpletire.com/brands/arisun-tires/aggressor-zp01"
+    },
+    "Arisun|Aggressor ZS03": {
+      "category": "Ultra High Performance All Season",
+      "about": "An ultra-high-performance all-season tire for cars and SUVs that uses an asymmetric tread and stiff blocks for high-speed handling plus hybrid siping for all-weather grip.",
+      "features": [
+        "Asymmetric tread for dry handling and cornering",
+        "Stiff tread blocks for performance and mileage",
+        "Hybrid siping for wet, dry and light winter traction",
+        "M+S rated"
+      ],
+      "img": "/images/tires/arisun-aggressor-zs03.webp",
+      "aliases": [
+        "ZS03"
+      ],
+      "source": "https://simpletire.com/brands/arisun-tires/aggressor-zs03"
+    },
+    "Landspider|Citytraxx G/P": {
+      "category": "All-Season Passenger",
+      "about": "A budget all-season touring tire for everyday passenger cars that focuses on wet grip, steady highway handling and long, fuel-efficient wear.",
+      "features": [
+        "Four longitudinal grooves with high-density lateral sipes to reduce hydroplaning",
+        "High siping density for wet grip and braking",
+        "Varied tread block design for steering precision and highway stability",
+        "Abrasion-resistant, low-rolling-resistance compound",
+        "Symmetrical tread, blackwall"
+      ],
+      "img": "/images/tires/landspider-citytraxx-g-p.webp",
+      "aliases": [
+        "CityTraxx G/P"
+      ],
+      "source": "https://www.tires-easy.com/195-65-15/landspider-tires/citytraxx-g-p/tirecode/AGP005"
+    },
+    "Landspider|Citytraxx H/P": {
+      "category": "All-Season High Performance (Passenger/CUV/SUV)",
+      "about": "An asymmetric all-season performance tire for coupes, sedans, crossovers and SUVs, built for sharp steering and good wet traction.",
+      "features": [
+        "Asymmetric tread pattern for water evacuation",
+        "Four circumferential grooves and high-density sipes for wet roads and light snow",
+        "Reinforced outer shoulder with chamfered blocks for steering precision",
+        "Large outer tread blocks for cornering",
+        "Optimized design to reduce road noise"
+      ],
+      "img": "/images/tires/landspider-citytraxx-h-p.webp",
+      "aliases": [
+        "CityTraxx H/P"
+      ],
+      "source": "https://www.giga-tires.com/225-45-17/landspider-tires/citytraxx-h-p/tirecode/BGP004"
+    },
+    "Landspider|Citytraxx H/T": {
+      "category": "All-Season Highway (SUV/Light Truck)",
+      "about": "A highway all-season tire for SUVs and light trucks that balances quiet, stable road manners with some grip on loose surfaces.",
+      "features": [
+        "Four deep circumferential grooves disperse water and slush",
+        "Strong outer shoulder with chamfered blocks for cornering and stability",
+        "High-density siping for wet traction and braking",
+        "Bionic claw tread design for grip in mud and soft soil",
+        "Thick sidewall with special compound for puncture and curb resistance"
+      ],
+      "img": "/images/tires/landspider-citytraxx-h-t.webp",
+      "aliases": [
+        "H/T"
+      ],
+      "source": "https://www.giga-tires.com/235-65-16/landspider-tires/citytraxx-h-t/tirecode/CHT004"
+    },
+    "Landsail|RapidDragon RD-3 AS": {
+      "category": "Performance All-Season Passenger",
+      "about": "A performance all-season tire for sedans, sporty cars and crossovers that pairs responsive asymmetric handling with a quiet ride.",
+      "features": [
+        "55,000 mile limited tread life warranty",
+        "M+S rated",
+        "Asymmetric tread pattern for steering response and cornering stability",
+        "Wide circumferential grooves to reduce hydroplaning",
+        "Multiple sipes for light snow traction",
+        "Optimized pitch sequence and offset blocks for lower road noise"
+      ],
+      "img": "/images/tires/landsail-rapiddragon-rd-3-as.webp",
+      "aliases": [
+        "Rapid Dragon RD3",
+        "RapidDragon AD-3 AS"
+      ],
+      "source": "https://simpletire.com/brands/landsail-tires/rapiddragon-rd-3-a-s"
+    },
+    "Evoluxx|Capricorn 4X4 HP": {
+      "category": "All-Season Performance (Truck/SUV)",
+      "about": "An all-season highway performance tire for SUVs and crossovers that focuses on wet, dry and light-winter grip, stability and a quiet ride.",
+      "features": [
+        "Ribbed tread with all-season compound for dry, wet and winter grip",
+        "Circumferential grooves channel water and slush to resist hydroplaning",
+        "Ribbed contact for steering response and stability",
+        "High-density siping for cornering and braking",
+        "Reinforced structure for high-speed durability",
+        "Ribbed pattern reduces road noise and vibration"
+      ],
+      "img": "/images/tires/evoluxx-capricorn-4x4-hp.webp",
+      "aliases": [
+        "Capricorn 4x4 HP"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/evoluxx-tires/capricorn-4x4-hp/225-65r17-102h-15378"
+    },
+    "Delium|Evotechno": {
+      "category": "All-season performance passenger",
+      "about": "An all-season passenger tire with a ribbed, symmetric tread aimed at stable high-speed handling, year-round grip and low road noise.",
+      "features": [
+        "Ribbed tread for steering response and stability",
+        "Closed shoulder design to reduce road noise",
+        "Symmetric footprint and all-season compound",
+        "Shoulder and notch pattern for cornering and braking",
+        "Internal structure for high-speed durability",
+        "Three circumferential grooves to resist hydroplaning"
+      ],
+      "img": "/images/tires/delium-evotechno.webp",
+      "aliases": [
+        "Evotechno IA-110"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/delium-tires/evotechno-ia-110/175-70r13-82h-163146"
+    },
+    "Goodyear|Assurance All-Season": {
+      "category": "All-season passenger",
+      "about": "An everyday all-season tire for sedans, crossovers, SUVs and minivans, aimed at long wear and steady wet and dry handling.",
+      "features": [
+        "All-season tread",
+        "65,000-mile limited tread life warranty",
+        "Large shoulder blocks for handling on dry and wet roads"
+      ],
+      "img": "/images/tires/goodyear-assurance-all-season.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/paid?brand=goodyear&itemId=96629&mpn=407207374&productLine=assurance-all-season&tireSize=235-65r-16&v=1"
+    },
+    "Goodyear|Eagle LS-2": {
+      "category": "All-season passenger touring",
+      "about": "A quiet, comfort-focused all-season touring tire that is common as original equipment on cars and crossovers.",
+      "features": [
+        "All-season tread",
+        "Tread blocks designed to improve handling and traction while reducing road noise"
+      ],
+      "img": "/images/tires/goodyear-eagle-ls-2.webp",
+      "aliases": [
+        "Eagle LS2"
+      ],
+      "source": "https://simpletire.com/brands/goodyear-tires/eagle-ls-2"
+    },
+    "Goodyear|Wrangler Territory HT": {
+      "category": "Highway all-season (light truck/SUV)",
+      "about": "A highway-terrain all-season tire for pickups and SUVs, developed with Ford as original equipment on the F-150, focused on a quiet ride and even wear.",
+      "features": [
+        "All-season tread",
+        "Original Equipment on the 2021 Ford F-150",
+        "Reinforced construction for strength and durability",
+        "Wide grooves and dense siping for dry, wet and light winter traction",
+        "Computer-tuned tread pattern to reduce road noise and vibration"
+      ],
+      "img": "/images/tires/goodyear-wrangler-territory-ht.webp",
+      "aliases": [
+        "Wrangler Territory H/T"
+      ],
+      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-h-t"
+    },
+    "Goodyear|Assurance MaxLife": {
+      "category": "All-season passenger",
+      "about": "A long-life all-season passenger tire built for drivers who mostly care about maximum tread mileage.",
+      "features": [
+        "All-season tread",
+        "85,000-mile limited tread life warranty",
+        "Built-in wear gauges to check tread life"
+      ],
+      "img": "/images/tires/goodyear-assurance-maxlife.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/goodyear-tires/assurance-maxlife"
+    },
+    "Goodyear|Eagle Touring": {
+      "category": "All-season touring",
+      "about": "An all-season touring tire for sedans, crossovers, SUVs and light trucks, tuned for a quiet, smooth ride with dependable grip in wet, dry and light snow.",
+      "features": [
+        "All-season tread",
+        "Optimized contact area for handling and responsiveness",
+        "Extra biting edges for wet, dry and snowy conditions",
+        "Original Equipment on certain 2019-2020 Ram 1500 trims"
+      ],
+      "img": "/images/tires/goodyear-eagle-touring.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/goodyear-tires/eagle-touring"
+    },
+    "Goodyear|Eagle Sport All-Season": {
+      "category": "Ultra-high-performance all-season",
+      "about": "An ultra-high-performance all-season tire that aims for sporty wet and dry grip, with some ability in light winter weather.",
+      "features": [
+        "50,000-mile limited tread life warranty",
+        "Compound designed for wet/dry grip and light winter traction"
+      ],
+      "img": "/images/tires/goodyear-eagle-sport-all-season.webp",
+      "aliases": [
+        "Eagle sport A/S",
+        "Eagle Sport A/S"
+      ],
+      "source": "https://simpletire.com/brands/goodyear-tires/eagle-sport-all-season"
+    },
+    "Bridgestone|WeatherPeak": {
+      "category": "All-weather touring (3PMSF)",
+      "about": "A premium all-weather touring tire for sedans, minivans and crossovers that is certified for severe snow yet meant for year-round use.",
+      "features": [
+        "Three Peak Mountain Snowflake certified",
+        "70,000-mile limited treadwear warranty",
+        "Nondirectional tread design"
+      ],
+      "img": "/images/tires/bridgestone-weatherpeak.webp",
+      "aliases": [
+        "Weatherpeak"
+      ],
+      "source": "https://simpletire.com/brands/bridgestone-tires/weatherpeak"
+    },
+    "Bridgestone|Turanza Prestige": {
+      "category": "Grand touring all-season",
+      "about": "A quiet, long-wearing grand-touring all-season tire aimed at luxury sedans, coupes and crossovers.",
+      "features": [
+        "ENLITEN technology",
+        "QuietTrack noise-reduction design",
+        "PeakLife polymer for longer tread life",
+        "70,000-mile limited treadwear warranty"
+      ],
+      "img": "/images/tires/bridgestone-turanza-prestige.webp",
+      "aliases": [
+        "Turanza Prestige BLK"
+      ],
+      "source": "https://simpletire.com/brands/bridgestone-tires/turanza-prestige"
+    },
+    "Bridgestone|Potenza S005": {
+      "category": "Max-performance summer (OE)",
+      "about": "An original-equipment ultra-high-performance summer tire for specific sports and luxury cars, focused on high-speed stability and wet grip.",
+      "features": [
+        "Optimized contact patch",
+        "ENLITEN technology on select sizes",
+        "Original Equipment product",
+        "Reduced weight and lower rolling resistance"
+      ],
+      "img": "/images/tires/bridgestone-potenza-s005.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/bridgestone-tires/potenza-s005"
+    },
+    "Bridgestone|Dueler H/L Alenza Plus": {
+      "category": "Highway all-season touring (SUV/CUV/light truck)",
+      "about": "A long-wearing highway all-season touring tire for SUVs, crossovers and light trucks, tuned for a quiet ride and fuel efficiency.",
+      "features": [
+        "Low rolling resistance",
+        "Circumferential and angled grooves for wet traction",
+        "Tread pitch tuned to reduce road noise",
+        "Not 3PMSF certified",
+        "80,000-mile limited warranty (H/T/V-rated); 55,000 miles on W-rated sizes"
+      ],
+      "img": "/images/tires/bridgestone-dueler-h-l-alenza-plus.webp",
+      "aliases": [
+        "Dueler H/L Alenza",
+        "Dueler HL Alenza Plus"
+      ],
+      "source": "https://simpletire.com/brands/bridgestone-tires/dueler-h-l-alenza-plus"
+    },
+    "Firestone|Transforce HT3": {
+      "category": "Commercial light truck highway all-season (LT)",
+      "about": "A heavy-duty highway all-season tire for work trucks and vans, built to wear evenly while carrying full loads.",
+      "features": [
+        "Wear-resistant tread compound for fully loaded trucks",
+        "Resists irregular wear",
+        "Tread pattern that evacuates water for wet traction",
+        "Reinforced sidewall",
+        "Heavy-duty construction"
+      ],
+      "img": "/images/tires/firestone-transforce-ht3.webp",
+      "aliases": [
+        "TransForce HT3"
+      ],
+      "source": "https://simpletire.com/brands/firestone-tires/transforce-ht3"
+    },
+    "Firestone|Destination A/T2": {
+      "category": "All-terrain (truck/SUV, 3PMSF)",
+      "about": "An all-terrain tire for trucks and SUVs that balances on-road manners with off-road and severe-snow traction.",
+      "features": [
+        "Three Peak Mountain Snowflake certified",
+        "Full-depth interlocking 3D sipes",
+        "Symmetrical tread design",
+        "55,000-mile limited treadwear warranty"
+      ],
+      "img": "/images/tires/firestone-destination-a-t2.webp",
+      "aliases": [
+        "Destination AT2"
+      ],
+      "source": "https://simpletire.com/brands/firestone-tires/destination-a-t2"
+    },
+    "Pirelli|Scorpion All Season Plus 3": {
+      "category": "Touring all-season (CUV/SUV/pickup)",
+      "about": "A touring all-season tire for crossovers, SUVs and light pickups, designed for long tread life, light-snow grip and a quiet ride.",
+      "features": [
+        "3D sipes for dry and wet handling",
+        "Full-depth sipes to keep traction as the tire wears",
+        "Asymmetrical tread design",
+        "Not 3PMSF rated",
+        "70,000-mile limited treadwear warranty"
+      ],
+      "img": "/images/tires/pirelli-scorpion-all-season-plus-3.webp",
+      "aliases": [
+        "Scorpion AS PLUS 3",
+        "Scorpion AS+3",
+        "Scorpion AS Plus 3"
+      ],
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/scorpion-all-season-plus-3/225_65-r17/102h"
+    },
+    "Pirelli|P Zero All Season": {
+      "category": "Ultra-high-performance all-season",
+      "about": "An ultra-high-performance all-season tire for premium sedans and SUVs that gives up a little dry grip for year-round use, including light snow.",
+      "features": [
+        "Inner blocks with winter siping for snow traction",
+        "Variable-size tread elements to reduce cabin noise",
+        "Circumferential grooves to expel water",
+        "Asymmetrical tread design",
+        "Not 3PMSF rated"
+      ],
+      "img": "/images/tires/pirelli-p-zero-all-season.webp",
+      "aliases": [
+        "PZero All Season"
+      ],
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/p-zero-all-season/235_45-r18"
+    },
+    "Pirelli|Scorpion (AO) Elect": {
+      "category": "Summer SUV (OE; Audi AO marking, Elect for EV/PHEV)",
+      "about": "A current-generation Scorpion summer SUV tire in an Audi-approved Elect version for electric and plug-in hybrid vehicles, focused on low rolling resistance and quietness.",
+      "features": [
+        "Variable-section lateral grooves for aquaplaning resistance",
+        "Optimized pitch sequence for lower noise",
+        "Elect: tuned for electric and plug-in hybrid vehicles",
+        "Not for severe ice and snow"
+      ],
+      "img": "/images/tires/pirelli-scorpion-ao-elect.webp",
+      "aliases": [
+        "Scorpion (A0) (+)",
+        "Scorpion (AO) (+)",
+        "Scorpion AO Elect"
+      ],
+      "source": "https://www.pirelli.com/tyres/en-gb/car/catalogue/product/new-scorpion/255_50-r19"
+    },
+    "Pirelli|Scorpion STR": {
+      "category": "Highway all-season (SUV/light truck)",
+      "about": "An older-design highway all-season tire for SUVs and light trucks that stays quiet on pavement and copes with light off-road use.",
+      "features": [
+        "Silica and natural rubber compound",
+        "Symmetric tread pattern",
+        "Inclined, heavily siped blocks for traction and braking",
+        "Continuous central rib for even wear and reduced noise"
+      ],
+      "img": "/images/tires/pirelli-scorpion-str.webp",
+      "aliases": [],
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/scorpion-str/245_50-r20"
+    },
+    "Michelin|Primacy LTX": {
+      "category": "Highway all-season (light truck/SUV)",
+      "about": "A Michelin highway all-season tire built for pickups and larger SUVs.",
+      "features": [],
+      "img": "/images/tires/michelin-primacy-ltx.webp",
+      "aliases": [],
+      "source": "https://wheelwiz.ca/products/m-92962"
+    },
+    "Michelin|Pilot Sport All Season 4": {
+      "category": "Ultra-high-performance all-season",
+      "about": "Michelin's ultra-high-performance all-season tire for sports cars and performance sedans.",
+      "features": [],
+      "img": "/images/tires/michelin-pilot-sport-all-season-4.webp",
+      "aliases": [
+        "Pilot Sport A/S",
+        "Pilot Sport A/S 4",
+        "Pilot Sport AS4"
+      ],
+      "source": "https://www.lacroixtuning.com/255-40zr19-xl-pilot-sport-all-season-4-27700-mic"
+    },
+    "Michelin|Defender LTX M/S2": {
+      "category": "Highway all-season (light truck/SUV)",
+      "about": "Michelin's long-wearing highway all-season tire for trucks and SUVs.",
+      "features": [],
+      "img": "/images/tires/michelin-defender-ltx-m-s2.webp",
+      "aliases": [
+        "Defender LTX",
+        "Defender LTX M/S 2",
+        "Defender LTX MS2"
+      ],
+      "source": "https://tfswheels.com/products/michelin-defender-ltx-m-s2-275-50r22xl-mic38984"
+    },
+    "Toyo|Open Country H/T II": {
+      "category": "Highway all-season (light truck/SUV)",
+      "about": "Toyo's highway all-season tire for pickups and SUVs, built for long wear and wet grip.",
+      "features": [
+        "Wear-resistant tread compound",
+        "Multi-wave sipes for braking and light-snow traction",
+        "Expanding shoulder grooves and four wide circumferential grooves for wet traction",
+        "Dual sidewall design",
+        "Treadwear warranty: 70,000 mi P/Euro-metric, 50,000 mi LT"
+      ],
+      "img": "/images/tires/toyo-open-country-h-t-ii.webp",
+      "aliases": [
+        "Open Country H/T^II",
+        "Open Country HT II",
+        "Open Country H/T 2"
+      ],
+      "source": "https://www.toyotires.com/product/open-country-ht2/"
+    },
+    "Toyo|Proxes ST III": {
+      "category": "Street/sport truck all-season",
+      "about": "Toyo's directional, performance-styled all-season tire for trucks and SUVs on large wheels.",
+      "features": [
+        "Directional all-season tread design",
+        "Lightning Grooves for water evacuation",
+        "Multi-wave sipes for even wear and light-snow traction",
+        "Arrowhead tapers for straight-line stability",
+        "40,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/toyo-proxes-st-iii.webp",
+      "aliases": [
+        "Proxes",
+        "Proxes Sport A/S",
+        "Proxes S/T III",
+        "Proxes ST3"
+      ],
+      "source": "https://www.toyotires.com/product/proxes-st3/"
+    },
+    "Continental|ProContact RX": {
+      "category": "Grand touring all-season",
+      "about": "A premium all-season touring tire for luxury sedans and coupes, aimed at a quiet ride and confident handling.",
+      "features": [
+        "All-season tread for traction and steering response",
+        "Designed for coupes and luxury performance sedans",
+        "Quiet, comfortable ride",
+        "Lower rolling resistance",
+        "Not 3PMS rated"
+      ],
+      "img": "/images/tires/continental-procontact-rx.webp",
+      "aliases": [
+        "Pro Contact RX"
+      ],
+      "source": "https://simpletire.com/brands/continental-tires/procontact-rx"
+    },
+    "BFGoodrich|Advantage Control": {
+      "category": "All-season touring",
+      "about": "A long-wearing all-season tire for cars, minivans and crossovers, aimed at strong wet grip and predictable handling.",
+      "features": [
+        "Active Sipes Technology for wet-weather biting edges",
+        "Aqua-Flume Technology to channel water and resist hydroplaning",
+        "Computer-optimized footprint for even wear and lower noise",
+        "g-Wedge sidewall stabilizers for handling",
+        "75,000-mile limited treadwear warranty on T/H-rated sizes"
+      ],
+      "img": "/images/tires/bfgoodrich-advantage-control.webp",
+      "aliases": [
+        "BFG Advantage Control"
+      ],
+      "source": "https://simpletire.com/brands/bfgoodrich-tires/advantage-control"
+    },
+    "Nitto|NT555 G2": {
+      "category": "Summer ultra-high-performance",
+      "about": "A summer ultra-high-performance tire for sports and muscle cars, built for dry grip and sharp handling.",
+      "features": [
+        "Reinforced shoulder tread blocks for handling",
+        "Twin center ribs and wide circumferential grooves to channel water",
+        "Silica tread compound",
+        "Directional tread",
+        "No mileage warranty"
+      ],
+      "img": "/images/tires/nitto-nt555-g2.webp",
+      "aliases": [
+        "NT555G2"
+      ],
+      "source": "https://simpletire.com/brands/nitto-tires/nt555-g2"
+    },
+    "Yokohama|Advan Fleva V701": {
+      "category": "Summer performance",
+      "about": "A summer performance tire tuned for crisp steering, short wet stops and lower rolling resistance on sport compacts and sedans.",
+      "features": [
+        "Solid outer and center ribs for high-speed stability and steering feel",
+        "Drop point grooves, Thunderbolt grooves and nano-blend compound for wet grip and hydroplaning resistance",
+        "2-in-1 contrasting pitch pattern to reduce pattern noise",
+        "Nano-blend silica compound for lower rolling resistance"
+      ],
+      "img": "/images/tires/yokohama-advan-fleva-v701.webp",
+      "aliases": [
+        "ADVAN Fleva",
+        "Fleva V701"
+      ],
+      "source": "https://www.yokohamatire.com/tires/advan-fleva-v701"
+    },
+    "American Roadstar|Pro A/S": {
+      "category": "All-season passenger touring",
+      "about": "A budget-friendly all-season passenger tire focused on wet-road drainage, quiet running and steady highway tracking.",
+      "features": [
+        "Four wide longitudinal grooves for drainage and wet handling",
+        "Sipes to break up water film and reduce noise",
+        "Continuous center ribs for steering and high-speed stability",
+        "Optimized pitch sequence to reduce noise",
+        "50K-mile limited warranty"
+      ],
+      "img": "/images/tires/american-roadstar-pro-a-s.webp",
+      "aliases": [
+        "PRO A/S",
+        "Pro AS"
+      ],
+      "source": "https://americanroadstar.com/products/pro-a-s"
+    },
+    "GT Radial|Champiro Touring A/S": {
+      "category": "Touring All-Season (Passenger)",
+      "about": "An all-season touring tire for passenger cars and small SUVs that balances wet grip, quiet ride and curb protection with a 60,000-mile tread warranty.",
+      "features": [
+        "Full-depth siping for dry, wet and winter grip",
+        "Four wide circumferential grooves resist hydroplaning",
+        "Rim protector sidewall design guards against curb damage",
+        "Center rib for all-weather control",
+        "Shoulder tread blocks with additional biting edges for cornering",
+        "Variable pitch tread pattern for lower road noise"
+      ],
+      "img": "/images/tires/gt-radial-champiro-touring-a-s.webp",
+      "aliases": [
+        "Champiro Touring AS",
+        "CHAMPIRO TOURING A/S"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/gt-radial-tires/champiro-touring-a-s/205-65r15-94h-43692"
+    },
+    "Hankook|Kinergy ST H735": {
+      "category": "Passenger Car / Standard Touring All-Season",
+      "about": "A touring all-season passenger tire built for long tread life and a quiet, comfortable everyday ride.",
+      "features": [
+        "M+S rated",
+        "Optimized tread block stiffness for long mileage",
+        "Optimized pitch sequence and sipe design to reduce road noise",
+        "Solid center rib for dry performance",
+        "Wide circumferential 4-channel grooves and open shoulder aqua grooves for wet performance",
+        "70K mileage warranty",
+        "Road hazard coverage and 30-day free trial"
+      ],
+      "img": "/images/tires/hankook-kinergy-st-h735.webp",
+      "aliases": [
+        "Kinergy ST",
+        "H735",
+        "Kinergy S Touring H735"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/kinergy/st-h735.html"
+    },
+    "Hankook|Kinergy PT H737": {
+      "category": "Passenger Car / All-Season Touring",
+      "about": "A long-mileage all-season touring tire for passenger cars that balances comfort with year-round traction.",
+      "features": [
+        "M+S rated",
+        "Key features: Performance, Mileage, Comfort",
+        "90K mileage warranty for H/T-rated sizes, 75K for V-rated",
+        "Road hazard coverage and 30-day free trial"
+      ],
+      "img": "/images/tires/hankook-kinergy-pt-h737.webp",
+      "aliases": [
+        "Kinergy PT",
+        "H737"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/kinergy/pt-h737.html"
+    },
+    "Hankook|Ventus V2 Concept2 H457": {
+      "category": "Passenger Car / All-Season Performance",
+      "about": "A sporty all-season performance tire that pairs responsive handling with reduced road noise and good wet drainage.",
+      "features": [
+        "M+S rated",
+        "High-density nylon belt to keep contact pressure in corners",
+        "3D point effect and center rib block for handling and braking",
+        "Noise care shoulder blocks to cut frictional noise",
+        "Optimal sipe design for even wear and lower noise",
+        "Aqua driving control: wide straight grooves and V-shaped pattern",
+        "45K mileage warranty, road hazard, 30-day free trial"
+      ],
+      "img": "/images/tires/hankook-ventus-v2-concept2-h457.webp",
+      "aliases": [
+        "Ventus V2 Concept2",
+        "Ventus V2 concept2",
+        "H457"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/ventus/v2concept2-h457.html"
+    },
+    "Hankook|Kinergy 4S2 X H750A": {
+      "category": "SUV/CUV / All-Weather",
+      "about": "An all-weather SUV and crossover tire carrying the severe-snow (3PMSF) mark for confident grip across wet, dry and wintry roads.",
+      "features": [
+        "M+S and 3PMSF rated",
+        "Wide lateral grooves (water escape accelerator)",
+        "Two-step aqua slant",
+        "High-density summer sipes",
+        "Concave tie-bar",
+        "Pitch variation technology",
+        "Weather Control compound",
+        "Slush edge",
+        "3D GripKontrol sipe",
+        "iF Design Award 2019"
+      ],
+      "img": "/images/tires/hankook-kinergy-4s2-x-h750a.webp",
+      "aliases": [
+        "Kinergy 4S2 X",
+        "Kinergy 4S2X",
+        "H750A"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/kinergy/4s2-h750a.html"
+    },
+    "Hankook|Dynapro MT2 RT05": {
+      "category": "Light Truck / Mud-Terrain",
+      "about": "A rugged mud-terrain light-truck tire with aggressive lugs and sidewall protection for serious off-road use.",
+      "features": [
+        "M+S rated",
+        "Sidewall puncture protector",
+        "Massive tread design",
+        "Reinforced shoulders",
+        "Mud and stone ejectors",
+        "Massive shoulder lugs",
+        "ProMileage Structure"
+      ],
+      "img": "/images/tires/hankook-dynapro-mt2-rt05.webp",
+      "aliases": [
+        "Dynapro MT2",
+        "RT05"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/dynapro/mt2-rt05.html"
+    },
+    "Hankook|Ventus S1 AS H125": {
+      "category": "Passenger Car / UHP All-Season",
+      "about": "An ultra-high-performance all-season tire tuned for sporty handling with usable snow traction year-round.",
+      "features": [
+        "M+S rated",
+        "High-silica four-season compound for wet, dry and snow grip",
+        "Wider outside shoulder block and higher lateral stiffness for handling",
+        "Shoulder chamber for even tread contact",
+        "Increased sipe density and wider lateral grooves for snow",
+        "ProMileage Technology",
+        "50K mileage warranty, road hazard, 30-day free trial"
+      ],
+      "img": "/images/tires/hankook-ventus-s1-as-h125.webp",
+      "aliases": [
+        "Ventus S1 AS",
+        "H125"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/ventus/s1as-h125.html"
+    },
+    "Hankook|Ventus S1 evo Z K129": {
+      "category": "Passenger Car / Max-Performance Summer",
+      "about": "A maximum-performance summer tire for high-powered sports and luxury cars, built for precise steering and strong wet and dry braking.",
+      "features": [
+        "Motorsport-derived aramid hybrid reinforcement belt to limit high-speed deformation",
+        "Expanded shoulder block and optimized pitch sequence for dry handling and steering precision",
+        "High-grip functional polymers for braking and wet-road confidence"
+      ],
+      "img": "/images/tires/hankook-ventus-s1-evo-z-k129.webp",
+      "aliases": [
+        "S-Evo Z",
+        "Ventus S1 evo Z",
+        "K129"
+      ],
+      "source": "https://www.willystires.ca/tire/4874/hankook%2Dtires%2Dventus%2Ds1%2Devo%2Dz%2Dk129/"
+    },
+    "Kumho|Solus TA11": {
+      "category": "Passenger Touring All-Season",
+      "about": "A discontinued Kumho touring all-season tire for everyday passenger cars that stresses long tread life.",
+      "features": [
+        "Touring all-season passenger tire",
+        "75,000-mile tread warranty"
+      ],
+      "img": "/images/tires/kumho-solus-ta11.webp",
+      "aliases": [],
+      "source": "https://www.prioritytire.com/by-brand/kumho-tires/solus-ta11/205-55r16-91t-45274"
+    },
+    "Kumho|Solus 4S HA32": {
+      "category": "Passenger Performance Touring All-Weather",
+      "about": "A grand-touring all-weather tire with the 3PMSF snow rating, built to drive well in wet, dry and winter conditions.",
+      "features": [
+        "3PMSF (Three-Peak Mountain Snowflake) rated",
+        "Upgraded 4-season capability in a grand touring tire",
+        "Hourglass tread wear indicator",
+        "High-grip compound with pine resin for braking",
+        "3D slope tie-bars for traction and hydroplaning resistance",
+        "60K limited tread wear warranty",
+        "Road hazard warranty (first 2/32in / 12 months)"
+      ],
+      "img": "/images/tires/kumho-solus-4s-ha32.webp",
+      "aliases": [],
+      "source": "https://www.kumhotireusa.com/tires/solus-4s-ha32"
+    },
+    "Kumho|Solus TA51a": {
+      "category": "Passenger Grand Touring All-Season",
+      "about": "A quiet, comfortable grand-touring all-season tire for coupes, sedans, crossovers and SUVs.",
+      "features": [
+        "Wide linear tread grooves to resist hydroplaning",
+        "Tread block rigidity for even wear",
+        "3D interlocking sipes for stability",
+        "3D chamfered shoulder blocks to reduce noise and improve comfort",
+        "Road hazard warranty (first 2/32in / 12 months)",
+        "30-day satisfaction guarantee"
+      ],
+      "img": "/images/tires/kumho-solus-ta51a.webp",
+      "aliases": [
+        "Solus TA51A",
+        "TA51A"
+      ],
+      "source": "https://www.kumhotireusa.com/tires/solus-ta51a"
+    },
+    "Kumho|Ecsta Sport A/S": {
+      "category": "Ultra High Performance All-Season",
+      "about": "An ultra-high-performance all-season tire that aims for strong dry and wet grip, and it is also marketed as EV-compatible.",
+      "features": [
+        "Next-generation compound for dry and wet grip",
+        "Even tread contact patch for longer tread life",
+        "Zig-zag tread groove design for all-season performance",
+        "Rounded tread-block edges to reduce noise and road impact",
+        "EV compatible (also hybrid and gasoline vehicles)",
+        "50K limited tread wear warranty"
+      ],
+      "img": "/images/tires/kumho-ecsta-sport-a-s.webp",
+      "aliases": [
+        "Ecsta Sport A/S PA71",
+        "Ecsta PA71",
+        "PA71"
+      ],
+      "source": "https://www.kumhotireusa.com/tires/ecsta-sport-as"
+    },
+    "Kumho|Crugen EV HP71": {
+      "category": "EV CUV/SUV All-Season Touring",
+      "about": "An all-season touring tire for electric crossovers and SUVs, with sound-absorbing foam and an EV-specific compound for quiet running and range.",
+      "features": [
+        "K-Silent sound-absorbing foam bonded inside the tire",
+        "EV-specific compound for range efficiency",
+        "High-load design for durability",
+        "Improved wet and dry grip",
+        "50K limited tread wear warranty"
+      ],
+      "img": "/images/tires/kumho-crugen-ev-hp71.webp",
+      "aliases": [],
+      "source": "https://www.kumhotireusa.com/tires/crugen-ev-hp71"
+    },
+    "Kumho|Crugen HP71": {
+      "category": "CUV/SUV All-Season Touring",
+      "about": "A comfort-focused all-season touring tire for crossovers and SUVs, and it is also fitted as original equipment on new vehicles.",
+      "features": [
+        "Wide circumferential grooves and micro-serrations for wet traction and hydroplaning resistance",
+        "Variable pitch design for a quieter ride",
+        "Firm center block and shoulder for tread life",
+        "Full-depth sipes and lateral voids for winter traction",
+        "65K limited tread wear warranty"
+      ],
+      "img": "/images/tires/kumho-crugen-hp71.webp",
+      "aliases": [],
+      "source": "https://www.kumhotireusa.com/tires/crugen-hp71"
+    },
+    "Kumho|Spare 131": {
+      "category": "Temporary Spare",
+      "about": "A Kumho compact temporary spare tire, meant only for short-term emergency use.",
+      "features": [
+        "Temporary use only"
+      ],
+      "img": "/images/tires/kumho-spare-131.webp",
+      "aliases": [
+        "131",
+        "T131",
+        "Temporary spare 131"
+      ],
+      "source": "https://www.innovativeautoworx.com/tires/kumho-spare-131-black-sidewall/13570r19-2158963"
+    },
+    "Jinyu|A1 Touring AS": {
+      "category": "All Season Touring",
+      "about": "An all-season touring tire from Jinyu, sold in passenger-car and SUV sizes, with a 75,000-mile treadlife warranty and a 740AA UTQG rating.",
+      "features": [],
+      "img": "/images/tires/jinyu-a1-touring-as.webp",
+      "aliases": [
+        "A1 All Season Touring",
+        "A1 Touring A/S"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/jinyu-tires/a1-touring-as/185-65r15-88h-376460"
+    },
+    "Nexen|N'Priz AH5": {
+      "category": "Standard Touring All Season",
+      "about": "An entry-level touring all-season tire built for quiet, comfortable daily driving and long tread life.",
+      "features": [
+        "Four wide longitudinal grooves improve drainage performance",
+        "Rigid shoulder block design enhances cornering, handling and a quiet comfortable ride",
+        "Dual kerf design enhances block stiffness and mileage"
+      ],
+      "img": "/images/tires/nexen-n-priz-ah5.webp",
+      "aliases": [
+        "N Priz AH5",
+        "NPriz AH5"
+      ],
+      "source": "https://www.nexentireusa.com/tires/n_priz_ah5/"
+    },
+    "Prinx|HiCity HH2": {
+      "category": "Premium Touring All Season",
+      "about": "Prinx's core all-season touring tire, tuned for ride comfort, wet safety and value.",
+      "features": [
+        "Asymmetrical tread for enhanced performance and handling",
+        "Four wide grooves boost wet traction",
+        "Unique siping improves all-season traction and wet braking",
+        "Continuous rib design stabilizes and reduces wear",
+        "Pattern Noise Simulation (PNS) for a quieter ride",
+        "Sidewalls marked inside and outside for proper installation"
+      ],
+      "img": "/images/tires/prinx-hicity-hh2.webp",
+      "aliases": [
+        "HiCity HP HH2",
+        "HiCity"
+      ],
+      "source": "https://prinxtireusa.com/tire/hicity/"
+    },
+    "Mileking|MK927": {
+      "category": "UHP Passenger",
+      "about": "A low-profile, performance-oriented radial marketed by retailers for sedans, minivans and crossovers.",
+      "features": [
+        "Low-profile design",
+        "Four circumferential grooves for wet-weather traction",
+        "Tread formulation for low rolling resistance and low heat buildup"
+      ],
+      "img": "/images/tires/mileking-mk927.webp",
+      "aliases": [
+        "LECP MK927"
+      ],
+      "source": "https://www.simpletire.com/brands/mileking-tires/mk927"
+    },
+    "Royal Black|Racing Trac": {
+      "category": "High Performance All Season",
+      "about": "A high-performance all-season tire for cars and SUVs, aimed at wet grip, steady handling and a quiet ride.",
+      "features": [],
+      "img": "/images/tires/royal-black-racing-trac.webp",
+      "aliases": [
+        "Royal Performance",
+        "Racing Trac ZR"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/royal-black-tires/racing-trac/215-45r17-91w-xl-zr-191183"
+    },
+    "Venom Power|Ragnarok GTS": {
+      "category": "All-season high-performance (passenger/SUV/light truck)",
+      "about": "An all-season performance tire for trucks, Jeeps and SUVs on large-diameter wheels, with an asymmetrical tread and a 50K-mile treadlife warranty.",
+      "features": [
+        "Asymmetrical tread design",
+        "Cut- and chip-resistant compound",
+        "Siping and stone ejectors for wet, dirt, mud and slush traction",
+        "Grooves that evacuate water and debris",
+        "50K mile warranty"
+      ],
+      "img": "/images/tires/venom-power-ragnarok-gts.webp",
+      "aliases": [
+        "Ragnarok GT S",
+        "RAGNAROK GTS"
+      ],
+      "source": "https://www.tires-easy.com/275-25-24/venom-power-tires/ragnarok-gts/tirecode/TVPGTS59"
+    },
+    "Otani|KN1000": {
+      "category": "All-season high-performance (passenger/SUV, EV-oriented)",
+      "about": "An all-season high-performance passenger and SUV tire that Otani positions for electric vehicles, using an asymmetric tread and silica compound.",
+      "features": [
+        "Asymmetric tread pattern",
+        "All-season compound",
+        "Silica compound and reinforced structure for high-speed performance",
+        "Grooves to resist hydroplaning",
+        "Continuous contact surface for stability"
+      ],
+      "img": "/images/tires/otani-kn1000.webp",
+      "aliases": [
+        "KN1000 EV"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/otani-tires/otani-kn1000/235-45r18-98w-xl-175657"
+    },
+    "Advanta|HPZ-02": {
+      "category": "All-season high-performance (passenger)",
+      "about": "An all-season, M+S-marked high-performance passenger tire with an asymmetric tread meant to sharpen steering response and stability.",
+      "features": [
+        "Asymmetric tread design",
+        "M+S rated",
+        "Steering response and stability focus"
+      ],
+      "img": "/images/tires/advanta-hpz-02.webp",
+      "aliases": [
+        "HPZ02",
+        "HPZ 02",
+        "Advanta HP Z-02"
+      ],
+      "source": "https://www.discountedwheelwarehouse.com/tires/brands/advanta/hpz-02"
+    },
+    "Vantage|UHP": {
+      "category": "Ultra-high-performance all-season (passenger)",
+      "about": "An all-season ultra-high-performance passenger tire with an asymmetrical tread, aimed at a quiet ride with precise steering and backed by a 50K-mile warranty.",
+      "features": [
+        "Asymmetrical tread design",
+        "All-season traction",
+        "Precise steering response",
+        "Quiet, comfortable ride",
+        "50K mile warranty"
+      ],
+      "img": "/images/tires/vantage-uhp.webp",
+      "aliases": [
+        "Vantage UHP",
+        "UHP VT31387"
+      ],
+      "source": "https://www.giga-tires.com/235-50-19/vantage-tires/uhp/tirecode/VT31387"
+    },
+    "Remington|Touring LX": {
+      "category": "All-season touring (passenger)",
+      "about": "An all-season touring tire for sedans, coupes and minivans that pairs a white-stripe sidewall with a siped tread for year-round traction.",
+      "features": [
+        "Tread siping and all-season compound",
+        "Circumferential grooves to resist hydroplaning",
+        "Shoulder blocks for cornering",
+        "Zigzag sipes for shorter braking",
+        "White sidewall stripe"
+      ],
+      "img": "/images/tires/remington-touring-lx.webp",
+      "aliases": [
+        "Touring L/X"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/remington-tires/touring-lx/155-80r13-79s-32563"
+    },
+    "ATLander|VANPlus C18": {
+      "category": "All-season commercial van / highway",
+      "about": "A highway all-season tire for commercial vans with a reinforced internal structure built to carry heavy loads.",
+      "features": [
+        "Reinforced construction for heavy loads",
+        "All-season tread pattern and compound",
+        "Optimized tread for steering precision and stability",
+        "Non-directional tread"
+      ],
+      "img": "/images/tires/atlander-vanplus-c18.webp",
+      "aliases": [
+        "VanPlus C18",
+        "VANPLUS C18"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/atlander-tires/vanplus-c18/185r14-102-100r-d-8-ply-177967"
+    },
+    "Tornel|Classic": {
+      "category": "All-season touring (passenger/SUV)",
+      "about": "An all-season touring tire for passenger cars and SUVs with a symmetric ribbed tread aimed at stable handling and a quiet ride.",
+      "features": [
+        "Symmetric tread with all-season compound",
+        "Grooves to resist hydroplaning",
+        "Shoulder blocks for maneuvering",
+        "Reduced road noise and vibration",
+        "45K mile treadlife warranty"
+      ],
+      "img": "/images/tires/tornel-classic.webp",
+      "aliases": [
+        "Tornel Classic"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/tornel-tires/classic/195-75r14-92s-65495"
+    },
+    "GeoDrive|KH16": {
+      "category": "All-season (passenger)",
+      "about": "An all-season passenger tire under the GeoDrive name, sold through Nissan/Infiniti dealer parts channels in 215/60R16 95V.",
+      "features": [],
+      "img": null,
+      "aliases": [
+        "GeoDrive KH16",
+        "unknown model 215/60R16 95V"
+      ],
+      "source": "https://www.utires.com/p/used-215-60r16-geodrive-kh16-95v-8-32-1909500/"
+    },
+    "Goodyear|Wrangler Territory AT": {
+      "category": "All-Terrain (SUV / light truck)",
+      "about": "An all-terrain tire fitted as original equipment on trucks and SUVs, built for a smooth highway ride with grip on gravel and dirt.",
+      "features": [
+        "All-season, all-terrain tread",
+        "Original equipment fitment",
+        "Black serrated sidewall lettering"
+      ],
+      "img": "/images/tires/goodyear-wrangler-territory-at.webp",
+      "aliases": [
+        "Wrangler Territory A/T"
+      ],
+      "source": "https://spec.tireweb.com/tires/332459"
     }
   }
 }
