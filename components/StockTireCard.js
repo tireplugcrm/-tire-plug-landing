@@ -41,14 +41,18 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
     <li className="stc">
       <div className="stc-ph">
         <span className={`stc-lvl ${t.level}`}>{t.level === 'in' ? 'In stock' : 'Low stock'}</span>
-        {t.img
-          ? <img className="stc-img" src={t.img} alt={`${t.brand} ${t.model} tire`} loading="lazy" />
-          : t.logo
-            ? <img className={`stc-logo-big${t.logoDark ? ' on-dark' : ''}`} src={t.logo} alt={t.brand} />
-            : <span className="stc-word-big">{t.brand}</span>}
+        {t.img ? (
+          <div className="stc-shot">
+            {t.logo
+              ? <img className={`stc-logo-top${t.logoDark ? ' on-dark' : ''}`} src={t.logo} alt={t.brand} />
+              : <span className="stc-word">{t.brand}</span>}
+            <img className="stc-img" src={t.img} alt={`${t.brand} ${t.model} tire`} loading="lazy" />
+          </div>
+        ) : t.logo
+          ? <img className={`stc-logo-big${t.logoDark ? ' on-dark' : ''}`} src={t.logo} alt={t.brand} />
+          : <span className="stc-word-big">{t.brand}</span>}
       </div>
       <div className="stc-body">
-        {t.img && (t.logo ? <img className={`stc-logo${t.logoDark ? ' on-dark' : ''}`} src={t.logo} alt={t.brand} /> : <span className="stc-word">{t.brand}</span>)}
         <h3>{t.model || t.brand}</h3>
         {t.category && <div className="stc-cat">{t.category}</div>}
         <div className="stc-fit">✓ Fits {fit}</div>
@@ -71,7 +75,9 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
       <style jsx>{`
         .stc { display: grid; grid-template-columns: 170px 1fr; background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
         .stc-ph { position: relative; display: grid; place-items: center; padding: 2.2rem 0.9rem 0.9rem; background: #fafafa; border-right: 1px solid #f0f0f0; }
-        .stc-img { width: 100%; max-height: 190px; object-fit: contain; }
+        .stc-shot { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; width: 100%; }
+        .stc-logo-top { width: 85%; max-height: 34px; object-fit: contain; }
+        .stc-img { width: 100%; max-height: 170px; object-fit: contain; mix-blend-mode: multiply; }
         .stc-logo-big { width: 80%; max-height: 70px; object-fit: contain; }
         .on-dark { background: #111; padding: 8px 10px; border-radius: 8px; box-sizing: border-box; }
         .stc-word-big { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; color: #111; text-align: center; line-height: 1.05; word-break: break-word; }
@@ -79,7 +85,6 @@ export default function StockTireCard({ tire: t, size, smsHref }) {
         .stc-lvl.in { background: #e8f6ec; color: #1b6b34; }
         .stc-lvl.low { background: #fff3e0; color: #9a5300; }
         .stc-body { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
-        .stc-logo { height: 22px; width: auto; align-self: flex-start; }
         .stc-word { font-size: 0.78rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #6b6b6b; }
         h3 { font-size: 1.2rem; font-weight: 800; margin: 0; line-height: 1.15; }
         .stc-cat { color: #6b6b6b; font-size: 0.82rem; }

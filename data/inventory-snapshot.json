@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T06:07:44.892Z",
+  "updatedAt": "2026-10-16T06:29:01.487Z",
   "source": "tekmetric-csv",
   "tires": [
     {
@@ -518,7 +518,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "HH11",
+      "model": "Street-H HH11",
       "key": "205/65R16",
       "rim": 16,
       "lt": false,
@@ -556,7 +556,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "HH11",
+      "model": "Street-H HH11",
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
@@ -1172,7 +1172,7 @@
     },
     {
       "brand": "Arroyo",
-      "model": "Grand Sport AS",
+      "model": "Grand Sport A/S",
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
@@ -1218,7 +1218,7 @@
     },
     {
       "brand": "Arroyo",
-      "model": "Grand Sport AS",
+      "model": "Grand Sport A/S",
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
@@ -1513,7 +1513,7 @@
     },
     {
       "brand": "Evoluxx",
-      "model": "Rotator HT",
+      "model": "Rotator H/T",
       "key": "265/70R17",
       "rim": 17,
       "lt": false,
@@ -2520,7 +2520,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "Agility UHP",
+      "model": "Agility UHP AS",
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
@@ -2882,7 +2882,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "Agility UHP A/S",
+      "model": "Agility UHP AS",
       "key": "245/40R20",
       "rim": 20,
       "lt": false,
@@ -2909,7 +2909,7 @@
     },
     {
       "brand": "Arroyo",
-      "model": "Grand Sport AS",
+      "model": "Grand Sport A/S",
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
@@ -2927,7 +2927,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "Agility UHP",
+      "model": "Agility UHP AS",
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
@@ -2999,7 +2999,7 @@
     },
     {
       "brand": "Groundspeed",
-      "model": "V. HP",
+      "model": "Voyager HP",
       "key": "255/35R20",
       "rim": 20,
       "lt": false,
@@ -3046,7 +3046,7 @@
     },
     {
       "brand": "Blackhawk",
-      "model": "AGILITY SUV",
+      "model": "Agility SUV",
       "key": "255/50R20",
       "rim": 20,
       "lt": false,
@@ -3478,7 +3478,7 @@
     },
     {
       "brand": "Arroyo",
-      "model": "Grand Sport AS",
+      "model": "Grand Sport A/S",
       "key": "285/40R22",
       "rim": 22,
       "lt": false,
@@ -3613,7 +3613,7 @@
     },
     {
       "brand": "Arroyo",
-      "model": "Grand Sport AS",
+      "model": "Grand Sport A/S",
       "key": "285/40R24",
       "rim": 24,
       "lt": false,
