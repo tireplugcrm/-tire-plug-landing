@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function BookingForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -9,11 +9,20 @@ export default function BookingForm() {
   const [formData, setFormData] = useState({
     name: '', phone: '', email: '',
     year: '', make: '', model: '', trim: '',
-    tireWidth: '', tireAspect: '', tireRim: '',
+    tireSize: '',
   });
+  const [sizeFromSearch, setSizeFromSearch] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
+
+  // The last size they looked up on a /tires/<size> page, so they don't type it twice.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('tp_tire_size');
+      if (saved) { setFormData((f) => (f.tireSize ? f : { ...f, tireSize: saved })); setSizeFromSearch(true); }
+    } catch (_) {}
+  }, []);
 
   const timingOptions = [
     { value: 'ASAP', label: 'ASAP / Today', sub: 'Need it done now', icon: '🚨', hot: true },
@@ -46,7 +55,7 @@ export default function BookingForm() {
 
   const needsTireSize = selectedServices.some(id => services.find(s => s.id === id)?.requiresTire);
   const hasNewTires = selectedServices.includes('new-tires');
-  const totalSteps = needsTireSize ? 5 : 4;
+  const totalSteps = 3;
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -54,10 +63,8 @@ export default function BookingForm() {
     setSelectedServices(prev => prev.includes(serviceId) ? prev.filter(id => id !== serviceId) : [...prev, serviceId]);
   };
 
-  const canProceedStep1 = serviceTiming !== '';
-  const canProceedStep2 = selectedServices.length > 0;
-  const canProceedStep3 = formData.year && formData.make && formData.model;
-  const canProceedStep4 = !needsTireSize || tireSizeUnknown || (formData.tireWidth && formData.tireAspect && formData.tireRim);
+  const canProceedStep1 = serviceTiming !== '' && selectedServices.length > 0;
+  const canProceedStep2 = formData.year && formData.make && formData.model && (!needsTireSize || tireSizeUnknown || formData.tireSize.trim());
   // Phone is what we actually need. Email is optional; SMS consent is optional too
   // (it must NOT be required to book — A2P/TCPA compliance).
   const canSubmit = formData.name && formData.phone;
@@ -65,17 +72,16 @@ export default function BookingForm() {
   const handleNext = () => { if (currentStep < totalSteps) setCurrentStep(currentStep + 1); };
   const handleBack = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
 
-  const isStepTiming = currentStep === 1;
-  const isStepServices = currentStep === 2;
-  const isStepVehicle = currentStep === 3;
-  const isStepTire = currentStep === 4 && needsTireSize;
-  const isStepContact = currentStep === totalSteps;
+  const isStepServices = currentStep === 1;
+  const isStepVehicle = currentStep === 2;
+  const isStepContact = currentStep === 3;
+  const nextBlocked = (isStepServices && !canProceedStep1) || (isStepVehicle && !canProceedStep2);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     const serviceLabels = selectedServices.map(id => services.find(s => s.id === id)?.label).join(', ');
-    const tireSize = needsTireSize && !tireSizeUnknown ? `${formData.tireWidth}/${formData.tireAspect}/R${formData.tireRim}` : (needsTireSize && tireSizeUnknown ? 'Help me find size' : 'N/A');
+    const tireSize = !needsTireSize ? 'N/A' : (tireSizeUnknown || !formData.tireSize.trim() ? 'Help me find size' : formData.tireSize.trim().toUpperCase());
     const vehicle = `${formData.year} ${formData.make} ${formData.model}${formData.trim ? ' ' + formData.trim : ''}`;
 
     try {
@@ -212,62 +218,7 @@ export default function BookingForm() {
               </div>
 
               <form onSubmit={handleSubmit}>
-                {/* STEP 1: TIMING */}
-                {isStepTiming && (
-                  <div className="step-content">
-                    <p style={stepLabelStyle}>When would you like service?</p>
-                    <p style={stepSubStyle}>This helps us prioritize your appointment</p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '1rem' }} className="timing-grid">
-                      {timingOptions.map(option => {
-                        const isSelected = serviceTiming === option.value;
-                        return (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => setServiceTiming(option.value)}
-                            className="option-btn"
-                            style={{
-                              background: isSelected ? 'rgba(224,27,34,0.08)' : '#fff',
-                              border: isSelected ? '1px solid rgba(224,27,34,0.3)' : '1px solid #dcdcdc',
-                              color: '#111',
-                              padding: '1rem',
-                              borderRadius: '12px',
-                              cursor: 'pointer',
-                              fontFamily: 'inherit',
-                              textAlign: 'left',
-                              transition: 'all 0.3s ease',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.75rem',
-                              position: 'relative',
-                              boxShadow: 'none',
-                            }}
-                          >
-                            <span style={{ fontSize: '1.4rem' }}>{option.icon}</span>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: isSelected ? '#E01B22' : '#111' }}>{option.label}</span>
-                              <span style={{ fontSize: '0.72rem', color: '#6b6b6b' }}>{option.sub}</span>
-                            </div>
-                            {option.hot && (
-                              <span style={{ background: 'rgba(224,27,34,0.08)', color: '#E01B22', fontSize: '0.55rem', padding: '0.25rem 0.55rem', borderRadius: '50px', fontWeight: 800, letterSpacing: '0.08em', border: '1px solid rgba(224,27,34,0.3)' }}>HOT</span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {serviceTiming === 'ASAP' && (
-                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px solid rgba(224,27,34,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', textAlign: 'center' }}>
-                        <p style={{ color: '#E01B22', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🚨 Need service now?</p>
-                        <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '0.85rem 2rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(224,27,34,0.2)' }}>
-                          📞 Call Now: 562-500-4625
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* STEP 2: SERVICES */}
+                {/* STEP 1: SERVICES + WHEN */}
                 {isStepServices && (
                   <div className="step-content">
                     <p style={stepLabelStyle}>What can we help with?</p>
@@ -339,15 +290,47 @@ export default function BookingForm() {
                       </div>
                     )}
 
-                    {selectedServices.length > 0 && (
-                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px dashed rgba(224,27,34,0.3)', borderRadius: '10px', padding: '0.6rem 1rem', color: '#E01B22', fontSize: '0.85rem', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em' }}>
-                        ✓ {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} added
+                    <p style={{ ...stepLabelStyle, fontSize: '1.05rem', marginTop: '1.5rem' }}>When?</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {timingOptions.map(option => {
+                        const isSelected = serviceTiming === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setServiceTiming(option.value)}
+                            className="option-btn"
+                            style={{
+                              background: isSelected ? 'rgba(224,27,34,0.08)' : '#fff',
+                              border: isSelected ? '1px solid #E01B22' : '1px solid #dcdcdc',
+                              color: isSelected ? '#E01B22' : '#111',
+                              padding: '0.6rem 1rem',
+                              borderRadius: '50px',
+                              cursor: 'pointer',
+                              fontFamily: 'inherit',
+                              fontSize: '0.85rem',
+                              fontWeight: 700,
+                              transition: 'all 0.3s ease',
+                            }}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {serviceTiming === 'ASAP' && (
+                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px solid rgba(224,27,34,0.3)', borderRadius: '12px', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
+                        <p style={{ color: '#E01B22', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Need service now?</p>
+                        <a href="tel:562-500-4625" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #FF1F1F 0%, #B30000 100%)', color: '#fff', padding: '0.85rem 2rem', borderRadius: '6px', fontWeight: 800, fontSize: '0.85rem', textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', boxShadow: '0 8px 20px rgba(224,27,34,0.2)' }}>
+                          Call Now: 562-500-4625
+                        </a>
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* STEP 3: VEHICLE */}
+                {/* STEP 2: VEHICLE + TIRE SIZE */}
                 {isStepVehicle && (
                   <div className="step-content">
                     <p style={stepLabelStyle}>Vehicle Info</p>
@@ -360,28 +343,22 @@ export default function BookingForm() {
                       <input type="text" name="model" placeholder="Model (Accord)" value={formData.model} onChange={handleChange} required style={inlineInputStyle} className="inline-input" />
                       <input type="text" name="trim" placeholder="Trim (Sport)" value={formData.trim} onChange={handleChange} style={inlineInputStyle} className="inline-input" />
                     </div>
-                  </div>
-                )}
 
-                {/* STEP 4: TIRE SIZE */}
-                {isStepTire && (
-                  <div className="step-content">
-                    <p style={stepLabelStyle}>Tire Size</p>
-                    <p style={stepSubStyle}>Found on the sidewall. Example: 225/45/R17</p>
-                    {!tireSizeUnknown ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem', marginBottom: '1rem' }}>
-                        <input type="text" name="tireWidth" placeholder="Width" value={formData.tireWidth} onChange={handleChange} style={inlineInputStyle} className="inline-input" />
-                        <input type="text" name="tireAspect" placeholder="Aspect" value={formData.tireAspect} onChange={handleChange} style={inlineInputStyle} className="inline-input" />
-                        <input type="text" name="tireRim" placeholder="Rim" value={formData.tireRim} onChange={handleChange} style={inlineInputStyle} className="inline-input" />
-                      </div>
-                    ) : (
-                      <div style={{ background: 'rgba(224,27,34,0.08)', border: '1px solid rgba(224,27,34,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', color: '#E01B22', fontSize: '0.9rem', textAlign: 'center', fontWeight: 600 }}>
-                        ✓ We will help you find your tire size
+                    {needsTireSize && (
+                      <div style={{ marginTop: '0.75rem' }}>
+                        <p style={{ ...stepLabelStyle, fontSize: '1.05rem' }}>Tire size</p>
+                        <p style={{ ...stepSubStyle, marginBottom: '0.6rem' }}>
+                          {sizeFromSearch && formData.tireSize ? "From your search. Change it if it's not right." : "On your tire's sidewall, e.g. 225/45R17"}
+                        </p>
+                        {!tireSizeUnknown && (
+                          <input type="text" name="tireSize" placeholder="e.g. 225/45R17" value={formData.tireSize} onChange={handleChange} autoCapitalize="characters" style={inlineInputStyle} className="inline-input" />
+                        )}
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.88rem', color: '#333' }}>
+                          <input type="checkbox" checked={tireSizeUnknown} onChange={(e) => setTireSizeUnknown(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#E01B22' }} />
+                          I don't know my size. Help me find it.
+                        </label>
                       </div>
                     )}
-                    <button type="button" onClick={() => setTireSizeUnknown(!tireSizeUnknown)} style={{ width: '100%', background: '#fff', border: '1px solid #dcdcdc', color: '#111', padding: '0.85rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit', letterSpacing: '0.05em', transition: 'all 0.3s ease' }} className="toggle-btn">
-                      {tireSizeUnknown ? 'I know my tire size' : "Don't know your tire size?"}
-                    </button>
                   </div>
                 )}
 
@@ -444,7 +421,7 @@ export default function BookingForm() {
                     <button
                       type="button"
                       onClick={handleNext}
-                      disabled={(isStepTiming && !canProceedStep1) || (isStepServices && !canProceedStep2) || (isStepVehicle && !canProceedStep3) || (isStepTire && !canProceedStep4)}
+                      disabled={nextBlocked}
                       className="cinematic-cta"
                       style={{
                         flex: 2,
@@ -463,7 +440,7 @@ export default function BookingForm() {
                         fontFamily: 'inherit',
                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                         overflow: 'hidden',
-                        opacity: ((isStepTiming && !canProceedStep1) || (isStepServices && !canProceedStep2) || (isStepVehicle && !canProceedStep3) || (isStepTire && !canProceedStep4)) ? 0.4 : 1,
+                        opacity: nextBlocked ? 0.4 : 1,
                       }}
                     >
                       Continue →
@@ -526,7 +503,7 @@ export default function BookingForm() {
 
       <style jsx>{`
         @media (max-width: 600px) {
-          .timing-grid, .services-grid { grid-template-columns: 1fr !important; }
+          .services-grid { grid-template-columns: 1fr !important; }
         }
         .inline-input::placeholder { color: #8a8a8a; }
         .inline-input:focus {

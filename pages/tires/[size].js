@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -32,6 +32,8 @@ export async function getStaticProps({ params }) {
 
 export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], nearby }) {
   const display = sizeKey.replace("X", "x");
+  // Remember the size so the booking form can fill it in.
+  useEffect(() => { try { localStorage.setItem("tp_tire_size", display); } catch (_) {} }, [display]);
   const url = `https://tireplugla.com/tires/${sizeToSlug(sizeKey)}`;
   const has = tires.length > 0;
   const inStock = stock.length > 0;
