@@ -62,7 +62,7 @@ export default function TireSizeSearch({ initial, compact = false }) {
         </select>
       </div>
       <button type="submit" className="tss-go" disabled={!ready}>
-        {ready ? `Show tires in ${cfg.build(s1, s2, s3).replace('X', 'x')} →` : 'Pick your size to see prices'}
+        {ready ? `Show tires in ${cfg.build(s1, s2, s3).replace('X', 'x')} →` : 'Pick your size to see tires'}
       </button>
       <p className="tss-hint">It's on your tire's sidewall, e.g. {cfg.example}.</p>
 
