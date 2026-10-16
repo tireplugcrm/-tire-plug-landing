@@ -210,7 +210,8 @@ export default function PromoHero() {
 
         @media (max-width: 1024px) {
           .ph-wrap { grid-template-columns: 1fr; }
-          .ph-finder { max-width: 560px; width: 100%; margin: 0 auto; }
+          /* Stacked: size lookup first, promos under it */
+          .ph-finder { max-width: 560px; width: 100%; margin: 0 auto; order: -1; }
         }
         @media (max-width: 640px) {
           .ph { padding-top: 105px; }
