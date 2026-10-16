@@ -1,6 +1,412 @@
 {
-  "updatedAt": null,
+  "updatedAt": "2026-10-16T22:19:29.761Z",
   "source": "Tire Outlet",
-  "priceCheckedAt": null,
-  "tires": []
+  "priceCheckedAt": "2026-10-16",
+  "tires": [
+    {
+      "brand": "Dunlop",
+      "model": "Blue Response A/S",
+      "key": "175/65R15",
+      "rim": 15,
+      "lt": false,
+      "price": 64,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxtour LX",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "price": 63,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Dunlop",
+      "model": "Blue Response A/S",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "price": 85,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance All-Season",
+      "key": "195/65R15",
+      "rim": 15,
+      "lt": false,
+      "price": 109,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Champiro Touring A/S",
+      "key": "205/65R15",
+      "rim": 15,
+      "lt": false,
+      "price": 66,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance All-Season",
+      "key": "205/55R16",
+      "rim": 16,
+      "lt": false,
+      "price": 105,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance RangeMax",
+      "key": "205/65R16",
+      "rim": 16,
+      "lt": false,
+      "price": 81,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Maxmiler Pro",
+      "key": "245/75R16",
+      "rim": 16,
+      "lt": true,
+      "price": 113,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Adventuro ATX",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": false,
+      "price": 126,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "WeatherPeak",
+      "key": "205/50R17",
+      "rim": 17,
+      "lt": false,
+      "price": 91,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "P Zero All Season",
+      "key": "215/55R17",
+      "rim": 17,
+      "lt": false,
+      "price": 105,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Champiro SX2",
+      "key": "225/45R17",
+      "rim": 17,
+      "lt": false,
+      "price": 114,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance Finesse",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "price": 109,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "key": "225/65R17",
+      "rim": 17,
+      "lt": false,
+      "price": 125,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "WeatherPeak",
+      "key": "235/65R17",
+      "rim": 17,
+      "lt": false,
+      "price": 210,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Champiro SX2",
+      "key": "245/40R17",
+      "rim": 17,
+      "lt": false,
+      "price": 117,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Adventuro ATX",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": false,
+      "price": 133,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler AT/S",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": false,
+      "price": 170,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Fortitude HT",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": false,
+      "price": 190,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "GT Radial",
+      "model": "Adventuro ATX",
+      "key": "285/70R17",
+      "rim": 17,
+      "lt": true,
+      "price": 177,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory RT",
+      "key": "315/70R17",
+      "rim": 17,
+      "lt": false,
+      "price": 237,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Crugen HP71",
+      "key": "225/60R18",
+      "rim": 18,
+      "lt": false,
+      "price": 119,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Assurance Finesse",
+      "key": "235/40R18",
+      "rim": 18,
+      "lt": false,
+      "price": 139,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "P Zero All Season",
+      "key": "235/45R18",
+      "rim": 18,
+      "lt": false,
+      "price": 125,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Crugen HP71",
+      "key": "235/55R18",
+      "rim": 18,
+      "lt": false,
+      "price": 169,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "WeatherPeak",
+      "key": "235/65R18",
+      "rim": 18,
+      "lt": false,
+      "price": 166,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Solus TA51a",
+      "key": "245/40R18",
+      "rim": 18,
+      "lt": false,
+      "price": 95,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Bridgestone",
+      "model": "WeatherPeak",
+      "key": "245/45R18",
+      "rim": 18,
+      "lt": false,
+      "price": 212,
+      "priceNote": "Beats Amazon by $5+"
+    },
+    {
+      "brand": "Kumho",
+      "model": "Crugen HP71",
+      "key": "245/60R18",
+      "rim": 18,
+      "lt": false,
+      "price": 143,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory AT",
+      "key": "265/65R18",
+      "rim": 18,
+      "lt": false,
+      "price": 148,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Primacy LTX",
+      "key": "265/65R18",
+      "rim": 18,
+      "lt": false,
+      "price": 180,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler Territory MT",
+      "key": "275/65R18",
+      "rim": 18,
+      "lt": true,
+      "price": 183,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Primacy A/S",
+      "key": "245/55R19",
+      "rim": 19,
+      "lt": false,
+      "price": 234,
+      "priceNote": "Beats Walmart by $5+"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Pilot Sport 4",
+      "key": "255/45R19",
+      "rim": 19,
+      "lt": false,
+      "price": 365,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Michelin",
+      "model": "Pilot Sport 4 S",
+      "key": "235/35R20",
+      "rim": 20,
+      "lt": false,
+      "price": 305,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "key": "235/55R20",
+      "rim": 20,
+      "lt": false,
+      "price": 205,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Eagle Touring",
+      "key": "245/45R20",
+      "rim": 20,
+      "lt": false,
+      "price": 130,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Eagle RS-A",
+      "key": "245/50R20",
+      "rim": 20,
+      "lt": false,
+      "price": 160,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Eagle F1",
+      "key": "255/40R20",
+      "rim": 20,
+      "lt": false,
+      "price": 293,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "key": "255/55R20",
+      "rim": 20,
+      "lt": false,
+      "price": 221,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Goodyear",
+      "model": "Wrangler SR-A",
+      "key": "275/60R20",
+      "rim": 20,
+      "lt": false,
+      "price": 180,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "P Zero (PZ4)",
+      "key": "275/40R21",
+      "rim": 21,
+      "lt": false,
+      "price": 446,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion Verde All Season",
+      "key": "285/40R21",
+      "rim": 21,
+      "lt": false,
+      "price": 445,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "P Zero (PZ4)",
+      "key": "305/30R21",
+      "rim": 21,
+      "lt": false,
+      "price": 549,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    },
+    {
+      "brand": "Pirelli",
+      "model": "Scorpion All Season Plus 3",
+      "key": "275/50R22",
+      "rim": 22,
+      "lt": false,
+      "price": 264,
+      "priceNote": "Beats Amazon & Walmart by $5+"
+    }
+  ]
 }
