@@ -291,9 +291,9 @@ export default function AdminHub() {
 
 /* ---------------- LEADS ---------------- */
 const PRIORITY = {
-  HOT: { rank: 0, color: "#e01b22", label: "🔴 HOT" },
-  WARM: { rank: 1, color: "#FFB800", label: "🟡 WARM" },
-  SHOPPING: { rank: 2, color: "rgba(0,0,0,0.55)", label: "⚪ Shopping" },
+  HOT: { rank: 0, color: "#e01b22", label: "Hot" },
+  WARM: { rank: 1, color: "#b45309", label: "Warm" },
+  SHOPPING: { rank: 2, color: "#6b7280", label: "Shopping" },
 };
 function prio(l) { return PRIORITY[l.lead_priority] || { rank: 3, color: "rgba(0,0,0,0.55)", label: l.lead_priority || "—" }; }
 const STATUS_LABEL = { new: "New", called: "Called", booked: "✓ Booked", dead: "Dead" };
@@ -494,69 +494,106 @@ function LeadRow({ l, unread, onClick }) {
 /* ---------------- LEAD DRAWER ---------------- */
 function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
   const [notes, setNotes] = useState(lead.owner_notes || "");
+  const [notesSaved, setNotesSaved] = useState(false);
   const [revenue, setRevenue] = useState(lead.revenue_amount || "");
   const [draftText, setDraftText] = useState("");
   const [draftKind, setDraftKind] = useState(null); // 'quote' arms follow-ups on send
+  // One task at a time: talk to them, price it, or plan the follow-up.
+  const [tab, setTab] = useState("texts");
   const p = prio(lead);
   const statuses = ["new", "called", "booked", "dead"];
-  const fillQuote = (t) => { setDraftText(t); setDraftKind("quote"); };
+  const fillQuote = (t) => { setDraftText(t); setDraftKind("quote"); setTab("texts"); };
+  const source = !lead.source || /book|inline|website/i.test(lead.source) ? "Website" : lead.source;
+  const facts = [
+    ["Service", lead.service], ["Vehicle", lead.vehicle],
+    ["Tire size", lead.tire_size && !/N\/A/i.test(lead.tire_size) ? lead.tire_size : null],
+    ["Tire type", lead.tire_type && !/N\/A/i.test(lead.tire_type) ? lead.tire_type : null],
+    ["When", lead.service_timing], ["Email", lead.email],
+  ].filter(([, v]) => v);
+  const openReminders = (reminders || []).filter((r) => !r.done).length;
+  const TABS = [
+    { id: "texts", icon: lead.channel === "instagram" ? "photo_camera" : "sms", label: lead.channel === "instagram" ? "Instagram" : "Texts" },
+    { id: "quote", icon: "request_quote", label: "Quote" },
+    { id: "followup", icon: "event_note", label: "Follow-up & notes", count: openReminders },
+  ];
 
   return (
     <div onClick={onClose} style={overlay}>
       <div onClick={(e) => e.stopPropagation()} style={drawer}>
-        <button onClick={onClose} style={closeBtn}>✕</button>
-        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.65rem", fontWeight: 800, padding: "0.25rem 0.6rem", borderRadius: 6 }}>{p.label}</span>
-        <h2 style={{ color: "#1a1a1a", fontWeight: 900, fontSize: "1.5rem", margin: "0.75rem 0 0.25rem" }}>{lead.name || "(no name)"}</h2>
-        <p style={{ color: "rgba(0,0,0,0.55)", marginBottom: "1.25rem", fontSize: "0.9rem" }}>{fmtDate(lead.created_at, true)} · via {lead.source || "website"}</p>
-
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-          {lead.phone && <a href={`tel:${lead.phone}`} style={cta}>📞 Call {lead.phone}</a>}
-          {lead.email && <a href={`mailto:${lead.email}`} style={ghostBtn}>✉ Email</a>}
-        </div>
-
-        {/* Status (instant) */}
-        <Section title="Status">
-          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-            {statuses.map((s) => (
-              <button key={s} onClick={() => onUpdate("leads", lead.id, { status: s })}
-                style={{ ...ghostBtn, background: lead.status === s ? "#e8f0fe" : "#ffffff", borderColor: lead.status === s ? "#1a66d6" : "rgba(0,0,0,0.1)", color: lead.status === s ? "#1a66d6" : "#374151", fontWeight: lead.status === s ? 600 : 500 }}>
-                {STATUS_LABEL[s]}
-              </button>
-            ))}
+        {/* Who they are and what they want */}
+        <div style={{ padding: "20px 24px 0" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <h2 style={{ margin: 0, color: T.text, fontWeight: 600, fontSize: 22, letterSpacing: "-0.01em" }}>{lead.name || "No name"}</h2>
+                <span style={{ border: `1px solid ${p.color}`, color: p.color, fontSize: 12, fontWeight: 500, padding: "1px 8px", borderRadius: 4 }}>{p.label}</span>
+              </div>
+              <div style={{ color: T.textMuted, fontSize: 13, marginTop: 4 }}>{source} · {fmtDate(lead.created_at, true)}</div>
+            </div>
+            <button onClick={onClose} aria-label="Close" style={closeBtn}><Icon name="close" /></button>
           </div>
-          {lead.status === "booked" && (
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.75rem" }}>
-              <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem" }}>💵 Sale amount $</span>
-              <input value={revenue} onChange={(e) => setRevenue(e.target.value)} onBlur={() => onUpdate("leads", lead.id, { revenue_amount: revenue })}
-                placeholder="0" inputMode="decimal" style={{ ...inp, marginBottom: 0, width: 120, padding: "0.5rem 0.75rem" }} />
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "14px 0" }}>
+            {lead.phone && <a href={`tel:${lead.phone}`} style={cta}><Icon name="call" size={18} />Call {lead.phone}</a>}
+            {lead.phone && <button onClick={() => setTab("texts")} style={ghostBtn}><Icon name="sms" size={18} />Text</button>}
+            {lead.email && <a href={`mailto:${lead.email}`} style={ghostBtn}><Icon name="mail" size={18} />Email</a>}
+          </div>
+
+          {facts.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px 18px", background: T.page, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px" }}>
+              {facts.map(([k, v]) => (
+                <div key={k} style={{ minWidth: 0 }}>
+                  <div style={{ color: T.textMuted, fontSize: 12 }}>{k}</div>
+                  <div style={{ color: T.text, fontSize: 14, fontWeight: 500, overflowWrap: "anywhere" }}>{v}</div>
+                </div>
+              ))}
             </div>
           )}
-        </Section>
 
-        {/* Quote builder */}
-        <QuoteBuilder lead={lead} auth={auth} onUpdate={onUpdate} onAiDraft={fillQuote} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "14px 0 0" }}>
+            <span style={{ color: T.textMuted, fontSize: 13 }}>Status</span>
+            <div style={{ display: "inline-flex", border: `1px solid ${T.borderStrong}`, borderRadius: 6, overflow: "hidden" }}>
+              {statuses.map((s, i) => (
+                <button key={s} onClick={() => onUpdate("leads", lead.id, { status: s })}
+                  style={{ height: 32, padding: "0 12px", border: "none", borderLeft: i ? `1px solid ${T.borderStrong}` : "none", background: lead.status === s ? T.blueSoft : T.surface, color: lead.status === s ? T.blue : T.text, fontWeight: lead.status === s ? 600 : 500, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                  {s === "booked" ? "Booked" : STATUS_LABEL[s]}
+                </button>
+              ))}
+            </div>
+            {lead.status === "booked" && (
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 6, color: T.textMuted, fontSize: 13 }}>
+                Sale $
+                <input value={revenue} onChange={(e) => setRevenue(e.target.value)} onBlur={() => onUpdate("leads", lead.id, { revenue_amount: revenue })}
+                  placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 100 }} />
+              </label>
+            )}
+          </div>
+        </div>
 
-        {/* SMS conversation */}
-        <Conversation lead={lead} auth={auth} draft={draftText} setDraft={setDraftText} draftKind={draftKind} setDraftKind={setDraftKind} />
+        {/* One task at a time */}
+        <div role="tablist" style={{ display: "flex", gap: 4, borderBottom: `1px solid ${T.border}`, padding: "0 24px", marginTop: 18, position: "sticky", top: 0, background: T.surface, zIndex: 2, overflowX: "auto" }}>
+          {TABS.map((t) => (
+            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 44, padding: "0 10px", border: "none", borderBottom: `2px solid ${tab === t.id ? T.blue : "transparent"}`, marginBottom: -1, background: "transparent", color: tab === t.id ? T.blue : T.textMuted, fontWeight: tab === t.id ? 600 : 500, fontSize: 14, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+              <Icon name={t.icon} size={18} />{t.label}
+              {t.count ? <span style={{ minWidth: 18, height: 18, padding: "0 5px", borderRadius: 9, background: T.blueSoft, color: T.blue, fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{t.count}</span> : null}
+            </button>
+          ))}
+        </div>
 
-        {/* Reminders */}
-        <RemindersBlock lead={lead} reminders={reminders} onReminder={onReminder} />
-
-        {/* Request details */}
-        <Section title="Request">
-          <KV k="Service" v={lead.service} />
-          <KV k="When" v={lead.service_timing} />
-          <KV k="Vehicle" v={lead.vehicle} />
-          <KV k="Tire size" v={lead.tire_size} />
-          <KV k="Tire type" v={lead.tire_type} />
-          <KV k="Email" v={lead.email} />
-        </Section>
-
-        {/* Notes */}
-        <Section title="Your notes">
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ ...inp, resize: "vertical" }} placeholder="Notes from the call..." />
-          <button onClick={() => onUpdate("leads", lead.id, { owner_notes: notes })} style={cta}>Save notes</button>
-        </Section>
+        <div style={{ padding: "18px 24px 28px" }}>
+          {tab === "texts" && <Conversation lead={lead} auth={auth} draft={draftText} setDraft={setDraftText} draftKind={draftKind} setDraftKind={setDraftKind} />}
+          {tab === "quote" && <QuoteBuilder lead={lead} auth={auth} onUpdate={onUpdate} onAiDraft={fillQuote} />}
+          {tab === "followup" && (
+            <>
+              <RemindersBlock lead={lead} reminders={reminders} onReminder={onReminder} />
+              <Section title="Notes">
+                <textarea value={notes} onChange={(e) => { setNotes(e.target.value); setNotesSaved(false); }} rows={4} style={{ ...inp, height: "auto", padding: "0.6rem 0.75rem", resize: "vertical" }} placeholder="Notes from the call..." />
+                <button onClick={() => { onUpdate("leads", lead.id, { owner_notes: notes }); setNotesSaved(true); }} style={cta}>{notesSaved ? <><Icon name="check" size={18} />Saved</> : "Save notes"}</button>
+              </Section>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -598,7 +635,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
         body: JSON.stringify({ ...auth, lead_id: lead.id, mode: "quote", quotes: rows, road_hazard: roadHazard, services }),
       });
       const d = await res.json();
-      if (res.ok && d.draft) { onAiDraft(d.draft); setMsg("✨ Drafted below — review & send"); }
+      if (res.ok && d.draft) { onAiDraft(d.draft); setMsg("Draft ready in Texts. Review it, then send."); }
       else { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
     } catch (e) { onAiDraft(buildText()); setMsg("AI busy — used a basic draft below"); }
     finally { setWriting(false); setTimeout(() => setMsg(""), 3000); }
@@ -630,7 +667,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
 
       {/* Optional Road Hazard Warranty add-on */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem", background: "rgba(0,0,0,0.02)", border: "1px solid #ffffff", borderRadius: 8, padding: "0.5rem 0.7rem" }}>
-        <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem", flex: 1 }}>🛡️ Road Hazard Warranty</span>
+        <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem", flex: 1 }}>Road Hazard Warranty</span>
         <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem" }}>$</span>
         <input value={roadHazard} onChange={(e) => setRoadHazard(e.target.value)} placeholder="0" inputMode="decimal" style={{ ...miniInp, width: 70 }} />
         <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>/ tire</span>
@@ -640,8 +677,8 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       <div style={{ marginBottom: "0.85rem" }}>
         <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>Add-on services</p>
         {[
-          { key: "alignment", label: "🎯 Wheel Alignment" },
-          { key: "oilChange", label: "🛢️ Oil Change" },
+          { key: "alignment", label: "Wheel Alignment" },
+          { key: "oilChange", label: "Oil Change" },
         ].map((s) => (
           <div key={s.key} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem", background: "rgba(0,0,0,0.02)", border: "1px solid #ffffff", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
             <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem", flex: 1 }}>{s.label}</span>
@@ -651,7 +688,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
         ))}
         {/* TPMS — set of 4 OR each */}
         <div style={{ background: "rgba(0,0,0,0.02)", border: "1px solid #ffffff", borderRadius: 8, padding: "0.45rem 0.7rem" }}>
-          <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem" }}>💡 TPMS Sensors</span>
+          <span style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem" }}>TPMS Sensors</span>
           <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.4rem" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
               <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>Set of 4 $</span>
@@ -667,7 +704,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
 
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={save} style={ghostBtn}>Save quote</button>
-        {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}
+        {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "Writing…" : <><Icon name="auto_awesome" size={18} />Write quote text</>}</button>}
         {msg && <span style={{ color: msg.includes("AI busy") ? "#FFB800" : "#15803d", fontSize: "0.8rem" }}>{msg}</span>}
       </div>
     </Section>
@@ -742,13 +779,13 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
   }
 
   return (
-    <Section title={isIg ? "📸 Instagram DM" : "Text messages"}>
+    <Section title={isIg ? "Instagram messages" : "Text messages"}>
       {!lead.phone && !isIg ? (
         <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.82rem" }}>No phone number on file for this lead.</p>
       ) : (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", maxHeight: 260, overflowY: "auto", marginBottom: "0.75rem", padding: thread.length ? "0.25rem" : 0 }}>
-            {thread.length === 0 && <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
+            {thread.length === 0 && <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.8rem" }}>No texts yet. Send the first one below.</p>}
             {thread.map((m) => (
               <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "#ffffff", color: "#1a1a1a", padding: "0.5rem 0.8rem", borderRadius: 8, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
                 {m.body}
@@ -760,16 +797,16 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
             <p style={{ color: "#FFB800", fontSize: "0.72rem", marginBottom: "0.5rem" }}>⏱ {scheduledCount} follow-up{scheduledCount > 1 ? "s" : ""} scheduled — auto-cancel if they reply</p>
           )}
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.5rem" }}>
-            <button onClick={() => aiDraft("reply")} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem", borderColor: "rgba(255,31,31,0.3)", color: "#FF8888" }}>
-              {drafting ? "✨ Thinking..." : "✨ Draft reply"}
+            <button onClick={() => aiDraft("reply")} disabled={drafting} style={{ ...ghostBtn, height: 32, fontSize: 13, color: T.blue, borderColor: T.blue }}>
+              {drafting ? "Thinking…" : <><Icon name="auto_awesome" size={17} />Draft reply</>}
             </button>
-            <button onClick={() => aiDraft("ready")} disabled={drafting} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem" }}>🛞 Tires are in</button>
-            <button onClick={fillLocation} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.8rem" }}>📍 Ask location</button>
+            <button onClick={() => aiDraft("ready")} disabled={drafting} style={{ ...ghostBtn, height: 32, fontSize: 13 }}><Icon name="tire_repair" size={17} />Tires are in</button>
+            <button onClick={fillLocation} style={{ ...ghostBtn, height: 32, fontSize: 13 }}><Icon name="location_on" size={17} />Ask location</button>
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <textarea value={draft} onChange={(e) => { setDraft(e.target.value); setDraftKind("manual"); }} rows={draft && draft.length > 60 ? 3 : 1}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              placeholder="Type a text, or tap ✨ to draft one..." style={{ ...inp, marginBottom: 0, flex: 1, resize: "vertical" }} />
+              placeholder="Type a text, or tap Draft reply…" style={{ ...inp, marginBottom: 0, flex: 1, resize: "vertical" }} />
             <button onClick={send} disabled={sending} style={cta}>{sending ? "..." : "Send"}</button>
           </div>
           {draftKind === "quote" && draft && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.68rem", marginTop: "0.35rem" }}>Sending this will start the 30min / 4hr / 12hr follow-ups (canceled if they reply).</p>}
@@ -800,7 +837,7 @@ function RemindersBlock({ lead, reminders, onReminder }) {
         <div style={{ display: "grid", gap: "0.4rem", marginBottom: "0.75rem" }}>
           {open.map((r) => (
             <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#ffffff", borderRadius: 8, padding: "0.5rem 0.75rem" }}>
-              <span>{r.kind === "service_ready" ? "🛞" : "📞"}</span>
+              <Icon name={r.kind === "service_ready" ? "tire_repair" : "call"} size={18} style={{ color: T.textMuted }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ color: "#1a1a1a", fontSize: "0.82rem" }}>{r.note || (r.kind === "service_ready" ? "Tires are in — come in" : "Follow up")}</div>
                 <div style={{ color: isDueOrOverdue(r.due_at) ? "#FFB800" : "rgba(0,0,0,0.45)", fontSize: "0.7rem" }}>{dueLabel(r.due_at)}</div>
@@ -812,8 +849,8 @@ function RemindersBlock({ lead, reminders, onReminder }) {
       )}
       <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reminder note (optional)" style={{ ...inp, marginBottom: "0.5rem" }} />
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.5rem" }}>
-        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "#e8f0fe" : "#ffffff", borderColor: kind === "followup" ? "#1a66d6" : "rgba(0,0,0,0.1)" }}>📞 General follow-up</button>
-        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "#e8f0fe" : "#ffffff", borderColor: kind === "service_ready" ? "#1a66d6" : "rgba(0,0,0,0.1)" }}>🛞 Tires are in</button>
+        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "#e8f0fe" : "#ffffff", borderColor: kind === "followup" ? "#1a66d6" : "rgba(0,0,0,0.1)" }}><Icon name="call" size={17} />General follow-up</button>
+        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "#e8f0fe" : "#ffffff", borderColor: kind === "service_ready" ? "#1a66d6" : "rgba(0,0,0,0.1)" }}><Icon name="tire_repair" size={17} />Tires are in</button>
       </div>
       <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
         <button onClick={() => quickAdd(1)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.7rem" }}>Tomorrow</button>
@@ -2693,6 +2730,6 @@ const tabBtn = (active) => ({ background: active ? T.blueSoft : "transparent", c
 const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "0.8rem 1.1rem", transition: "border-color .12s ease, background-color .12s ease" };
 const subHead = { color: T.text, fontSize: 15, fontWeight: 600, margin: "1.75rem 0 0.75rem" };
 const fieldLabel = { display: "block", color: "#374151", fontSize: 13, fontWeight: 500, marginBottom: "0.35rem" };
-const overlay = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "flex-end" };
-const drawer = { width: "min(540px, 100%)", height: "100%", overflowY: "auto", background: "#fff", borderLeft: "1px solid rgba(0,0,0,0.1)", boxShadow: "-10px 0 30px rgba(0,0,0,0.12)", padding: "2.5rem 2rem", position: "relative" };
-const closeBtn = { position: "absolute", top: "1.25rem", right: "1.25rem", background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", color: "#1a1a1a", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" };
+const overlay = { position: "fixed", inset: 0, background: "rgba(17,24,39,0.45)", zIndex: 1000, display: "flex", justifyContent: "flex-end" };
+const drawer = { width: "min(620px, 100%)", height: "100%", overflowY: "auto", background: "#fff", borderLeft: `1px solid ${T.border}`, boxShadow: "-10px 0 30px rgba(0,0,0,0.12)", padding: 0, position: "relative" };
+const closeBtn = { flexShrink: 0, width: 36, height: 36, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#ffffff", border: `1px solid ${T.border}`, color: T.text, borderRadius: 6, cursor: "pointer" };
