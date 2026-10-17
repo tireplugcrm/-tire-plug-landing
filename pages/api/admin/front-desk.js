@@ -12,10 +12,11 @@
  *   "resend"       resend the confirmation
  *   "reschedule"   { at } move the appointment (sends a new confirmation)
  * POST { action: "settings", capacity }  cars per 30-min slot
+ * POST { action: "samples", to? }       the 5 booking-sequence emails to you, marked [Sample]
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
-import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
+import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, sendSampleEmails, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
 import { getCapacity, isSlotOpen, openSlots, laParts, laInstant, fmtWhen } from "../../../lib/booking.js";
 
 export const maxDuration = 60;
@@ -61,6 +62,14 @@ export default async function handler(req, res) {
       const cap = Math.max(1, Math.min(10, Number(req.body.capacity) || 2));
       await supabaseAdmin.from("app_settings").upsert({ key: "booking_capacity", value: String(cap) }, { onConflict: "key" });
       return res.status(200).json({ ok: true, capacity: cap });
+    }
+
+    if (action === "samples") {
+      const to = String(req.body.to || (auth.user.email !== "owner" ? auth.user.email : OWNER_EMAILS[0]) || "").trim();
+      if (!/\S+@\S+\.\S+/.test(to)) return res.status(400).json({ error: "Enter an email address." });
+      if (!process.env.RESEND_API_KEY) return res.status(500).json({ error: "Email isn't set up (RESEND_API_KEY)." });
+      const sent = await sendSampleEmails(to);
+      return res.status(200).json({ ok: sent > 0, sent, to });
     }
 
     if (action === "slots") return res.status(200).json({ days: await openSlots({ ignoreLeadId: id }) });

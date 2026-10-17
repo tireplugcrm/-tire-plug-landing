@@ -144,6 +144,7 @@ export default function FrontDesk({ auth, onOpenLead }) {
             Texts: {d.alerts.phones.length ? d.alerts.phones.join(", ") : <strong style={{ color: AMBER }}>none yet (set ADMIN_ALERT_PHONE in Vercel)</strong>}{d.alerts.phones.length && !d.alerts.smsOn ? " (texting not set up)" : ""}<br />
             Emails: {d.alerts.emails.join(", ")}{d.alerts.emailOn ? "" : " (email not set up)"}
           </div>
+          <SampleEmails call={call} defaultTo={d.alerts.emails[0] || ""} />
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginTop: 10 }}>
             Cars per 30-min slot
             <select value={d.capacity} onChange={async (e) => { await call({ action: "settings", capacity: e.target.value }); load(); }} style={{ ...btn, padding: "0.25rem 0.4rem" }}>
@@ -167,6 +168,24 @@ export default function FrontDesk({ auth, onOpenLead }) {
           </div>
         </div>
       </aside>
+    </div>
+  );
+}
+
+// Sends the 5 customer emails of the booking sequence to you, so you can read the wording.
+function SampleEmails({ call, defaultTo }) {
+  const [to, setTo] = useState(defaultTo);
+  const [r, setR] = useState(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <div style={{ borderTop: `1px solid ${T.border}`, marginTop: 12, paddingTop: 12 }}>
+      <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 6 }}>Customer emails</div>
+      <div style={{ color: T.textMuted, fontSize: 12.5, marginBottom: 8 }}>See all 5 booking emails (confirmation, reminders, thank-you, no-show) as samples.</div>
+      <input value={to} onChange={(e) => setTo(e.target.value)} placeholder="you@example.com" style={{ ...ui.input, height: 34, fontSize: 13, marginBottom: 6 }} />
+      <button disabled={busy || !to} onClick={async () => { setBusy(true); setR(await call({ action: "samples", to: to.trim() })); setBusy(false); }} style={{ ...btn, width: "100%" }}>
+        <Icon name="forward_to_inbox" size={18} />{busy ? "Sending…" : "Email me samples"}
+      </button>
+      {r && <div style={{ fontSize: 12.5, marginTop: 6, color: r.error ? RED : GREEN }}>{r.error || `Sent ${r.sent} of 5 to ${r.to}. Check spam if you don't see them.`}</div>}
     </div>
   );
 }
