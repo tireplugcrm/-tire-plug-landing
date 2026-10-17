@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       const today = laParts().ymd;
       const dayStart = laInstant(today, 0), weekEnd = new Date(dayStart.getTime() + 8 * 864e5);
       const [unanswered, appts, events, capacity, run] = await Promise.all([
-        supabaseAdmin.from("leads").select(LEAD_COLS).eq("status", "new").is("first_response_at", null).gte("created_at", new Date(Date.now() - 14 * 864e5).toISOString()).order("created_at", { ascending: true }),
+        supabaseAdmin.from("leads").select(LEAD_COLS).eq("status", "new").is("first_response_at", null).or("appt_status.is.null,appt_status.neq.canceled").gte("created_at", new Date(Date.now() - 14 * 864e5).toISOString()).order("created_at", { ascending: true }),
         supabaseAdmin.from("leads").select(LEAD_COLS).not("appointment_at", "is", null).gte("appointment_at", new Date(dayStart.getTime() - 864e5).toISOString()).lt("appointment_at", weekEnd.toISOString()).order("appointment_at"),
         supabaseAdmin.from("front_desk_events").select("*").order("created_at", { ascending: false }).limit(60),
         getCapacity(),
