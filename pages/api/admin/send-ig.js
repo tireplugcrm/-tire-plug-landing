@@ -29,5 +29,8 @@ export default async function handler(req, res) {
     read: true,
   });
 
+  // A person replied: the Front Desk agent stops nagging about this lead.
+  await supabaseAdmin.from("leads").update({ first_response_at: new Date().toISOString() }).eq("id", lead_id).is("first_response_at", null);
+
   return res.status(200).json({ success: true });
 }

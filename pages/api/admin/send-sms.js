@@ -35,6 +35,9 @@ export default async function handler(req, res) {
     read: true,
   });
 
+  // A person replied: the Front Desk agent stops nagging about this lead.
+  await supabaseAdmin.from("leads").update({ first_response_at: new Date().toISOString() }).eq("id", lead_id).is("first_response_at", null);
+
   // If this was the quote, arm the auto follow-up sequence (non-blocking).
   if (startFollowups) {
     try { await armFollowups({ leadId: lead_id, phone: lead?.phone, name: lead?.name }); }

@@ -50,6 +50,11 @@ export default async function handler(req, res) {
   const { error } = await supabaseAdmin.from(table).update(patch).eq("id", id);
   if (error) return res.status(500).json({ error: error.message });
 
+  // Any status change off "new" means someone handled it (stops Front Desk alerts).
+  if (table === "leads" && status && status !== "new") {
+    await supabaseAdmin.from("leads").update({ first_response_at: new Date().toISOString() }).eq("id", id).is("first_response_at", null);
+  }
+
   // Marking a lead "Called" starts the funnel clock (-> Quoted -> Follow-up -> Cold),
   // but only if it hasn't already entered the funnel.
   if (table === "leads" && status === "called") {

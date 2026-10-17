@@ -3,10 +3,11 @@ import Head from "next/head";
 import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
 import PricingTab from "../../components/admin/PricingTab.js";
+import FrontDesk from "../../components/admin/FrontDesk.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
-   Tabs: Leads · Subscribers · Email · Replies · Hiring
+   Home: Front Desk (website leads + appointments). Everything else lives under "More tools".
    ============================================================ */
 
 export default function AdminHub() {
@@ -19,7 +20,8 @@ export default function AdminHub() {
   const [codeError, setCodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("frontdesk");
+  const [showMore, setShowMore] = useState(false);
   // Links in alerts open a tab directly: /admin?tab=pricing
   useEffect(() => { const t = new URLSearchParams(window.location.search).get("tab"); if (t) setTab(t); }, []);
   const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {}, team: [], me: null });
@@ -177,17 +179,24 @@ export default function AdminHub() {
   const unreadReplies = data.replies.filter((r) => !r.read).length;
   const liveLeads = data.leads.filter((l) => l.status !== "dead");
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
-  const navCounts = { leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
+  const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
+  const navCounts = { frontdesk: unansweredCount, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
-    { items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
-    { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "businesses", icon: "🏢", label: "Businesses" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
-    { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
-    { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
-    { title: "Website", items: [ { id: "pricing", icon: "🏷️", label: "Pricing" } ] },
-    { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
+    { items: [ { id: "frontdesk", icon: "🛎️", label: "Front Desk", alert: unansweredCount > 0 } ] },
+    { more: true, items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
+    { more: true, title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "businesses", icon: "🏢", label: "Businesses" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
+    { more: true, title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
+    { more: true, title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
+    { more: true, title: "Website", items: [ { id: "pricing", icon: "🏷️", label: "Pricing" } ] },
+    { more: true, title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
+  // Open a lead's drawer from anywhere (e.g. Front Desk); reload first if it arrived after the last load.
+  async function openLead(id) {
+    if (!data.leads.some((l) => l.id === id)) await loadWith(authObj());
+    setSelectedLeadId(id);
+  }
   const auth = authObj();
 
   return (
@@ -198,7 +207,7 @@ export default function AdminHub() {
             <Logo size={32} />
             <span style={{ color: "#111", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.01em", fontSize: "0.98rem" }}>Tire Plug</span>
           </div>
-          {NAV_GROUPS.map((grp, gi) => (
+          {NAV_GROUPS.filter((grp) => !grp.more || showMore || grp.items.some((it) => it.id === tab)).map((grp, gi) => (
             <div key={grp.title || `g${gi}`} style={{ marginBottom: "0.35rem" }}>
               {grp.title && <div style={{ color: "rgba(0,0,0,0.38)", fontSize: "0.62rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.13em", padding: "0.7rem 0.6rem 0.3rem" }}>{grp.title}</div>}
               {grp.items.map((it) => {
@@ -214,6 +223,9 @@ export default function AdminHub() {
               })}
             </div>
           ))}
+          <button onClick={() => setShowMore((m) => !m)} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "transparent", color: "rgba(0,0,0,0.5)", fontWeight: 700, border: "none", padding: "0.6rem 0.55rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", marginTop: "0.4rem" }}>
+            <span style={{ width: 18, textAlign: "center" }}>{showMore ? "▴" : "▾"}</span>{showMore ? "Fewer tools" : "More tools"}
+          </button>
         </aside>
 
         <main style={{ flex: 1, minWidth: 0, padding: "1.4rem 2rem 4rem" }}>
@@ -223,6 +235,7 @@ export default function AdminHub() {
             <button onClick={signOut} style={ghostBtn}>Sign out</button>
           </div>
 
+        {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
         {tab === "leads" && (

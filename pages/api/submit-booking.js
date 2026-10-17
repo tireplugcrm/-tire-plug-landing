@@ -1,5 +1,7 @@
 import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
 import { sendWelcomeEmail } from '../../lib/welcome-email.js';
+import { isSlotOpen, openSlots, fmtWhen } from '../../lib/booking.js';
+import { onNewLead, newToken, manageUrl } from '../../lib/front-desk.js';
 import { sendSms } from '../../lib/sms.js';
 import { digits10 } from '../../lib/phone.js';
 import { GREETING_TEXT } from '../../lib/shop-facts.js';
@@ -25,6 +27,7 @@ export default async function handler(req, res) {
     source,
     promoCode,
     smsConsent,
+    appointmentAt,
   } = req.body || {};
 
   const isSubscriber = leadPriority === 'SUBSCRIBER' || source === 'Website Discount Popup';
@@ -72,6 +75,15 @@ export default async function handler(req, res) {
 
     // ---- Booking lead ----
     const cleanPhone = phone && phone !== 'N/A' ? phone : null;
+
+    // Online appointment: the time must still be open (someone may have just taken it).
+    let appt = null;
+    if (appointmentAt) {
+      if (!(await isSlotOpen(appointmentAt))) {
+        return res.status(409).json({ success: false, code: 'slot_taken', error: 'That time was just taken, pick another.', days: await openSlots() });
+      }
+      appt = { appointment_at: new Date(appointmentAt).toISOString(), appt_status: 'confirmed', appt_token: newToken(), appt_booked_at: new Date().toISOString() };
+    }
     const { data: inserted, error } = await supabaseAdmin.from('leads').insert({
       name: name || null,
       phone: cleanPhone,
@@ -84,15 +96,17 @@ export default async function handler(req, res) {
       lead_priority: serviceTiming === 'Just Pricing' ? 'SHOPPING' : (leadPriority || 'WARM'),
       source: source || 'Website Booking Form',
       promo_code: promoCode && promoCode !== 'N/A' ? promoCode : null,
-      tags,
+      tags: appt ? [...tags, 'Online Appointment'] : tags,
       raw: req.body,
-    }).select('id').single();
+      ...(appt || {}),
+    }).select('*').single();
 
     if (error) throw error;
 
     // SPEED-TO-LEAD: auto-text the greeting the instant the lead arrives —
     // ONLY if they actually ticked the SMS-consent box (TCPA/A2P compliance).
-    if (inserted && cleanPhone && smsConsent === true) {
+    // (An online appointment gets its confirmation text from the Front Desk agent instead.)
+    if (inserted && !appt && cleanPhone && smsConsent === true) {
       const sms = await sendSms({ to: cleanPhone, body: GREETING_TEXT });
       if (sms.ok) {
         await supabaseAdmin.from('lead_messages').insert({
@@ -107,7 +121,13 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, pipeline: 'BOOKING', tags });
+    // Front Desk agent: owner alert + customer confirmation. Never fails the booking.
+    if (inserted) await onNewLead(inserted);
+
+    return res.status(200).json({
+      success: true, pipeline: 'BOOKING', tags,
+      appointment: appt ? { at: appt.appointment_at, when: fmtWhen(appt.appointment_at), manageUrl: manageUrl(appt.appt_token) } : undefined,
+    });
   } catch (err) {
     console.error('Booking save error:', err);
     return res.status(500).json({ success: false, error: 'Something went wrong. Please call 562-500-4625.' });
