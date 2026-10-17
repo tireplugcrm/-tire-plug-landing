@@ -10,6 +10,7 @@ const PAGES = [
   ["/new-tires-los-angeles", "monthly", "0.8"],
   ["/rbp-tires-los-angeles", "weekly", "0.8"],
   ["/kumho-tires-los-angeles", "weekly", "0.8"],
+  ["/landspider-tires-los-angeles", "weekly", "0.8"],
   ["/used-tires-los-angeles", "monthly", "0.8"],
   ["/wheel-alignment-los-angeles", "monthly", "0.8"],
   ["/oil-change-los-angeles", "monthly", "0.8"],

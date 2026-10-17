@@ -5,6 +5,16 @@ import QuoteByText from './QuoteByText';
 // Edit SLIDES to change what rotates; each slide links to its page or the booking form.
 const SLIDES = [
   {
+    kicker: 'Landspider special',
+    brand: { src: '/images/landspider/landspider-logo-white.png', alt: 'Landspider', h: 30 },
+    title: ['Brand-new tires,', '15" to 20", from'],
+    price: '$49',
+    sub: 'Citytraxx G/P and H/P in 8 sizes. Install & balance $25 per wheel. While supplies last.',
+    cta: { label: 'See sizes & prices', href: '/landspider-tires-los-angeles' },
+    img: '/images/tires/landspider-citytraxx-h-p.webp',
+    imgAlt: 'Landspider Citytraxx H/P tire',
+  },
+  {
     kicker: 'Kumho special',
     brand: { src: '/images/kumho/kumho-logo.png', alt: 'Kumho Tires', h: 40 },
     title: ['Buy 4 Kumho tires,', 'get a 4-wheel alignment'],
