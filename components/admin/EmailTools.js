@@ -2,17 +2,18 @@
 // and the Businesses tab (cold outreach to local businesses). Server side: lib/email.js,
 // /api/admin/send-email and /api/admin/prospects.
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { T, Icon, ui } from "./ui.js";
 
-const RED = "#FF1F1F";
-const inp = { width: "100%", padding: "0.8rem 1rem", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, background: "#ffffff", color: "#1a1a1a", fontSize: "0.92rem", marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
-const cta = { display: "inline-block", background: "#1a1a1a", color: "#fff", padding: "0.8rem 1.4rem", fontSize: "0.8rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "inherit" };
-const ghostBtn = { display: "inline-block", background: "#ffffff", color: "#1a1a1a", padding: "0.65rem 1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" };
-const fieldLabel = { display: "block", color: "rgba(0,0,0,0.55)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "0.45rem" };
-const card = { background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1.1rem 1.25rem" };
-const subHead = { color: "rgba(0,0,0,0.45)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", margin: "2rem 0 0.9rem" };
-const hint = { color: "rgba(0,0,0,0.45)", fontSize: "0.74rem", lineHeight: 1.5, margin: "0.2rem 0 0.6rem" };
-const chipStyle = (on) => ({ ...ghostBtn, padding: "0.4rem 0.8rem", borderRadius: 50, fontSize: "0.76rem", background: on ? "rgba(255,31,31,0.12)" : "#fff", borderColor: on ? RED : "rgba(0,0,0,0.1)" });
-const msgStyle = (r) => ({ color: r.error ? "#d33" : "#1a8f4c", fontSize: "0.85rem", margin: "0.4rem 0" });
+const RED = T.red;
+const inp = ui.input;
+const cta = { ...ui.primary, height: 38, fontSize: 14 };
+const ghostBtn = { ...ui.btn, height: 36 };
+const fieldLabel = ui.label;
+const card = { ...ui.card, padding: "1rem 1.15rem" };
+const subHead = ui.h2;
+const hint = { color: T.textMuted, fontSize: 12.5, lineHeight: 1.5, margin: "0.2rem 0 0.6rem" };
+const chipStyle = (on) => ({ ...ui.btn, height: 32, padding: "0 0.75rem", fontSize: 13, background: on ? T.blueSoft : T.surface, color: on ? T.blue : T.text, borderColor: on ? T.blue : T.borderStrong });
+const msgStyle = (r) => ({ color: r.error ? "#b91c1c" : T.green, fontSize: 13.5, margin: "0.4rem 0" });
 const pct = (n, d) => (d ? `${Math.round((100 * (n || 0)) / d)}%` : "—");
 const fmt = (s) => (s ? new Date(s).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "");
 
@@ -58,9 +59,9 @@ function TestSend({ onSend }) {
     <div>
       <div style={{ display: "flex", gap: "0.5rem" }}>
         <input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Send a test to… (blank = you)" style={{ ...inp, marginBottom: 0 }} />
-        <button disabled={busy} onClick={async () => { setBusy(true); setR(await onSend(to.trim())); setBusy(false); }} style={{ ...ghostBtn, whiteSpace: "nowrap" }}>{busy ? "Sending…" : "📨 Send test"}</button>
+        <button disabled={busy} onClick={async () => { setBusy(true); setR(await onSend(to.trim())); setBusy(false); }} style={{ ...ghostBtn, whiteSpace: "nowrap" }}>{busy ? "Sending…" : <><Icon name="send" size={18} />Send test</>}</button>
       </div>
-      {r && <p style={msgStyle(r)}>{r.error ? `⚠ ${r.error}` : `✓ Test sent to ${r.to}. Check the inbox (and spam folder).`}</p>}
+      {r && <p style={msgStyle(r)}>{r.error ? `${r.error}` : `Test sent to ${r.to}. Check the inbox (and spam folder).`}</p>}
     </div>
   );
 }
@@ -165,7 +166,7 @@ export function EmailTab({ auth, campaigns, onChanged }) {
                   <button onClick={() => setConfirm(false)} style={ghostBtn}>Cancel</button>
                 </div>
               )}
-              {result && <p style={msgStyle(result)}>{result.error ? `⚠ ${result.error}` : result.scheduled ? `✓ Scheduled for ${fmt(result.sendAt)}.` : `✓ Sent to ${result.sent} of ${result.total}${result.errors ? ` (${result.errors} failed)` : ""}.`}</p>}
+              {result && <p style={msgStyle(result)}>{result.error ? `${result.error}` : result.scheduled ? `Scheduled for ${fmt(result.sendAt)}.` : `Sent to ${result.sent} of ${result.total}${result.errors ? ` (${result.errors} failed)` : ""}.`}</p>}
             </div>
           </div>
         </div>
@@ -180,14 +181,14 @@ export function EmailTab({ auth, campaigns, onChanged }) {
 
 function CampaignStats({ api, campaigns, onChanged }) {
   if (!campaigns?.length) return null;
-  const KIND = { outreach: "🏢 Businesses", customers: "📇 Customers", welcome: "👋 Welcome", blast: "✉️ Blast" };
+  const KIND = { outreach: "Businesses", customers: "Customers", welcome: "Welcome", blast: "Blast" };
   return (
     <div>
       <h2 style={subHead}>Sends &amp; results</h2>
       <p style={hint}>Opens and clicks fill in once the Resend webhook is connected (see setup notes). Apple Mail privacy can inflate opens; clicks and replies are the honest numbers.</p>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.83rem", background: "#fff", borderRadius: 12 }}>
-          <thead><tr style={{ textAlign: "left", color: "rgba(0,0,0,0.5)" }}>
+          <thead><tr style={{ textAlign: "left", color: T.textMuted }}>
             {["Email", "Type", "When", "Sent", "Delivered", "Opened", "Clicked", "Bounced", ""].map((h) => <th key={h} style={{ padding: "0.6rem 0.7rem", fontWeight: 700, borderBottom: "1px solid #eee" }}>{h}</th>)}
           </tr></thead>
           <tbody>
@@ -195,8 +196,8 @@ function CampaignStats({ api, campaigns, onChanged }) {
               const sent = c.sent_count || 0;
               return (
                 <tr key={c.id} style={{ borderBottom: "1px solid #f3f3f3" }}>
-                  <td style={{ padding: "0.6rem 0.7rem", fontWeight: 600, maxWidth: 280 }}>{c.subject}<div style={{ color: "rgba(0,0,0,0.45)", fontWeight: 400, fontSize: "0.74rem" }}>to {c.audience}</div></td>
-                  <td style={{ padding: "0.6rem 0.7rem", whiteSpace: "nowrap" }}>{KIND[c.kind] || "✉️ Blast"}</td>
+                  <td style={{ padding: "0.6rem 0.7rem", fontWeight: 600, maxWidth: 280 }}>{c.subject}<div style={{ color: T.textFaint, fontWeight: 400, fontSize: "0.74rem" }}>to {c.audience}</div></td>
+                  <td style={{ padding: "0.6rem 0.7rem", whiteSpace: "nowrap" }}>{KIND[c.kind] || "Blast"}</td>
                   <td style={{ padding: "0.6rem 0.7rem", whiteSpace: "nowrap" }}>{c.status === "scheduled" ? <span style={{ color: "#b26b00", fontWeight: 700 }}>⏰ {fmt(c.send_at)}</span> : fmt(c.send_at || c.created_at)}</td>
                   <td style={{ padding: "0.6rem 0.7rem" }}>{c.status === "scheduled" ? "—" : `${sent}/${c.recipient_count || 0}`}</td>
                   <td style={{ padding: "0.6rem 0.7rem" }}>{pct(c.delivered, sent)}</td>
@@ -255,7 +256,7 @@ export function BusinessesTab({ auth }) {
   async function doImport(text) {
     setImportMsg(null);
     const r = await api({ action: "import", csv: text });
-    setImportMsg(r.error ? r : { ok: `✓ Added ${r.added} businesses${r.skipped ? ` (${r.skipped} duplicates skipped)` : ""}.` });
+    setImportMsg(r.error ? r : { ok: `Added ${r.added} businesses${r.skipped ? ` (${r.skipped} duplicates skipped)` : ""}.` });
     if (!r.error) { setCsv(""); load(); }
   }
   async function draft() {
@@ -277,16 +278,16 @@ export function BusinessesTab({ auth }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem", marginBottom: "1rem" }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 900 }}>Business outreach</h1>
+          <h1 style={ui.h1}>Business outreach</h1>
           <p style={{ ...hint, margin: "0.3rem 0 0", maxWidth: 620 }}>Email local businesses about a fleet/business account. Sends from <strong>{d.from || "your outreach address"}</strong> as a personal letter with your logo, 5.0 Google rating and a real review. Max {d.dailyLimit}/day and 2 emails per business, so your domain stays out of spam.</p>
         </div>
-        <button onClick={() => setShowImport((s) => !s)} style={cta}>{showImport ? "Close import" : "＋ Add businesses"}</button>
+        <button onClick={() => setShowImport((s) => !s)} style={cta}>{showImport ? "Close import" : <><Icon name="add" size={18} />Add businesses</>}</button>
       </div>
-      {err && <p style={msgStyle({ error: true })}>⚠ {err}</p>}
+      {err && <p style={msgStyle({ error: true })}>{err}</p>}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: "0.6rem", marginBottom: "1rem" }}>
         {[["Businesses", d.prospects.length], ["Emailed", (counts.emailed || 0) + (counts.replied || 0) + (counts.customer || 0) + (counts.not_interested || 0)], ["Replied", (counts.replied || 0) + (counts.customer || 0)], ["Customers", counts.customer || 0], ["Sent today", `${d.sentToday}/${d.dailyLimit}`]].map(([l, v]) => (
-          <div key={l} style={card}><div style={{ fontSize: "1.4rem", fontWeight: 900 }}>{v}</div><div style={{ ...fieldLabel, marginBottom: 0 }}>{l}</div></div>
+          <div key={l} style={card}><div style={{ fontSize: 24, fontWeight: 600 }}>{v}</div><div style={{ ...fieldLabel, marginBottom: 0 }}>{l}</div></div>
         ))}
       </div>
 
@@ -300,7 +301,7 @@ export function BusinessesTab({ auth }) {
             <button onClick={() => fileRef.current?.click()} style={ghostBtn}>Upload .csv</button>
             <input ref={fileRef} type="file" accept=".csv,.tsv,.txt" style={{ display: "none" }} onChange={async (e) => { const f = e.target.files?.[0]; if (f) doImport(await f.text()); e.target.value = ""; }} />
           </div>
-          {importMsg && <p style={msgStyle(importMsg)}>{importMsg.error ? `⚠ ${importMsg.error}` : importMsg.ok}</p>}
+          {importMsg && <p style={msgStyle(importMsg)}>{importMsg.error ? `${importMsg.error}` : importMsg.ok}</p>}
         </div>
       )}
 
@@ -327,8 +328,8 @@ export function BusinessesTab({ auth }) {
                 <input type="checkbox" checked={sel.has(p.id)} onChange={() => setSel((s) => { const n = new Set(s); n.has(p.id) ? n.delete(p.id) : n.add(p.id); return n; })} style={{ marginTop: 4 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 800, fontSize: "0.9rem" }}>{p.business_name}</div>
-                  <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.76rem", overflow: "hidden", textOverflow: "ellipsis" }}>{[p.contact_name, p.email, p.phone].filter(Boolean).join(" · ")}</div>
-                  <div style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.72rem" }}>{[p.category, p.touches ? `${p.touches} email${p.touches > 1 ? "s" : ""}, last ${fmt(p.last_emailed_at)}` : null].filter(Boolean).join(" · ")}</div>
+                  <div style={{ color: T.textMuted, fontSize: "0.76rem", overflow: "hidden", textOverflow: "ellipsis" }}>{[p.contact_name, p.email, p.phone].filter(Boolean).join(" · ")}</div>
+                  <div style={{ color: T.textFaint, fontSize: "0.72rem" }}>{[p.category, p.touches ? `${p.touches} email${p.touches > 1 ? "s" : ""}, last ${fmt(p.last_emailed_at)}` : null].filter(Boolean).join(" · ")}</div>
                 </div>
                 <select value={p.status} onChange={(e) => update(p.id, { status: e.target.value })} style={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8, padding: "0.25rem 0.4rem", fontSize: "0.74rem", fontWeight: 700, color: STATUS_COLOR[p.status], background: "#fff", fontFamily: "inherit" }}>
                   {STATUSES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
@@ -350,7 +351,7 @@ export function BusinessesTab({ auth }) {
               <select value={draftCat} onChange={(e) => setDraftCat(e.target.value)} style={{ ...inp, marginBottom: 0 }}>
                 {[...new Set([...CATEGORIES, ...cats])].map((c) => <option key={c}>{c}</option>)}
               </select>
-              <button onClick={draft} disabled={drafting} style={{ ...ghostBtn, whiteSpace: "nowrap" }}>{drafting ? "Writing…" : "✨ Draft with AI"}</button>
+              <button onClick={draft} disabled={drafting} style={{ ...ghostBtn, whiteSpace: "nowrap" }}>{drafting ? "Writing…" : <><Icon name="auto_awesome" size={18} />Draft with AI</>}</button>
             </div>
             <p style={hint}>Write one email per type of business; it reads more personal than a generic pitch.</p>
             <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject, e.g. tires for {business}'s trucks" style={inp} />
@@ -374,7 +375,7 @@ export function BusinessesTab({ auth }) {
                 <button onClick={() => setConfirm(false)} style={ghostBtn}>Cancel</button>
               </div>
             )}
-            {result && <p style={msgStyle(result)}>{result.error ? `⚠ ${result.error}` : `✓ Sent ${result.sent}${result.skipped ? ` · ${result.skipped} skipped (not eligible or over today's limit)` : ""}. Replies land in the Replies tab and mark the business “Replied”.`}</p>}
+            {result && <p style={msgStyle(result)}>{result.error ? `${result.error}` : `Sent ${result.sent}${result.skipped ? ` · ${result.skipped} skipped (not eligible or over today's limit)` : ""}. Replies land in the Replies tab and mark the business “Replied”.`}</p>}
           </div>
 
           <Preview load={() => api({ action: "preview", message, signer })} deps={[message, signer.name, signer.title]} height={720} />

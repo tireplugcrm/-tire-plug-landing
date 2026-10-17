@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import Head from "next/head";
 import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
-import PricingTab from "../../components/admin/PricingTab.js";
 import FrontDesk from "../../components/admin/FrontDesk.js";
+import PricingTab from "../../components/admin/PricingTab.js";
+import { T, Icon } from "../../components/admin/ui.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
@@ -21,9 +22,9 @@ export default function AdminHub() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("frontdesk");
-  const [showMore, setShowMore] = useState(false);
   // Links in alerts open a tab directly: /admin?tab=pricing
   useEffect(() => { const t = new URLSearchParams(window.location.search).get("tab"); if (t) setTab(t); }, []);
+  const [showMore, setShowMore] = useState(false);
   const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {}, team: [], me: null });
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
@@ -182,13 +183,13 @@ export default function AdminHub() {
   const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
   const navCounts = { frontdesk: unansweredCount, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
-    { items: [ { id: "frontdesk", icon: "🛎️", label: "Front Desk", alert: unansweredCount > 0 } ] },
-    { more: true, items: [ { id: "overview", icon: "🏠", label: "Overview" }, { id: "shopfloor", icon: "🔧", label: "Shop Floor" } ] },
-    { more: true, title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "businesses", icon: "🏢", label: "Businesses" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
-    { more: true, title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
-    { more: true, title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
-    { more: true, title: "Website", items: [ { id: "pricing", icon: "🏷️", label: "Pricing" } ] },
-    { more: true, title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
+    { items: [ { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 } ] },
+    { more: true, items: [ { id: "overview", icon: "dashboard", label: "Overview" }, { id: "shopfloor", icon: "car_repair", label: "Shop Floor" } ] },
+    { more: true, title: "Sales", items: [ { id: "leads", icon: "person_add", label: "Leads" }, { id: "conversions", icon: "paid", label: "Conversions" }, { id: "customers", icon: "groups", label: "Customers" }, { id: "reviews", icon: "star", label: "Reviews" } ] },
+    { more: true, title: "Marketing", items: [ { id: "email", icon: "mail", label: "Email" }, { id: "businesses", icon: "storefront", label: "Businesses" }, { id: "subscribers", icon: "mark_email_unread", label: "Subscribers" }, { id: "replies", icon: "forum", label: "Replies", alert: unreadReplies > 0 } ] },
+    { more: true, title: "Money", items: [ { id: "pnl", icon: "monitoring", label: "Weekly P&L" }, { id: "payroll", icon: "payments", label: "Payroll" } ] },
+    { more: true, title: "Team", items: [ { id: "staff", icon: "badge", label: "Staff" }, { id: "schedule", icon: "calendar_month", label: "Schedule" }, { id: "worklog", icon: "assignment", label: "Work Log" }, { id: "hiring", icon: "work", label: "Hiring" }, { id: "training", icon: "school", label: "Training" } ] },
+    { more: true, title: "Website", items: [ { id: "pricing", icon: "sell", label: "Pricing" } ] },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -201,39 +202,42 @@ export default function AdminHub() {
 
   return (
     <Shell title="Tire Plug Admin">
-      <div style={{ display: "flex", minHeight: "100vh" }}>
-        <aside style={{ width: 234, flexShrink: 0, background: "#fff", borderRight: "1px solid rgba(0,0,0,0.08)", padding: "1.1rem 0.85rem", position: "sticky", top: 0, height: "100vh", overflowY: "auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0 0.5rem 1.1rem" }}>
-            <Logo size={32} />
-            <span style={{ color: "#111", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.01em", fontSize: "0.98rem" }}>Tire Plug</span>
-          </div>
+      <header style={{ position: "sticky", top: 0, zIndex: 50, height: 56, background: T.topbar, display: "flex", alignItems: "center", gap: 12, padding: "0 16px 0 14px" }}>
+        <Logo size={34} />
+        <span style={{ color: "#fff", fontWeight: 600, fontSize: 16, letterSpacing: "-0.01em" }}>The Tire Plug</span>
+        <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginLeft: 2 }}>Admin</span>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => loadWith(authObj())} title="Refresh" aria-label="Refresh" style={topBtn}><Icon name="refresh" /></button>
+        <div title={data.me?.email || "Owner"} style={{ width: 32, height: 32, borderRadius: "50%", background: "#3b4a5a", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600 }}>
+          {(data.me?.name || "Owner").split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+        </div>
+        <button onClick={signOut} style={{ ...topBtn, width: "auto", padding: "0 10px", fontSize: 13, fontWeight: 500 }}>Sign out</button>
+      </header>
+
+      <div style={{ display: "flex", minHeight: "calc(100vh - 56px)" }}>
+        <aside className="tp-side" style={{ width: 232, flexShrink: 0, background: T.surface, borderRight: `1px solid ${T.border}`, padding: "12px 10px", position: "sticky", top: 56, height: "calc(100vh - 56px)", overflowY: "auto" }}>
           {NAV_GROUPS.filter((grp) => !grp.more || showMore || grp.items.some((it) => it.id === tab)).map((grp, gi) => (
-            <div key={grp.title || `g${gi}`} style={{ marginBottom: "0.35rem" }}>
-              {grp.title && <div style={{ color: "rgba(0,0,0,0.38)", fontSize: "0.62rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.13em", padding: "0.7rem 0.6rem 0.3rem" }}>{grp.title}</div>}
+            <div key={grp.title || `g${gi}`} style={{ marginBottom: 6 }}>
+              {grp.title && <div className="tp-caps" style={{ color: T.textFaint, fontSize: 11, fontWeight: 600, padding: "12px 10px 4px" }}>{grp.title}</div>}
               {grp.items.map((it) => {
                 const active = tab === it.id;
                 const cnt = navCounts[it.id];
                 return (
-                  <button key={it.id} onClick={() => setTab(it.id)} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", textAlign: "left", background: active ? "#f1f2f4" : "transparent", color: active ? "#111" : "rgba(0,0,0,0.62)", fontWeight: active ? 800 : 600, border: "none", borderLeft: active ? "3px solid #FF1F1F" : "3px solid transparent", padding: "0.5rem 0.55rem", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem" }}>
-                    <span style={{ fontSize: "1rem", width: 18, textAlign: "center" }}>{it.icon}</span>
-                    <span style={{ flex: 1 }}>{it.label}</span>
-                    {cnt ? <span style={{ background: it.alert ? "#FF1F1F" : "rgba(0,0,0,0.08)", color: it.alert ? "#fff" : "rgba(0,0,0,0.6)", fontSize: "0.62rem", fontWeight: 800, padding: "0.05rem 0.4rem", borderRadius: 50 }}>{cnt}</span> : null}
+                  <button key={it.id} title={it.label} className={active ? "" : "tp-nav-item"} onClick={() => setTab(it.id)} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", height: 38, textAlign: "left", background: active ? T.blueSoft : "transparent", color: active ? T.blue : "#374151", fontWeight: active ? 600 : 500, border: "none", padding: "0 10px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 14 }}>
+                    <Icon name={it.icon} size={20} style={{ color: active ? T.blue : T.textMuted }} />
+                    <span className="tp-label" style={{ flex: 1 }}>{it.label}</span>
+                    {cnt ? <span className="tp-count" style={{ minWidth: 20, height: 20, padding: "0 6px", display: "inline-flex", alignItems: "center", justifyContent: "center", background: it.alert ? T.red : "#eef0f3", color: it.alert ? "#fff" : T.textMuted, fontSize: 11, fontWeight: 600, borderRadius: 10 }}>{cnt}</span> : null}
                   </button>
                 );
               })}
             </div>
           ))}
-          <button onClick={() => setShowMore((m) => !m)} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "transparent", color: "rgba(0,0,0,0.5)", fontWeight: 700, border: "none", padding: "0.6rem 0.55rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", marginTop: "0.4rem" }}>
-            <span style={{ width: 18, textAlign: "center" }}>{showMore ? "▴" : "▾"}</span>{showMore ? "Fewer tools" : "More tools"}
+          <button className="tp-nav-item" onClick={() => setShowMore((m) => !m)} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", height: 38, background: "transparent", color: T.textMuted, fontWeight: 500, border: "none", padding: "0 10px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 14, marginTop: 4 }}>
+            <Icon name={showMore ? "expand_less" : "expand_more"} /><span className="tp-label">{showMore ? "Fewer tools" : "More tools"}</span>
           </button>
         </aside>
 
-        <main style={{ flex: 1, minWidth: 0, padding: "1.4rem 2rem 4rem" }}>
-          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
-            {data.me && data.me.email !== "owner" && <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>{data.me.name}</span>}
-            <button onClick={() => loadWith(authObj())} style={ghostBtn}>↻</button>
-            <button onClick={signOut} style={ghostBtn}>Sign out</button>
-          </div>
+        <main style={{ flex: 1, minWidth: 0, padding: "20px 28px 64px" }}>
 
         {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
@@ -2593,34 +2597,77 @@ function agoLabel(s) {
 
 function Logo({ size = 44 }) {
   return (
-    <div style={{ width: size, height: size, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: "0 0 0 2px rgba(255,31,31,0.4), 0 0 20px rgba(255,31,31,0.25)", flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", boxShadow: `0 0 0 1px ${T.border}`, flexShrink: 0 }}>
       <img src="/images/logo.webp" alt="The Tire Plug" style={{ width: "130%", height: "130%", objectFit: "cover", objectPosition: "center" }} />
     </div>
   );
 }
 
+/*
+ * Admin look: one font (Inter), calm weights, normal-case labels, blue for actions,
+ * red only for the brand and for alerts. Most screens are styled inline, so the scoped
+ * rules below also tone down the old heavy (800/900) and ALL-CAPS letter-spaced text
+ * everywhere at once; add className="tp-caps" to text that should stay uppercase.
+ */
 function Shell({ children, title }) {
   return (
     <>
-      <Head><title>{title}</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ background: "#f5f6f8", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif", color: "#1a1a1a" }}>
+      <Head>
+        <title>{title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0&display=block" />
+      </Head>
+      <div className="tp-admin" style={{ background: T.page, minHeight: "100vh", color: T.text }}>
         {children}
-        <style jsx>{`.adminRow:hover { border-color: rgba(0,0,0,0.18) !important; background: #fafbfc !important; }`}</style>
+        <style jsx global>{`
+          .tp-admin, .tp-admin button, .tp-admin input, .tp-admin select, .tp-admin textarea {
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif !important;
+          }
+          .tp-admin { font-size: 14px; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+          .tp-admin [style*="font-weight:900"], .tp-admin [style*="font-weight: 900"] { font-weight: 700 !important; }
+          .tp-admin [style*="font-weight:800"], .tp-admin [style*="font-weight: 800"] { font-weight: 600 !important; }
+          .tp-admin [style*="text-transform:uppercase"], .tp-admin [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: normal !important; }
+          .tp-admin .tp-caps { text-transform: uppercase !important; letter-spacing: 0.06em !important; }
+          .tp-admin input:focus, .tp-admin select:focus, .tp-admin textarea:focus {
+            border-color: ${T.blue} !important; box-shadow: 0 0 0 3px ${T.blueRing} !important; outline: none;
+          }
+          .tp-admin button { transition: background-color .12s ease, border-color .12s ease, filter .12s ease; }
+          .tp-admin button:not(:disabled):hover { filter: brightness(0.96); }
+          .tp-admin button:disabled { cursor: not-allowed; }
+          .tp-admin .tp-nav-item:hover { background: ${T.hover} !important; }
+          .tp-admin .material-symbols-outlined { display: inline-flex; align-items: center; justify-content: center; user-select: none; font-variation-settings: "opsz" 20; }
+          @media (max-width: 1180px) {
+            .tp-admin .fd-grid { grid-template-columns: minmax(0, 1fr) !important; }
+            .tp-admin .fd-grid > aside { position: static !important; }
+          }
+          @media (max-width: 900px) {
+            .tp-admin .tp-side { width: 60px !important; padding: 12px 8px !important; }
+            .tp-admin .tp-side .tp-label, .tp-admin .tp-side .tp-caps { display: none !important; }
+            .tp-admin .tp-side button { justify-content: center; padding: 0 !important; position: relative; }
+            .tp-admin .tp-side .tp-count { position: absolute; top: 2px; right: 4px; }
+            .tp-admin main { padding: 16px !important; }
+          }
+          .adminRow:hover { border-color: ${T.borderStrong} !important; background: #fafbfc !important; }
+        `}</style>
       </div>
     </>
   );
 }
 
 /* styles */
-const inp = { width: "100%", padding: "0.9rem 1.1rem", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, background: "#ffffff", color: "#1a1a1a", fontSize: "0.95rem", marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
-const miniInp = { width: "100%", padding: "0.5rem 0.6rem", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, background: "#ffffff", color: "#1a1a1a", fontSize: "0.82rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
-const cta = { display: "inline-block", background: "#1a1a1a", color: "#fff", padding: "0.8rem 1.4rem", fontSize: "0.8rem", fontWeight: 800, border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
-const ghostBtn = { display: "inline-block", background: "#ffffff", color: "#1a1a1a", padding: "0.7rem 1.1rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center" };
-const googleBtn = { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", background: "#fff", color: "#1a1a1a", padding: "0.85rem 1.5rem", fontSize: "0.9rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" };
-const tabBtn = (active) => ({ background: active ? "rgba(255,31,31,0.15)" : "transparent", color: active ? "#FF6666" : "rgba(0,0,0,0.6)", padding: "0.55rem 1rem", fontSize: "0.85rem", fontWeight: 700, border: active ? "1px solid rgba(255,31,31,0.3)" : "1px solid transparent", borderRadius: 8, cursor: "pointer", fontFamily: "inherit" });
-const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "0.85rem 1.25rem", transition: "all 0.2s ease" };
-const subHead = { color: "rgba(0,0,0,0.45)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", margin: "2.5rem 0 1rem" };
-const fieldLabel = { display: "block", color: "rgba(0,0,0,0.55)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "0.5rem" };
+const inp = { width: "100%", height: 38, padding: "0 0.75rem", border: `1px solid ${T.borderStrong}`, borderRadius: 6, background: T.surface, color: T.text, fontSize: 14, marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
+const miniInp = { width: "100%", height: 32, padding: "0 0.6rem", border: `1px solid ${T.borderStrong}`, borderRadius: 6, background: T.surface, color: T.text, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
+const cta = { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, height: 38, background: T.blue, color: "#fff", padding: "0 1rem", fontSize: 14, fontWeight: 600, border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center", whiteSpace: "nowrap" };
+const ghostBtn = { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, height: 36, background: T.surface, color: T.text, padding: "0 0.85rem", fontSize: 13.5, fontWeight: 500, border: `1px solid ${T.borderStrong}`, borderRadius: 6, cursor: "pointer", fontFamily: "inherit", textDecoration: "none", textAlign: "center", whiteSpace: "nowrap" };
+const topBtn = { width: 36, height: 36, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", color: "rgba(255,255,255,0.85)", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
+const googleBtn = { width: "100%", height: 42, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", background: T.surface, color: T.text, padding: "0 1.5rem", fontSize: 14, fontWeight: 500, border: `1px solid ${T.borderStrong}`, borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
+const tabBtn = (active) => ({ background: active ? T.blueSoft : "transparent", color: active ? T.blue : T.textMuted, padding: "0.5rem 0.9rem", fontSize: 14, fontWeight: 500, border: "1px solid transparent", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" });
+const rowStyle = { display: "flex", alignItems: "center", gap: "1rem", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "0.8rem 1.1rem", transition: "border-color .12s ease, background-color .12s ease" };
+const subHead = { color: T.text, fontSize: 15, fontWeight: 600, margin: "1.75rem 0 0.75rem" };
+const fieldLabel = { display: "block", color: "#374151", fontSize: 13, fontWeight: 500, marginBottom: "0.35rem" };
 const overlay = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "flex-end" };
 const drawer = { width: "min(540px, 100%)", height: "100%", overflowY: "auto", background: "#fff", borderLeft: "1px solid rgba(0,0,0,0.1)", boxShadow: "-10px 0 30px rgba(0,0,0,0.12)", padding: "2.5rem 2rem", position: "relative" };
 const closeBtn = { position: "absolute", top: "1.25rem", right: "1.25rem", background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", color: "#1a1a1a", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" };
