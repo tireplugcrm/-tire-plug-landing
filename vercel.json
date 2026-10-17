@@ -3,6 +3,7 @@
     { "path": "/api/cron/shift-reminders", "schedule": "0 14 * * *" },
     { "path": "/api/cron/sync-customers", "schedule": "0 10 * * 0" },
     { "path": "/api/cron/review-requests", "schedule": "0 16 * * *" },
-    { "path": "/api/cron/scheduled-emails", "schedule": "0 16 * * *" }
+    { "path": "/api/cron/scheduled-emails", "schedule": "0 16 * * *" },
+    { "path": "/api/cron/pricing", "schedule": "0 14 * * *" }
   ]
 }

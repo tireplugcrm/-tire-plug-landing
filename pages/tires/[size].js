@@ -72,7 +72,9 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
   const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;
   const smsAsk = `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'm looking for tires in ${display}. Can you send me options and prices?`)}`;
   const smsNextDay = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next-day install. Can you order a set for me?`)}`;
-  const smsStock = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price, and can you hold a set for me?`)}`;
+  const smsStock = (t) => `sms:${SMS}?&body=${encodeURIComponent(t.price != null
+    ? `Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock for ${money(t.price)} each. Can you hold a set for me?`
+    : `Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price, and can you hold a set for me?`)}`;
 
   return (
     <>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import Head from "next/head";
 import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
+import PricingTab from "../../components/admin/PricingTab.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
@@ -19,6 +20,8 @@ export default function AdminHub() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("overview");
+  // Links in alerts open a tab directly: /admin?tab=pricing
+  useEffect(() => { const t = new URLSearchParams(window.location.search).get("tab"); if (t) setTab(t); }, []);
   const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {}, team: [], me: null });
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
@@ -180,6 +183,7 @@ export default function AdminHub() {
     { title: "Sales & Customers", items: [ { id: "leads", icon: "🎯", label: "Leads" }, { id: "conversions", icon: "💸", label: "Conversions" }, { id: "customers", icon: "📇", label: "Customers" }, { id: "reviews", icon: "⭐", label: "Reviews" }, { id: "subscribers", icon: "📬", label: "Subscribers" }, { id: "email", icon: "✉️", label: "Email" }, { id: "businesses", icon: "🏢", label: "Businesses" }, { id: "replies", icon: "💬", label: "Replies", alert: unreadReplies > 0 } ] },
     { title: "Money", items: [ { id: "pnl", icon: "📈", label: "Weekly P&L" }, { id: "payroll", icon: "💵", label: "Payroll" } ] },
     { title: "Team", items: [ { id: "staff", icon: "👥", label: "Staff" }, { id: "schedule", icon: "🗓️", label: "Schedule" }, { id: "worklog", icon: "📋", label: "Work Log" }, { id: "hiring", icon: "📝", label: "Hiring" } ] },
+    { title: "Website", items: [ { id: "pricing", icon: "🏷️", label: "Pricing" } ] },
     { title: "Tools", items: [ { id: "training", icon: "📚", label: "Training" } ] },
   ];
 
@@ -238,6 +242,7 @@ export default function AdminHub() {
         {tab === "pnl" && <PnlTab auth={auth} />}
         {tab === "customers" && <CustomersTab auth={auth} />}
         {tab === "reviews" && <ReviewsTab auth={auth} />}
+        {tab === "pricing" && <PricingTab auth={auth} />}
         </main>
       </div>
 
