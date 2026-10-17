@@ -58,6 +58,8 @@ export async function getServerSideProps({ query }) {
 
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 const QTY = [1, 2, 4];
+// Tells the front desk whether the tires are on the shelf or need ordering.
+const AVAILABILITY = { "In stock today": "in_stock", "Next-day delivery": "next_day", "We can order": "special_order" };
 
 export default function BookPage({ sizeKey, options, picked, service }) {
   const display = sizeKey ? sizeKey.replace("X", "x") : "";
@@ -114,7 +116,7 @@ export default function BookPage({ sizeKey, options, picked, service }) {
         body: JSON.stringify({
           name: form.name.trim(), phone: form.phone, email: form.email,
           ...(sizeKey
-            ? { vehicle: "N/A", tireSize: display, tireType: tire.name, service: `New Tires: ${tire.name} ${display} x${qty}`, quantity: qty, price: tire.price }
+            ? { vehicle: "N/A", tireSize: display, tireType: tire.name, service: `New Tires: ${tire.name} ${display} x${qty}`, quantity: qty, price: tire.price, availability: AVAILABILITY[tire.group] }
             : { vehicle: vehicle.trim() || "N/A", tireSize: "N/A", tireType: "N/A", service: picks.map((id) => SERVICES.find((x) => x.id === id).label).join(", ") }),
           serviceTiming: timing,
           appointmentAt: slot ? slot.at : undefined,
