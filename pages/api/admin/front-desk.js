@@ -5,6 +5,7 @@
  * POST { action, id, ... } for one lead:
  *   "handled"      a person reached out (stops unanswered-lead alerts)
  *   "tires"        tires ordered for this appointment
+ *   "arrived"      ordered tires arrived -> "your tires are here" email/text to the customer
  *   "check_in"     customer arrived -> a Shop Floor work order
  *   "done"         job finished -> marks the lead booked, sends thank-you + review ask
  *   "no_show"      didn't come -> "we missed you, pick a new time" text/email
@@ -16,11 +17,11 @@
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
-import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, sendSampleEmails, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
+import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, sendSampleEmails, sendTiresArrived, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
 import { getCapacity, isSlotOpen, openSlots, laParts, laInstant, fmtWhen } from "../../../lib/booking.js";
 
 export const maxDuration = 60;
-const LEAD_COLS = "id,created_at,name,phone,email,vehicle,tire_size,tire_type,service,service_timing,lead_priority,status,channel,source,appointment_at,appt_status,appt_booked_at,first_response_at,tires_ordered_at,work_order_id,raw";
+const LEAD_COLS = "id,created_at,name,phone,email,vehicle,tire_size,tire_type,service,service_timing,lead_priority,status,channel,source,appointment_at,appt_status,appt_booked_at,first_response_at,tires_ordered_at,tires_arrived_at,work_order_id,raw";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
       ]);
       if (unanswered.error) return res.status(500).json({ error: `${unanswered.error.message}. Run lib/frontdesk-schema.sql in Supabase first.` });
       const contactable = (l) => !!(l.email || (l.phone && l.raw?.smsConsent === true));
-      const slim = (l) => { const { raw, ...rest } = l; const o = orderInfo(l); return { ...rest, contactable: contactable(l), quantity: o.quantity, price: o.price }; };
+      const slim = (l) => { const { raw, ...rest } = l; const o = orderInfo(l); return { ...rest, contactable: contactable(l), quantity: o.quantity, price: o.price, availability: raw?.availability || null }; };
       return res.status(200).json({
         today,
         unanswered: (unanswered.data || []).map(slim),
@@ -87,6 +88,10 @@ export default async function handler(req, res) {
     } else if (action === "tires") {
       await patch({ tires_ordered_at: now, ...handled });
       await logEvent(id, "tires", `${by}: tires ordered for ${lead.name || "customer"} (${lead.tire_size || "size n/a"})`);
+    } else if (action === "arrived") {
+      await patch({ tires_arrived_at: now, tires_ordered_at: lead.tires_ordered_at || now, ...handled });
+      const sent = await sendTiresArrived(lead);
+      await logEvent(id, "tires", `${by}: tires arrived for ${lead.name || "customer"}${sent.email || sent.text ? " — customer told" : ""}`);
     } else if (action === "check_in") {
       const { data: wo } = await supabaseAdmin.from("work_orders").insert({ customer_name: lead.name, phone: lead.phone, vehicle: lead.vehicle, service: lead.service, location: "Olympic", status: "waiting", note: `Online booking ${fmtWhen(lead.appointment_at)}${lead.tire_size ? ` · ${lead.tire_size}` : ""}` }).select("id").single();
       await patch({ appt_status: "checked_in", work_order_id: wo?.id || null, ...handled });

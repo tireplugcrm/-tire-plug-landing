@@ -22,6 +22,7 @@ function ago(s) {
   return `${Math.floor(m / 1440)}d`;
 }
 const needsTires = (l) => /new tires|used tires/i.test(l.service || "");
+const needsOrder = (l) => needsTires(l) && l.availability !== "in_stock"; // in-stock tires are on the shelf
 const ICON = { new_lead: ["person_add", BLUE], booked: ["event_available", BLUE], confirmation: ["mail", T.textMuted], reminder: ["schedule", T.textMuted], alert: ["notifications_active", RED], no_show: ["help", AMBER], checked_in: ["car_repair", AMBER], done: ["check_circle", GREEN], canceled: ["event_busy", T.textMuted], rescheduled: ["update", BLUE], handled: ["call", GREEN], tires: ["tire_repair", GREEN] };
 const STATUS = { confirmed: ["Confirmed", BLUE], checked_in: ["In the shop", AMBER], done: ["Done", GREEN], no_show: ["No-show", T.textMuted], canceled: ["Canceled", T.textMuted] };
 
@@ -52,7 +53,7 @@ export default function FrontDesk({ auth, onOpenLead }) {
 
   const today = d.appointments.filter((a) => dayKey(a.appointment_at) === d.today && a.appt_status !== "canceled");
   const upcoming = d.appointments.filter((a) => dayKey(a.appointment_at) > d.today && a.appt_status === "confirmed");
-  const tiresToOrder = d.appointments.filter((a) => a.appt_status === "confirmed" && needsTires(a) && !a.tires_ordered_at);
+  const tiresToOrder = d.appointments.filter((a) => a.appt_status === "confirmed" && needsOrder(a) && !a.tires_ordered_at);
   const callToConfirm = d.appointments.filter((a) => a.appt_status === "confirmed" && !a.contactable && dayKey(a.appointment_at) >= d.today);
   const overdue = d.unanswered.filter((l) => Date.now() - new Date(l.created_at).getTime() > 10 * 60000);
   const minsSinceRun = d.lastRun ? (Date.now() - new Date(d.lastRun).getTime()) / 60000 : Infinity;
@@ -138,7 +139,8 @@ export default function FrontDesk({ auth, onOpenLead }) {
             <li>Nags you at 10 min, 30 min and 2 h if nobody replied</li>
             <li>Confirms every booking (email + calendar invite, text if allowed)</li>
             <li>Reminds customers the day before and 2 hours before</li>
-            <li>Tells you which tires to order, and flags no-shows</li>
+            <li>Tells you which tires to order (not in-stock ones), emails the customer when they arrive, and warns you the evening before if they haven't</li>
+            <li>Flags no-shows</li>
           </ul>
           <div style={{ fontSize: 12.5, color: T.textMuted, marginTop: 8, lineHeight: 1.5 }}>
             Texts: {d.alerts.phones.length ? d.alerts.phones.join(", ") : <strong style={{ color: AMBER }}>none yet (set ADMIN_ALERT_PHONE in Vercel)</strong>}{d.alerts.phones.length && !d.alerts.smsOn ? " (texting not set up)" : ""}<br />
@@ -180,12 +182,12 @@ function SampleEmails({ call, defaultTo }) {
   return (
     <div style={{ borderTop: `1px solid ${T.border}`, marginTop: 12, paddingTop: 12 }}>
       <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 6 }}>Customer emails</div>
-      <div style={{ color: T.textMuted, fontSize: 12.5, marginBottom: 8 }}>See all 5 booking emails (confirmation, reminders, thank-you, no-show) as samples.</div>
+      <div style={{ color: T.textMuted, fontSize: 12.5, marginBottom: 8 }}>See all 6 booking emails (confirmation, tires arrived, reminders, no-show, thank-you) as samples.</div>
       <input value={to} onChange={(e) => setTo(e.target.value)} placeholder="you@example.com" style={{ ...ui.input, height: 34, fontSize: 13, marginBottom: 6 }} />
       <button disabled={busy || !to} onClick={async () => { setBusy(true); setR(await call({ action: "samples", to: to.trim() })); setBusy(false); }} style={{ ...btn, width: "100%" }}>
         <Icon name="forward_to_inbox" size={18} />{busy ? "Sending…" : "Email me samples"}
       </button>
-      {r && <div style={{ fontSize: 12.5, marginTop: 6, color: r.error ? RED : GREEN }}>{r.error || `Sent ${r.sent} of 5 to ${r.to}. Check spam if you don't see them.`}</div>}
+      {r && <div style={{ fontSize: 12.5, marginTop: 6, color: r.error ? RED : GREEN }}>{r.error || `Sent ${r.sent} of 6 to ${r.to}. Check spam if you don't see them.`}</div>}
     </div>
   );
 }
@@ -206,14 +208,19 @@ function Appt({ a, busy, act, call, onOpenLead, big }) {
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
             <strong style={{ cursor: "pointer" }} onClick={() => onOpenLead && onOpenLead(a.id)}>{a.name || "Customer"}</strong>
             <span style={pill(color)}>{late ? "Late" : st}</span>
-            {needsTires(a) && a.appt_status === "confirmed" && (a.tires_ordered_at ? <span style={pill(GREEN)}><Icon name="tire_repair" size={14} />Tires ordered</span> : <span style={pill(AMBER)}><Icon name="tire_repair" size={14} />Order tires</span>)}
+            {needsTires(a) && a.appt_status === "confirmed" && (
+              !needsOrder(a) ? <span style={pill(GREEN)}><Icon name="inventory_2" size={14} />In stock</span>
+              : a.tires_arrived_at ? <span style={pill(GREEN)}><Icon name="tire_repair" size={14} />Tires here</span>
+              : a.tires_ordered_at ? <span style={pill(BLUE)}><Icon name="local_shipping" size={14} />Tires ordered</span>
+              : <span style={pill(AMBER)}><Icon name="tire_repair" size={14} />Order tires{a.availability === "next_day" ? " (next-day)" : ""}</span>)}
             {!a.contactable && a.appt_status === "confirmed" && <span style={pill(AMBER)}><Icon name="call" size={14} />Call to confirm</span>}
           </div>
           <div style={{ color: T.textMuted, fontSize: 13, marginTop: 2 }}>{[a.service, a.vehicle, a.tire_size && !/help me|N\/A/i.test(a.tire_size) && !(a.service || "").includes(a.tire_size) ? a.tire_size : null, a.price ? `$${a.price}/tire${a.quantity ? ` · $${a.price * a.quantity} for ${a.quantity}` : ""}` : null].filter(Boolean).join(" · ")}</div>
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {a.phone && <a href={`tel:${a.phone}`} style={btn} aria-label="Call"><Icon name="call" size={18} /></a>}
-          {a.appt_status === "confirmed" && needsTires(a) && !a.tires_ordered_at && <button disabled={b("tires")} onClick={() => act("tires", a.id)} style={btn}><Icon name="tire_repair" size={18} />Tires ordered</button>}
+          {a.appt_status === "confirmed" && needsOrder(a) && !a.tires_ordered_at && <button disabled={b("tires")} onClick={() => act("tires", a.id)} style={btn}><Icon name="local_shipping" size={18} />Tires ordered</button>}
+          {a.appt_status === "confirmed" && needsOrder(a) && a.tires_ordered_at && !a.tires_arrived_at && <button disabled={b("arrived")} onClick={() => confirm(`Mark ${a.name || "these"} tires as arrived and let the customer know?`) && act("arrived", a.id)} style={btn}><Icon name="inventory" size={18} />Tires arrived</button>}
           {a.appt_status === "confirmed" && big && <button disabled={b("check_in")} onClick={() => act("check_in", a.id)} style={primary}><Icon name="login" size={18} />Check in</button>}
           {a.appt_status === "checked_in" && <button disabled={b("done")} onClick={() => act("done", a.id)} style={{ ...primary, background: GREEN, borderColor: GREEN }}><Icon name="check" size={18} />Done</button>}
           {a.appt_status === "confirmed" && <button onClick={() => setMore((m) => !m)} style={btn} aria-label="More actions"><Icon name="more_horiz" size={18} /></button>}
