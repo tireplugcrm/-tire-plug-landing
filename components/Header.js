@@ -99,26 +99,28 @@ export default function Header() {
         </a>
 
         <div className="desktop-nav" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-          <button onClick={() => scrollToSection('hero')} style={navLinkStyle} className="nav-link">Promos</button>
-          <a href="/book" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Book</a>
-          <button onClick={() => scrollToSection('locations')} style={navLinkStyle} className="nav-link">Locations</button>
-          <a href="/careers" style={{ ...navLinkStyle, textDecoration: 'none', color: '#FF3838' }} className="nav-link">Careers</a>
-          <a href="tel:562-500-4625" className="call-cta" style={{ position: 'relative', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, padding: '0.85rem 1.75rem', borderRadius: '6px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', display: 'inline-flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,80,80,0.3), 0 4px 12px rgba(139,0,0,0.5), 0 0 30px rgba(255,42,42,0.25)', textShadow: '0 1px 2px rgba(0,0,0,0.5)', overflow: 'hidden' }}><span style={{ position: 'relative', zIndex: 2, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>Click to Call</span></a>
+          {/* Sales funnel first: pick a tire (priced to beat Amazon/Walmart) -> book. Careers is in the footer. */}
+          <a href="/tires" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Shop Tires</a>
+          <button onClick={() => scrollToSection('hero')} style={navLinkStyle} className="nav-link">Deals</button>
+          <a href="/book?service=1" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Services</a>
+          <a href="/olympic" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Location</a>
+          {/* Call while the shop is open; after hours a call goes unanswered, so offer a text instead. */}
+          <a href={status.open ? 'tel:562-500-4625' : 'sms:+15625004625'} className="call-cta" style={{ position: 'relative', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, padding: '0.85rem 1.75rem', borderRadius: '6px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', display: 'inline-flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,80,80,0.3), 0 4px 12px rgba(139,0,0,0.5), 0 0 30px rgba(255,42,42,0.25)', textShadow: '0 1px 2px rgba(0,0,0,0.5)', overflow: 'hidden' }}><span style={{ position: 'relative', zIndex: 2, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}>{status.open ? <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z" /> : <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 9h10v2H7V9zm6 5H7v-2h6v2zm4-6H7V6h10v2z" />}</svg>{status.open ? 'Call (562) 500-4625' : 'Text us'}</span></a>
         </div>
 
         <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>{mobileMenuOpen ? '✕' : '☰'}</button>
 
         {mobileMenuOpen && (
           <div className="mm">
-            <button type="button" onClick={() => { setMobileMenuOpen(false); goToFinder(); }}>Shop tires by size<span>›</span></button>
-            <button type="button" onClick={() => scrollToSection('hero')}>Promos<span>›</span></button>
-            <a href="/book">Book a tire install<span>›</span></a>
-            <button type="button" onClick={() => scrollToSection('locations')}>Location &amp; hours<span>›</span></button>
+            <a href="/tires">Shop tires<span>›</span></a>
+            <button type="button" onClick={() => scrollToSection('hero')}>Deals<span>›</span></button>
+            <a href="/book?service=1">Services<span>›</span></a>
+            <a href="/olympic">Location &amp; hours<span>›</span></a>
             <button type="button" onClick={openReviews}>Reviews <em>★★★★★</em><span>›</span></button>
-            <a href="/careers" className="mm-hire">Careers · We're hiring<span>›</span></a>
             <div className="mm-ctas">
-              <a href="tel:562-500-4625" className="mm-call">Call (562) 500-4625</a>
-              <a href="sms:+15625004625" className="mm-text">Text us</a>
+              {status.open
+                ? <><a href="tel:562-500-4625" className="mm-call">Call (562) 500-4625</a><a href="sms:+15625004625" className="mm-text">Text us</a></>
+                : <><a href="sms:+15625004625" className="mm-call">Text us</a><a href="tel:562-500-4625" className="mm-text">Call (562) 500-4625</a></>}
             </div>
           </div>
         )}
