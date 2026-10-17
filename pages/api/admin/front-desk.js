@@ -15,7 +15,7 @@
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
-import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, OWNER_EMAIL, OWNER_PHONE } from "../../../lib/front-desk.js";
+import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
 import { getCapacity, isSlotOpen, openSlots, laParts, laInstant, fmtWhen } from "../../../lib/booking.js";
 
 export const maxDuration = 60;
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       ]);
       if (unanswered.error) return res.status(500).json({ error: `${unanswered.error.message}. Run lib/frontdesk-schema.sql in Supabase first.` });
       const contactable = (l) => !!(l.email || (l.phone && l.raw?.smsConsent === true));
-      const slim = (l) => { const { raw, ...rest } = l; return { ...rest, contactable: contactable(l) }; };
+      const slim = (l) => { const { raw, ...rest } = l; const o = orderInfo(l); return { ...rest, contactable: contactable(l), quantity: o.quantity, price: o.price }; };
       return res.status(200).json({
         today,
         unanswered: (unanswered.data || []).map(slim),
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
         events: events.data || [],
         capacity,
         lastRun: run.data?.value || null,
-        alerts: { email: OWNER_EMAIL, phone: OWNER_PHONE, emailOn: !!process.env.RESEND_API_KEY, smsOn: !!process.env.TWILIO_ACCOUNT_SID },
+        alerts: { emails: OWNER_EMAILS, phones: OWNER_PHONES, emailOn: !!process.env.RESEND_API_KEY, smsOn: !!process.env.TWILIO_ACCOUNT_SID },
       });
     }
 

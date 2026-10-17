@@ -96,7 +96,7 @@ export default function FrontDesk({ auth, onOpenLead }) {
                     {l.appointment_at && <span style={pill("#2563eb")}>📅 {dayLabel(l.appointment_at).split(",")[0]} {time(l.appointment_at)}</span>}
                     {l.channel && l.channel !== "web" && <span style={pill("#666")}>{l.channel === "instagram" ? "Instagram" : "Text"}</span>}
                   </div>
-                  <div style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginTop: 2 }}>{[l.service, l.vehicle, l.tire_size && !/help me/i.test(l.tire_size) ? l.tire_size : null, l.service_timing].filter(Boolean).join(" · ")}</div>
+                  <div style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginTop: 2 }}>{[l.service, l.vehicle, l.tire_size && !/help me|N\/A/i.test(l.tire_size) && !(l.service || "").includes(l.tire_size) ? l.tire_size : null, l.price ? `$${l.price}/tire` : null, l.service_timing].filter(Boolean).join(" · ")}</div>
                 </div>
                 <div style={{ textAlign: "right", minWidth: 70 }}>
                   <div style={{ fontWeight: 900, color: late ? RED : "#111" }}>{ago(l.created_at)}</div>
@@ -139,7 +139,10 @@ export default function FrontDesk({ auth, onOpenLead }) {
             <li>Reminds customers the day before and 2 hours before</li>
             <li>Tells you which tires to order, and flags no-shows</li>
           </ul>
-          <div style={{ fontSize: "0.74rem", color: "rgba(0,0,0,0.5)", marginTop: 8 }}>Alerts go to {d.alerts.phone}{d.alerts.smsOn ? "" : " (texting not set up)"} and {d.alerts.email}{d.alerts.emailOn ? "" : " (email not set up)"}.</div>
+          <div style={{ fontSize: "0.74rem", color: "rgba(0,0,0,0.5)", marginTop: 8, lineHeight: 1.5 }}>
+            Texts: {d.alerts.phones.length ? d.alerts.phones.join(", ") : <strong style={{ color: AMBER }}>none yet (set ADMIN_ALERT_PHONE in Vercel)</strong>}{d.alerts.phones.length && !d.alerts.smsOn ? " (texting not set up)" : ""}<br />
+            Emails: {d.alerts.emails.join(", ")}{d.alerts.emailOn ? "" : " (email not set up)"}
+          </div>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.8rem", marginTop: 10 }}>
             Cars per 30-min slot
             <select value={d.capacity} onChange={async (e) => { await call({ action: "settings", capacity: e.target.value }); load(); }} style={{ ...btn, padding: "0.25rem 0.4rem" }}>
@@ -186,7 +189,7 @@ function Appt({ a, busy, act, call, onOpenLead, big }) {
             {needsTires(a) && a.appt_status === "confirmed" && (a.tires_ordered_at ? <span style={pill(GREEN)}>🛞 Tires ordered</span> : <span style={pill(AMBER)}>🛞 Order tires</span>)}
             {!a.contactable && a.appt_status === "confirmed" && <span style={pill(AMBER)}>📞 Call to confirm</span>}
           </div>
-          <div style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginTop: 2 }}>{[a.service, a.vehicle, a.tire_size && !/help me/i.test(a.tire_size) ? a.tire_size : null, a.tire_type].filter(Boolean).join(" · ")}</div>
+          <div style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginTop: 2 }}>{[a.service, a.vehicle, a.tire_size && !/help me|N\/A/i.test(a.tire_size) && !(a.service || "").includes(a.tire_size) ? a.tire_size : null, a.price ? `$${a.price}/tire${a.quantity ? ` · $${a.price * a.quantity} for ${a.quantity}` : ""}` : null].filter(Boolean).join(" · ")}</div>
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {a.phone && <a href={`tel:${a.phone}`} style={btn}>📞</a>}

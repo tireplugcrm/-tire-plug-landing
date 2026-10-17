@@ -1481,7 +1481,7 @@ function ReviewsTab({ auth }) {
         <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK — OLYMPIC (DOWNTOWN)</div>
         <input style={inp} placeholder="Olympic shop Google review link" value={s.review_url_olympic || ""} onChange={(e) => setS({ ...s, review_url_olympic: e.target.value })} />
         <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", margin: "0.25rem 0" }}>BOOKING LINK (for referrals)</div>
-        <input style={inp} placeholder="https://tireplugla.com/#booking" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
+        <input style={inp} placeholder="https://tireplugla.com/book" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem" }}>
           <button onClick={save} style={cta}>Save links</button>
           {saved && <span style={{ color: "#3DD68C", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}

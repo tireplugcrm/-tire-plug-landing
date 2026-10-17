@@ -29,13 +29,17 @@ where first_response_at is null and status <> 'new';
 
 -- ============================================================
 -- Run the watchdog every 5 minutes (Vercel's free plan only allows daily crons).
--- 1) Database → Extensions: enable pg_cron and pg_net.
--- 2) Replace YOUR_CRON_SECRET with the CRON_SECRET value from Vercel, then run:
---
--- select cron.schedule('front-desk-watchdog', '*/5 * * * *', $$
---   select net.http_get(
---     url := 'https://tireplugla.com/api/cron/front-desk',
---     headers := jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET')
---   );
--- $$);
+-- 1) Turn on the extensions, 2) the database makes its own random key (nobody copies a secret),
+-- 3) pg_cron calls the site with that key; /api/cron/front-desk checks it against app_settings.
 -- ============================================================
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+insert into app_settings (key, value)
+values ('front_desk_cron_key', replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''))
+on conflict (key) do nothing;
+select cron.schedule('front-desk-watchdog', '*/5 * * * *', $$
+  select net.http_get(
+    url := 'https://tireplugla.com/api/cron/front-desk',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || (select value from public.app_settings where key = 'front_desk_cron_key'))
+  );
+$$);

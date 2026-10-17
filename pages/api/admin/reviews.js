@@ -76,7 +76,7 @@ export default async function handler(req, res) {
 
     const revOlympic = (await getSetting("review_url_olympic")) || (await getSetting("google_review_url"));
     const reviewLinks = revOlympic || "(your Google review link)";
-    const bookingUrl = (await getSetting("booking_url")) || "https://tireplugla.com/#booking";
+    const bookingUrl = (await getSetting("booking_url")) || "https://tireplugla.com/book";
 
     if (action === "draft") {
       if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: "AI not set up." });
