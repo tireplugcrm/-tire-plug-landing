@@ -40,6 +40,8 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
   const hasNextDay = nextDay.length > 0;
   const from = has ? tires[0].price : null;
   const stockBrands = [...new Set(stock.map((t) => t.brand))].join(", ");
+  // Lowest in-stock price (stock is sorted cheapest first; null when prices aren't shown).
+  const stockFrom = stock.find((t) => t.price != null)?.price ?? null;
   const title = has
     ? `${display} Tires in Los Angeles · ${tires.length} option${tires.length > 1 ? "s" : ""} from ${money(from)} | The Tire Plug`
     : inStock
@@ -48,7 +50,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
   const description = has
     ? `Shop ${display} tires at The Tire Plug, 2331 E Olympic Blvd, Los Angeles. ${tires.length} option${tires.length > 1 ? "s" : ""} from ${[...new Set(tires.map((t) => t.brand))].join(", ")}, from ${money(from)} per tire. Install & balance from $${INSTALL_FROM} per wheel. Open 7 days.`
     : inStock
-      ? `${display} tires in stock now at The Tire Plug, 2331 E Olympic Blvd, Los Angeles: ${stockBrands}. Text us for today's price. Install & balance from $${INSTALL_FROM} per wheel. Open 7 days.`
+      ? `${display} tires in stock now at The Tire Plug, 2331 E Olympic Blvd, Los Angeles: ${stockBrands}. ${stockFrom != null ? `From ${money(stockFrom)} per tire.` : "Text us for today's price."} Install & balance from $${INSTALL_FROM} per wheel. Open 7 days.`
       : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
 
   const schema = has && {
@@ -104,7 +106,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
                 {has
                   ? <>{tires.length} option{tires.length > 1 ? "s" : ""} from <b>{money(from)}</b> per tire. Cheapest first.</>
                   : inStock
-                    ? <>Text us for today's price.</>
+                    ? stockFrom != null ? <>From <b>{money(stockFrom)}</b> per tire. Cheapest first.</> : <>Text us for today's price.</>
                     : <>We don't have {display} listed online yet, but we can usually get it fast.</>}
               </p>
             </div>
