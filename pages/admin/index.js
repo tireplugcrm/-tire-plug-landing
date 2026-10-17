@@ -5,6 +5,7 @@ import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
 import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import { T, Icon } from "../../components/admin/ui.js";
+import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
@@ -149,7 +150,7 @@ export default function AdminHub() {
           </p>
           <input value={codeInput} onChange={(e) => setCodeInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && verifyCode()} placeholder="6-digit code" inputMode="numeric" style={{ ...inp, textAlign: "center", letterSpacing: "0.3em", fontSize: "1.2rem" }} />
           <button onClick={verifyCode} style={cta}>Unlock</button>
-          {codeError && <p style={{ color: "#FF6666", marginTop: "1rem", fontSize: "0.85rem" }}>{codeError}</p>}
+          {codeError && <p style={{ color: "#b91c1c", marginTop: "1rem", fontSize: "0.85rem" }}>{codeError}</p>}
           <button onClick={signOut} style={{ ...ghostBtn, marginTop: "1.5rem", fontSize: "0.75rem" }}>Cancel / sign out</button>
         </div>
       </Shell>
@@ -178,7 +179,7 @@ export default function AdminHub() {
           <button onClick={() => loadWith({ password })} disabled={loading} style={cta}>
             {loading ? "..." : "Enter"}
           </button>
-          {error && <p style={{ color: "#FF6666", textAlign: "center", marginTop: "1rem", fontSize: "0.85rem" }}>{error}</p>}
+          {error && <p style={{ color: "#b91c1c", textAlign: "center", marginTop: "1rem", fontSize: "0.85rem" }}>{error}</p>}
         </div>
       </Shell>
     );
@@ -188,14 +189,19 @@ export default function AdminHub() {
   const liveLeads = data.leads.filter((l) => l.status !== "dead");
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
-  const navCounts = { frontdesk: unansweredCount, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
+  const navCounts = { frontdesk: unansweredCount, crm: data.leads.filter((l) => (!l.channel || l.channel === "web") && crmStage(l) === "new").length, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
+  // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview, Shop Floor,
+  // Email, Businesses, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
+  // Work Log, Hiring, Training) still exist and their data is untouched; add them back here to show them.
   const NAV_GROUPS = [
-    { items: [ { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 }, { id: "overview", icon: "dashboard", label: "Overview" }, { id: "shopfloor", icon: "car_repair", label: "Shop Floor" } ] },
-    { title: "Sales", items: [ { id: "leads", icon: "person_add", label: "Leads" }, { id: "conversions", icon: "paid", label: "Conversions" }, { id: "customers", icon: "groups", label: "Customers" }, { id: "reviews", icon: "star", label: "Reviews" } ] },
-    { title: "Marketing", items: [ { id: "email", icon: "mail", label: "Email" }, { id: "businesses", icon: "storefront", label: "Businesses" }, { id: "subscribers", icon: "mark_email_unread", label: "Subscribers" }, { id: "replies", icon: "forum", label: "Replies", alert: unreadReplies > 0 } ] },
-    { title: "Money", items: [ { id: "pnl", icon: "monitoring", label: "Weekly P&L" }, { id: "payroll", icon: "payments", label: "Payroll" } ] },
-    { title: "Team", items: [ { id: "staff", icon: "badge", label: "Staff" }, { id: "schedule", icon: "calendar_month", label: "Schedule" }, { id: "worklog", icon: "assignment", label: "Work Log" }, { id: "hiring", icon: "work", label: "Hiring" }, { id: "training", icon: "school", label: "Training" } ] },
-    { title: "Website", items: [ { id: "pricing", icon: "sell", label: "Pricing" } ] },
+    { items: [
+      { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 },
+      { id: "crm", icon: "view_kanban", label: "CRM" },
+    ] },
+    { title: "Manage", items: [
+      { id: "customers", icon: "groups", label: "Customers" },
+      { id: "pricing", icon: "inventory_2", label: "Inventory & Pricing" },
+    ] },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -245,6 +251,7 @@ export default function AdminHub() {
         <main style={{ flex: 1, minWidth: 0, padding: "20px 28px 64px" }}>
 
         {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} />}
+        {tab === "crm" && <CrmBoard leads={data.leads} unreadByLead={data.unreadByLead} onOpen={openLead} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
         {tab === "leads" && (
@@ -284,7 +291,7 @@ export default function AdminHub() {
 
 /* ---------------- LEADS ---------------- */
 const PRIORITY = {
-  HOT: { rank: 0, color: "#FF3838", label: "🔴 HOT" },
+  HOT: { rank: 0, color: "#e01b22", label: "🔴 HOT" },
   WARM: { rank: 1, color: "#FFB800", label: "🟡 WARM" },
   SHOPPING: { rank: 2, color: "rgba(0,0,0,0.55)", label: "⚪ Shopping" },
 };
@@ -356,7 +363,7 @@ const FUNNEL_META = {
   quoted: { label: "Quoted", color: "#5BC8FF" },
   follow_up: { label: "Follow-up", color: "#FFB800" },
   cold: { label: "Cold", color: "#8A94A6" },
-  engaged: { label: "Replied", color: "#3DD68C" },
+  engaged: { label: "Replied", color: "#15803d" },
   won: { label: "Won", color: "#1a7f4b" },
 };
 // Live funnel stage from timestamps: New -> Quoted -> (30min) Follow-up -> (24h, no reply) Cold.
@@ -408,15 +415,15 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke }) {
 
       {/* Revenue summary */}
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
-        <div style={{ background: "linear-gradient(135deg, rgba(61,214,140,0.12), rgba(0,0,0,0))", border: "1px solid rgba(61,214,140,0.3)", borderRadius: 14, padding: "0.85rem 1.25rem", flex: 1, minWidth: 200 }}>
-          <div style={{ color: "#3DD68C", fontWeight: 900, fontSize: "1.6rem", lineHeight: 1 }}>${revenue.toLocaleString()}</div>
+        <div style={{ background: "linear-gradient(135deg, rgba(61,214,140,0.12), rgba(0,0,0,0))", border: "1px solid rgba(61,214,140,0.3)", borderRadius: 8, padding: "0.85rem 1.25rem", flex: 1, minWidth: 200 }}>
+          <div style={{ color: "#15803d", fontWeight: 900, fontSize: "1.6rem", lineHeight: 1 }}>${revenue.toLocaleString()}</div>
           <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 4 }}>From web leads this month · {monthLeads.length} booked</div>
         </div>
       </div>
 
       {/* Due reminders */}
       {due.length > 0 && (
-        <div style={{ background: "rgba(255,184,0,0.08)", border: "1px solid rgba(255,184,0,0.3)", borderRadius: 14, padding: "1rem 1.25rem", marginBottom: "1.5rem" }}>
+        <div style={{ background: "rgba(255,184,0,0.08)", border: "1px solid rgba(255,184,0,0.3)", borderRadius: 8, padding: "1rem 1.25rem", marginBottom: "1.5rem" }}>
           <p style={{ color: "#FFB800", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.6rem" }}>⏰ Follow-ups due ({due.length})</p>
           {due.map((r) => {
             const l = leadById[r.lead_id];
@@ -438,11 +445,11 @@ function LeadsTab({ data, dueCount, onOpen, onReminder, onRevoke }) {
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="🔍 Search name, phone, service..." style={{ ...inp, marginBottom: 0, flex: 1, minWidth: 220 }} />
         {chips.map((c) => (
-          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: filter === c.id ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: filter === c.id ? "#C20000" : "rgba(0,0,0,0.6)" }}>{c.label}</button>
+          <button key={c.id} onClick={() => setFilter(c.id)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.55rem 0.8rem", background: filter === c.id ? "#e8f0fe" : "#ffffff", borderColor: filter === c.id ? "#1a66d6" : "rgba(0,0,0,0.1)", color: filter === c.id ? "#b91c1c" : "rgba(0,0,0,0.6)" }}>{c.label}</button>
         ))}
       </div>
 
-      {live.length === 0 && <Empty>No leads here yet. When someone completes the booking form on <strong style={{ color: "#FF3838" }}>tireplugla.com</strong>, they show up here.</Empty>}
+      {live.length === 0 && <Empty>No leads here yet. When someone completes the booking form on <strong style={{ color: "#e01b22" }}>tireplugla.com</strong>, they show up here.</Empty>}
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {live.map((l) => <LeadRow key={l.id} l={l} unread={data.unreadByLead[l.id]} onClick={() => onOpen(l.id)} />)}
       </div>
@@ -465,18 +472,18 @@ function LeadRow({ l, unread, onClick }) {
   return (
     <div onClick={onClick} style={{ ...rowStyle, cursor: "pointer" }} className="adminRow">
       <div style={{ width: 90 }}>
-        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.62rem", fontWeight: 800, padding: "0.25rem 0.5rem", borderRadius: 50, whiteSpace: "nowrap" }}>{p.label}</span>
+        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.62rem", fontWeight: 800, padding: "0.25rem 0.5rem", borderRadius: 6, whiteSpace: "nowrap" }}>{p.label}</span>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: "#1a1a1a", fontWeight: 700 }}>
           {l.name || "(no name)"} <span style={{ color: "rgba(0,0,0,0.42)", fontWeight: 500, fontSize: "0.8rem" }}>· {STATUS_LABEL[l.status] || l.status}</span>
-          {fm && <span style={{ marginLeft: 6, background: `${fm.color}22`, color: fm.color, fontSize: "0.6rem", fontWeight: 800, padding: "0.12rem 0.5rem", borderRadius: 50 }}>{fm.label}</span>}
-          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#fff", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 50 }}>💬 {unread}</span>}
+          {fm && <span style={{ marginLeft: 6, background: `${fm.color}22`, color: fm.color, fontSize: "0.6rem", fontWeight: 800, padding: "0.12rem 0.5rem", borderRadius: 6 }}>{fm.label}</span>}
+          {unread > 0 && <span style={{ marginLeft: 6, background: "#FF1F1F", color: "#fff", fontSize: "0.6rem", fontWeight: 800, padding: "0.1rem 0.4rem", borderRadius: 6 }}>💬 {unread}</span>}
         </div>
         <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.service || "—"}{l.vehicle ? ` · ${l.vehicle}` : ""}</div>
       </div>
       <div style={{ textAlign: "right" }}>
-        <div style={{ color: l.channel === "instagram" ? "#E1306C" : "#FF3838", fontSize: "0.82rem", fontWeight: 700 }}>{l.channel === "instagram" ? "📸 Instagram" : (l.phone || "—")}</div>
+        <div style={{ color: l.channel === "instagram" ? "#E1306C" : "#e01b22", fontSize: "0.82rem", fontWeight: 700 }}>{l.channel === "instagram" ? "📸 Instagram" : (l.phone || "—")}</div>
         <div style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.68rem" }}>{fmtDate(l.created_at)}</div>
       </div>
       <span style={{ color: "rgba(0,0,0,0.4)", fontSize: "1.2rem" }}>›</span>
@@ -498,7 +505,7 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
     <div onClick={onClose} style={overlay}>
       <div onClick={(e) => e.stopPropagation()} style={drawer}>
         <button onClick={onClose} style={closeBtn}>✕</button>
-        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.65rem", fontWeight: 800, padding: "0.25rem 0.6rem", borderRadius: 50 }}>{p.label}</span>
+        <span style={{ background: "#ffffff", border: `1px solid ${p.color}`, color: p.color, fontSize: "0.65rem", fontWeight: 800, padding: "0.25rem 0.6rem", borderRadius: 6 }}>{p.label}</span>
         <h2 style={{ color: "#1a1a1a", fontWeight: 900, fontSize: "1.5rem", margin: "0.75rem 0 0.25rem" }}>{lead.name || "(no name)"}</h2>
         <p style={{ color: "rgba(0,0,0,0.55)", marginBottom: "1.25rem", fontSize: "0.9rem" }}>{fmtDate(lead.created_at, true)} · via {lead.source || "website"}</p>
 
@@ -512,7 +519,7 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
             {statuses.map((s) => (
               <button key={s} onClick={() => onUpdate("leads", lead.id, { status: s })}
-                style={{ ...ghostBtn, background: lead.status === s ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: lead.status === s ? "#FF1F1F" : "rgba(0,0,0,0.1)", color: lead.status === s ? "#C20000" : "rgba(0,0,0,0.6)" }}>
+                style={{ ...ghostBtn, background: lead.status === s ? "#e8f0fe" : "#ffffff", borderColor: lead.status === s ? "#1a66d6" : "rgba(0,0,0,0.1)", color: lead.status === s ? "#1a66d6" : "#374151", fontWeight: lead.status === s ? 600 : 500 }}>
                 {STATUS_LABEL[s]}
               </button>
             ))}
@@ -609,7 +616,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
               <input value={r.brand} onChange={(e) => setRow(i, "brand", e.target.value)} placeholder="Goodyear" style={miniInp} />
               <input value={r.price} onChange={(e) => setRow(i, "price", e.target.value)} placeholder="159" inputMode="decimal" style={miniInp} />
               <input value={r.qty} onChange={(e) => setRow(i, "qty", e.target.value)} inputMode="numeric" style={miniInp} />
-              <span style={{ color: "#3DD68C", fontWeight: 700, fontSize: "0.82rem" }}>${((Number(r.price) || 0) * (Number(r.qty) || 0)).toLocaleString()}</span>
+              <span style={{ color: "#15803d", fontWeight: 700, fontSize: "0.82rem" }}>${((Number(r.price) || 0) * (Number(r.qty) || 0)).toLocaleString()}</span>
               <button onClick={() => removeRow(i)} style={{ background: "none", border: "none", color: "rgba(0,0,0,0.4)", cursor: "pointer", fontSize: "1rem" }}>×</button>
             </div>
             <input value={r.warranty || ""} onChange={(e) => setRow(i, "warranty", e.target.value)} placeholder="Warranty (e.g. 60,000 mi)" style={{ ...miniInp, marginTop: "0.35rem" }} />
@@ -618,7 +625,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
         <button onClick={addRow} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}>+ Add brand</button>
-        {grand > 0 && <span style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem" }}>Top total: <strong style={{ color: "#3DD68C" }}>${grand.toLocaleString()}</strong></span>}
+        {grand > 0 && <span style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem" }}>Top total: <strong style={{ color: "#15803d" }}>${grand.toLocaleString()}</strong></span>}
       </div>
 
       {/* Optional Road Hazard Warranty add-on */}
@@ -661,7 +668,7 @@ function QuoteBuilder({ lead, auth, onUpdate, onAiDraft }) {
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={save} style={ghostBtn}>Save quote</button>
         {lead.phone && <button onClick={writeWithAi} disabled={writing || !hasQuote} style={{ ...cta, opacity: !hasQuote ? 0.4 : 1 }}>{writing ? "✨ Writing..." : "✨ Write quote text"}</button>}
-        {msg && <span style={{ color: msg.includes("AI busy") ? "#FFB800" : "#3DD68C", fontSize: "0.8rem" }}>{msg}</span>}
+        {msg && <span style={{ color: msg.includes("AI busy") ? "#FFB800" : "#15803d", fontSize: "0.8rem" }}>{msg}</span>}
       </div>
     </Section>
   );
@@ -743,7 +750,7 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", maxHeight: 260, overflowY: "auto", marginBottom: "0.75rem", padding: thread.length ? "0.25rem" : 0 }}>
             {thread.length === 0 && <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.8rem" }}>No texts yet. Send the first one below 👇</p>}
             {thread.map((m) => (
-              <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "#ffffff", color: "#1a1a1a", padding: "0.5rem 0.8rem", borderRadius: 14, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
+              <div key={m.id} style={{ alignSelf: m.direction === "outbound" ? "flex-end" : "flex-start", maxWidth: "80%", background: m.direction === "outbound" ? "linear-gradient(180deg,#C20000,#8B0000)" : "#ffffff", color: "#1a1a1a", padding: "0.5rem 0.8rem", borderRadius: 8, fontSize: "0.85rem", lineHeight: 1.4, whiteSpace: "pre-wrap" }}>
                 {m.body}
                 <div style={{ fontSize: "0.6rem", opacity: 0.6, marginTop: 3, textAlign: "right" }}>{fmtDate(m.created_at, true)}</div>
               </div>
@@ -766,7 +773,7 @@ function Conversation({ lead, auth, draft, setDraft, draftKind, setDraftKind }) 
             <button onClick={send} disabled={sending} style={cta}>{sending ? "..." : "Send"}</button>
           </div>
           {draftKind === "quote" && draft && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.68rem", marginTop: "0.35rem" }}>Sending this will start the 30min / 4hr / 12hr follow-ups (canceled if they reply).</p>}
-          {err && <p style={{ color: "#FF6666", fontSize: "0.78rem", marginTop: "0.4rem" }}>{err}</p>}
+          {err && <p style={{ color: "#b91c1c", fontSize: "0.78rem", marginTop: "0.4rem" }}>{err}</p>}
         </>
       )}
     </Section>
@@ -805,8 +812,8 @@ function RemindersBlock({ lead, reminders, onReminder }) {
       )}
       <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reminder note (optional)" style={{ ...inp, marginBottom: "0.5rem" }} />
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.5rem" }}>
-        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: kind === "followup" ? "#FF1F1F" : "rgba(0,0,0,0.1)" }}>📞 General follow-up</button>
-        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "rgba(255,31,31,0.18)" : "#ffffff", borderColor: kind === "service_ready" ? "#FF1F1F" : "rgba(0,0,0,0.1)" }}>🛞 Tires are in</button>
+        <button onClick={() => setKind("followup")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "followup" ? "#e8f0fe" : "#ffffff", borderColor: kind === "followup" ? "#1a66d6" : "rgba(0,0,0,0.1)" }}>📞 General follow-up</button>
+        <button onClick={() => setKind("service_ready")} style={{ ...ghostBtn, flex: 1, fontSize: "0.72rem", background: kind === "service_ready" ? "#e8f0fe" : "#ffffff", borderColor: kind === "service_ready" ? "#1a66d6" : "rgba(0,0,0,0.1)" }}>🛞 Tires are in</button>
       </div>
       <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
         <button onClick={() => quickAdd(1)} style={{ ...ghostBtn, fontSize: "0.72rem", padding: "0.45rem 0.7rem" }}>Tomorrow</button>
@@ -898,7 +905,7 @@ function OverviewTab({ auth }) {
       </div>
       <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
         <div style={{ color: "#111", fontWeight: 800, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.75rem" }}>🧠 CEO Agent · today's briefing</div>
-        {loading ? <Empty>Reading every department…</Empty> : err ? <p style={{ color: "#FF6666" }}>⚠ {err}</p> : (
+        {loading ? <Empty>Reading every department…</Empty> : err ? <p style={{ color: "#b91c1c" }}>⚠ {err}</p> : (
           <div style={{ color: "rgba(0,0,0,0.78)", fontSize: "0.92rem", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{d.briefing}</div>
         )}
       </div>
@@ -910,7 +917,7 @@ function OverviewTab({ auth }) {
 const WO_COLS = [
   { k: "waiting", l: "Waiting", c: "#FFB800" },
   { k: "in_bay", l: "In Bay", c: "#5BC8FF" },
-  { k: "done", l: "Done", c: "#3DD68C" },
+  { k: "done", l: "Done", c: "#15803d" },
 ];
 function woMins(iso) {
   if (!iso) return "";
@@ -919,7 +926,7 @@ function woMins(iso) {
   return `${Math.floor(m / 60)}h ${m % 60}m`;
 }
 function ShopFloorTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1f2937", height: 32, padding: "0 0.75rem", fontSize: 13, fontWeight: 500, border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -957,7 +964,7 @@ function ShopFloorTab({ auth }) {
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
         <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-          {["all", "Olympic"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{l === "all" ? "All" : l}</button>)}
+          {["all", "Olympic"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{l === "all" ? "All" : l}</button>)}
         </div>
         <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
           <span style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem" }}>auto-refreshes</span>
@@ -966,7 +973,7 @@ function ShopFloorTab({ auth }) {
       </div>
 
       {showNew && (
-        <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.1rem", marginBottom: "1.25rem" }}>
+        <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "1.1rem", marginBottom: "1.25rem" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
             <input style={inp} placeholder="Customer name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
             <input style={inp} placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -979,7 +986,7 @@ function ShopFloorTab({ auth }) {
         </div>
       )}
 
-      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {err && <p style={{ color: "#b91c1c" }}>⚠ {err}</p>}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
         {WO_COLS.map((col) => {
@@ -1068,7 +1075,7 @@ function StaffTab({ auth }) {
   }
 
   if (loading) return <Empty>Loading staff…</Empty>;
-  if (err) return <p style={{ color: "#FF6666" }}>⚠ {err}</p>;
+  if (err) return <p style={{ color: "#b91c1c" }}>⚠ {err}</p>;
 
   const list = staff || [];
   const activeList = list.filter((s) => s.active);
@@ -1078,18 +1085,18 @@ function StaffTab({ auth }) {
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
         <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>
-          👥 {activeList.length} active · <span style={{ color: "#3DD68C" }}>{activeList.filter((s) => s.clocked_in).length} on the clock</span>
+          👥 {activeList.length} active · <span style={{ color: "#15803d" }}>{activeList.filter((s) => s.clocked_in).length} on the clock</span>
         </span>
         {!editing && (
           <button onClick={() => setEditing({ active: true, location: "Olympic", pay_type: "hourly_commission" })} style={cta}>+ Add staff</button>
         )}
       </div>
       <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.75rem", marginBottom: "1.25rem" }}>
-        Clock-in kiosk for the shop tablet: <span style={{ color: "#FF6666" }}>tireplugla.com/clock</span> — staff punch in/out with their PIN.
+        Clock-in kiosk for the shop tablet: <span style={{ color: "#b91c1c" }}>tireplugla.com/clock</span> — staff punch in/out with their PIN.
       </p>
 
       {editing && (
-        <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+        <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "1.25rem", marginBottom: "1.5rem" }}>
           <h2 style={subHead}>{editing.id ? "Edit" : "New"} staff member</h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
             <StaffField label="Name"><input style={inp} value={editing.name || ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></StaffField>
@@ -1142,7 +1149,7 @@ function StaffRow({ s, onEdit, onToggle }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: "#1a1a1a", fontWeight: 700 }}>
           {s.name} <span style={{ color: "rgba(0,0,0,0.42)", fontWeight: 500, fontSize: "0.8rem" }}>{s.role || ""}</span>
-          {s.clocked_in && <span style={{ marginLeft: 8, color: "#3DD68C", fontSize: "0.7rem", fontWeight: 700 }}>● on the clock</span>}
+          {s.clocked_in && <span style={{ marginLeft: 8, color: "#15803d", fontSize: "0.7rem", fontWeight: 700 }}>● on the clock</span>}
         </div>
         <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>
           {s.location || "—"} · ${Number(s.hourly_rate || 0)}/hr{s.commission_note ? ` · ${s.commission_note}` : ""}
@@ -1165,7 +1172,7 @@ function mondayOf(date) {
   x.setDate(x.getDate() - off); x.setHours(0, 0, 0, 0); return x;
 }
 function ScheduleTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1f2937", height: 32, padding: "0 0.75rem", fontSize: 13, fontWeight: 500, border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
   const [weekStart, setWeekStart] = useState(() => mondayOf(new Date()));
   const [shifts, setShifts] = useState([]);
   const [staff, setStaff] = useState([]);
@@ -1220,7 +1227,7 @@ function ScheduleTab({ auth }) {
         <p style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem", margin: 0 }}>📲 Auto-texts each tech their shift each morning.</p>
       </div>
 
-      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {err && <p style={{ color: "#b91c1c" }}>⚠ {err}</p>}
       {loading ? <Empty>Loading schedule…</Empty> : staff.length === 0 ? <Empty>Add staff in the 👥 Staff tab first.</Empty> : (
         <div style={{ display: "grid", gap: "0.6rem" }}>
           {days.map((d, i) => {
@@ -1228,9 +1235,9 @@ function ScheduleTab({ auth }) {
             const dayShifts = byDate[ds] || [];
             const isToday = ds === todayStr;
             return (
-              <div key={ds} style={{ background: "#ffffff", border: `1px solid ${isToday ? "rgba(255,31,31,0.35)" : "rgba(0,0,0,0.08)"}`, borderRadius: 12, padding: "0.85rem 1rem" }}>
+              <div key={ds} style={{ background: "#ffffff", border: `1px solid ${isToday ? "#1a66d6" : "rgba(0,0,0,0.08)"}`, borderRadius: 12, padding: "0.85rem 1rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: dayShifts.length || adding === ds ? "0.6rem" : 0 }}>
-                  <span style={{ color: isToday ? "#C20000" : "#1a1a1a", fontWeight: 800, fontSize: "0.85rem" }}>
+                  <span style={{ color: isToday ? "#b91c1c" : "#1a1a1a", fontWeight: 800, fontSize: "0.85rem" }}>
                     {dayNames[i]} {d.toLocaleDateString([], { month: "short", day: "numeric" })}{isToday ? " · today" : ""}
                   </span>
                   <button onClick={() => { setAdding(adding === ds ? null : ds); setForm((f) => ({ ...f, staff_id: "" })); }} style={chip}>{adding === ds ? "✕" : "＋ shift"}</button>
@@ -1240,7 +1247,7 @@ function ScheduleTab({ auth }) {
                   <div key={s.id} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.35rem 0" }}>
                     <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>
                       {nameById[s.staff_id] || "—"} <span style={{ color: "rgba(0,0,0,0.55)", fontWeight: 400 }}>{[s.start_time, s.end_time].filter(Boolean).join("–")}{s.location ? ` · ${s.location}` : ""}</span>
-                      {s.reminded_at && <span style={{ color: "#3DD68C", fontSize: "0.65rem", marginLeft: 6 }}>texted ✓</span>}
+                      {s.reminded_at && <span style={{ color: "#15803d", fontSize: "0.65rem", marginLeft: 6 }}>texted ✓</span>}
                     </span>
                     <button onClick={() => del(s.id)} style={{ ...ghostBtn, padding: "0.25rem 0.55rem", fontSize: "0.7rem" }}>✕</button>
                   </div>
@@ -1272,14 +1279,14 @@ function ScheduleTab({ auth }) {
 /* ---------------- CUSTOMERS (reactivation engine) ---------------- */
 const CUST_SEGS = [
   { k: "all", l: "All" },
-  { k: "due_tires", l: "🛞 Due for tires" },
-  { k: "lapsed", l: "👋 Lapsed 12mo+" },
-  { k: "recent", l: "⭐ Recent" },
-  { k: "vip", l: "👑 VIP" },
-  { k: "commercial", l: "🏢 Commercial" },
+  { k: "due_tires", l: "Due for tires" },
+  { k: "lapsed", l: "Lapsed 12mo+" },
+  { k: "recent", l: "Recent" },
+  { k: "vip", l: "VIP" },
+  { k: "commercial", l: "Commercial" },
 ];
 function CustomersTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1f2937", height: 32, padding: "0 0.75rem", fontSize: 13, fontWeight: 500, border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -1334,10 +1341,10 @@ function CustomersTab({ auth }) {
       <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
         <p style={{ color: "rgba(0,0,0,0.6)", marginBottom: "1.25rem" }}>No customer list yet. Build it from your TireBase order history.</p>
         <div style={{ display: "flex", gap: "0.4rem", justifyContent: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
-          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, ...(months === m ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{m} mo</button>)}
+          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, ...(months === m ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{m} mo</button>)}
         </div>
         <button onClick={sync} disabled={syncing} style={{ ...cta, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing… (may take a minute)" : `Sync ${months} months from TireBase`}</button>
-        {err && <p style={{ color: "#FF6666", marginTop: "1rem" }}>⚠ {err}</p>}
+        {err && <p style={{ color: "#b91c1c", marginTop: "1rem" }}>⚠ {err}</p>}
       </div>
     );
   }
@@ -1348,17 +1355,20 @@ function CustomersTab({ auth }) {
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-        <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.8rem" }}>📇 {d.counts.all} customers · avg ticket {money(d.avgTicket)}</span>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600, color: T.text, letterSpacing: "-0.01em" }}>Customers</h1>
+          <div style={{ color: T.textMuted, fontSize: 13, marginTop: 2 }}>{d.counts.all} customers from TireBase · avg ticket {money(d.avgTicket)}</div>
+        </div>
         <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", flexWrap: "wrap" }}>
-          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, padding: "0.3rem 0.55rem", ...(months === m ? { background: "rgba(0,0,0,0.18)" } : {}) }}>{m}mo</button>)}
-          <button onClick={sync} disabled={syncing} style={{ ...ghostBtn, opacity: syncing ? 0.6 : 1 }}>{syncing ? "Syncing…" : "↻ Re-sync"}</button>
+          {[12, 24, 36, 48].map((m) => <button key={m} onClick={() => setMonths(m)} style={{ ...chip, padding: "0.3rem 0.55rem", ...(months === m ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{m}mo</button>)}
+          <button onClick={sync} disabled={syncing} style={{ ...ghostBtn, opacity: syncing ? 0.6 : 1 }}><Icon name="sync" size={18} />{syncing ? "Syncing…" : "Re-sync"}</button>
         </div>
       </div>
 
       {/* Due-for-tires potential */}
-      <div style={{ background: "rgba(255,42,42,0.08)", border: "1px solid rgba(255,42,42,0.3)", borderRadius: 16, padding: "1.1rem 1.4rem", marginBottom: "1.25rem" }}>
-        <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>🛞 Due for tires (3+ yrs since last set)</div>
-        <div style={{ color: "#FF6B6B", fontWeight: 900, fontSize: "1.7rem", lineHeight: 1.1 }}>{d.counts.due_tires || 0} customers · ~{money(d.duePotential)} potential</div>
+      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderLeft: `4px solid ${T.green}`, borderRadius: 0, padding: "1rem 1.25rem", marginBottom: "1.25rem" }}>
+        <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>Due for tires (3+ years since their last set)</div>
+        <div style={{ color: T.green, fontWeight: 600, fontSize: 24, lineHeight: 1.2, marginTop: 2 }}>{d.counts.due_tires || 0} customers · ~{money(d.duePotential)} potential</div>
         <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginTop: "0.25rem" }}>estimate = due customers × avg ticket · call list ready below</div>
       </div>
 
@@ -1373,19 +1383,19 @@ function CustomersTab({ auth }) {
       {/* Segment chips */}
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         {CUST_SEGS.map((s) => (
-          <button key={s.k} onClick={() => setSeg(s.k)} style={{ ...chip, ...(seg === s.k ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>
+          <button key={s.k} onClick={() => setSeg(s.k)} style={{ ...chip, ...(seg === s.k ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>
             {s.l} <span style={{ opacity: 0.6 }}>{s.k === "all" ? d.counts.all : (d.counts[s.k] || 0)}</span>
           </button>
         ))}
-        <button onClick={() => copyNumbers(list)} style={{ ...chip, marginLeft: "auto" }}>📋 Copy {list.length} numbers</button>
+        <button onClick={() => copyNumbers(list)} style={{ ...chip, marginLeft: "auto" }}><Icon name="content_copy" size={16} style={{ marginRight: 4 }} />Copy {list.length} numbers</button>
       </div>
 
       <div style={{ marginBottom: "1.25rem" }}>
-        <button onClick={() => setShowCampaign((s) => !s)} style={cta}>📣 {showCampaign ? "Close campaign" : `Send a campaign to ${CUST_SEGS.find((s) => s.k === seg)?.l || seg}`}</button>
+        <button onClick={() => setShowCampaign((s) => !s)} style={cta}><Icon name="campaign" size={18} />{showCampaign ? "Close campaign" : `Send a campaign to ${CUST_SEGS.find((s) => s.k === seg)?.l || seg}`}</button>
       </div>
       {showCampaign && <CampaignPanel auth={auth} segment={seg} label={CUST_SEGS.find((s) => s.k === seg)?.l || seg} />}
 
-      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {err && <p style={{ color: "#b91c1c" }}>⚠ {err}</p>}
 
       <div style={{ display: "grid", gap: "0.4rem" }}>
         {shown.map((c) => (
@@ -1393,7 +1403,7 @@ function CustomersTab({ auth }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.86rem" }}>
                 {c.name} {c.is_commercial && <span style={{ color: "#5BC8FF", fontSize: "0.7rem" }}>🏢</span>}
-                {c.sms_opt_in && <span style={{ color: "#3DD68C", fontSize: "0.65rem", marginLeft: 4 }}>opt-in✓</span>}
+                {c.sms_opt_in && <span style={{ color: "#15803d", fontSize: "0.65rem", marginLeft: 4 }}>texts OK</span>}
               </div>
               <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.75rem" }}>
                 {c.phone || "no phone"} · {money(c.total_spent)} lifetime · {c.order_count} orders
@@ -1444,16 +1454,16 @@ function CampaignPanel({ auth, segment, label }) {
 
   const n = recip ? recip.reachable : 0;
   return (
-    <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.25rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "1.25rem", marginBottom: "1.25rem" }}>
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.75rem" }}>
         {["sms", "email"].map((ch) => (
-          <button key={ch} onClick={() => setChannel(ch)} style={{ background: channel === ch ? "#FF1F1F" : "#ffffff", color: "#1a1a1a", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, padding: "0.4rem 0.9rem", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", fontFamily: "inherit" }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>
+          <button key={ch} onClick={() => setChannel(ch)} style={{ background: channel === ch ? "#e8f0fe" : "#ffffff", color: "#1a1a1a", border: "1px solid rgba(0,0,0,0.12)", borderRadius: 6, padding: "0.4rem 0.9rem", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", fontFamily: "inherit" }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>
         ))}
       </div>
 
       <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginBottom: "0.5rem" }}>
         <strong style={{ color: "#1a1a1a" }}>{label}</strong>: {recip ? `${recip.total} customers · ` : ""}
-        <strong style={{ color: n ? "#3DD68C" : "#FF6666" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
+        <strong style={{ color: n ? "#15803d" : "#b91c1c" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
       </p>
       {channel === "sms" && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>SMS sends only to opted-in customers. Delivery requires your A2P campaign to be approved.</p>}
       {channel === "email" && <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", marginBottom: "0.75rem" }}>Email sends to customers with an address on file (most TireBase customers have none yet).</p>}
@@ -1465,10 +1475,10 @@ function CampaignPanel({ auth, segment, label }) {
         {!confirm ? (
           <button onClick={() => setConfirm(true)} disabled={!body.trim() || !n} style={{ ...cta, opacity: !body.trim() || !n ? 0.5 : 1 }}>Send…</button>
         ) : (
-          <button onClick={send} disabled={busy === "send"} style={{ ...cta, background: "#C20000" }}>{busy === "send" ? "Sending…" : `Confirm — send to ${n}`}</button>
+          <button onClick={send} disabled={busy === "send"} style={{ ...cta, background: "#b91c1c" }}>{busy === "send" ? "Sending…" : `Confirm — send to ${n}`}</button>
         )}
       </div>
-      {result && <p style={{ color: "#3DD68C", marginTop: "0.75rem", fontWeight: 700 }}>{result}</p>}
+      {result && <p style={{ color: "#15803d", marginTop: "0.75rem", fontWeight: 700 }}>{result}</p>}
     </div>
   );
 }
@@ -1485,7 +1495,7 @@ function ReviewsTab({ auth }) {
   if (!loaded) return <Empty>Loading…</Empty>;
   return (
     <>
-      <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
+      <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, padding: "1.1rem 1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={subHead}>Links</h2>
         <div style={{ color: "rgba(0,0,0,0.5)", fontSize: "0.7rem", marginBottom: "0.25rem" }}>GOOGLE REVIEW LINK — OLYMPIC (DOWNTOWN)</div>
         <input style={inp} placeholder="Olympic shop Google review link" value={s.review_url_olympic || ""} onChange={(e) => setS({ ...s, review_url_olympic: e.target.value })} />
@@ -1493,12 +1503,12 @@ function ReviewsTab({ auth }) {
         <input style={inp} placeholder="https://tireplugla.com/book" value={s.booking_url} onChange={(e) => setS({ ...s, booking_url: e.target.value })} />
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem" }}>
           <button onClick={save} style={cta}>Save links</button>
-          {saved && <span style={{ color: "#3DD68C", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}
+          {saved && <span style={{ color: "#15803d", fontSize: "0.82rem", fontWeight: 700 }}>{saved}</span>}
         </div>
         {!s.review_url_olympic && <p style={{ color: "#FFB800", fontSize: "0.75rem", marginTop: "0.5rem" }}>⚠ Add your Google review link so review requests include it. (Find it in your shop's Google Business profile → Ask for reviews.)</p>}
       </div>
 
-      <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 14, padding: "1.1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+      <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, padding: "1.1rem 1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
         <div>
           <div style={{ color: "#111", fontWeight: 800, fontSize: "0.95rem" }}>🤖 Auto-ask for reviews (daily)</div>
           <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.82rem", marginTop: "0.2rem", maxWidth: 580 }}>Each morning, automatically asks recent customers (not already asked) for a Google review — texts opted-in customers, emails those with an address. Needs your review link above; SMS delivers once your A2P campaign is approved.</div>
@@ -1515,7 +1525,7 @@ function ReviewsTab({ auth }) {
   );
 }
 function ReviewSend({ auth, mode }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.4rem 0.8rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.4rem 0.8rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
   const [channel, setChannel] = useState("email");
   const [segment, setSegment] = useState("all");
   const [recip, setRecip] = useState(null);
@@ -1533,9 +1543,9 @@ function ReviewSend({ auth, mode }) {
   const n = recip ? recip.reachable : 0;
 
   return (
-    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1.1rem 1.25rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8, padding: "1.1rem 1.25rem" }}>
       <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>
-        {["email", "sms"].map((ch) => <button key={ch} onClick={() => setChannel(ch)} style={{ ...chip, ...(channel === ch ? { background: "#FF1F1F", borderColor: "#FF1F1F" } : {}) }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>)}
+        {["email", "sms"].map((ch) => <button key={ch} onClick={() => setChannel(ch)} style={{ ...chip, ...(channel === ch ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{ch === "sms" ? "📲 SMS" : "✉️ Email"}</button>)}
         {mode === "referral" && (
           <select style={{ ...inp, marginBottom: 0, width: 150, padding: "0.4rem 0.7rem" }} value={segment} onChange={(e) => setSegment(e.target.value)}>
             <option value="all">All customers</option><option value="vip">VIP</option><option value="lapsed">Lapsed</option><option value="commercial">Commercial</option>
@@ -1543,7 +1553,7 @@ function ReviewSend({ auth, mode }) {
         )}
       </div>
       <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.8rem", marginBottom: "0.6rem" }}>
-        {mode === "review" ? "Recent customers not yet asked" : "Recipients"}: {recip ? `${recip.total} · ` : ""}<strong style={{ color: n ? "#3DD68C" : "#FF6666" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
+        {mode === "review" ? "Recent customers not yet asked" : "Recipients"}: {recip ? `${recip.total} · ` : ""}<strong style={{ color: n ? "#15803d" : "#b91c1c" }}>{n} reachable by {channel === "sms" ? "text" : "email"}</strong>
         {channel === "sms" ? " — opted-in only, needs A2P approval" : ""}
       </p>
       {channel === "email" && <input style={inp} placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} />}
@@ -1551,9 +1561,9 @@ function ReviewSend({ auth, mode }) {
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         <button onClick={draft} disabled={busy === "draft"} style={ghostBtn}>{busy === "draft" ? "Writing…" : "🤖 Draft with AI"}</button>
         {!confirm ? <button onClick={() => setConfirm(true)} disabled={!body.trim() || !n} style={{ ...cta, opacity: !body.trim() || !n ? 0.5 : 1 }}>Send…</button>
-          : <button onClick={send} disabled={busy === "send"} style={{ ...cta, background: "#C20000" }}>{busy === "send" ? "Sending…" : `Confirm — send to ${n}`}</button>}
+          : <button onClick={send} disabled={busy === "send"} style={{ ...cta, background: "#b91c1c" }}>{busy === "send" ? "Sending…" : `Confirm — send to ${n}`}</button>}
       </div>
-      {result && <p style={{ color: "#3DD68C", marginTop: "0.6rem", fontWeight: 700 }}>{result}</p>}
+      {result && <p style={{ color: "#15803d", marginTop: "0.6rem", fontWeight: 700 }}>{result}</p>}
     </div>
   );
 }
@@ -1867,7 +1877,7 @@ function PnlTab({ auth }) {
 
 /* ---------------- PAYROLL + PERFORMANCE (Phase 5) ---------------- */
 function PayrollTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1f2937", height: 32, padding: "0 0.75rem", fontSize: 13, fontWeight: 500, border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
   function presetWeek() { const n = new Date(); return { key: "week", from: ymd(mondayOf(n)), to: ymd(n) }; }
   function presetLastWeek() { const m = mondayOf(new Date()); m.setDate(m.getDate() - 7); const e = new Date(m); e.setDate(e.getDate() + 6); return { key: "lastweek", from: ymd(m), to: ymd(e) }; }
   function presetMonth() { const n = new Date(); return { key: "month", from: ymd(new Date(n.getFullYear(), n.getMonth(), 1)), to: ymd(n) }; }
@@ -1906,11 +1916,11 @@ function PayrollTab({ auth }) {
   return (
     <>
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{x.l}</button>; })}
+        {presets.map((x) => { const r = x.p(); return <button key={x.l} onClick={() => setRange(r)} style={{ ...chip, ...(range.key === r.key ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{x.l}</button>; })}
         <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.78rem", marginLeft: "0.4rem" }}>{range.from} → {range.to}</span>
       </div>
 
-      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {err && <p style={{ color: "#b91c1c" }}>⚠ {err}</p>}
       {loading ? <Empty>Crunching the numbers…</Empty> : (
         <>
           <div style={{ background: "rgba(139,124,246,0.1)", border: "1px solid rgba(139,124,246,0.3)", borderRadius: 16, padding: "1.1rem 1.4rem", marginBottom: "1.5rem" }}>
@@ -1922,7 +1932,7 @@ function PayrollTab({ auth }) {
           {rows.length === 0 ? <Empty>No active staff.</Empty> : (
             <div style={{ display: "grid", gap: "0.75rem" }}>
               {rows.map((r) => (
-                <div key={r.staff_id} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "1rem 1.15rem" }}>
+                <div key={r.staff_id} style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8, padding: "1rem 1.15rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", flexWrap: "wrap" }}>
                     <div>
                       <div style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "1rem" }}>{r.name}</div>
@@ -1933,7 +1943,7 @@ function PayrollTab({ auth }) {
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ color: "#3DD68C", fontWeight: 900, fontSize: "1.3rem", lineHeight: 1 }}>${(r.total_pay || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                      <div style={{ color: "#15803d", fontWeight: 900, fontSize: "1.3rem", lineHeight: 1 }}>${(r.total_pay || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                       <div style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.7rem" }}>total pay</div>
                     </div>
                   </div>
@@ -1975,7 +1985,7 @@ const SERVICE_TYPES = [
   { key: "other", label: "Other", emoji: "➕" },
 ];
 function WorkLogTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1a1a1a", padding: "0.45rem 0.7rem", fontSize: "0.78rem", fontWeight: 700, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 50, cursor: "pointer", fontFamily: "inherit" };
+  const chip = { background: "#ffffff", color: "#1f2937", height: 32, padding: "0 0.75rem", fontSize: 13, fontWeight: 500, border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
   const [entries, setEntries] = useState([]);
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -2025,7 +2035,7 @@ function WorkLogTab({ auth }) {
 
   return (
     <>
-      <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.2)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+      <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "1.25rem", marginBottom: "1.5rem" }}>
         <h2 style={subHead}>Log work</h2>
         {staff.length === 0 ? (
           <p style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.85rem" }}>Add staff in the 👥 Staff tab first.</p>
@@ -2038,7 +2048,7 @@ function WorkLogTab({ auth }) {
             <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", margin: "0.25rem 0 0.75rem" }}>
               {SERVICE_TYPES.map((t) => {
                 const on = form.service_type === t.key;
-                return <button key={t.key} onClick={() => setForm({ ...form, service_type: t.key })} style={{ ...chip, ...(on ? { background: "#FF1F1F", borderColor: "#FF1F1F", color: "#1a1a1a" } : {}) }}>{t.emoji} {t.label}</button>;
+                return <button key={t.key} onClick={() => setForm({ ...form, service_type: t.key })} style={{ ...chip, ...(on ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{t.emoji} {t.label}</button>;
               })}
             </div>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
@@ -2053,11 +2063,11 @@ function WorkLogTab({ auth }) {
 
       <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1rem" }}>
         {[{ d: 0, l: "Today" }, { d: 7, l: "7 days" }, { d: 30, l: "30 days" }].map((r) => (
-          <button key={r.d} onClick={() => changeRange(r.d)} style={{ ...chip, ...(days === r.d ? { background: "#1a1a1a", color: "#fff", borderColor: "#1a1a1a" } : {}) }}>{r.l}</button>
+          <button key={r.d} onClick={() => changeRange(r.d)} style={{ ...chip, ...(days === r.d ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{r.l}</button>
         ))}
       </div>
 
-      {err && <p style={{ color: "#FF6666" }}>⚠ {err}</p>}
+      {err && <p style={{ color: "#b91c1c" }}>⚠ {err}</p>}
 
       <h2 style={subHead}>Per rep ({days === 0 ? "today" : `last ${days} days`})</h2>
       {summaryRows.length === 0 ? <Empty>Nothing logged yet.</Empty> : (
@@ -2068,7 +2078,7 @@ function WorkLogTab({ auth }) {
               <span style={{ flex: 1, color: "rgba(0,0,0,0.62)", fontSize: "0.85rem" }}>
                 {SERVICE_TYPES.filter((t) => m.counts[t.key]).map((t) => `${t.emoji} ${m.counts[t.key]}`).join("   ") || "—"}
               </span>
-              {m.amount > 0 && <span style={{ color: "#3DD68C", fontWeight: 700 }}>${m.amount.toLocaleString()}</span>}
+              {m.amount > 0 && <span style={{ color: "#15803d", fontWeight: 700 }}>${m.amount.toLocaleString()}</span>}
             </div>
           ))}
         </div>
@@ -2083,7 +2093,7 @@ function WorkLogTab({ auth }) {
               <div key={e.id} style={{ ...rowStyle, padding: "0.6rem 1rem", gap: "0.75rem" }}>
                 <span style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.72rem", width: 56 }}>{new Date(e.logged_at).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
                 <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.85rem", flex: 1 }}>{nameById[e.staff_id] || "Unassigned"} · {t ? `${t.emoji} ${t.label}` : e.service_type} ×{e.qty}{e.note ? ` — ${e.note}` : ""}</span>
-                {e.amount ? <span style={{ color: "#3DD68C", fontSize: "0.8rem" }}>${Number(e.amount).toLocaleString()}</span> : null}
+                {e.amount ? <span style={{ color: "#15803d", fontSize: "0.8rem" }}>${Number(e.amount).toLocaleString()}</span> : null}
                 <button onClick={() => del(e.id)} style={{ ...ghostBtn, padding: "0.3rem 0.6rem", fontSize: "0.7rem" }}>✕</button>
               </div>
             );
@@ -2177,7 +2187,7 @@ function LessonViewer({ module, passed, onTakeQuiz, onComplete, onUndo }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 4, marginBottom: "0.7rem" }}>
-        {slides.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= idx ? "#FF1F1F" : "rgba(0,0,0,0.1)", transition: "background 0.3s" }} />)}
+        {slides.map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= idx ? "#1a66d6" : "rgba(0,0,0,0.1)", transition: "background 0.3s" }} />)}
       </div>
       <div style={{ fontSize: "0.9rem", minHeight: 110, marginBottom: "0.85rem" }}><MD text={slides[idx]} /></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
@@ -2296,8 +2306,8 @@ function TrainingTab({ auth }) {
                 return (
                   <div key={m.id} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem", opacity: locked ? 0.5 : 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#3DD68C" : "rgba(0,0,0,0.2)"}`, background: pr && pr.passed ? "#3DD68C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{locked ? "🔒" : pr && pr.passed ? "✓" : ""}</span>
-                      <span onClick={() => !locked && openModule(m.id)} style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.9rem", cursor: locked ? "default" : "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#3DD68C" : "rgba(0,0,0,0.45)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
+                      <span style={{ width: 22, height: 22, borderRadius: 6, border: `1px solid ${pr && pr.passed ? "#15803d" : "rgba(0,0,0,0.2)"}`, background: pr && pr.passed ? "#15803d" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: "0.8rem", flexShrink: 0 }}>{locked ? "🔒" : pr && pr.passed ? "✓" : ""}</span>
+                      <span onClick={() => !locked && openModule(m.id)} style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.9rem", cursor: locked ? "default" : "pointer", flex: 1 }}>{m.title} <span style={{ color: pr && pr.passed ? "#15803d" : "rgba(0,0,0,0.45)", fontWeight: 500, fontSize: "0.78rem" }}>· {status}</span></span>
                       {isOwner && <button onClick={() => setEditing(m)} style={{ ...ghostBtn, fontSize: "0.68rem", padding: "0.3rem 0.6rem" }}>Edit</button>}
                       {isOwner && <button onClick={() => delModule(m.id)} style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.85rem" }}>✕</button>}
                       {!locked && <span onClick={() => openModule(m.id)} style={{ color: "rgba(0,0,0,0.4)", cursor: "pointer" }}>{openId === m.id ? "▲" : "▼"}</span>}
@@ -2354,13 +2364,13 @@ function QuizRunner({ auth, moduleId, startedAt, onDone }) {
   if (result) {
     return (
       <div>
-        <div style={{ color: result.passed ? "#3DD68C" : "#FF6666", fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+        <div style={{ color: result.passed ? "#15803d" : "#b91c1c", fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
           {result.passed ? "✓ Passed" : "✗ Not passed"} — {result.score}% ({result.correct}/{result.total})
         </div>
         {!result.passed && <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "0.82rem", marginBottom: "0.6rem" }}>You need {result.pass}% to pass. Review the guide and retake.</p>}
         {questions.map((q, i) => (
           <div key={i} style={{ marginBottom: "0.45rem", fontSize: "0.82rem" }}>
-            <div style={{ color: result.results[i].correct ? "#3DD68C" : "#FF6666" }}>{result.results[i].correct ? "✓" : "✗"} {q.q}</div>
+            <div style={{ color: result.results[i].correct ? "#15803d" : "#b91c1c" }}>{result.results[i].correct ? "✓" : "✗"} {q.q}</div>
             {!result.results[i].correct && <div style={{ color: "rgba(0,0,0,0.6)", paddingLeft: "1.1rem" }}>Correct answer: {q.options[result.results[i].correctIndex]}</div>}
           </div>
         ))}
@@ -2382,7 +2392,7 @@ function QuizRunner({ auth, moduleId, startedAt, onDone }) {
           ))}
         </div>
       ))}
-      {err && <p style={{ color: "#FF6666", fontSize: "0.8rem", marginBottom: "0.4rem" }}>{err}</p>}
+      {err && <p style={{ color: "#b91c1c", fontSize: "0.8rem", marginBottom: "0.4rem" }}>{err}</p>}
       <button onClick={submit} disabled={submitting} style={cta}>{submitting ? "Grading…" : "Submit quiz"}</button>
     </div>
   );
@@ -2420,10 +2430,10 @@ function ReportCard({ auth, onClose }) {
               <div key={email} style={{ ...rowStyle, flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
                   <span style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.88rem" }}>{email}</span>
-                  <span style={{ color: pct >= 100 ? "#3DD68C" : "rgba(0,0,0,0.62)", fontSize: "0.8rem" }}>{passed}/{total} passed · {avg}% avg · {mins}m total</span>
+                  <span style={{ color: pct >= 100 ? "#15803d" : "rgba(0,0,0,0.62)", fontSize: "0.8rem" }}>{passed}/{total} passed · {avg}% avg · {mins}m total</span>
                 </div>
                 <div style={{ height: 6, background: "#ffffff", borderRadius: 4, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${pct}%`, background: pct >= 100 ? "#3DD68C" : "#8B7CF6" }} />
+                  <div style={{ height: "100%", width: `${pct}%`, background: pct >= 100 ? "#15803d" : "#8B7CF6" }} />
                 </div>
               </div>
             );
@@ -2469,7 +2479,7 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
   const qCountActual = quiz && quiz.questions ? quiz.questions.length : 0;
 
   return (
-    <div style={{ background: "#ffffff", border: "1px solid rgba(255,31,31,0.25)", borderRadius: 14, padding: "1.25rem", marginBottom: "1.5rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "1.25rem", marginBottom: "1.5rem" }}>
       <label style={fieldLabel}>Category</label>
       <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...inp, appearance: "auto" }}>
         {TRAIN_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -2489,11 +2499,11 @@ function ModuleEditor({ auth, module, onSave, onCancel }) {
           <span style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}># questions (5–15):</span>
           <input type="number" min={5} max={15} value={qCount} onChange={(e) => setQCount(Math.min(15, Math.max(5, Number(e.target.value) || 5)))} style={{ ...inp, marginBottom: 0, width: 70, padding: "0.5rem" }} />
           <button onClick={genQuiz} disabled={genning} style={{ ...ghostBtn, borderColor: "rgba(139,124,246,0.4)", color: "#A99CF8" }}>{genning ? "✨ Building quiz…" : "✨ Generate quiz"}</button>
-          {qErr && <span style={{ color: "#FF6666", fontSize: "0.78rem" }}>{qErr}</span>}
+          {qErr && <span style={{ color: "#b91c1c", fontSize: "0.78rem" }}>{qErr}</span>}
         </div>
         {quiz && quiz.questions && quiz.questions.map((q, i) => (
           <div key={i} style={{ fontSize: "0.78rem", marginBottom: "0.4rem", color: "rgba(0,0,0,0.6)" }}>
-            <span style={{ color: "rgba(0,0,0,0.7)" }}>{i + 1}. {q.q}</span> <span style={{ color: "#3DD68C" }}>→ {q.options[q.answer]}</span>
+            <span style={{ color: "rgba(0,0,0,0.7)" }}>{i + 1}. {q.q}</span> <span style={{ color: "#15803d" }}>→ {q.options[q.answer]}</span>
           </div>
         ))}
       </div>
@@ -2520,7 +2530,7 @@ function HiringTab() {
 function Section({ title, children }) {
   return (
     <div style={{ marginBottom: "1.5rem" }}>
-      <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.75rem" }}>{title}</p>
+      <p style={{ color: "#374151", fontSize: 13, fontWeight: 600, marginBottom: "0.6rem" }}>{title}</p>
       {children}
     </div>
   );
@@ -2569,16 +2579,16 @@ function dueLabel(s) {
 function ActiveBoard({ team, me, onRevoke }) {
   if (!team || team.length === 0) return null;
   return (
-    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, padding: "0.9rem 1.25rem", marginBottom: "1.5rem" }}>
+    <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8, padding: "0.9rem 1.25rem", marginBottom: "1.5rem" }}>
       <p style={{ color: "rgba(0,0,0,0.45)", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.7rem" }}>Recently Active</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
         {team.map((m) => {
           const online = isOnline(m.last_active);
           return (
-            <div key={m.email} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#ffffff", border: "1px solid #ffffff", borderRadius: 50, padding: "0.35rem 0.8rem" }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: online ? "#3DD68C" : "rgba(0,0,0,0.2)", boxShadow: online ? "0 0 8px #3DD68C" : "none", flexShrink: 0 }} />
+            <div key={m.email} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#ffffff", border: "1px solid #ffffff", borderRadius: 6, padding: "0.35rem 0.8rem" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: online ? "#15803d" : "rgba(0,0,0,0.2)", boxShadow: online ? "0 0 8px #3DD68C" : "none", flexShrink: 0 }} />
               <span style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.82rem" }}>{m.name || m.email}{m.is_owner ? " 👑" : ""}</span>
-              <span style={{ color: online ? "#3DD68C" : "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>{agoLabel(m.last_active)}</span>
+              <span style={{ color: online ? "#15803d" : "rgba(0,0,0,0.45)", fontSize: "0.72rem" }}>{agoLabel(m.last_active)}</span>
               {me && me.isOwner && !m.is_owner && (
                 <button onClick={() => onRevoke(m.email, "revoke")} title="Log out / revoke access" style={{ background: "none", border: "none", color: "rgba(255,100,100,0.6)", cursor: "pointer", fontSize: "0.8rem", padding: 0, lineHeight: 1 }}>✕</button>
               )}
@@ -2627,7 +2637,14 @@ function Shell({ children, title }) {
       </Head>
       <div className="tp-admin" style={{ background: T.page, minHeight: "100vh", color: T.text }}>
         {children}
-        <style jsx global>{`
+        <style dangerouslySetInnerHTML={{ __html: ADMIN_CSS }} />
+      </div>
+    </>
+  );
+}
+
+// Plain <style> (not styled-jsx, which drops the [style*=...] attribute rules below).
+const ADMIN_CSS = `
           .tp-admin, .tp-admin button, .tp-admin input, .tp-admin select, .tp-admin textarea {
             font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif !important;
           }
@@ -2663,11 +2680,7 @@ function Shell({ children, title }) {
             .tp-admin main { padding: 16px !important; }
           }
           .adminRow:hover { border-color: ${T.borderStrong} !important; background: #fafbfc !important; }
-        `}</style>
-      </div>
-    </>
-  );
-}
+        `;
 
 /* styles */
 const inp = { width: "100%", height: 38, padding: "0 0.75rem", border: `1px solid ${T.borderStrong}`, borderRadius: 6, background: T.surface, color: T.text, fontSize: 14, marginBottom: "0.6rem", fontFamily: "inherit", outline: "none", boxSizing: "border-box" };
