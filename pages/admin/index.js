@@ -24,7 +24,14 @@ export default function AdminHub() {
   const [tab, setTab] = useState("frontdesk");
   // Links in alerts open a tab directly: /admin?tab=pricing
   useEffect(() => { const t = new URLSearchParams(window.location.search).get("tab"); if (t) setTab(t); }, []);
-  const [showMore, setShowMore] = useState(false);
+  // Sidebar: full (labels) or collapsed to icons on desktop, remembered; slides over the page on phones.
+  const [navCollapsed, setNavCollapsed] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  useEffect(() => { try { setNavCollapsed(localStorage.getItem("tp_nav_collapsed") === "1"); } catch {} }, []);
+  function toggleNav() {
+    if (window.matchMedia("(max-width: 900px)").matches) return setNavOpen((o) => !o);
+    setNavCollapsed((c) => { try { localStorage.setItem("tp_nav_collapsed", c ? "0" : "1"); } catch {} return !c; });
+  }
   const [data, setData] = useState({ leads: [], subscribers: [], campaigns: [], replies: [], reminders: [], unreadByLead: {}, team: [], me: null });
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
@@ -183,13 +190,12 @@ export default function AdminHub() {
   const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
   const navCounts = { frontdesk: unansweredCount, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   const NAV_GROUPS = [
-    { items: [ { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 } ] },
-    { more: true, items: [ { id: "overview", icon: "dashboard", label: "Overview" }, { id: "shopfloor", icon: "car_repair", label: "Shop Floor" } ] },
-    { more: true, title: "Sales", items: [ { id: "leads", icon: "person_add", label: "Leads" }, { id: "conversions", icon: "paid", label: "Conversions" }, { id: "customers", icon: "groups", label: "Customers" }, { id: "reviews", icon: "star", label: "Reviews" } ] },
-    { more: true, title: "Marketing", items: [ { id: "email", icon: "mail", label: "Email" }, { id: "businesses", icon: "storefront", label: "Businesses" }, { id: "subscribers", icon: "mark_email_unread", label: "Subscribers" }, { id: "replies", icon: "forum", label: "Replies", alert: unreadReplies > 0 } ] },
-    { more: true, title: "Money", items: [ { id: "pnl", icon: "monitoring", label: "Weekly P&L" }, { id: "payroll", icon: "payments", label: "Payroll" } ] },
-    { more: true, title: "Team", items: [ { id: "staff", icon: "badge", label: "Staff" }, { id: "schedule", icon: "calendar_month", label: "Schedule" }, { id: "worklog", icon: "assignment", label: "Work Log" }, { id: "hiring", icon: "work", label: "Hiring" }, { id: "training", icon: "school", label: "Training" } ] },
-    { more: true, title: "Website", items: [ { id: "pricing", icon: "sell", label: "Pricing" } ] },
+    { items: [ { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 }, { id: "overview", icon: "dashboard", label: "Overview" }, { id: "shopfloor", icon: "car_repair", label: "Shop Floor" } ] },
+    { title: "Sales", items: [ { id: "leads", icon: "person_add", label: "Leads" }, { id: "conversions", icon: "paid", label: "Conversions" }, { id: "customers", icon: "groups", label: "Customers" }, { id: "reviews", icon: "star", label: "Reviews" } ] },
+    { title: "Marketing", items: [ { id: "email", icon: "mail", label: "Email" }, { id: "businesses", icon: "storefront", label: "Businesses" }, { id: "subscribers", icon: "mark_email_unread", label: "Subscribers" }, { id: "replies", icon: "forum", label: "Replies", alert: unreadReplies > 0 } ] },
+    { title: "Money", items: [ { id: "pnl", icon: "monitoring", label: "Weekly P&L" }, { id: "payroll", icon: "payments", label: "Payroll" } ] },
+    { title: "Team", items: [ { id: "staff", icon: "badge", label: "Staff" }, { id: "schedule", icon: "calendar_month", label: "Schedule" }, { id: "worklog", icon: "assignment", label: "Work Log" }, { id: "hiring", icon: "work", label: "Hiring" }, { id: "training", icon: "school", label: "Training" } ] },
+    { title: "Website", items: [ { id: "pricing", icon: "sell", label: "Pricing" } ] },
   ];
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
@@ -202,7 +208,8 @@ export default function AdminHub() {
 
   return (
     <Shell title="Tire Plug Admin">
-      <header style={{ position: "sticky", top: 0, zIndex: 50, height: 56, background: T.topbar, display: "flex", alignItems: "center", gap: 12, padding: "0 16px 0 14px" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 50, height: 56, background: T.topbar, display: "flex", alignItems: "center", gap: 12, padding: "0 16px 0 8px" }}>
+        <button onClick={toggleNav} title="Menu" aria-label="Toggle menu" style={topBtn}><Icon name="menu" size={24} /></button>
         <Logo size={34} />
         <span style={{ color: "#fff", fontWeight: 600, fontSize: 16, letterSpacing: "-0.01em" }}>The Tire Plug</span>
         <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginLeft: 2 }}>Admin</span>
@@ -215,15 +222,16 @@ export default function AdminHub() {
       </header>
 
       <div style={{ display: "flex", minHeight: "calc(100vh - 56px)" }}>
-        <aside className="tp-side" style={{ width: 232, flexShrink: 0, background: T.surface, borderRight: `1px solid ${T.border}`, padding: "12px 10px", position: "sticky", top: 56, height: "calc(100vh - 56px)", overflowY: "auto" }}>
-          {NAV_GROUPS.filter((grp) => !grp.more || showMore || grp.items.some((it) => it.id === tab)).map((grp, gi) => (
-            <div key={grp.title || `g${gi}`} style={{ marginBottom: 6 }}>
+        {navOpen && <div className="tp-scrim" onClick={() => setNavOpen(false)} />}
+        <aside className={`tp-side${navCollapsed ? " collapsed" : ""}${navOpen ? " open" : ""}`} style={{ width: 232, flexShrink: 0, background: T.surface, borderRight: `1px solid ${T.border}`, padding: "12px 10px", position: "sticky", top: 56, height: "calc(100vh - 56px)", overflowY: "auto" }}>
+          {NAV_GROUPS.map((grp, gi) => (
+            <div key={grp.title || `g${gi}`} className="tp-group" style={{ marginBottom: 6 }}>
               {grp.title && <div className="tp-caps" style={{ color: T.textFaint, fontSize: 11, fontWeight: 600, padding: "12px 10px 4px" }}>{grp.title}</div>}
               {grp.items.map((it) => {
                 const active = tab === it.id;
                 const cnt = navCounts[it.id];
                 return (
-                  <button key={it.id} title={it.label} className={active ? "" : "tp-nav-item"} onClick={() => setTab(it.id)} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", height: 38, textAlign: "left", background: active ? T.blueSoft : "transparent", color: active ? T.blue : "#374151", fontWeight: active ? 600 : 500, border: "none", padding: "0 10px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 14 }}>
+                  <button key={it.id} title={it.label} className={active ? "" : "tp-nav-item"} onClick={() => { setTab(it.id); setNavOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", height: 38, textAlign: "left", background: active ? T.blueSoft : "transparent", color: active ? T.blue : "#374151", fontWeight: active ? 600 : 500, border: "none", padding: "0 10px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 14 }}>
                     <Icon name={it.icon} size={20} style={{ color: active ? T.blue : T.textMuted }} />
                     <span className="tp-label" style={{ flex: 1 }}>{it.label}</span>
                     {cnt ? <span className="tp-count" style={{ minWidth: 20, height: 20, padding: "0 6px", display: "inline-flex", alignItems: "center", justifyContent: "center", background: it.alert ? T.red : "#eef0f3", color: it.alert ? "#fff" : T.textMuted, fontSize: 11, fontWeight: 600, borderRadius: 10 }}>{cnt}</span> : null}
@@ -232,9 +240,6 @@ export default function AdminHub() {
               })}
             </div>
           ))}
-          <button className="tp-nav-item" onClick={() => setShowMore((m) => !m)} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", height: 38, background: "transparent", color: T.textMuted, fontWeight: 500, border: "none", padding: "0 10px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 14, marginTop: 4 }}>
-            <Icon name={showMore ? "expand_less" : "expand_more"} /><span className="tp-label">{showMore ? "Fewer tools" : "More tools"}</span>
-          </button>
         </aside>
 
         <main style={{ flex: 1, minWidth: 0, padding: "20px 28px 64px" }}>
@@ -2643,11 +2648,18 @@ function Shell({ children, title }) {
             .tp-admin .fd-grid { grid-template-columns: minmax(0, 1fr) !important; }
             .tp-admin .fd-grid > aside { position: static !important; }
           }
+          .tp-admin .tp-side { transition: width .15s ease; }
+          @media (min-width: 901px) {
+            .tp-admin .tp-side.collapsed { width: 64px !important; padding: 12px 8px !important; }
+            .tp-admin .tp-side.collapsed .tp-label, .tp-admin .tp-side.collapsed .tp-caps { display: none !important; }
+            .tp-admin .tp-side.collapsed button { justify-content: center; padding: 0 !important; position: relative; }
+            .tp-admin .tp-side.collapsed .tp-count { position: absolute; top: 2px; right: 2px; }
+            .tp-admin .tp-side.collapsed .tp-group + .tp-group { border-top: 1px solid ${T.border}; padding-top: 6px; }
+          }
           @media (max-width: 900px) {
-            .tp-admin .tp-side { width: 60px !important; padding: 12px 8px !important; }
-            .tp-admin .tp-side .tp-label, .tp-admin .tp-side .tp-caps { display: none !important; }
-            .tp-admin .tp-side button { justify-content: center; padding: 0 !important; position: relative; }
-            .tp-admin .tp-side .tp-count { position: absolute; top: 2px; right: 4px; }
+            .tp-admin .tp-side { position: fixed !important; left: 0; top: 56px !important; z-index: 60; width: 260px !important; transform: translateX(-100%); transition: transform .18s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.18); }
+            .tp-admin .tp-side.open { transform: none; }
+            .tp-admin .tp-scrim { position: fixed; inset: 56px 0 0 0; background: rgba(17,24,39,0.35); z-index: 55; }
             .tp-admin main { padding: 16px !important; }
           }
           .adminRow:hover { border-color: ${T.borderStrong} !important; background: #fafbfc !important; }
