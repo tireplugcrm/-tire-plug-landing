@@ -23,10 +23,7 @@ export default function Hero() {
     return () => { window.removeEventListener('scroll', handleScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
-  const scrollToBooking = () => {
-    const el = document.getElementById('booking');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBooking = () => { window.location.href = '/book'; };
 
   return (
     <section

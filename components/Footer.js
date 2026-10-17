@@ -1,9 +1,7 @@
 import React from 'react';
 
 export default function Footer() {
-  const scrollToBooking = () => {
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBooking = () => { window.location.href = '/book'; };
 
   return (
     <>

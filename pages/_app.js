@@ -12,7 +12,7 @@ import { trackContactClicks } from '../lib/track';
 //   NEXT_PUBLIC_GA_ID          e.g. "G-XXXXXXXXXX"   (Google Analytics 4)
 //   NEXT_PUBLIC_META_PIXEL_ID  e.g. "123456789012345" (Meta / Facebook Pixel)
 // Booking submissions fire a "generate_lead" (GA4) and "Lead" (Meta) conversion
-// event — see components/BookingForm.js — so you can see which ads produce leads.
+// event — see pages/book.js — so you can see which ads produce leads.
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 

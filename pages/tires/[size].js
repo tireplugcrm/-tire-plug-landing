@@ -166,8 +166,9 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
                       <div><div className="price">{money(t.price)}</div><div className="per">per tire</div></div>
                       <div className="set">{money(t.price * 4)} <span>set of 4</span></div>
                     </div>
+                    <a className="btn red book" href={`/book?${new URLSearchParams({ size: display, tire: `${t.brand} ${t.model}` })}`}>Book install</a>
                     <div className="ctas">
-                      <a className="btn red" href={smsFor(t)}>Text to reserve</a>
+                      <a className="btn ghost txt" href={smsFor(t)}>Text to reserve</a>
                       <a className="btn ghost" href="tel:5625004625">Call</a>
                     </div>
                     <a className="more" href={t.page}>{t.brand} {t.model} details →</a>
@@ -243,6 +244,8 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         .ts .set { color: #555; font-weight: 700; font-size: 0.9rem; text-align: right; }
         .ts .set span { display: block; color: #8a8a8a; font-weight: 500; font-size: 0.72rem; }
         .ts .ctas { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .ts .btn.book { display: block; margin-top: 0.5rem; }
+        .ts .btn.ghost.txt { flex: 1; }
         .ts .btn { flex: 1; text-align: center; text-decoration: none; padding: 0.75rem 0.9rem; border-radius: 50px; font-weight: 800; font-size: 0.9rem; }
         .ts .btn.red { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 20px rgba(224,27,34,0.2); }
         .ts .btn.ghost { background: #fff; color: #111; border: 1px solid #dcdcdc; flex: 0 0 auto; padding-left: 1.2rem; padding-right: 1.2rem; }

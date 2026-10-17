@@ -99,7 +99,7 @@ export default function TireShopFaq() {
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
-            <a href="/#booking" style={ctaGhost}>Get a Free Quote</a>
+            <a href="/book" style={ctaGhost}>Book a Tire Install</a>
           </div>
         </section>
 

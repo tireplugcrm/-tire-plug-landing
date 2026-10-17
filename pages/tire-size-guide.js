@@ -63,7 +63,7 @@ export default function TireSizeGuide() {
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href="sms:+15625004625" style={ctaRed}>📲 Text a Photo for a Quote</a>
-            <a href="/#booking" style={ctaGhost}>Get a Free Quote</a>
+            <a href="/book" style={ctaGhost}>Book a Tire Install</a>
           </div>
         </section>
 

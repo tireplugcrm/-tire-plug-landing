@@ -5,7 +5,6 @@ import Header from '../components/Header';
 import PromoHero from '../components/PromoHero';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
-import BookingForm from '../components/BookingForm';
 import Footer from '../components/Footer';
 
 const SERVICE_NAMES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Change", "Brake Service", "Tire Rotation & Balance", "Tire Repair"];
@@ -58,7 +57,6 @@ export default function Home() {
       <PromoHero />
       <Reviews />
       <Locations />
-      <BookingForm />
       <Footer />
     </>
   );

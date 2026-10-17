@@ -85,9 +85,7 @@ export default function Services() {
     },
   ];
 
-  const scrollToBooking = () => {
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBooking = () => { window.location.href = '/book'; };
 
   return (
     <section id="services" style={{ background: '#000', position: 'relative', overflow: 'hidden' }}>

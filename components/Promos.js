@@ -32,9 +32,7 @@ export default function Promos() {
     },
   ];
 
-  const scrollToBooking = () => {
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBooking = () => { window.location.href = '/book'; };
 
   return (
     <section id="promos" style={{ background: '#0a0a0b', padding: '6rem 2rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>

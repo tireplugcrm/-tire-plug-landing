@@ -100,7 +100,7 @@ export default function Header() {
 
         <div className="desktop-nav" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
           <button onClick={() => scrollToSection('hero')} style={navLinkStyle} className="nav-link">Promos</button>
-          <button onClick={() => scrollToSection('booking')} style={navLinkStyle} className="nav-link">Book</button>
+          <a href="/book" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Book</a>
           <button onClick={() => scrollToSection('locations')} style={navLinkStyle} className="nav-link">Locations</button>
           <a href="/careers" style={{ ...navLinkStyle, textDecoration: 'none', color: '#FF3838' }} className="nav-link">Careers</a>
           <a href="tel:562-500-4625" className="call-cta" style={{ position: 'relative', background: 'linear-gradient(180deg, #FF2A2A 0%, #C20000 50%, #8B0000 100%)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, padding: '0.85rem 1.75rem', borderRadius: '6px', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', display: 'inline-flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', letterSpacing: '0.2em', textTransform: 'uppercase', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,80,80,0.3), 0 4px 12px rgba(139,0,0,0.5), 0 0 30px rgba(255,42,42,0.25)', textShadow: '0 1px 2px rgba(0,0,0,0.5)', overflow: 'hidden' }}><span style={{ position: 'relative', zIndex: 2, display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>Click to Call</span></a>
@@ -112,7 +112,7 @@ export default function Header() {
           <div className="mm">
             <button type="button" onClick={() => { setMobileMenuOpen(false); goToFinder(); }}>Shop tires by size<span>›</span></button>
             <button type="button" onClick={() => scrollToSection('hero')}>Promos<span>›</span></button>
-            <button type="button" onClick={() => scrollToSection('booking')}>Book an appointment<span>›</span></button>
+            <a href="/book">Book a tire install<span>›</span></a>
             <button type="button" onClick={() => scrollToSection('locations')}>Location &amp; hours<span>›</span></button>
             <button type="button" onClick={openReviews}>Reviews <em>★★★★★</em><span>›</span></button>
             <a href="/careers" className="mm-hire">Careers · We're hiring<span>›</span></a>

@@ -31,6 +31,8 @@ const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
 export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to reserve', ready = 'Ready to install today' }) {
   const s = t.specs || {};
   const rows = specRows(s);
+  // The booking page, with this tire and size filled in.
+  const bookHref = `/book?${new URLSearchParams({ size, tire: [t.brand, t.model].filter(Boolean).join(' ') })}`;
   const fit = [size, s.loadIndex ? `${s.loadIndex}${s.speed || ''}` : '', s.loadRange === 'XL' ? 'XL' : ''].filter(Boolean).join(' ');
   const chips = [
     s.warranty && `${Math.round(s.warranty / 1000)}K-mile warranty`,
@@ -71,8 +73,9 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
         )}
         {t.priceNote && <div className="stc-pnote">{t.priceNote}</div>}
         <div className="stc-ready">{ready}</div>
+        <a className="stc-btn red stc-book" href={bookHref}>Book install</a>
         <div className="stc-ctas">
-          <a className="stc-btn red" href={smsHref}>{cta}</a>
+          <a className="stc-btn ghost stc-text" href={smsHref}>{cta}</a>
           <a className="stc-btn ghost" href="tel:5625004625">Call</a>
         </div>
         {(rows.length > 0 || t.about || t.features.length > 0) && (
@@ -118,6 +121,8 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
         .stc-btn.red { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 20px rgba(224,27,34,0.2); }
         .stc-btn.ghost { flex: 0 0 auto; background: #fff; color: #111; border: 1px solid #dcdcdc; padding-left: 1.2rem; padding-right: 1.2rem; }
         .stc-btn.ghost:hover { border-color: #E01B22; }
+        .stc-book { display: block; margin-top: 0.3rem; }
+        .stc-btn.ghost.stc-text { flex: 1; }
         .stc-specs { margin-top: 0.4rem; border-top: 1px solid #f0f0f0; padding-top: 0.5rem; }
         .stc-specs summary { cursor: pointer; color: #E01B22; font-weight: 700; font-size: 0.85rem; }
         .stc-specs dl { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 1rem; margin: 0.6rem 0 0; font-size: 0.82rem; }

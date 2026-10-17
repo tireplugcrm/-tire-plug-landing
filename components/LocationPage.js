@@ -48,7 +48,7 @@ export default function LocationPage({ loc }) {
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
             <a href="tel:5625004625" style={ctaRed}>📞 Call Now</a>
             <a href={loc.directionsUrl} target="_blank" rel="noopener noreferrer" style={ctaGhost}>🗺️ Get Directions</a>
-            <a href="/#booking" style={ctaGhost}>Get a Quote</a>
+            <a href="/book" style={ctaGhost}>Book a Tire Install</a>
           </div>
         </section>
 
