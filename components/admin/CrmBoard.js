@@ -21,6 +21,17 @@ const SOURCES = [
   { key: "all", label: "All", match: () => true },
 ];
 
+// Off the board: closed out by hand (crm_closed_at), or Contacted/Quoted with no activity for
+// 30 days. A reply from the customer after that brings the card back.
+const STALE_MS = 30 * 864e5;
+const lastActivity = (l) => Math.max(...[l.created_at, l.first_response_at, l.quoted_at, l.last_reply_at, l.appt_booked_at].filter(Boolean).map((t) => new Date(t).getTime()));
+export function onBoard(l, stage = crmStage(l)) {
+  const replied = l.last_reply_at && (!l.crm_closed_at || new Date(l.last_reply_at) > new Date(l.crm_closed_at));
+  if (l.crm_closed_at && !replied) return false;
+  if ((stage === "contacted" || stage === "quoted") && Date.now() - lastActivity(l) > STALE_MS) return false;
+  return true;
+}
+
 export function crmStage(l) {
   if (l.status === "dead") return "lost";
   if (l.status === "booked" || l.appt_status === "done") return "won";
@@ -74,6 +85,7 @@ export default function CrmBoard({ leads, unreadByLead = {}, onOpen }) {
       if (!src.match(l)) continue;
       if (t && !`${l.name} ${l.phone} ${l.email} ${l.vehicle} ${l.service} ${l.tire_size}`.toLowerCase().includes(t)) continue;
       const s = crmStage(l);
+      if (!onBoard(l, s)) continue;
       if ((s === "won" || s === "lost") && new Date(l.booked_at || l.created_at).getTime() < recent) continue;
       by[s].push(l);
     }

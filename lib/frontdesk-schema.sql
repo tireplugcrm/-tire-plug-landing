@@ -8,6 +8,7 @@ alter table leads add column if not exists appt_booked_at    timestamptz;  -- wh
 alter table leads add column if not exists first_response_at timestamptz;  -- a person (not the auto-text) handled it
 alter table leads add column if not exists tires_ordered_at  timestamptz;
 alter table leads add column if not exists work_order_id     uuid;
+alter table leads add column if not exists crm_closed_at     timestamptz;  -- taken off the CRM board (a later reply brings it back)
 create index if not exists leads_appt_idx  on leads (appointment_at) where appointment_at is not null;
 create unique index if not exists leads_appt_token_idx on leads (appt_token) where appt_token is not null;
 
