@@ -129,14 +129,18 @@ on conflict (key) do nothing;
 
 -- ============================================================
 -- Run the pricing autopilot every 10 minutes (Vercel's plan only allows daily crons; the daily one
--- in vercel.json is the backstop that texts you if this schedule stops).
--- Uses the pg_cron + pg_net extensions already enabled for the Front Desk watchdog.
--- Replace YOUR_CRON_SECRET with the CRON_SECRET value from Vercel, then run:
---
--- select cron.schedule('pricing-autopilot', '*/10 * * * *', $$
---   select net.http_get(
---     url := 'https://tireplugla.com/api/cron/pricing',
---     headers := jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET'),
---     timeout_milliseconds := 60000
---   );
--- $$);
+-- in vercel.json is the backstop that texts you if this schedule stops). The database makes its own
+-- random key (nobody copies a secret); /api/cron/pricing checks it against app_settings.
+-- ============================================================
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+insert into app_settings (key, value)
+values ('pricing_cron_key', replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''))
+on conflict (key) do nothing;
+select cron.schedule('pricing-autopilot', '*/10 * * * *', $$
+  select net.http_get(
+    url := 'https://tireplugla.com/api/cron/pricing',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || (select value from public.app_settings where key = 'pricing_cron_key')),
+    timeout_milliseconds := 60000
+  );
+$$);
