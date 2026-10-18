@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import QuoteByText from './QuoteByText';
+import FinancingNote from './FinancingNote';
 
 // Promo-first homepage hero: the first thing a customer sees is the current deals.
 // Edit SLIDES to change what rotates; each slide links to its page or the booking form.
@@ -148,6 +149,8 @@ export default function PromoHero() {
         </div>
       </div>
 
+      <div className="ph-fin"><FinancingNote /></div>
+
       <div className="ph-brands">
         <span className="ph-brands-label">Brands we carry</span>
         <a href="/kumho-tires-los-angeles" aria-label="Shop Kumho tires"><img src="/images/kumho/kumho-logo.png" alt="Kumho Tires" style={{ height: 44 }} /></a>
@@ -209,6 +212,7 @@ export default function PromoHero() {
         .ph-brands a { display: flex; align-items: center; padding: 0.6rem 1.1rem; border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; transition: transform 0.2s ease, border-color 0.2s ease; }
         .ph-brands a:hover { transform: translateY(-2px); border-color: #E01B22; }
         .ph-brands img { width: auto; display: block; }
+        .ph-fin { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; }
         .ph-trust { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
         .ph-trust div { border: 1px solid #e6e6e6; background: #fff; border-radius: 12px; padding: 0.9rem 1rem; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
         .ph-trust b { display: block; font-size: 1.4rem; font-weight: 800; color: #111; }
@@ -231,6 +235,7 @@ export default function PromoHero() {
           .ph-slide { grid-template-columns: 1fr; padding: 1.5rem 1.25rem 0.5rem; }
           .ph-tire { max-height: 190px; order: -1; justify-self: center; width: auto; }
           .ph-ctas .ghost { display: none; }
+          .ph-fin { padding: 0 1rem; }
           .ph-trust { grid-template-columns: repeat(2, 1fr); padding: 0 1rem; }
           .ph-brands { gap: 0.75rem 1rem; padding: 0 1rem; }
           .ph-brands-label { width: 100%; text-align: center; }

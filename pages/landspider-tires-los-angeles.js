@@ -3,6 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import StockTireCard from "../components/StockTireCard";
+import FinancingNote from "../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug } from "../lib/tire-catalog";
 import { stockForSize } from "../lib/inventory";
 
@@ -69,6 +70,7 @@ export default function LandspiderTires({ lines }) {
               <a className="btn red" href="/book">Book install →</a>
               <a className="btn ghost" href="tel:5625004625">Call (562) 500-4625</a>
             </div>
+            <div className="fin-row"><FinancingNote /></div>
           </div>
         </section>
 
@@ -105,6 +107,7 @@ export default function LandspiderTires({ lines }) {
         .ls h1 span { color: #E01B22; }
         .ls .lead { color: #555; font-size: 1.05rem; margin: 0 0 1.1rem; }
         .ls .lead b { color: #111; }
+        .ls .fin-row { margin-top: 1.1rem; max-width: 640px; }
         .ls .ctas { display: flex; gap: 0.6rem; flex-wrap: wrap; }
         .ls .btn { text-align: center; text-decoration: none; padding: 0.8rem 1.3rem; border-radius: 50px; font-weight: 800; font-size: 0.95rem; }
         .ls .btn.red { background: linear-gradient(135deg, #FF1F1F 0%, #B30000 100%); color: #fff; box-shadow: 0 8px 20px rgba(224,27,34,0.2); }

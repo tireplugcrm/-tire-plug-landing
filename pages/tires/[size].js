@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import TireSizeSearch from "../../components/TireSizeSearch";
 import StockTireCard from "../../components/StockTireCard";
+import FinancingNote from "../../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
 import { allSizes, stockForSize, nextDayForSize } from "../../lib/inventory";
 
@@ -122,6 +123,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
             <b>Install &amp; balance start at ${INSTALL_FROM} per wheel</b>
             <span>Get it installed today at our Downtown LA location →</span>
           </a>
+          <div className="fin-row"><FinancingNote /></div>
 
           {inStock && (
             <section className="stock">
@@ -224,6 +226,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         .ts-search { background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; padding: 1.1rem; box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
         .ts-search .lbl { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #E01B22; margin-bottom: 0.6rem; }
         .ts .install { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 1.5rem 0; padding: 0.9rem 1.1rem; border-radius: 12px; background: rgba(224,27,34,0.08); border: 1px solid rgba(224,27,34,0.3); color: #111; text-decoration: none; }
+        .ts .fin-row { margin: -0.75rem 0 1.5rem; }
         .ts .install b { font-weight: 800; text-transform: uppercase; font-size: 0.95rem; }
         .ts .install span { color: #555; font-size: 0.9rem; }
         .ts .list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
