@@ -102,8 +102,9 @@ export default function AdminHub() {
     setData((d) => ({ ...d, [key]: d[key].map((r) => (r.id === id ? { ...r, ...finalPatch } : r)) }));
     try {
       const res = await fetch("/api/admin/update-lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj(), table, id, ...finalPatch }) });
-      if (!res.ok) loadWith(authObj());
-    } catch (e) { loadWith(authObj()); }
+      if (!res.ok) { loadWith(authObj()); return { ok: false, error: (await res.json().catch(() => ({}))).error }; }
+      return { ok: true };
+    } catch (e) { loadWith(authObj()); return { ok: false }; }
   }
 
   async function reminderAction(payload) {
@@ -508,7 +509,7 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
     ["Service", lead.service], ["Vehicle", lead.vehicle],
     ["Tire size", lead.tire_size && !/N\/A/i.test(lead.tire_size) ? lead.tire_size : null],
     ["Tire type", lead.tire_type && !/N\/A/i.test(lead.tire_type) ? lead.tire_type : null],
-    ["When", lead.service_timing], ["Email", lead.email],
+    ["When", lead.service_timing],
   ].filter(([, v]) => v);
   const openReminders = (reminders || []).filter((r) => !r.done).length;
   const TABS = [
@@ -539,16 +540,16 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
             {lead.email && <a href={`mailto:${lead.email}`} style={ghostBtn}><Icon name="mail" size={18} />Email</a>}
           </div>
 
-          {facts.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px 18px", background: T.page, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px" }}>
-              {facts.map(([k, v]) => (
-                <div key={k} style={{ minWidth: 0 }}>
-                  <div style={{ color: T.textMuted, fontSize: 12 }}>{k}</div>
-                  <div style={{ color: T.text, fontSize: 14, fontWeight: 500, overflowWrap: "anywhere" }}>{v}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px 18px", background: T.page, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px" }}>
+            {facts.map(([k, v]) => (
+              <div key={k} style={{ minWidth: 0 }}>
+                <div style={{ color: T.textMuted, fontSize: 12 }}>{k}</div>
+                <div style={{ color: T.text, fontSize: 14, fontWeight: 500, overflowWrap: "anywhere" }}>{v}</div>
+              </div>
+            ))}
+            <ContactFact lead={lead} auth={auth} field="email" onUpdate={onUpdate} />
+            <ContactFact lead={lead} auth={auth} field="phone" onUpdate={onUpdate} />
+          </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "14px 0 0" }}>
             <span style={{ color: T.textMuted, fontSize: 13 }}>Status</span>
@@ -595,6 +596,79 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Email / Phone in the lead panel, with a pencil to fix typos. Saving an email on a
+// lead with an upcoming confirmed appointment offers to resend the confirmation.
+function ContactFact({ lead, auth, field, onUpdate }) {
+  const isEmail = field === "email";
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState("");
+  const [err, setErr] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [resend, setResend] = useState(""); // "" | offer | sending | sent | failed
+  const upcoming = lead.appt_status === "confirmed" && lead.appointment_at && new Date(lead.appointment_at) > new Date();
+  useEffect(() => { setEditing(false); setResend(""); }, [lead.id]);
+
+  async function save() {
+    let v = val.trim();
+    if (isEmail) {
+      v = v.toLowerCase();
+      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return setErr("That email doesn't look right.");
+    } else {
+      v = v.replace(/\D/g, "");
+      if (v.length === 11 && v[0] === "1") v = v.slice(1);
+      if (v && v.length !== 10) return setErr("Phone needs 10 digits.");
+    }
+    if (v === (lead[field] || "")) return setEditing(false);
+    setSaving(true);
+    const r = await onUpdate("leads", lead.id, { [field]: v || null });
+    setSaving(false);
+    if (!r || !r.ok) return setErr((r && r.error) || "Couldn't save. Try again.");
+    setEditing(false);
+    if (isEmail && v && upcoming) setResend("offer");
+  }
+  async function resendConfirmation() {
+    setResend("sending");
+    try {
+      const r = await fetch("/api/admin/front-desk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, action: "resend", id: lead.id }) });
+      setResend(r.ok ? "sent" : "failed");
+    } catch (e) { setResend("failed"); }
+  }
+
+  const label = isEmail ? "Email" : "Phone";
+  const iconBtn = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, border: "none", background: "transparent", color: T.textMuted, cursor: "pointer", borderRadius: 4 };
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ color: T.textMuted, fontSize: 12 }}>{label}</div>
+      {editing ? (
+        <div>
+          <input autoFocus value={val} onChange={(e) => { setVal(e.target.value); setErr(""); }}
+            onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditing(false); }}
+            type={isEmail ? "email" : "tel"} inputMode={isEmail ? "email" : "tel"} placeholder={isEmail ? "name@example.com" : "(323) 555-0100"} style={{ ...miniInp, marginTop: 2 }} />
+          {err && <div style={{ color: T.red, fontSize: 12, marginTop: 4 }}>{err}</div>}
+          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+            <button onClick={save} disabled={saving} style={{ ...cta, height: 30, padding: "0 0.75rem", fontSize: 13 }}>{saving ? "Saving..." : "Save"}</button>
+            <button onClick={() => setEditing(false)} style={{ ...ghostBtn, height: 30, padding: "0 0.75rem", fontSize: 13 }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ color: lead[field] ? T.text : T.textFaint, fontSize: 14, fontWeight: 500, overflowWrap: "anywhere" }}>{lead[field] || "None"}</div>
+          <button onClick={() => { setVal(lead[field] || ""); setErr(""); setEditing(true); }} aria-label={`Edit ${label.toLowerCase()}`} title={`Edit ${label.toLowerCase()}`} style={iconBtn}><Icon name="edit" size={16} /></button>
+        </div>
+      )}
+      {resend && (
+        <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: T.textMuted }}>
+          {resend === "sent" ? <><Icon name="check" size={16} style={{ color: T.green }} />Confirmation sent</> : (
+            <button onClick={resendConfirmation} disabled={resend === "sending"} style={{ ...cta, height: 30, padding: "0 0.75rem", fontSize: 13 }}>
+              <Icon name="send" size={16} />{resend === "sending" ? "Sending..." : resend === "failed" ? "Retry resend" : "Resend confirmation"}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
