@@ -33,6 +33,12 @@ const FOLLOWUP_DAYS = 4;
 const DONE = new Set(["replied", "customer", "not_interested", "unsubscribed", "bounced", "needs_email", "no_email"]);
 const WHY = "This is an advertisement from The Tire Plug. You're getting it because your business is listed publicly near our shop in Los Angeles. We email a business at most twice, and if you unsubscribe you won't hear from us again.";
 const CATALOG = { label: "See fleet tire prices", path: "/fleet" };
+// Tire photos beside the logo: a car, a van and a pickup tire we sell (email-safe copies).
+const HEADER_TIRES = [
+  { img: "/images/email/tires/landspider-citytraxx-g-p.jpg", alt: "Landspider Citytraxx G/P" },
+  { img: "/images/email/tires/gt-radial-maxmiler-pro.jpg", alt: "GT Radial Maxmiler Pro" },
+  { img: "/images/email/tires/goodyear-wrangler-territory-ht.jpg", alt: "Goodyear Wrangler Territory HT" },
+];
 // A subject pretending to be a reply or forward is deceptive under CAN-SPAM.
 const FAKE_THREAD = /^\s*(re|fwd?|fw)\s*:\s*/i;
 
@@ -107,7 +113,7 @@ function letter({ message, signer, to, name, business }) {
   const unsubUrl = unsubPageUrl(to);
   const body = personalize(message, { name, business });
   const cta = { label: CATALOG.label, href: `${SITE}${CATALOG.path}` };
-  return { html: renderLetter({ message: body, signer, unsubUrl, why: WHY, cta }), text: textVersion(`${body}\n\n${cta.label}: ${cta.href}`, unsubUrl, WHY) };
+  return { html: renderLetter({ message: body, signer, unsubUrl, why: WHY, cta, tires: HEADER_TIRES }), text: textVersion(`${body}\n\n${cta.label}: ${cta.href}`, unsubUrl, WHY) };
 }
 
 export default async function handler(req, res) {
