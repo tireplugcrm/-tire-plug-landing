@@ -20,7 +20,7 @@ import { ghlRecentInbound } from "../../../lib/sms.js";
 // Only replies from the last day count, so the first nudge doesn't import old history.
 const FRESH_MS = 24 * 3600 * 1000;
 
-async function saveInbound({ phone, body, sid }) {
+async function saveInbound({ phone, body, sid, at }) {
   phone = digits10(phone);
   if (!supabaseAdmin || !phone || !body) return false;
 
@@ -46,6 +46,7 @@ async function saveInbound({ phone, body, sid }) {
     twilio_sid: sid || null,
     status: "received",
     read: false,
+    ...(at ? { created_at: at } : {}), // GHL's time, not when we picked it up
   });
 
   // Customer replied — stamp the reply (pulls them out of the cold path) + cancel nudges.
@@ -80,7 +81,7 @@ export default async function handler(req, res) {
   let saved = 0;
   for (const m of recent.messages) {
     if (m.at && Date.now() - new Date(m.at).getTime() > FRESH_MS) continue;
-    try { if (await saveInbound({ phone: recent.phone, body: m.body, sid: m.sid })) saved++; }
+    try { if (await saveInbound({ phone: recent.phone, body: m.body, sid: m.sid, at: m.at })) saved++; }
     catch (err) { console.error("Inbound SMS save error:", err); }
   }
   return res.status(200).json({ ok: true, saved });
