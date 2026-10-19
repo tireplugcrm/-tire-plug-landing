@@ -19,6 +19,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, sendSampleEmails, sendTiresArrived, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
 import { getCapacity, isSlotOpen, openSlots, laParts, laInstant, fmtWhen } from "../../../lib/booking.js";
+import { smsConfigured } from "../../../lib/sms.js";
 
 export const maxDuration = 60;
 const LEAD_COLS = "id,created_at,name,phone,email,vehicle,tire_size,tire_type,service,service_timing,lead_priority,status,channel,source,appointment_at,appt_status,appt_booked_at,first_response_at,tires_ordered_at,tires_arrived_at,work_order_id,raw";
@@ -55,7 +56,7 @@ export default async function handler(req, res) {
         events: events.data || [],
         capacity,
         lastRun: run.data?.value || null,
-        alerts: { emails: OWNER_EMAILS, phones: OWNER_PHONES, emailOn: !!process.env.RESEND_API_KEY, smsOn: !!process.env.TWILIO_ACCOUNT_SID },
+        alerts: { emails: OWNER_EMAILS, phones: OWNER_PHONES, emailOn: !!process.env.RESEND_API_KEY, smsOn: smsConfigured() },
       });
     }
 

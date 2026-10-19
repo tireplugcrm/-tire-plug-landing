@@ -1,6 +1,12 @@
 /**
- * Inbound SMS webhook (Twilio). Saves the text to the conversation and links
+ * Inbound SMS webhook (GoHighLevel or Twilio). Saves the text to the conversation and links
  * it to the matching lead by phone number.
+ *
+ * In GHL: Automation → new workflow, trigger "Customer Replied" (Reply channel: SMS)
+ * → action "Webhook", Method POST, URL:
+ *    https://tireplugla.com/api/admin/sms-inbound?token=YOUR_SECRET
+ * GHL posts the contact (phone) and the reply (message.body). Optional Custom Data
+ * "phone" / "body" override them. Set GHL_INBOUND_SECRET to the same secret.
  *
  * In Twilio: Phone Numbers → your number → Messaging → "A MESSAGE COMES IN"
  * → Webhook (HTTP POST):
@@ -14,14 +20,17 @@ import { cancelFollowups } from "../../../lib/followups.js";
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const secret = process.env.TWILIO_INBOUND_SECRET;
-  if (!secret || req.query.token !== secret) {
+  // GHL_INBOUND_SECRET for the GHL workflow, TWILIO_INBOUND_SECRET for Twilio's webhook.
+  const secrets = [process.env.GHL_INBOUND_SECRET, process.env.TWILIO_INBOUND_SECRET].filter(Boolean);
+  if (!req.query.token || !secrets.includes(req.query.token)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
   const b = req.body || {};
-  const from = b.From || b.from;
-  const body = b.Body || b.body || "";
+  const cd = b.customData || {};
+  const isGhl = !b.From && !b.MessageSid;
+  const from = b.From || cd.phone || b.phone || b.contact?.phone || b.from;
+  const body = b.Body || cd.body || b.message?.body || (typeof b.message === "string" ? b.message : "") || b.body || "";
   const phone = digits10(from);
 
   if (supabaseAdmin && phone) {
@@ -40,7 +49,7 @@ export default async function handler(req, res) {
         direction: "inbound",
         phone,
         body,
-        twilio_sid: b.MessageSid || b.SmsSid || null,
+        twilio_sid: b.MessageSid || b.SmsSid || (b.message?.id ? `ghl:${b.message.id}` : null),
         status: "received",
         read: false,
       });
@@ -54,6 +63,8 @@ export default async function handler(req, res) {
       console.error("Inbound SMS save error:", err);
     }
   }
+
+  if (isGhl) return res.status(200).json({ ok: true });
 
   // Empty TwiML so Twilio doesn't auto-reply.
   res.setHeader("Content-Type", "text/xml");
