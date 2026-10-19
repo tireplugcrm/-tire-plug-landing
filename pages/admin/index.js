@@ -4,6 +4,7 @@ import { supabaseBrowser } from "../../lib/supabaseBrowser.js";
 import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
 import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
+import TextsTab from "../../components/admin/TextsTab.js";
 import { T, Icon } from "../../components/admin/ui.js";
 import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
 
@@ -198,6 +199,7 @@ export default function AdminHub() {
     { items: [
       { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 },
       { id: "crm", icon: "view_kanban", label: "CRM" },
+      { id: "texts", icon: "sms", label: "Texts" },
     ] },
     { title: "Manage", items: [
       { id: "customers", icon: "groups", label: "Customers" },
@@ -252,6 +254,7 @@ export default function AdminHub() {
         <main style={{ flex: 1, minWidth: 0, padding: "20px 28px 64px" }}>
 
         {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} />}
+        {tab === "texts" && <TextsTab auth={auth} onOpenLead={openLead} />}
         {tab === "crm" && <CrmBoard leads={data.leads} unreadByLead={data.unreadByLead} onOpen={openLead} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
