@@ -15,7 +15,13 @@ export default async function handler(req, res) {
 
   const auth = await requireAdmin(req);
   if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
-  const { lead_id, body, startFollowups } = req.body || {};
+  const { lead_id, body, startFollowups, test, to } = req.body || {};
+
+  // Admin-only test text to any number (no lead, nothing logged): checks the provider setup.
+  if (test) {
+    const r = await sendSms({ to, body: body || "Test from the Tire Plug admin: texting works. Reply to check replies reach the admin." });
+    return res.status(r.ok ? 200 : 502).json(r);
+  }
   if (!supabaseAdmin || !lead_id) return res.status(400).json({ error: "Missing config or lead." });
   if (!body || !body.trim()) return res.status(400).json({ error: "Message is empty." });
 
