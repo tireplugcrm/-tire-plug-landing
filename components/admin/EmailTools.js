@@ -217,9 +217,51 @@ function CampaignStats({ api, campaigns, onChanged }) {
 
 /* ================= BUSINESSES TAB (cold outreach) ================= */
 const CATEGORIES = ["Auto dealer / used car lot", "Delivery & courier fleet", "Rideshare / limo / taxi", "Landscaping", "Construction / contractor", "Plumbing / HVAC / electrical", "Towing", "Moving company", "Car rental", "Auto repair / body shop", "Food truck / catering", "Property management"];
-const STATUSES = [["new", "New"], ["emailed", "Emailed"], ["replied", "Replied"], ["customer", "Customer"], ["not_interested", "Not interested"], ["unsubscribed", "Unsubscribed"], ["bounced", "Bounced"]];
-const STATUS_COLOR = { new: "#666", emailed: "#2563eb", replied: "#1a8f4c", customer: "#0f766e", not_interested: "#999", unsubscribed: "#999", bounced: "#d33" };
+const STATUSES = [["needs_email", "Needs email"], ["new", "Ready"], ["emailed", "Emailed"], ["replied", "Replied"], ["customer", "Customer"], ["not_interested", "Not interested"], ["no_email", "No email (call)"], ["unsubscribed", "Unsubscribed"], ["bounced", "Bounced"]];
+const STATUS_COLOR = { needs_email: "#b45309", new: "#666", emailed: "#2563eb", replied: "#1a8f4c", customer: "#0f766e", not_interested: "#999", no_email: "#999", unsubscribed: "#999", bounced: "#d33" };
 const SAMPLE_CSV = "Business,Contact,Email,Phone,Category\nSunset Landscaping,Maria Lopez,maria@sunsetlandscaping.com,323-555-0100,Landscaping";
+// Same list as lib/places-prospects.js: free webmail is often a person's own inbox.
+const FREE_MAIL = /@(gmail|googlemail|yahoo|ymail|hotmail|outlook|live|msn|aol|icloud|me|mac|comcast|att|sbcglobal|verizon|protonmail|proton)\.\w+$/i;
+
+// A Google listing has no email: open their website, copy the email they publish, save it here.
+function AddEmail({ p, onSave }) {
+  const [v, setV] = useState("");
+  const [msg, setMsg] = useState("");
+  async function save() { const r = await onSave({ email: v }); if (r?.error) setMsg(r.error); }
+  return (
+    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
+      {p.website
+        ? <a href={p.website} target="_blank" rel="noreferrer" style={{ ...ghostBtn, height: 30, fontSize: 12.5, textDecoration: "none" }}><Icon name="open_in_new" size={16} />Find email on their site</a>
+        : <a href={`https://www.google.com/search?q=${encodeURIComponent(`${p.business_name} ${p.address || ""} email`)}`} target="_blank" rel="noreferrer" style={{ ...ghostBtn, height: 30, fontSize: 12.5, textDecoration: "none" }}><Icon name="search" size={16} />Look up</a>}
+      <input value={v} onChange={(e) => { setV(e.target.value); setMsg(""); }} onKeyDown={(e) => e.key === "Enter" && v && save()} placeholder="info@business.com" style={{ ...inp, marginBottom: 0, height: 30, width: 190, padding: "0 8px", fontSize: 13 }} />
+      <button onClick={save} disabled={!v.trim()} style={{ ...ui.primary, height: 30, fontSize: 12.5, opacity: v.trim() ? 1 : 0.4 }}>Save</button>
+      <button onClick={() => onSave({ status: "no_email" })} title="No business email published: call them instead" style={{ ...ghostBtn, height: 30, fontSize: 12.5 }}>No email</button>
+      {msg && <span style={{ color: "#b91c1c", fontSize: 12 }}>{msg}</span>}
+    </div>
+  );
+}
+
+// Pull nearby businesses from Google Maps (Places API) for one business type.
+function FindOnGoogle({ api, groups, radius, onDone }) {
+  const [busy, setBusy] = useState("");
+  const [out, setOut] = useState(null);
+  async function run(group) {
+    setBusy(group); setOut(null);
+    const r = await api({ action: "find", group });
+    setBusy(""); setOut(r.error ? r : { ok: `${group}: found ${r.found} within ${radius} miles, added ${r.added} new (${r.found - r.added} already on the list). ${r.calls} Google calls.` });
+    if (!r.error) onDone();
+  }
+  return (
+    <div style={{ ...card, marginBottom: "1rem" }}>
+      <label style={fieldLabel}>Find businesses near the shop on Google Maps</label>
+      <p style={hint}>Searches Google's public business listings within {radius} miles of 2331 E Olympic Blvd. Google gives the name, phone and website but no email, so each one lands in <strong>Needs email</strong>: open their website, copy the business email they publish (info@, office@, fleet@), and save it. Never use a person's private email.</p>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        {(groups || []).map((g) => <button key={g} onClick={() => run(g)} disabled={!!busy} style={{ ...ghostBtn, opacity: busy && busy !== g ? 0.5 : 1 }}><Icon name="travel_explore" size={18} />{busy === g ? "Searching…" : g}</button>)}
+      </div>
+      {out && <p style={msgStyle(out)}>{out.error || out.ok}</p>}
+    </div>
+  );
+}
 
 export function BusinessesTab({ auth }) {
   const api = useApi("/api/admin/prospects", auth);
@@ -229,10 +271,11 @@ export function BusinessesTab({ auth }) {
   const [cat, setCat] = useState("all");
   const [sel, setSel] = useState(new Set());
   const [showImport, setShowImport] = useState(false);
+  const [showFind, setShowFind] = useState(false);
   const [csv, setCsv] = useState("");
   const [importMsg, setImportMsg] = useState(null);
   const [step, setStep] = useState(1);
-  const [draftCat, setDraftCat] = useState(CATEGORIES[1]);
+  const [draftCat, setDraftCat] = useState("Delivery & trucking");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [signer, setSigner] = useState({ name: "", title: "Fleet & Commercial Accounts" });
@@ -271,8 +314,9 @@ export function BusinessesTab({ auth }) {
     setResult(r); setBusy(false); setConfirm(false);
     if (!r.error) { setSel(new Set()); load(); }
   }
-  const update = async (id, patch) => { await api({ action: "update", id, patch }); load(); };
-  const selectAllEligible = () => setSel(new Set(list.filter(eligible).slice(0, room).map((p) => p.id)));
+  const update = async (id, patch) => { const r = await api({ action: "update", id, patch }); if (!r.error) load(); return r; };
+  // Free-webmail addresses are left for a person to check and tick by hand.
+  const selectAllEligible = () => setSel(new Set(list.filter((p) => eligible(p) && !FREE_MAIL.test(p.email || "")).slice(0, room).map((p) => p.id)));
 
   return (
     <div>
@@ -281,9 +325,13 @@ export function BusinessesTab({ auth }) {
           <h1 style={ui.h1}>Business outreach</h1>
           <p style={{ ...hint, margin: "0.3rem 0 0", maxWidth: 620 }}>Email local businesses about a fleet/business account. Sends from <strong>{d.from || "your outreach address"}</strong> as a personal letter with your logo, 5.0 Google rating and a real review. Max {d.dailyLimit}/day and 2 emails per business, so your domain stays out of spam.</p>
         </div>
-        <button onClick={() => setShowImport((s) => !s)} style={cta}>{showImport ? "Close import" : <><Icon name="add" size={18} />Add businesses</>}</button>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {d.places && <button onClick={() => setShowFind((s) => !s)} style={ghostBtn}>{showFind ? "Close search" : <><Icon name="travel_explore" size={18} />Find on Google</>}</button>}
+          <button onClick={() => setShowImport((s) => !s)} style={cta}>{showImport ? "Close import" : <><Icon name="add" size={18} />Add businesses</>}</button>
+        </div>
       </div>
       {err && <p style={msgStyle({ error: true })}>{err}</p>}
+      {showFind && <FindOnGoogle api={api} groups={d.groups} radius={d.radius} onDone={load} />}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: "0.6rem", marginBottom: "1rem" }}>
         {[["Businesses", d.prospects.length], ["Emailed", (counts.emailed || 0) + (counts.replied || 0) + (counts.customer || 0) + (counts.not_interested || 0)], ["Replied", (counts.replied || 0) + (counts.customer || 0)], ["Customers", counts.customer || 0], ["Sent today", `${d.sentToday}/${d.dailyLimit}`]].map(([l, v]) => (
@@ -329,7 +377,9 @@ export function BusinessesTab({ auth }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 800, fontSize: "0.9rem" }}>{p.business_name}</div>
                   <div style={{ color: T.textMuted, fontSize: "0.76rem", overflow: "hidden", textOverflow: "ellipsis" }}>{[p.contact_name, p.email, p.phone].filter(Boolean).join(" · ")}</div>
-                  <div style={{ color: T.textFaint, fontSize: "0.72rem" }}>{[p.category, p.touches ? `${p.touches} email${p.touches > 1 ? "s" : ""}, last ${fmt(p.last_emailed_at)}` : null].filter(Boolean).join(" · ")}</div>
+                  <div style={{ color: T.textFaint, fontSize: "0.72rem" }}>{[p.category, p.notes, p.touches ? `${p.touches} email${p.touches > 1 ? "s" : ""}, last ${fmt(p.last_emailed_at)}` : null].filter(Boolean).join(" · ")}</div>
+                  {p.email && FREE_MAIL.test(p.email) && <div style={{ color: "#b45309", fontSize: "0.72rem", fontWeight: 600 }}>Personal-style address: only send if the business publishes it as its contact email.</div>}
+                  {!p.email && p.status === "needs_email" && <AddEmail p={p} onSave={(patch) => update(p.id, patch)} />}
                 </div>
                 <select value={p.status} onChange={(e) => update(p.id, { status: e.target.value })} style={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8, padding: "0.25rem 0.4rem", fontSize: "0.74rem", fontWeight: 700, color: STATUS_COLOR[p.status], background: "#fff", fontFamily: "inherit" }}>
                   {STATUSES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
@@ -349,7 +399,7 @@ export function BusinessesTab({ auth }) {
             </div>
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <select value={draftCat} onChange={(e) => setDraftCat(e.target.value)} style={{ ...inp, marginBottom: 0 }}>
-                {[...new Set([...CATEGORIES, ...cats])].map((c) => <option key={c}>{c}</option>)}
+                {[...new Set([...(d.groups || []), ...cats, ...CATEGORIES])].map((c) => <option key={c}>{c}</option>)}
               </select>
               <button onClick={draft} disabled={drafting} style={{ ...ghostBtn, whiteSpace: "nowrap" }}>{drafting ? "Writing…" : <><Icon name="auto_awesome" size={18} />Draft with AI</>}</button>
             </div>

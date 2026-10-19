@@ -4,6 +4,7 @@
  * POST actions:
  *   { action: "list" }                                   -> { prospects, sentToday, dailyLimit }
  *   { action: "import", csv }                            -> { added, skipped }   (paste or upload a CSV)
+ *   { action: "find", group }                            -> { added, found, calls } (Google Places near the shop, no emails)
  *   { action: "update", id, patch }                      -> status / notes / contact edits
  *   { action: "delete", id }
  *   { action: "draft", category, step }                  -> AI-written { subject, message } with {name}/{business}
@@ -12,22 +13,38 @@
  *   { action: "send", ids, step, subject, message, signer } -> { sent, skipped }
  *
  * Guardrails (keep the domain out of spam folders and inside CAN-SPAM):
- *   - a daily cap (OUTREACH_DAILY_LIMIT, default 40) across all outreach sends
+ *   - a daily cap (OUTREACH_DAILY_LIMIT, default 40) across all outreach sends, ramped up over the
+ *     first three weeks after the first outreach send so the sending domain warms up
  *   - step 1 only to businesses never emailed; step 2 (follow-up) only 4+ days after step 1
  *   - nobody who replied, unsubscribed, bounced, said no, or is already a customer
- *   - every email: real sender, shop address, a one-click unsubscribe
+ *   - every email: real sender, labeled as an advertisement, shop address, a one-click unsubscribe,
+ *     an honest subject (no fake "re:" / "fwd:")
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { SHOP_FACTS } from "../../../lib/shop-facts.js";
-import { renderLetter, sendBatch, sendOne, suppressedSet, unsubPageUrl, personalize, textVersion, OUTREACH_FROM, REPLY_TO, BRAND } from "../../../lib/email.js";
+import { findBusinesses, GROUPS, RADIUS_MILES } from "../../../lib/places-prospects.js";
+import { renderLetter, sendBatch, sendOne, suppressedSet, unsubPageUrl, personalize, textVersion, OUTREACH_FROM, REPLY_TO, BRAND, SITE } from "../../../lib/email.js";
 
 export const maxDuration = 60;
 const MODEL = process.env.LEADS_AI_MODEL || "claude-sonnet-4-6";
 const DAILY_LIMIT = Number(process.env.OUTREACH_DAILY_LIMIT) || 40;
 const FOLLOWUP_DAYS = 4;
-const DONE = new Set(["replied", "customer", "not_interested", "unsubscribed", "bounced"]);
-const WHY = "You're getting this because your business is listed publicly in the Los Angeles area. We email local businesses at most twice.";
+const DONE = new Set(["replied", "customer", "not_interested", "unsubscribed", "bounced", "needs_email", "no_email"]);
+const WHY = "This is an advertisement from The Tire Plug. You're getting it because your business is listed publicly near our shop in Los Angeles. We email a business at most twice, and if you unsubscribe you won't hear from us again.";
+const CATALOG = { label: "See fleet tire prices", path: "/fleet" };
+// A subject pretending to be a reply or forward is deceptive under CAN-SPAM.
+const FAKE_THREAD = /^\s*(re|fwd?|fw)\s*:\s*/i;
+
+// Warm-up: 10/day the first week of outreach, then 20, then 30, then the full limit.
+async function dailyLimit() {
+  const { data } = await supabaseAdmin.from("email_campaigns").select("created_at").eq("kind", "outreach").order("created_at", { ascending: true }).limit(1);
+  const first = data?.[0]?.created_at;
+  const week = first ? Math.floor((Date.now() - new Date(first).getTime()) / (7 * 864e5)) : 0;
+  return Math.min(DAILY_LIMIT, [10, 20, 30][week] ?? DAILY_LIMIT);
+}
+// Dedupe key for Google listings: business name + start of the address.
+const placeKey = (name, address) => `${String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "")}|${String(address || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 24)}`;
 
 /* ---- CSV import: tolerant of quotes and of whatever the column headers are called ---- */
 function parseCsv(text) {
@@ -89,7 +106,8 @@ const startOfTodayLA = () => {
 function letter({ message, signer, to, name, business }) {
   const unsubUrl = unsubPageUrl(to);
   const body = personalize(message, { name, business });
-  return { html: renderLetter({ message: body, signer, unsubUrl, why: WHY }), text: textVersion(body, unsubUrl) };
+  const cta = { label: CATALOG.label, href: `${SITE}${CATALOG.path}` };
+  return { html: renderLetter({ message: body, signer, unsubUrl, why: WHY, cta }), text: textVersion(`${body}\n\n${cta.label}: ${cta.href}`, unsubUrl, WHY) };
 }
 
 export default async function handler(req, res) {
@@ -105,7 +123,7 @@ export default async function handler(req, res) {
       const { data, error } = await supabaseAdmin.from("business_prospects").select("*").order("created_at", { ascending: false }).limit(2000);
       if (error) return res.status(500).json({ error: `${error.message}. Run lib/email-schema.sql in Supabase first.` });
       const { count } = await supabaseAdmin.from("business_prospects").select("id", { count: "exact", head: true }).gte("last_emailed_at", startOfTodayLA().toISOString());
-      return res.status(200).json({ prospects: data || [], sentToday: count || 0, dailyLimit: DAILY_LIMIT, from: OUTREACH_FROM });
+      return res.status(200).json({ prospects: data || [], sentToday: count || 0, dailyLimit: await dailyLimit(), from: OUTREACH_FROM, groups: Object.keys(GROUPS), radius: RADIUS_MILES, places: !!process.env.GOOGLE_PLACES_API_KEY });
     }
 
     if (b.action === "import") {
@@ -122,10 +140,35 @@ export default async function handler(req, res) {
       return res.status(200).json({ added: fresh.length, skipped: list.length - fresh.length });
     }
 
+    if (b.action === "find") {
+      const { found, calls, api } = await findBusinesses(b.group);
+      const { data: existing } = await supabaseAdmin.from("business_prospects").select("business_name,address");
+      const have = new Set((existing || []).map((r) => placeKey(r.business_name, r.address)));
+      const fresh = found.filter((p) => !have.has(placeKey(p.name, p.address))).map((p) => ({
+        business_name: p.name, address: p.address, phone: p.phone, website: p.website, category: b.group,
+        status: "needs_email", notes: [p.type, `${p.miles} mi from the shop`, "from Google Maps"].filter(Boolean).join(" · "),
+      }));
+      for (let i = 0; i < fresh.length; i += 200) {
+        const { error } = await supabaseAdmin.from("business_prospects").insert(fresh.slice(i, i + 200));
+        if (error) return res.status(500).json({ error: error.message });
+      }
+      return res.status(200).json({ added: fresh.length, found: found.length, calls, api });
+    }
+
     if (b.action === "update") {
       const allowed = ["status", "notes", "contact_name", "email", "phone", "category", "business_name"];
       const patch = Object.fromEntries(Object.entries(b.patch || {}).filter(([k]) => allowed.includes(k)));
-      await supabaseAdmin.from("business_prospects").update(patch).eq("id", b.id);
+      if ("email" in patch) {
+        patch.email = String(patch.email || "").trim().toLowerCase() || null;
+        if (patch.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email)) return res.status(400).json({ error: "That doesn't look like an email address." });
+        // Adding the email to a Google listing makes it ready for an intro.
+        if (patch.email && !patch.status) {
+          const { data: row } = await supabaseAdmin.from("business_prospects").select("status").eq("id", b.id).single();
+          if (["needs_email", "no_email"].includes(row?.status)) patch.status = "new";
+        }
+      }
+      const { error } = await supabaseAdmin.from("business_prospects").update(patch).eq("id", b.id);
+      if (error) return res.status(400).json({ error: /duplicate|unique/i.test(error.message) ? "Another business on the list already has that email." : error.message });
       return res.status(200).json({ ok: true });
     }
 
@@ -139,18 +182,18 @@ export default async function handler(req, res) {
       const followup = Number(b.step) === 2;
       const prompt = `You write cold outreach emails for The Tire Plug, a 5.0-star Google-rated tire & auto shop in Los Angeles (${BRAND.vehicles} vehicles serviced, open 7 days, English and Spanish).
 SHOP FACTS (only facts you may state; never invent prices, discounts or claims): ${SHOP_FACTS}
-TARGET: local businesses in the category "${b.category || "local businesses with company vehicles"}". Think about how they use vehicles and what downtime costs them.
-OFFER: a fleet / business account — priority same-day service so vehicles get back on the road fast, one point of contact, budget/mid/premium tire options quoted by text, and special business pricing (do not state numbers).
+TARGET: local businesses within ${RADIUS_MILES} miles of the shop, category "${b.category || "local businesses with company vehicles"}". Think about how they use vehicles and what downtime costs them.
+OFFER: a fleet / business account — priority same-day service so vehicles get back on the road fast, one point of contact, budget/mid/premium tire options quoted by text, and our posted prices. There is NO discount: never say "special pricing", "discount" or "deal", and never state a number. The template adds a "See fleet tire prices" button to our live price list, so you may say they can see our prices there.
 ${followup
   ? "Write a SHORT follow-up (3-4 sentences) to an intro email sent a few days ago that got no reply. Friendly, no guilt-tripping, one easy yes/no question."
   : "Write the FIRST email: 90-130 words, sounds like a real local owner wrote it personally, not a flyer. One clear ask: a quick reply or a call."}
 Use {name} for the contact's first name and {business} for the business name. Plain text, short paragraphs, no bullet lists, no emojis, no ALL CAPS, no exclamation-heavy hype, no "I hope this email finds you well".
 Do NOT add a signature, address or unsubscribe line — the template adds the logo, signature, Google rating, address and unsubscribe link.
-Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's email, ${followup ? "e.g. 're: tires for {business}'" : "may include {business}"}), then a blank line, then the body. Output ONLY that.`;
+Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's email, honestly saying what the email is about, may include {business}; never start it with "re:" or "fwd:"), then a blank line, then the body. Output ONLY that.`;
       const out = await askClaude(prompt);
       const m = out.match(/^\s*SUBJECT:\s*(.+?)\n([\s\S]*)$/i);
       if (!m) return res.status(502).json({ error: "AI returned nothing usable. Try again." });
-      return res.status(200).json({ subject: m[1].trim(), message: m[2].trim() });
+      return res.status(200).json({ subject: m[1].trim().replace(FAKE_THREAD, ""), message: m[2].trim() });
     }
 
     if (b.action === "preview") {
@@ -158,6 +201,7 @@ Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's emai
     }
 
     if (!b.subject || !b.message) return res.status(400).json({ error: "Write a subject and message first." });
+    if (FAKE_THREAD.test(b.subject)) return res.status(400).json({ error: "Take \"re:\" / \"fwd:\" off the subject. On a first-time email it's misleading, which CAN-SPAM forbids." });
     if (!process.env.RESEND_API_KEY) return res.status(500).json({ error: "Email is not set up yet — add your RESEND_API_KEY first." });
 
     if (b.action === "test") {
@@ -174,8 +218,9 @@ Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's emai
       if (!ids.length) return res.status(400).json({ error: "Pick at least one business." });
 
       const { count } = await supabaseAdmin.from("business_prospects").select("id", { count: "exact", head: true }).gte("last_emailed_at", startOfTodayLA().toISOString());
-      const room = Math.max(0, DAILY_LIMIT - (count || 0));
-      if (!room) return res.status(429).json({ error: `Daily limit reached (${DAILY_LIMIT}/day keeps your email out of spam). Send more tomorrow.` });
+      const limit = await dailyLimit();
+      const room = Math.max(0, limit - (count || 0));
+      if (!room) return res.status(429).json({ error: `Daily limit reached (${limit}/day while the sending domain warms up keeps your email out of spam). Send more tomorrow.` });
 
       const { data: rows } = await supabaseAdmin.from("business_prospects").select("*").in("id", ids);
       const blocked = await suppressedSet();

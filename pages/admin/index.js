@@ -193,7 +193,7 @@ export default function AdminHub() {
   const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
   const navCounts = { frontdesk: unansweredCount, crm: data.leads.filter((l) => (!l.channel || l.channel === "web") && crmStage(l) === "new").length, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview, Shop Floor,
-  // Email, Businesses, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
+  // Email, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
   // Work Log, Hiring, Training) still exist and their data is untouched; add them back here to show them.
   const NAV_GROUPS = [
     { items: [
@@ -204,6 +204,7 @@ export default function AdminHub() {
     { title: "Manage", items: [
       { id: "customers", icon: "groups", label: "Customers" },
       { id: "pricing", icon: "inventory_2", label: "Inventory & Pricing" },
+      { id: "businesses", icon: "storefront", label: "Businesses" },
     ] },
   ];
 
