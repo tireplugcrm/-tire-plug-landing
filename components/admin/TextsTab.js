@@ -1,6 +1,8 @@
 // Admin → Texts: one inbox for the shop's texting number (562-250-3737). Every conversation by
 // phone, newest first, including people who aren't a lead yet. Pick one to read it and reply;
 // "New text" starts a conversation with any number. Refreshes on its own every 20 seconds.
+// The owner also gets "Import from GHL": copies the last 30 days of texts that only exist in
+// GoHighLevel (from before the hookup). It checks first, asks, and never sends anything.
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { T, Icon, ui } from "./ui.js";
 
@@ -23,6 +25,9 @@ export default function TextsTab({ auth, onOpenLead }) {
   const [composing, setComposing] = useState(false);
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState("");
   const endRef = useRef(null);
 
   const call = useCallback(async (payload) => {
@@ -33,7 +38,7 @@ export default function TextsTab({ auth, onOpenLead }) {
   }, [auth]);
 
   const loadList = useCallback(async () => {
-    try { setThreads((await call({ action: "list" })).threads); } catch (e) { setErr(e.message); }
+    try { const d = await call({ action: "list" }); setThreads(d.threads); setIsOwner(!!d.isOwner); } catch (e) { setErr(e.message); }
   }, [call]);
 
   const loadThread = useCallback(async (p) => {
@@ -71,6 +76,20 @@ export default function TextsTab({ auth, onOpenLead }) {
     finally { setSending(false); }
   }
 
+  async function importGhl() {
+    setImporting(true); setImportMsg("Checking GHL…");
+    try {
+      const dry = await call({ action: "ghl-import", dryRun: true });
+      if (!dry.added) { setImportMsg("Nothing new in GHL. Everything from the last 30 days is already here."); return; }
+      if (!window.confirm(`Copy ${dry.added} text${dry.added === 1 ? "" : "s"} from ${dry.conversations} GHL conversations (last 30 days) into this inbox? ${dry.unread} unread. Nothing gets sent.`)) { setImportMsg(""); return; }
+      setImportMsg("Importing…");
+      const d = await call({ action: "ghl-import" });
+      setImportMsg(`Imported ${d.added} text${d.added === 1 ? "" : "s"} (${d.unread} unread).`);
+      loadList();
+    } catch (e) { setImportMsg(e.message); }
+    finally { setImporting(false); }
+  }
+
   const unreadTotal = (threads || []).reduce((n, t) => n + t.unread, 0);
   const current = (threads || []).find((t) => t.phone === phone);
   const title = thread?.lead?.name || current?.name || fmtPhone(phone);
@@ -81,10 +100,18 @@ export default function TextsTab({ auth, onOpenLead }) {
         <div>
           <h1 style={ui.h1}>Texts</h1>
           <div style={ui.muted}>Every text to and from (562) 250-3737{unreadTotal ? ` · ${unreadTotal} unread` : ""}</div>
+          {importMsg && <div style={{ ...ui.muted, marginTop: 4 }}>{importMsg}</div>}
         </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {isOwner && (
+          <button type="button" style={{ ...ui.btn, opacity: importing ? 0.6 : 1 }} disabled={importing} onClick={importGhl}>
+            <Icon name="download" size={18} /> {importing ? "Importing…" : "Import from GHL"}
+          </button>
+        )}
         <button type="button" style={ui.primary} onClick={() => { setComposing(true); setPhone(null); setThread(null); setErr(""); }}>
           <Icon name="edit_square" size={18} /> New text
         </button>
+        </div>
       </div>
 
       <div className="tx-grid">
