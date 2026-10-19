@@ -13,7 +13,7 @@ function makeLocation(name, street, zip, sundayHours, weekday) {
   const hours = wk.map((w) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: w.dayOfWeek, opens: w.opens, closes: w.closes }));
   if (sundayHours) hours.push({ "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: sundayHours[0], closes: sundayHours[1] });
   return {
-    "@context": "https://schema.org", "@type": "AutoRepair",
+    "@context": "https://schema.org", "@type": ["TireShop", "AutoRepair"],
     name, image: "https://tireplugla.com/images/logo.webp", url: "https://tireplugla.com/",
     telephone: "+1-562-500-4625", priceRange: "$$",
     address: { "@type": "PostalAddress", streetAddress: street, addressLocality: "Los Angeles", addressRegion: "CA", postalCode: zip, addressCountry: "US" },
