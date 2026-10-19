@@ -63,7 +63,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
     address: { "@type": "PostalAddress", streetAddress: "2331 E Olympic Blvd", addressLocality: "Los Angeles", addressRegion: "CA", postalCode: "90021", addressCountry: "US" } };
   const product = (t, availability) => ({
     "@type": "Product",
-    name: `${t.brand} ${t.model} ${t.size || display} tire`,
+    name: `${t.brand} ${t.model} ${t.size || display} tire`.replace(/\s+/g, " "),
     brand: { "@type": "Brand", name: t.brand },
     ...(t.img && !t.imgGeneric ? { image: `https://tireplugla.com${t.img}` } : {}),
     ...(t.specs?.partNumber ? { mpn: t.specs.partNumber } : {}),

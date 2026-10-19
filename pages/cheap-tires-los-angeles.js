@@ -54,7 +54,7 @@ export default function CheapTires({ cheapest, rims, count, from }) {
       itemListElement: cheapest.map((t, i) => ({
         "@type": "ListItem", position: i + 1,
         item: {
-          "@type": "Product", name: `${t.brand} ${t.model} ${t.key.replace("X", "x")} tire`, brand: { "@type": "Brand", name: t.brand },
+          "@type": "Product", name: `${t.brand} ${t.model} ${t.key.replace("X", "x")} tire`.replace(/\s+/g, " "), brand: { "@type": "Brand", name: t.brand },
           ...(t.img ? { image: `https://tireplugla.com${t.img}` } : {}),
           offers: { "@type": "Offer", price: t.price, priceCurrency: "USD", url: `https://tireplugla.com/tires/${sizeToSlug(t.key)}`,
             itemCondition: "https://schema.org/NewCondition",
