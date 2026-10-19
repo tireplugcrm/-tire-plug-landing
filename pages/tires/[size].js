@@ -43,33 +43,42 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
   const stockBrands = [...new Set(stock.map((t) => t.brand))].join(", ");
   // Lowest in-stock price (stock is sorted cheapest first; null when prices aren't shown).
   const stockFrom = stock.find((t) => t.price != null)?.price ?? null;
-  const title = has
-    ? `${display} Tires in Los Angeles · ${tires.length} option${tires.length > 1 ? "s" : ""} from ${money(from)} | The Tire Plug`
+  const nextDayFrom = nextDay.length ? Math.min(...nextDay.map((t) => t.price)) : null;
+  // Lowest price on the page, for the title Google shows: "Cheap 205/55R16 Tires in Los Angeles from $49".
+  const lowest = [stockFrom, from, nextDayFrom].filter((p) => p != null).reduce((a, b) => Math.min(a, b), Infinity);
+  const hasLowest = Number.isFinite(lowest);
+  const today = inStock ? ", Installed Today" : "";
+  const title = hasLowest
+    ? `Cheap ${display} Tires in Los Angeles from ${money(lowest)}${today} | The Tire Plug`
     : inStock
-      ? `${display} Tires in Stock in Los Angeles | The Tire Plug`
+      ? `${display} Tires in Stock in Los Angeles, Installed Today | The Tire Plug`
       : `${display} Tires in Los Angeles | The Tire Plug`;
-  const description = has
-    ? `Shop ${display} tires at The Tire Plug, 2331 E Olympic Blvd, Los Angeles. ${tires.length} option${tires.length > 1 ? "s" : ""} from ${[...new Set(tires.map((t) => t.brand))].join(", ")}, from ${money(from)} per tire. Install & balance from $${INSTALL_FROM} per wheel. Open 7 days.`
-    : inStock
-      ? `${display} tires in stock now at The Tire Plug, 2331 E Olympic Blvd, Los Angeles: ${stockBrands}. ${stockFrom != null ? `From ${money(stockFrom)} per tire.` : "Text us for today's price."} Install & balance from $${INSTALL_FROM} per wheel. Open 7 days.`
-      : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
+  const allBrands = [...new Set([...stock, ...nextDay, ...tires].map((t) => t.brand))].slice(0, 5).join(", ");
+  const description = hasLowest || inStock
+    ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} in stock and installed today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
+    : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
 
-  const schema = has && {
+  // Product + Offer for every priced tire on the page: shelf stock first (with availability), then catalog.
+  const seller = { "@type": "TireShop", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/",
+    address: { "@type": "PostalAddress", streetAddress: "2331 E Olympic Blvd", addressLocality: "Los Angeles", addressRegion: "CA", postalCode: "90021", addressCountry: "US" } };
+  const product = (t, availability) => ({
+    "@type": "Product",
+    name: `${t.brand} ${t.model} ${t.size || display} tire`,
+    brand: { "@type": "Brand", name: t.brand },
+    ...(t.img && !t.imgGeneric ? { image: `https://tireplugla.com${t.img}` } : {}),
+    ...(t.specs?.partNumber ? { mpn: t.specs.partNumber } : {}),
+    offers: { "@type": "Offer", price: t.price, priceCurrency: "USD", url, itemCondition: "https://schema.org/NewCondition",
+      ...(availability ? { availability } : {}), seller },
+  });
+  const schemaItems = [
+    ...stock.filter((t) => t.price != null).map((t) => product(t, t.level === "low" ? "https://schema.org/LimitedAvailability" : "https://schema.org/InStock")),
+    ...tires.map((t) => product(t, null)),
+  ];
+  const schema = schemaItems.length > 0 && {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `${display} tires at The Tire Plug`,
-    itemListElement: tires.map((t, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "Product",
-        name: `${t.brand} ${t.model} ${t.size}`,
-        brand: { "@type": "Brand", name: t.brand },
-        ...(t.img ? { image: `https://tireplugla.com${t.img}` } : {}),
-        offers: { "@type": "Offer", price: t.price, priceCurrency: "USD", url,
-          seller: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-500-4625" } },
-      },
-    })),
+    itemListElement: schemaItems.map((item, i) => ({ "@type": "ListItem", position: i + 1, item })),
   };
 
   const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;

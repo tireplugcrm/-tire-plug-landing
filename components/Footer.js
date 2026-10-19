@@ -143,6 +143,7 @@ export default function Footer() {
             <a href="/olympic" style={{ color: '#FF3B42', textDecoration: 'none', fontWeight: 700 }}>Downtown · Olympic Blvd</a>
           </p>
           <p style={{ marginTop: '0.75rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', letterSpacing: '0.04em', lineHeight: 1.8 }}>
+            <a href="/cheap-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Cheap Tires</a>{' · '}
             <a href="/new-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>New Tires</a>{' · '}
             <a href="/rbp-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>RBP Tires</a>{' · '}
             <a href="/kumho-tires-los-angeles" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Kumho Tires</a>{' · '}
