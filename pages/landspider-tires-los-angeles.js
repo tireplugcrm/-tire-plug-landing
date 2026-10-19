@@ -7,13 +7,14 @@ import FinancingNote from "../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug } from "../lib/tire-catalog";
 import { stockForSize } from "../lib/inventory";
 
-// Landspider special: the 8 sizes from the October 2026 Landspider buy. Cards, stock and prices come
+// Landspider special: the 10 sizes received from the October 2026 Landspider buy. Cards, stock and prices come
 // from the same place as /tires/<size> (lib/inventory.js -> lib/pricing.js), so a price changed in
 // admin -> Inventory & Pricing shows here too. A size that sells out drops off on its own.
 const URL = "https://tireplugla.com/landspider-tires-los-angeles";
 const LINES = [
-  { model: "Citytraxx G/P", title: "Citytraxx G/P", sub: "Everyday all-season for sedans and compacts", sizes: ["195/65R15", "205/65R15", "205/55R16", "215/60R16"] },
-  { model: "Citytraxx H/P", title: "Citytraxx H/P", sub: "Performance all-season for coupes, sedans and crossovers", sizes: ["235/45R18", "235/40R19", "245/45R20", "245/50R20"] },
+  { model: "Citytraxx G/P", title: "Citytraxx G/P", sub: "Everyday all-season for sedans and compacts", sizes: ["195/65R15", "205/65R15", "205/55R16", "205/60R16", "215/60R16", "215/55R17"] },
+  { model: "Citytraxx H/P", title: "Citytraxx H/P", sub: "Performance all-season for coupes, sedans and crossovers", sizes: ["235/45R18", "235/40R19", "245/50R20"] },
+  { model: "Citytraxx H/T", title: "Citytraxx H/T", sub: "Highway all-season for SUVs and crossovers", sizes: ["235/60R18"] },
 ];
 const SMS = "5625004625";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
@@ -37,7 +38,7 @@ export default function LandspiderTires({ lines }) {
   const priced = all.filter((t) => t.price != null);
   const from = priced.length ? Math.min(...priced.map((t) => t.price)) : null;
   const title = `Landspider Tires in Los Angeles${from ? ` from ${money(from)}` : ""} | The Tire Plug`;
-  const description = `Landspider Citytraxx G/P and H/P tires in stock at The Tire Plug, 2331 E Olympic Blvd, Los Angeles.${from ? ` From ${money(from)} a tire.` : ""} Install and balance $${INSTALL_FROM} per wheel. Call (562) 500-4625.`;
+  const description = `Landspider Citytraxx G/P, H/P and H/T tires in stock at The Tire Plug, 2331 E Olympic Blvd, Los Angeles.${from ? ` From ${money(from)} a tire.` : ""} Install and balance $${INSTALL_FROM} per wheel. Call (562) 500-4625.`;
   const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I saw the Landspider ${t.model} in ${t.size}${t.price != null ? ` for ${money(t.price)} each` : ""}. Can you hold a set for me?`)}`;
 
   return (

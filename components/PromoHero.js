@@ -10,7 +10,7 @@ const SLIDES = [
     brand: { src: '/images/landspider/landspider-logo-white.png', alt: 'Landspider', h: 30 },
     title: ['Brand-new tires,', '15" to 20", from'],
     price: '$49',
-    sub: 'Citytraxx G/P and H/P in 8 sizes. Install & balance $25 per wheel. While supplies last.',
+    sub: 'Citytraxx G/P, H/P and H/T in 10 sizes. Install & balance $25 per wheel. While supplies last.',
     cta: { label: 'See sizes & prices', href: '/landspider-tires-los-angeles' },
     img: '/images/tires/landspider-citytraxx-h-p.webp',
     imgAlt: 'Landspider Citytraxx H/P tire',
