@@ -6,6 +6,17 @@ import FinancingNote from './FinancingNote';
 // Edit SLIDES to change what rotates; each slide links to its page or the booking form.
 const SLIDES = [
   {
+    kicker: 'OG Classics · whitewalls in stock',
+    brand: { src: '/images/brands/remington.svg', alt: 'Remington', h: 18, white: true },
+    title: ['Remington whitewalls,', '155/80R13'],
+    price: '$75',
+    sub: 'Touring L/X whitewall for lowriders and classics. Install & balance $25 per wheel.',
+    cta: { label: 'See price & book', href: '/tires/155-80r13' },
+    img: '/images/promo/remington-touring-lx-wire.webp',
+    imgAlt: 'Remington Touring L/X whitewall on a chrome wire-spoke wheel',
+    bg: '/images/promo/remington-og-classic.webp',
+  },
+  {
     kicker: 'Landspider special',
     brand: { src: '/images/landspider/landspider-logo-white.png', alt: 'Landspider', h: 30 },
     title: ['Brand-new tires,', '15" to 20", from'],
@@ -111,10 +122,11 @@ export default function PromoHero() {
           aria-roledescription="carousel"
           aria-label="Current promotions"
         >
-          <div className={`ph-slide${s.photo ? ' photo' : ''}`} key={i} aria-live="polite">
+          <div className={`ph-slide${s.photo ? ' photo' : ''}${s.bg ? ' scene' : ''}`} key={i} aria-live="polite">
             {s.photo && <img className="ph-bg" src={s.img} alt="" aria-hidden="true" />}
+            {s.bg && <img className="ph-bg" src={s.bg} alt="" aria-hidden="true" />}
             <div className="ph-copy">
-              {s.brand && <img className="ph-brand" src={s.brand.src} alt={s.brand.alt} style={{ height: s.brand.h }} />}
+              {s.brand && <img className="ph-brand" src={s.brand.src} alt={s.brand.alt} style={{ height: s.brand.h, filter: s.brand.white ? 'brightness(0) invert(1)' : undefined }} />}
               <span className="ph-kicker">{s.kicker}</span>
               <h1 className="ph-title">
                 <span>{s.title[0]}</span>
@@ -179,6 +191,14 @@ export default function PromoHero() {
         .ph-slide.photo { grid-template-columns: 1fr; }
         .ph-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
         .ph-slide.photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.2) 100%); }
+        .ph-slide.scene .ph-bg { opacity: 0.75; object-position: 70% 50%; }
+        .ph-slide.scene::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.1) 100%); }
+        .ph-slide.scene .ph-tire { width: auto; max-height: 210px; justify-self: end; align-self: end; transform: rotate(-4deg); }
+        .ph-slide.scene .ph-kicker { background: rgba(0,0,0,0.6); }
+        @media (max-width: 640px) {
+          .ph-slide.scene::before { background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.75) 45%, rgba(0,0,0,0.92) 100%); }
+          .ph-slide.scene .ph-tire { max-height: 170px; justify-self: center; }
+        }
         .ph-copy { position: relative; z-index: 1; max-width: 560px; }
         .ph-kicker { display: inline-block; background: rgba(255,31,31,0.15); border: 1px solid rgba(255,31,31,0.5); color: #FF5A5A;
           font-size: 0.75rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.35rem 0.75rem; border-radius: 50px; }
