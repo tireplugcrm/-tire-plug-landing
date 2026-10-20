@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       for (const w of wos || []) { if (ops.jobs[w.status] != null) ops.jobs[w.status] += 1; }
       const _d = new Date(); _d.setDate(_d.getDate() - 365 * 3);
       const threeYrAgo = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, "0")}-${String(_d.getDate()).padStart(2, "0")}`;
-      const { count } = await supabaseAdmin.from("customers").select("*", { count: "exact", head: true }).lt("last_tire_date", threeYrAgo);
+      const { count } = await supabaseAdmin.from("customers_merged").select("*", { count: "exact", head: true }).lt("last_tire_date", threeYrAgo);
       ops.dueForTires = count || 0;
     } catch (e) { /* leave ops default */ }
   }
