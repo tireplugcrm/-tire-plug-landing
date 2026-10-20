@@ -5,6 +5,7 @@ import { onNewLead, newToken, manageUrl } from '../../lib/front-desk.js';
 import { sendSms } from '../../lib/sms.js';
 import { digits10 } from '../../lib/phone.js';
 import { GREETING_TEXT } from '../../lib/shop-facts.js';
+import { recordOptIn } from '../../lib/consent.js';
 
 // Booking + newsletter intake. Everything runs through our own platform (Supabase
 // + the admin dashboard) — no GoHighLevel, no n8n. The lead is saved first and is
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
     source,
     promoCode,
     smsConsent,
+    marketingConsent,
     appointmentAt,
   } = req.body || {};
 
@@ -120,6 +122,9 @@ export default async function handler(req, res) {
         });
       }
     }
+
+    // Deals checkbox (separate from the appointment-text box): onto the marketing list.
+    if (inserted && marketingConsent === true) await recordOptIn({ name, phone: cleanPhone, email, source: source || 'book-page', req });
 
     // Front Desk agent: owner alert + customer confirmation. Never fails the booking.
     if (inserted) await onNewLead(inserted);

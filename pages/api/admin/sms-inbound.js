@@ -16,6 +16,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { digits10 } from "../../../lib/phone.js";
 import { cancelFollowups } from "../../../lib/followups.js";
 import { ghlRecentInbound } from "../../../lib/sms.js";
+import { isStopText, recordSmsStop } from "../../../lib/consent.js";
 
 // Only replies from the last day count, so the first nudge doesn't import old history.
 const FRESH_MS = 24 * 3600 * 1000;
@@ -48,6 +49,9 @@ async function saveInbound({ phone, body, sid, at }) {
     read: false,
     ...(at ? { created_at: at } : {}), // GHL's time, not when we picked it up
   });
+
+  // STOP (and friends): no more marketing texts to this number.
+  if (isStopText(body)) await recordSmsStop(phone, body);
 
   // Customer replied — stamp the reply (pulls them out of the cold path) + cancel nudges.
   if (leadId) {

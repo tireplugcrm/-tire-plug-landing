@@ -6,6 +6,7 @@ import SlotPicker, { timingForDay } from "../components/SlotPicker";
 import TireSizeSearch from "../components/TireSizeSearch";
 import { INSTALL_FROM, sizeToSlug, slugToKey, tiresForSize } from "../lib/tire-catalog";
 import { stockForSize, nextDayForSize } from "../lib/inventory";
+import { MARKETING_CONSENT_TEXT } from "../lib/consent-text";
 
 // Book a tire install: /book?size=225/65R17&tire=Evoluxx+Capricorn+4X4+HP
 // One page: the tire (switchable to any other tire in that size), how many, a time, contact.
@@ -72,6 +73,7 @@ export default function BookPage({ sizeKey, options, picked, service }) {
   const [slotNotice, setSlotNotice] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [smsConsent, setSmsConsent] = useState(false);
+  const [dealsConsent, setDealsConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [booked, setBooked] = useState(null);
@@ -121,7 +123,7 @@ export default function BookPage({ sizeKey, options, picked, service }) {
           serviceTiming: timing,
           appointmentAt: slot ? slot.at : undefined,
           leadPriority: timing === "ASAP" || timing === "Tomorrow" ? "HOT" : "WARM",
-          smsConsent, source: "book-page",
+          smsConsent, marketingConsent: dealsConsent, source: "book-page",
         }),
       });
       const data = await r.json();
@@ -272,6 +274,13 @@ export default function BookPage({ sizeKey, options, picked, service }) {
                     rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of
                     purchase. See our <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> &amp;{" "}
                     <a href="/terms" target="_blank" rel="noopener noreferrer">Terms</a>.
+                  </span>
+                </label>
+                {/* Marketing consent (OPTIONAL, separate from appointment texts): logged word for word (lib/consent.js) */}
+                <label className="consent">
+                  <input type="checkbox" checked={dealsConsent} onChange={(e) => setDealsConsent(e.target.checked)} />
+                  <span>
+                    <b>{MARKETING_CONSENT_TEXT.split(". ")[0]}.</b>{" "}(Optional) {MARKETING_CONSENT_TEXT.split(". ").slice(1).join(". ")}
                   </span>
                 </label>
                 {error && <p className="warn">{error}</p>}
