@@ -112,7 +112,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
               <h1>{display} <span>tires</span></h1>
               <p className="lead">
                 {inStock && <><b>{stock.length} in stock</b> at our shop today. </>}
-                {hasNextDay && <><b>{nextDay.length} more next day</b>, priced below Amazon and Walmart. </>}
+                {hasNextDay && <><b>{nextDay.length} more next day</b>: order today, installed tomorrow. </>}
                 {has
                   ? <>{tires.length} option{tires.length > 1 ? "s" : ""} from <b>{money(from)}</b> per tire. Cheapest first.</>
                   : inStock
@@ -148,7 +148,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
           {hasNextDay && (
             <section className="stock nextday">
               <h2>Next-day order</h2>
-              <p className="nd-sub">Order today, installed tomorrow. Priced to beat Amazon and Walmart by at least $5 a tire. Install &amp; balance from ${INSTALL_FROM} per wheel.</p>
+              <p className="nd-sub">Order today, installed tomorrow or any day after. Install &amp; balance from ${INSTALL_FROM} per wheel.</p>
               <ul className="list">
                 {nextDay.map((t) => (
                   <StockTireCard key={`nd-${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsNextDay(t)} cta="Text to order" ready="Installed tomorrow" />

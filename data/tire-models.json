@@ -2022,6 +2022,105 @@
         "Adventuro A/TX"
       ],
       "source": "https://www.gtradial-us.com/suv-pickup/adventuro-atx/"
+    },
+    "Falken|Aklimate": {
+      "category": "All-weather (3PMSF snow rated)",
+      "about": "An all-weather tire that stays on through winter, with a severe-snow rating for cold mornings and mountain trips.",
+      "features": [
+        "Severe-snow (3PMSF) rated",
+        "All-year tread for rain and light snow"
+      ],
+      "img": "/images/tires/falken-aklimate.webp",
+      "source": "https://tiresize.com/tires/Falken/Aklimate.htm",
+      "aliases": []
+    },
+    "Falken|Ziex ZE950 A/S": {
+      "category": "All-season performance",
+      "about": "A sporty all-season tire with sharp steering response and solid grip in the wet.",
+      "features": [
+        "Responsive handling",
+        "Wet-weather grip"
+      ],
+      "img": "/images/tires/falken-ziex-ze950-a-s.webp",
+      "source": "https://tiresize.com/tires/Falken/Ziex-ZE950-AS.htm",
+      "aliases": []
+    },
+    "Falken|Wildpeak A/T Trail": {
+      "category": "All-terrain (crossover/SUV)",
+      "about": "An all-terrain tire sized for crossovers and SUVs: quiet on the street, ready for dirt roads and light trails.",
+      "features": [
+        "Severe-snow (3PMSF) rated",
+        "Street-friendly all-terrain tread"
+      ],
+      "img": "/images/tires/falken-wildpeak-a-t-trail.webp",
+      "source": "https://tiresize.com/tires/Falken/Wildpeak-AT-Trail.htm",
+      "aliases": []
+    },
+    "Falken|Ziex CT60 A/S": {
+      "category": "All-season touring (crossover/SUV)",
+      "about": "A comfortable all-season touring tire for crossovers and SUVs, built for a smooth, quiet daily drive.",
+      "features": [
+        "Quiet, comfortable ride",
+        "Long-wearing all-season tread"
+      ],
+      "img": "/images/tires/falken-ziex-ct60-a-s.webp",
+      "source": "https://tiresize.com/tires/Falken/Ziex-CT60-AS.htm",
+      "aliases": []
+    },
+    "Falken|Wildpeak R/T01": {
+      "category": "Rugged terrain (truck)",
+      "about": "A rugged-terrain truck tire that sits between an all-terrain and a mud tire: aggressive off-road, still manageable on the highway.",
+      "features": [
+        "Aggressive shoulder blocks",
+        "Built for trucks and towing"
+      ],
+      "img": "/images/tires/falken-wildpeak-r-t01.webp",
+      "source": "https://tiresize.com/tires/Falken/Wildpeak-RT.htm",
+      "aliases": []
+    },
+    "Falken|Wildpeak M/T01": {
+      "category": "Mud terrain (truck)",
+      "about": "A mud-terrain truck tire with deep, open tread for mud, rocks and loose dirt.",
+      "features": [
+        "Deep open tread for mud and rock",
+        "Tough sidewalls"
+      ],
+      "img": "/images/tires/falken-wildpeak-m-t01.webp",
+      "source": "https://tiresize.com/tires/Falken/Wildpeak-MT.htm",
+      "aliases": []
+    },
+    "Falken|Wildpeak A/T3W": {
+      "category": "All-terrain (truck/SUV)",
+      "about": "An all-terrain tire for trucks and SUVs with a severe-snow rating and grip on and off the road.",
+      "features": [
+        "Severe-snow (3PMSF) rated",
+        "On- and off-road traction"
+      ],
+      "img": "/images/tires/falken-wildpeak-a-t3w.webp",
+      "source": "https://tiresize.com/tires/Falken/Wildpeak-AT3W.htm",
+      "aliases": []
+    },
+    "Lionhart|Kilima A/T": {
+      "category": "All-terrain (truck/SUV)",
+      "about": "An affordable all-terrain tire for trucks and SUVs, with chunky tread for dirt and gravel and a ride that's easy to live with every day.",
+      "features": [
+        "Off-road tread blocks",
+        "Everyday highway comfort"
+      ],
+      "img": "/images/tires/lionhart-kilima-a-t.webp",
+      "source": "https://lionharttires.com/tire/kilima-at/",
+      "aliases": []
+    },
+    "Lionhart|Lionclaw ATX2": {
+      "category": "All-terrain (truck/SUV)",
+      "about": "A budget all-terrain tire for trucks and SUVs, built for gravel, dirt and the daily commute.",
+      "features": [
+        "Rugged all-terrain tread",
+        "Good value for trucks"
+      ],
+      "img": "/images/tires/lionhart-lionclaw-atx2.webp",
+      "source": "https://lionharttires.com/tire/lionclaw-atx2/",
+      "aliases": []
     }
   }
 }

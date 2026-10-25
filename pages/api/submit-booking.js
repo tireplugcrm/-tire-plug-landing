@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
 import { sendWelcomeEmail } from '../../lib/welcome-email.js';
-import { isSlotOpen, openSlots, fmtWhen } from '../../lib/booking.js';
+import { isSlotOpen, openSlots, fmtWhen, laParts } from '../../lib/booking.js';
 import { onNewLead, newToken, manageUrl } from '../../lib/front-desk.js';
 import { sendSms } from '../../lib/sms.js';
 import { digits10 } from '../../lib/phone.js';
@@ -81,6 +81,11 @@ export default async function handler(req, res) {
     // Online appointment: the time must still be open (someone may have just taken it).
     let appt = null;
     if (appointmentAt) {
+      // Tires we have to order (next-day / special order) can't go on today: the earliest is tomorrow.
+      const ordered = req.body.availability === 'next_day' || req.body.availability === 'special_order';
+      if (ordered && laParts(new Date(appointmentAt)).ymd <= laParts().ymd) {
+        return res.status(409).json({ success: false, code: 'slot_taken', error: 'These tires come in next day. Please pick a time tomorrow or later.', days: await openSlots() });
+      }
       if (!(await isSlotOpen(appointmentAt))) {
         return res.status(409).json({ success: false, code: 'slot_taken', error: 'That time was just taken, pick another.', days: await openSlots() });
       }
