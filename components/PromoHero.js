@@ -31,7 +31,7 @@ const SLIDES = [
     brand: { src: '/images/kumho/kumho-logo.png', alt: 'Kumho Tires', h: 40 },
     title: ['Buy 4 Kumho tires,', 'get a 4-wheel alignment'],
     price: '$49',
-    sub: 'Ecsta · Crugen · Road Venture · Tesla-ready TA91 EV. From $99.75 a tire. Install & balance from $25 per wheel.',
+    sub: 'Ecsta · Crugen · Road Venture · Tesla-ready TA91 EV. From $87 a tire. Install & balance from $25 per wheel.',
     cta: { label: 'Shop Kumho', href: '/kumho-tires-los-angeles' },
     img: '/images/kumho/road-venture-ht52-cut.webp',
     imgAlt: 'Kumho Road Venture HT tire',
