@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-25T18:16:34.311Z",
+  "updatedAt": "2026-10-25T18:23:51.213Z",
   "source": "Tire Outlet",
   "priceCheckedAt": "2026-10-16",
   "tires": [
@@ -240,19 +240,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "235/75R15",
-      "rim": 15,
-      "lt": false,
-      "price": 102,
-      "specs": {
-        "loadIndex": "109",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Falken",
       "model": "Sincera SN250 A/S",
       "key": "235/75R15",
@@ -288,19 +275,6 @@
       "specs": {
         "loadIndex": "109",
         "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "235/75R15",
-      "rim": 15,
-      "lt": true,
-      "price": 139,
-      "specs": {
-        "loadIndex": "116/113",
-        "speed": "R"
       },
       "from": "Turbo"
     },
@@ -709,34 +683,8 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "245/75R16",
-      "rim": 16,
-      "lt": false,
-      "price": 114,
-      "specs": {
-        "loadIndex": "115",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Lionhart",
       "model": "Kilima A/T",
-      "key": "245/75R16",
-      "rim": 16,
-      "lt": true,
-      "price": 122,
-      "specs": {
-        "loadIndex": "120/116",
-        "speed": "S"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
       "key": "245/75R16",
       "rim": 16,
       "lt": true,
@@ -852,19 +800,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/70R16",
-      "rim": 16,
-      "lt": false,
-      "price": 122,
-      "specs": {
-        "loadIndex": "112",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "GT Radial",
       "model": "Adventuro ATX",
       "key": "265/70R16",
@@ -882,19 +817,6 @@
       "price": 128,
       "specs": {
         "loadIndex": "121/118",
-        "speed": "S"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/70R16",
-      "rim": 16,
-      "lt": true,
-      "price": 128,
-      "specs": {
-        "loadIndex": "117/114",
         "speed": "S"
       },
       "from": "Turbo"
@@ -1595,19 +1517,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "235/65R17",
-      "rim": 17,
-      "lt": false,
-      "price": 110,
-      "specs": {
-        "loadIndex": "104",
-        "speed": "H"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Lexani",
       "model": "Quattro Tempo Tour AW",
       "key": "235/65R17",
@@ -1739,19 +1648,6 @@
       "specs": {
         "loadIndex": "107",
         "speed": "H"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "245/65R17",
-      "rim": 17,
-      "lt": false,
-      "price": 112,
-      "specs": {
-        "loadIndex": "111",
-        "speed": "T"
       },
       "from": "Turbo"
     },
@@ -1908,19 +1804,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/70R17",
-      "rim": 17,
-      "lt": true,
-      "price": 135,
-      "specs": {
-        "loadIndex": "123/120",
-        "speed": "S"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Falken",
       "model": "Rubitrek A/T",
       "key": "265/70R17",
@@ -2039,32 +1922,6 @@
       "specs": {
         "loadIndex": "116",
         "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "285/70R17",
-      "rim": 17,
-      "lt": false,
-      "price": 147,
-      "specs": {
-        "loadIndex": "117",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "285/70R17",
-      "rim": 17,
-      "lt": true,
-      "price": 155,
-      "specs": {
-        "loadIndex": "126/123",
-        "speed": "S"
       },
       "from": "Turbo"
     },
@@ -2813,15 +2670,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "Kumho",
-      "model": "Crugen HP71",
-      "key": "235/55R18",
-      "rim": 18,
-      "lt": false,
-      "price": 169,
-      "priceNote": "Beats Amazon & Walmart by $5+"
-    },
-    {
       "brand": "Falken",
       "model": "Ziex CT60 A/S",
       "key": "235/55R18",
@@ -3157,19 +3005,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "245/60R18",
-      "rim": 18,
-      "lt": false,
-      "price": 131,
-      "specs": {
-        "loadIndex": "105",
-        "speed": "H"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Lionhart",
       "model": "Kilima A/T",
       "key": "245/60R18",
@@ -3318,19 +3153,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/60R18",
-      "rim": 18,
-      "lt": false,
-      "price": 139,
-      "specs": {
-        "loadIndex": "114",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Falken",
       "model": "Wildpeak H/T02",
       "key": "265/60R18",
@@ -3466,19 +3288,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/70R18",
-      "rim": 18,
-      "lt": false,
-      "price": 130,
-      "specs": {
-        "loadIndex": "116",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Lionhart",
       "model": "Imara H/T",
       "key": "265/70R18",
@@ -3527,19 +3336,6 @@
       "specs": {
         "loadIndex": "124/121",
         "speed": "Q"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/70R18",
-      "rim": 18,
-      "lt": true,
-      "price": 152,
-      "specs": {
-        "loadIndex": "124/121",
-        "speed": "S"
       },
       "from": "Turbo"
     },
@@ -3696,19 +3492,6 @@
       "specs": {
         "loadIndex": "123/120",
         "speed": "Q"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "275/65R18",
-      "rim": 18,
-      "lt": true,
-      "price": 133,
-      "specs": {
-        "loadIndex": "123/120",
-        "speed": "S"
       },
       "from": "Turbo"
     },
@@ -4559,19 +4342,6 @@
       "from": "Turbo"
     },
     {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "265/50R20",
-      "rim": 20,
-      "lt": false,
-      "price": 131,
-      "specs": {
-        "loadIndex": "111",
-        "speed": "H"
-      },
-      "from": "Turbo"
-    },
-    {
       "brand": "Falken",
       "model": "Ziex CT60 A/S",
       "key": "265/50R20",
@@ -4668,19 +4438,6 @@
       "specs": {
         "loadIndex": "117",
         "speed": "V"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "275/55R20",
-      "rim": 20,
-      "lt": false,
-      "price": 135,
-      "specs": {
-        "loadIndex": "117",
-        "speed": "T"
       },
       "from": "Turbo"
     },
@@ -4808,19 +4565,6 @@
       "rim": 20,
       "lt": false,
       "price": 142,
-      "specs": {
-        "loadIndex": "115",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "275/60R20",
-      "rim": 20,
-      "lt": false,
-      "price": 146,
       "specs": {
         "loadIndex": "115",
         "speed": "T"
@@ -4969,19 +4713,6 @@
       "specs": {
         "loadIndex": "114",
         "speed": "H"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "RBP",
-      "model": "Repulsor A/T Plateau",
-      "key": "285/45R22",
-      "rim": 22,
-      "lt": false,
-      "price": 153,
-      "specs": {
-        "loadIndex": "114",
-        "speed": "T"
       },
       "from": "Turbo"
     },
