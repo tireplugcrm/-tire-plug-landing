@@ -6,8 +6,8 @@
  * The vendor file stays OFF the repo (it holds our cost). Pipe-separated, one tire per line:
  *   size|type|brand|model|code|load|speed|qty|cost      (type is P or LT)
  *
- * Rule (owner's): drop-shipped tires are cost + $22.50, Falken cost + $25, rounded up to a whole
- * dollar like the shelf prices (lib/pricing-engine.js). The vendor file is already narrowed to the
+ * Rule (owner's): drop-shipped tires are cost + $20 (the shelf markup), Falken cost + $25, rounded
+ * up to a whole dollar like the shelf prices (lib/pricing-engine.js). The vendor file is already narrowed to the
  * lines and sizes we sell. A tire also on the price-matched list keeps the lower price.
  * Every tire on the site needs a photo: a model with no photo in data/tire-models.json is held back
  * (and listed) until one is added.
@@ -22,7 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { allTires } from "../lib/tire-catalog.js";
 
-const MARKUP = { default: 22.5, falken: 25 };
+const MARKUP = { default: 20, falken: 25 };
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data");
 const OUT = path.join(DATA, "next-day.json");

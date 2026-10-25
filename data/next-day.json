@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-25T18:23:51.213Z",
+  "updatedAt": "2026-10-25T18:35:19.387Z",
   "source": "Tire Outlet",
   "priceCheckedAt": "2026-10-16",
   "tires": [
@@ -18,7 +18,7 @@
       "key": "185/65R15",
       "rim": 15,
       "lt": false,
-      "price": 61,
+      "price": 58,
       "specs": {
         "loadIndex": "92",
         "speed": "H"
@@ -53,7 +53,7 @@
       "key": "195/60R15",
       "rim": 15,
       "lt": false,
-      "price": 78,
+      "price": 75,
       "specs": {
         "loadIndex": "88",
         "speed": "H"
@@ -88,7 +88,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
-      "price": 67,
+      "price": 65,
       "specs": {
         "loadIndex": "91",
         "speed": "V"
@@ -101,7 +101,7 @@
       "key": "195/65R15",
       "rim": 15,
       "lt": false,
-      "price": 80,
+      "price": 78,
       "specs": {
         "loadIndex": "91",
         "speed": "H"
@@ -180,7 +180,7 @@
       "key": "205/65R15",
       "rim": 15,
       "lt": false,
-      "price": 88,
+      "price": 85,
       "specs": {
         "loadIndex": "94",
         "speed": "H"
@@ -206,7 +206,7 @@
       "key": "235/75R15",
       "rim": 15,
       "lt": false,
-      "price": 91,
+      "price": 89,
       "specs": {
         "loadIndex": "105",
         "speed": "T"
@@ -219,7 +219,7 @@
       "key": "235/75R15",
       "rim": 15,
       "lt": false,
-      "price": 91,
+      "price": 89,
       "specs": {
         "loadIndex": "109",
         "speed": "T"
@@ -232,7 +232,7 @@
       "key": "235/75R15",
       "rim": 15,
       "lt": false,
-      "price": 102,
+      "price": 99,
       "specs": {
         "loadIndex": "109",
         "speed": "T"
@@ -258,7 +258,7 @@
       "key": "235/75R15",
       "rim": 15,
       "lt": true,
-      "price": 128,
+      "price": 125,
       "specs": {
         "loadIndex": "104/101",
         "speed": "Q"
@@ -323,7 +323,7 @@
       "key": "205/55R16",
       "rim": 16,
       "lt": false,
-      "price": 76,
+      "price": 74,
       "specs": {
         "loadIndex": "94",
         "speed": "V"
@@ -384,7 +384,7 @@
       "key": "205/60R16",
       "rim": 16,
       "lt": false,
-      "price": 71,
+      "price": 68,
       "specs": {
         "loadIndex": "92",
         "speed": "V"
@@ -449,7 +449,7 @@
       "key": "205/65R16",
       "rim": 16,
       "lt": false,
-      "price": 72,
+      "price": 69,
       "specs": {
         "loadIndex": "95",
         "speed": "V"
@@ -471,7 +471,7 @@
       "key": "205/65R16",
       "rim": 16,
       "lt": false,
-      "price": 93,
+      "price": 90,
       "specs": {
         "loadIndex": "95",
         "speed": "H"
@@ -510,7 +510,7 @@
       "key": "215/55R16",
       "rim": 16,
       "lt": false,
-      "price": 74,
+      "price": 71,
       "specs": {
         "loadIndex": "97",
         "speed": "V"
@@ -523,7 +523,7 @@
       "key": "215/55R16",
       "rim": 16,
       "lt": false,
-      "price": 82,
+      "price": 79,
       "specs": {
         "loadIndex": "93",
         "speed": "H"
@@ -575,7 +575,7 @@
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
-      "price": 74,
+      "price": 71,
       "specs": {
         "loadIndex": "95",
         "speed": "V"
@@ -588,7 +588,7 @@
       "key": "215/60R16",
       "rim": 16,
       "lt": false,
-      "price": 91,
+      "price": 88,
       "specs": {
         "loadIndex": "99",
         "speed": "V"
@@ -640,7 +640,7 @@
       "key": "245/75R16",
       "rim": 16,
       "lt": true,
-      "price": 112,
+      "price": 109,
       "specs": {
         "loadIndex": "120/116",
         "speed": "Q"
@@ -653,10 +653,23 @@
       "key": "245/75R16",
       "rim": 16,
       "lt": true,
-      "price": 112,
+      "price": 109,
       "specs": {
         "loadIndex": "120/116",
         "speed": "Q"
+      },
+      "from": "Turbo"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Kilima A/T",
+      "key": "245/75R16",
+      "rim": 16,
+      "lt": false,
+      "price": 111,
+      "specs": {
+        "loadIndex": "111",
+        "speed": "T"
       },
       "from": "Turbo"
     },
@@ -674,21 +687,8 @@
       "model": "Kilima A/T",
       "key": "245/75R16",
       "rim": 16,
-      "lt": false,
-      "price": 114,
-      "specs": {
-        "loadIndex": "111",
-        "speed": "T"
-      },
-      "from": "Turbo"
-    },
-    {
-      "brand": "Lionhart",
-      "model": "Kilima A/T",
-      "key": "245/75R16",
-      "rim": 16,
       "lt": true,
-      "price": 122,
+      "price": 119,
       "specs": {
         "loadIndex": "120/116",
         "speed": "S"
@@ -766,7 +766,7 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
-      "price": 105,
+      "price": 102,
       "specs": {
         "loadIndex": "112",
         "speed": "T"
@@ -779,7 +779,7 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
-      "price": 109,
+      "price": 107,
       "specs": {
         "loadIndex": "112",
         "speed": "T"
@@ -792,10 +792,23 @@
       "key": "265/70R16",
       "rim": 16,
       "lt": false,
-      "price": 122,
+      "price": 119,
       "specs": {
         "loadIndex": "112",
         "speed": "T"
+      },
+      "from": "Turbo"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Kilima A/T",
+      "key": "265/70R16",
+      "rim": 16,
+      "lt": true,
+      "price": 125,
+      "specs": {
+        "loadIndex": "121/118",
+        "speed": "S"
       },
       "from": "Turbo"
     },
@@ -807,19 +820,6 @@
       "lt": false,
       "price": 126,
       "priceNote": "Beats Amazon & Walmart by $5+"
-    },
-    {
-      "brand": "Lionhart",
-      "model": "Kilima A/T",
-      "key": "265/70R16",
-      "rim": 16,
-      "lt": true,
-      "price": 128,
-      "specs": {
-        "loadIndex": "121/118",
-        "speed": "S"
-      },
-      "from": "Turbo"
     },
     {
       "brand": "Falken",
@@ -875,7 +875,7 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
-      "price": 70,
+      "price": 67,
       "specs": {
         "loadIndex": "91",
         "speed": "W"
@@ -888,7 +888,7 @@
       "key": "215/45R17",
       "rim": 17,
       "lt": false,
-      "price": 72,
+      "price": 69,
       "specs": {
         "loadIndex": "91",
         "speed": "W"
@@ -953,7 +953,7 @@
       "key": "215/50R17",
       "rim": 17,
       "lt": false,
-      "price": 79,
+      "price": 76,
       "specs": {
         "loadIndex": "95",
         "speed": "W"
@@ -966,7 +966,7 @@
       "key": "215/50R17",
       "rim": 17,
       "lt": false,
-      "price": 98,
+      "price": 95,
       "specs": {
         "loadIndex": "95",
         "speed": "V"
@@ -1018,7 +1018,7 @@
       "key": "215/55R17",
       "rim": 17,
       "lt": false,
-      "price": 79,
+      "price": 76,
       "specs": {
         "loadIndex": "98",
         "speed": "W"
@@ -1092,7 +1092,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
-      "price": 75,
+      "price": 73,
       "specs": {
         "loadIndex": "94",
         "speed": "W"
@@ -1105,7 +1105,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
-      "price": 79,
+      "price": 77,
       "specs": {
         "loadIndex": "94",
         "speed": "W"
@@ -1118,7 +1118,7 @@
       "key": "225/45R17",
       "rim": 17,
       "lt": false,
-      "price": 85,
+      "price": 82,
       "specs": {
         "loadIndex": "94",
         "speed": "V"
@@ -1166,7 +1166,7 @@
       "key": "225/50R17",
       "rim": 17,
       "lt": false,
-      "price": 80,
+      "price": 77,
       "specs": {
         "loadIndex": "98",
         "speed": "W"
@@ -1231,7 +1231,7 @@
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
-      "price": 80,
+      "price": 77,
       "specs": {
         "loadIndex": "101",
         "speed": "W"
@@ -1244,7 +1244,7 @@
       "key": "225/55R17",
       "rim": 17,
       "lt": false,
-      "price": 82,
+      "price": 79,
       "specs": {
         "loadIndex": "101",
         "speed": "W"
@@ -1296,7 +1296,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
-      "price": 89,
+      "price": 86,
       "specs": {
         "loadIndex": "102",
         "speed": "T"
@@ -1309,7 +1309,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
-      "price": 97,
+      "price": 94,
       "specs": {
         "loadIndex": "102",
         "speed": "T"
@@ -1322,7 +1322,7 @@
       "key": "225/65R17",
       "rim": 17,
       "lt": false,
-      "price": 108,
+      "price": 105,
       "specs": {
         "loadIndex": "102",
         "speed": "H"
@@ -1418,7 +1418,7 @@
       "key": "235/45R17",
       "rim": 17,
       "lt": false,
-      "price": 75,
+      "price": 73,
       "specs": {
         "loadIndex": "97",
         "speed": "W"
@@ -1431,7 +1431,7 @@
       "key": "235/45R17",
       "rim": 17,
       "lt": false,
-      "price": 80,
+      "price": 77,
       "specs": {
         "loadIndex": "97",
         "speed": "W"
@@ -1444,7 +1444,7 @@
       "key": "235/45R17",
       "rim": 17,
       "lt": false,
-      "price": 108,
+      "price": 105,
       "specs": {
         "loadIndex": "97",
         "speed": "V"
@@ -1483,7 +1483,7 @@
       "key": "235/65R17",
       "rim": 17,
       "lt": false,
-      "price": 88,
+      "price": 86,
       "specs": {
         "loadIndex": "104",
         "speed": "T"
@@ -1496,7 +1496,7 @@
       "key": "235/65R17",
       "rim": 17,
       "lt": false,
-      "price": 96,
+      "price": 93,
       "specs": {
         "loadIndex": "104",
         "speed": "H"
@@ -1509,7 +1509,7 @@
       "key": "235/65R17",
       "rim": 17,
       "lt": false,
-      "price": 110,
+      "price": 107,
       "specs": {
         "loadIndex": "108",
         "speed": "T"
@@ -1522,7 +1522,7 @@
       "key": "235/65R17",
       "rim": 17,
       "lt": false,
-      "price": 117,
+      "price": 115,
       "specs": {
         "loadIndex": "104",
         "speed": "H"
@@ -1618,7 +1618,7 @@
       "key": "245/65R17",
       "rim": 17,
       "lt": false,
-      "price": 98,
+      "price": 95,
       "specs": {
         "loadIndex": "107",
         "speed": "H"
@@ -1631,7 +1631,7 @@
       "key": "245/65R17",
       "rim": 17,
       "lt": false,
-      "price": 98,
+      "price": 95,
       "specs": {
         "loadIndex": "107",
         "speed": "T"
@@ -1644,7 +1644,7 @@
       "key": "245/65R17",
       "rim": 17,
       "lt": false,
-      "price": 108,
+      "price": 105,
       "specs": {
         "loadIndex": "107",
         "speed": "H"
@@ -1657,7 +1657,7 @@
       "key": "245/65R17",
       "rim": 17,
       "lt": false,
-      "price": 114,
+      "price": 112,
       "specs": {
         "loadIndex": "111",
         "speed": "T"
@@ -1722,7 +1722,7 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": false,
-      "price": 115,
+      "price": 112,
       "specs": {
         "loadIndex": "115",
         "speed": "T"
@@ -1735,7 +1735,7 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": false,
-      "price": 115,
+      "price": 112,
       "specs": {
         "loadIndex": "115",
         "speed": "H"
@@ -1748,7 +1748,7 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": true,
-      "price": 120,
+      "price": 117,
       "specs": {
         "loadIndex": "123/120",
         "speed": "Q"
@@ -1761,7 +1761,7 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": true,
-      "price": 125,
+      "price": 122,
       "specs": {
         "loadIndex": "123/120",
         "speed": "S"
@@ -1774,10 +1774,23 @@
       "key": "265/70R17",
       "rim": 17,
       "lt": false,
-      "price": 126,
+      "price": 123,
       "specs": {
         "loadIndex": "115",
         "speed": "T"
+      },
+      "from": "Turbo"
+    },
+    {
+      "brand": "Lionhart",
+      "model": "Kilima A/T",
+      "key": "265/70R17",
+      "rim": 17,
+      "lt": true,
+      "price": 132,
+      "specs": {
+        "loadIndex": "121/118",
+        "speed": "Q"
       },
       "from": "Turbo"
     },
@@ -1789,19 +1802,6 @@
       "lt": false,
       "price": 133,
       "priceNote": "Beats Amazon & Walmart by $5+"
-    },
-    {
-      "brand": "Lionhart",
-      "model": "Kilima A/T",
-      "key": "265/70R17",
-      "rim": 17,
-      "lt": true,
-      "price": 135,
-      "specs": {
-        "loadIndex": "121/118",
-        "speed": "Q"
-      },
-      "from": "Turbo"
     },
     {
       "brand": "Falken",
@@ -1918,7 +1918,7 @@
       "key": "285/70R17",
       "rim": 17,
       "lt": false,
-      "price": 147,
+      "price": 144,
       "specs": {
         "loadIndex": "116",
         "speed": "T"
@@ -2027,7 +2027,7 @@
       "key": "225/40R18",
       "rim": 18,
       "lt": false,
-      "price": 81,
+      "price": 78,
       "specs": {
         "loadIndex": "92",
         "speed": "W"
@@ -2040,7 +2040,7 @@
       "key": "225/40R18",
       "rim": 18,
       "lt": false,
-      "price": 86,
+      "price": 83,
       "specs": {
         "loadIndex": "92",
         "speed": "V"
@@ -2114,7 +2114,7 @@
       "key": "225/45R18",
       "rim": 18,
       "lt": false,
-      "price": 77,
+      "price": 75,
       "specs": {
         "loadIndex": "95",
         "speed": "W"
@@ -2188,7 +2188,7 @@
       "key": "225/50R18",
       "rim": 18,
       "lt": false,
-      "price": 85,
+      "price": 82,
       "specs": {
         "loadIndex": "99",
         "speed": "W"
@@ -2201,7 +2201,7 @@
       "key": "225/50R18",
       "rim": 18,
       "lt": false,
-      "price": 88,
+      "price": 85,
       "specs": {
         "loadIndex": "95",
         "speed": "V"
@@ -2214,7 +2214,7 @@
       "key": "225/50R18",
       "rim": 18,
       "lt": false,
-      "price": 95,
+      "price": 93,
       "specs": {
         "loadIndex": "99",
         "speed": "V"
@@ -2266,7 +2266,7 @@
       "key": "225/55R18",
       "rim": 18,
       "lt": false,
-      "price": 93,
+      "price": 90,
       "specs": {
         "loadIndex": "102",
         "speed": "W"
@@ -2279,7 +2279,7 @@
       "key": "225/55R18",
       "rim": 18,
       "lt": false,
-      "price": 113,
+      "price": 110,
       "specs": {
         "loadIndex": "102",
         "speed": "V"
@@ -2331,7 +2331,7 @@
       "key": "225/60R18",
       "rim": 18,
       "lt": false,
-      "price": 87,
+      "price": 85,
       "specs": {
         "loadIndex": "104",
         "speed": "V"
@@ -2344,7 +2344,7 @@
       "key": "225/60R18",
       "rim": 18,
       "lt": false,
-      "price": 90,
+      "price": 87,
       "specs": {
         "loadIndex": "104",
         "speed": "V"
@@ -2357,7 +2357,7 @@
       "key": "225/60R18",
       "rim": 18,
       "lt": false,
-      "price": 115,
+      "price": 113,
       "specs": {
         "loadIndex": "100",
         "speed": "H"
@@ -2418,7 +2418,7 @@
       "key": "235/40R18",
       "rim": 18,
       "lt": false,
-      "price": 83,
+      "price": 81,
       "specs": {
         "loadIndex": "95",
         "speed": "W"
@@ -2431,7 +2431,7 @@
       "key": "235/40R18",
       "rim": 18,
       "lt": false,
-      "price": 86,
+      "price": 83,
       "specs": {
         "loadIndex": "95",
         "speed": "W"
@@ -2488,7 +2488,7 @@
       "key": "235/45R18",
       "rim": 18,
       "lt": false,
-      "price": 81,
+      "price": 78,
       "specs": {
         "loadIndex": "98",
         "speed": "W"
@@ -2545,7 +2545,7 @@
       "key": "235/50R18",
       "rim": 18,
       "lt": false,
-      "price": 88,
+      "price": 85,
       "specs": {
         "loadIndex": "101",
         "speed": "W"
@@ -2649,7 +2649,7 @@
       "key": "235/55R18",
       "rim": 18,
       "lt": false,
-      "price": 110,
+      "price": 107,
       "specs": {
         "loadIndex": "104",
         "speed": "V"
@@ -2714,7 +2714,7 @@
       "key": "235/60R18",
       "rim": 18,
       "lt": false,
-      "price": 91,
+      "price": 89,
       "specs": {
         "loadIndex": "103",
         "speed": "T"
@@ -2727,7 +2727,7 @@
       "key": "235/60R18",
       "rim": 18,
       "lt": false,
-      "price": 120,
+      "price": 118,
       "specs": {
         "loadIndex": "107",
         "speed": "V"
@@ -2801,7 +2801,7 @@
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
-      "price": 86,
+      "price": 83,
       "specs": {
         "loadIndex": "97",
         "speed": "W"
@@ -2814,7 +2814,7 @@
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
-      "price": 86,
+      "price": 83,
       "specs": {
         "loadIndex": "97",
         "speed": "W"
@@ -2836,7 +2836,7 @@
       "key": "245/40R18",
       "rim": 18,
       "lt": false,
-      "price": 112,
+      "price": 109,
       "specs": {
         "loadIndex": "97",
         "speed": "V"
@@ -2888,7 +2888,7 @@
       "key": "245/45R18",
       "rim": 18,
       "lt": false,
-      "price": 87,
+      "price": 84,
       "specs": {
         "loadIndex": "100",
         "speed": "W"
@@ -2901,7 +2901,7 @@
       "key": "245/45R18",
       "rim": 18,
       "lt": false,
-      "price": 118,
+      "price": 115,
       "specs": {
         "loadIndex": "100",
         "speed": "V"
@@ -2984,7 +2984,7 @@
       "key": "245/60R18",
       "rim": 18,
       "lt": false,
-      "price": 94,
+      "price": 92,
       "specs": {
         "loadIndex": "105",
         "speed": "H"
@@ -2997,7 +2997,7 @@
       "key": "245/60R18",
       "rim": 18,
       "lt": false,
-      "price": 127,
+      "price": 124,
       "specs": {
         "loadIndex": "105",
         "speed": "V"
@@ -3010,7 +3010,7 @@
       "key": "245/60R18",
       "rim": 18,
       "lt": false,
-      "price": 133,
+      "price": 130,
       "specs": {
         "loadIndex": "105",
         "speed": "T"
@@ -3071,7 +3071,7 @@
       "key": "255/35R18",
       "rim": 18,
       "lt": false,
-      "price": 108,
+      "price": 105,
       "specs": {
         "loadIndex": "94",
         "speed": "W"
@@ -3132,7 +3132,7 @@
       "key": "265/60R18",
       "rim": 18,
       "lt": false,
-      "price": 115,
+      "price": 112,
       "specs": {
         "loadIndex": "110",
         "speed": "H"
@@ -3145,7 +3145,7 @@
       "key": "265/60R18",
       "rim": 18,
       "lt": false,
-      "price": 127,
+      "price": 124,
       "specs": {
         "loadIndex": "110",
         "speed": "H"
@@ -3241,7 +3241,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": false,
-      "price": 123,
+      "price": 120,
       "specs": {
         "loadIndex": "116",
         "speed": "T"
@@ -3254,7 +3254,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": false,
-      "price": 123,
+      "price": 120,
       "specs": {
         "loadIndex": "116",
         "speed": "T"
@@ -3267,7 +3267,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": true,
-      "price": 123,
+      "price": 120,
       "specs": {
         "loadIndex": "124/121",
         "speed": "S"
@@ -3280,7 +3280,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": false,
-      "price": 130,
+      "price": 127,
       "specs": {
         "loadIndex": "116",
         "speed": "T"
@@ -3293,7 +3293,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": true,
-      "price": 133,
+      "price": 130,
       "specs": {
         "loadIndex": "124/121",
         "speed": "Q"
@@ -3306,7 +3306,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": true,
-      "price": 133,
+      "price": 130,
       "specs": {
         "loadIndex": "124/121",
         "speed": "Q"
@@ -3319,7 +3319,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": true,
-      "price": 133,
+      "price": 130,
       "specs": {
         "loadIndex": "124/121",
         "speed": "S"
@@ -3332,7 +3332,7 @@
       "key": "265/70R18",
       "rim": 18,
       "lt": true,
-      "price": 152,
+      "price": 149,
       "specs": {
         "loadIndex": "124/121",
         "speed": "Q"
@@ -3410,7 +3410,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
-      "price": 116,
+      "price": 113,
       "specs": {
         "loadIndex": "116",
         "speed": "H"
@@ -3423,7 +3423,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
-      "price": 116,
+      "price": 113,
       "specs": {
         "loadIndex": "116",
         "speed": "H"
@@ -3436,7 +3436,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": false,
-      "price": 121,
+      "price": 118,
       "specs": {
         "loadIndex": "116",
         "speed": "T"
@@ -3449,7 +3449,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": true,
-      "price": 122,
+      "price": 119,
       "specs": {
         "loadIndex": "123/120",
         "speed": "S"
@@ -3462,7 +3462,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": true,
-      "price": 125,
+      "price": 122,
       "specs": {
         "loadIndex": "123/120",
         "speed": "Q"
@@ -3475,7 +3475,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": true,
-      "price": 125,
+      "price": 122,
       "specs": {
         "loadIndex": "123/120",
         "speed": "Q"
@@ -3488,7 +3488,7 @@
       "key": "275/65R18",
       "rim": 18,
       "lt": true,
-      "price": 133,
+      "price": 130,
       "specs": {
         "loadIndex": "123/120",
         "speed": "Q"
@@ -3575,7 +3575,7 @@
       "key": "225/40R19",
       "rim": 19,
       "lt": false,
-      "price": 89,
+      "price": 87,
       "specs": {
         "loadIndex": "93",
         "speed": "W"
@@ -3614,7 +3614,7 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
-      "price": 92,
+      "price": 89,
       "specs": {
         "loadIndex": "96",
         "speed": "W"
@@ -3627,7 +3627,7 @@
       "key": "235/40R19",
       "rim": 19,
       "lt": false,
-      "price": 118,
+      "price": 115,
       "specs": {
         "loadIndex": "96",
         "speed": "V"
@@ -3666,7 +3666,7 @@
       "key": "235/55R19",
       "rim": 19,
       "lt": false,
-      "price": 133,
+      "price": 130,
       "specs": {
         "loadIndex": "105",
         "speed": "V"
@@ -3727,7 +3727,7 @@
       "key": "245/40R19",
       "rim": 19,
       "lt": false,
-      "price": 94,
+      "price": 91,
       "specs": {
         "loadIndex": "98",
         "speed": "W"
@@ -3740,7 +3740,7 @@
       "key": "245/40R19",
       "rim": 19,
       "lt": false,
-      "price": 110,
+      "price": 107,
       "specs": {
         "loadIndex": "98",
         "speed": "W"
@@ -3779,7 +3779,7 @@
       "key": "245/45R19",
       "rim": 19,
       "lt": false,
-      "price": 98,
+      "price": 95,
       "specs": {
         "loadIndex": "102",
         "speed": "Y"
@@ -3871,7 +3871,7 @@
       "key": "255/40R19",
       "rim": 19,
       "lt": false,
-      "price": 102,
+      "price": 99,
       "specs": {
         "loadIndex": "100",
         "speed": "W"
@@ -3884,7 +3884,7 @@
       "key": "255/40R19",
       "rim": 19,
       "lt": false,
-      "price": 120,
+      "price": 118,
       "specs": {
         "loadIndex": "100",
         "speed": "V"
@@ -3932,7 +3932,7 @@
       "key": "255/45R19",
       "rim": 19,
       "lt": false,
-      "price": 112,
+      "price": 109,
       "specs": {
         "loadIndex": "104",
         "speed": "Y"
@@ -4020,7 +4020,7 @@
       "key": "245/35R20",
       "rim": 20,
       "lt": false,
-      "price": 89,
+      "price": 86,
       "specs": {
         "loadIndex": "95",
         "speed": "W"
@@ -4068,7 +4068,7 @@
       "key": "245/45R20",
       "rim": 20,
       "lt": false,
-      "price": 94,
+      "price": 92,
       "specs": {
         "loadIndex": "103",
         "speed": "W"
@@ -4221,7 +4221,7 @@
       "key": "255/45R20",
       "rim": 20,
       "lt": false,
-      "price": 113,
+      "price": 110,
       "specs": {
         "loadIndex": "105",
         "speed": "W"
@@ -4321,7 +4321,7 @@
       "key": "265/50R20",
       "rim": 20,
       "lt": false,
-      "price": 123,
+      "price": 120,
       "specs": {
         "loadIndex": "107",
         "speed": "T"
@@ -4334,7 +4334,7 @@
       "key": "265/50R20",
       "rim": 20,
       "lt": false,
-      "price": 131,
+      "price": 128,
       "specs": {
         "loadIndex": "111",
         "speed": "T"
@@ -4408,7 +4408,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
-      "price": 113,
+      "price": 111,
       "specs": {
         "loadIndex": "117",
         "speed": "T"
@@ -4421,7 +4421,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
-      "price": 128,
+      "price": 126,
       "specs": {
         "loadIndex": "117",
         "speed": "H"
@@ -4434,7 +4434,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
-      "price": 131,
+      "price": 128,
       "specs": {
         "loadIndex": "117",
         "speed": "V"
@@ -4447,7 +4447,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
-      "price": 137,
+      "price": 134,
       "specs": {
         "loadIndex": "113",
         "speed": "H"
@@ -4460,7 +4460,7 @@
       "key": "275/55R20",
       "rim": 20,
       "lt": false,
-      "price": 141,
+      "price": 138,
       "specs": {
         "loadIndex": "117",
         "speed": "T"
@@ -4538,7 +4538,7 @@
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
-      "price": 117,
+      "price": 115,
       "specs": {
         "loadIndex": "115",
         "speed": "H"
@@ -4551,7 +4551,7 @@
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
-      "price": 131,
+      "price": 128,
       "specs": {
         "loadIndex": "115",
         "speed": "H"
@@ -4564,7 +4564,7 @@
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
-      "price": 142,
+      "price": 139,
       "specs": {
         "loadIndex": "115",
         "speed": "T"
@@ -4577,7 +4577,7 @@
       "key": "275/60R20",
       "rim": 20,
       "lt": false,
-      "price": 158,
+      "price": 155,
       "specs": {
         "loadIndex": "115",
         "speed": "H"
@@ -4670,7 +4670,7 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
-      "price": 120,
+      "price": 117,
       "specs": {
         "loadIndex": "114",
         "speed": "V"
@@ -4683,7 +4683,7 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
-      "price": 135,
+      "price": 132,
       "specs": {
         "loadIndex": "114",
         "speed": "W"
@@ -4696,7 +4696,7 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
-      "price": 137,
+      "price": 134,
       "specs": {
         "loadIndex": "114",
         "speed": "H"
@@ -4709,7 +4709,7 @@
       "key": "285/45R22",
       "rim": 22,
       "lt": false,
-      "price": 153,
+      "price": 150,
       "specs": {
         "loadIndex": "114",
         "speed": "H"
