@@ -96,8 +96,8 @@ export default function Invoices() {
   }
 
   const cur = state?.days.find((d) => d.day === day);
-  // Earlier shop days nobody answered (check-ins started Oct 28; Sundays don't count).
-  const open = (state?.days || []).filter((d) => d.day !== state.today && d.day >= "2026-10-28" && !d.status && new Date(`${d.day}T12:00:00`).getDay() !== 0);
+  // Earlier shop days nobody answered (check-ins started Oct 27; Sundays don't count).
+  const open = (state?.days || []).filter((d) => d.day !== state.today && d.day >= "2026-10-27" && !d.status && new Date(`${d.day}T12:00:00`).getDay() !== 0);
 
   return (
     <div style={{ minHeight: "100vh", background: "#f4f5f7", fontFamily: "Inter, system-ui, -apple-system, Arial, sans-serif", color: "#1f2937" }}>

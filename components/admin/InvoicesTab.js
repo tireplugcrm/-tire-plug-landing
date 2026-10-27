@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { T, Icon, ui } from "./ui.js";
 
-const START = "2026-10-28"; // first day of check-ins; earlier days aren't gaps
+const START = "2026-10-27"; // first day of check-ins; earlier days aren't gaps
 const money = (n) => (n == null || n === "" ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
 const dayLabel = (d) => new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 const time = (t) => (t ? new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" }) : "");

@@ -32,7 +32,7 @@ export async function sendInvoiceText(slot, { force = false } = {}) {
   const back = Array.from({ length: 6 }, (_, i) => shopDay(i + 1)).filter((d) => new Date(`${d}T12:00:00`).getDay() !== 0);
   const { data: prev } = await supabaseAdmin.from("invoice_days").select("day, status").in("day", back);
   const answered = new Set((prev || []).filter((r) => r.status).map((r) => r.day));
-  const missing = back.filter((d) => !answered.has(d) && d >= "2026-10-28"); // check-ins started Oct 28
+  const missing = back.filter((d) => !answered.has(d) && d >= "2026-10-27"); // check-ins started Oct 27
 
   const link = await uploadLink();
   let body = slot === "am"
@@ -45,7 +45,8 @@ export async function sendInvoiceText(slot, { force = false } = {}) {
 
   const results = [];
   for (const phone of to) results.push({ phone, ...(await sendSms({ to: phone, body })) });
-  if (results.some((r) => r.ok)) await supabaseAdmin.from("invoice_days").upsert({ day, [col]: new Date().toISOString() });
+  // A manual "Send the text now" (force) never counts as the scheduled 10 AM / 4:30 PM text.
+  if (!force && results.some((r) => r.ok)) await supabaseAdmin.from("invoice_days").upsert({ day, [col]: new Date().toISOString() });
   return { sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).map((r) => `${r.phone}: ${r.error}`), body };
 }
 
