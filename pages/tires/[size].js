@@ -55,7 +55,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
       : `${display} Tires in Los Angeles | The Tire Plug`;
   const allBrands = [...new Set([...stock, ...nextDay, ...tires].map((t) => t.brand))].slice(0, 5).join(", ");
   const description = hasLowest || inStock
-    ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} in stock and installed today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
+    ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock and installed today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
     : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
 
   // Product + Offer for every priced tire on the page: shelf stock first (with availability), then catalog.
@@ -111,7 +111,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
               <a className="crumb" href="/tires">← All tire sizes</a>
               <h1>{display} <span>tires</span></h1>
               <p className="lead">
-                {inStock && <><b>{stock.length} in stock</b> at our shop today. </>}
+                {inStock && <><b>{stock.length} {stock.length === 1 ? "option" : "options"} in stock</b> at our shop today. </>}
                 {hasNextDay && <><b>{nextDay.length} more next day</b>: order today, installed tomorrow. </>}
                 {has
                   ? <>{tires.length} option{tires.length > 1 ? "s" : ""} from <b>{money(from)}</b> per tire. Cheapest first.</>
