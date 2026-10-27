@@ -47,7 +47,7 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
   return (
     <li className="stc">
       <div className="stc-ph">
-        <span className={`stc-lvl ${t.level}`}>{LEVELS[t.level] || LEVELS.low}</span>
+        <span className={`stc-lvl ${t.level}`}>{t.count ? `${t.count} in stock` : LEVELS[t.level] || LEVELS.low}</span>
         {t.img ? (
           <div className="stc-shot">
             {t.logo

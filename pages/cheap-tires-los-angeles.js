@@ -16,7 +16,7 @@ const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 export async function getStaticProps() {
   const stock = await pricedStock();
   const cheapest = stock.slice(0, 24).map((t) => ({
-    brand: t.brand, model: t.model, key: t.key, price: t.price, level: t.level, lt: t.lt,
+    brand: t.brand, model: t.model, key: t.key, price: t.price, level: t.level, count: t.count ?? null, lt: t.lt,
     img: t.imgGeneric ? null : t.img, logo: t.logo || null,
   }));
   // Lowest in-stock price per rim size.
@@ -107,7 +107,7 @@ export default function CheapTires({ cheapest, rims, count, from }) {
                       <div className="ph">{t.img ? <img src={t.img} alt={`${t.brand} ${t.model} tire`} loading="lazy" /> : t.logo ? <img className="logo" src={t.logo} alt={t.brand} loading="lazy" /> : <span className="nb">{t.brand}</span>}</div>
                       <div className="sz">{t.key.replace("X", "x")}{t.lt && <i>LT</i>}</div>
                       <div className="nm">{t.brand} {t.model}</div>
-                      <div className="pr">{money(t.price)} <span>{t.level === "low" ? "Low stock" : "In stock"}</span></div>
+                      <div className="pr">{money(t.price)} <span>{t.count ? `${t.count} in stock` : t.level === "low" ? "Low stock" : "In stock"}</span></div>
                     </a>
                   </li>
                 ))}
