@@ -6,9 +6,9 @@ import { SERVICE_INDEX } from "../components/ServicePage";
 import { RBP_AT as AT, RBP_RT as RT, RBP_CATALOG as CATALOG, INSTALL_FROM as INSTALL } from "../lib/tire-catalog";
 
 const URL = "https://tireplugla.com/rbp-tires-los-angeles";
-const TITLE = "RBP Repulsor A/T Tires in Los Angeles | Every Size Priced | The Tire Plug";
+const TITLE = "RBP Repulsor A/T, R/T, X/T & M/T Tires in Los Angeles | Every Size Priced | The Tire Plug";
 const DESCRIPTION =
-  "RBP Repulsor A/T Plateau all-terrain tires in 15\" to 24\" at The Tire Plug, 2331 E Olympic Blvd, Los Angeles. Every size priced, 2-year road hazard coverage, next-day warranty exchange. Open 7 days, no appointment. Call (562) 500-4625.";
+  "RBP Repulsor A/T Plateau all-terrain, R/T rugged-terrain, X/T and M/T mud tires in 15\" to 28\" at The Tire Plug, 2331 E Olympic Blvd, Los Angeles. Every size priced, 2-year road hazard coverage on the A/T Plateau, next-day warranty exchange. Open 7 days, no appointment. Call (562) 500-4625.";
 const IMAGE = "https://tireplugla.com/images/rbp/repulsor-at-plateau.png";
 
 const FAQ = [
@@ -70,7 +70,7 @@ export default function RbpTires() {
         <link rel="canonical" href={URL} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="The Tire Plug" />
-        <meta property="og:title" content="RBP Repulsor A/T at The Tire Plug" />
+        <meta property="og:title" content="RBP Repulsor tires at The Tire Plug" />
         <meta property="og:description" content="Every size priced. 2-year road hazard. Next-day warranty exchange. Downtown LA, open 7 days." />
         <meta property="og:url" content={URL} />
         <meta property="og:image" content={IMAGE} />
@@ -86,8 +86,8 @@ export default function RbpTires() {
           <div className="wrap hero-grid">
             <div>
               <span className="eyebrow">In stock at The Tire Plug</span>
-              <h1 className="display">RBP Repulsor A/T.<br /><span className="r">Every size, priced.</span></h1>
-              <p className="sub serif">All-weather, all-terrain tires for trucks &amp; SUVs. 15" to 24", no surprises.</p>
+              <h1 className="display">RBP Repulsor.<br /><span className="r">Every size, priced.</span></h1>
+              <p className="sub serif">All-terrain, rugged, extreme and mud-terrain tires for trucks &amp; SUVs. 15" to 28", no surprises.</p>
               <div className="ctas">
                 <a className="btn btn-red" href="#sizes">Find your size →</a>
                 <a className="btn btn-ghost" href="tel:5625004625">Call (562) 500-4625</a>

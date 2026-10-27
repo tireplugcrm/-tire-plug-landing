@@ -40,7 +40,7 @@ const SLIDES = [
     kicker: 'New · RBP Repulsor A/T',
     brand: { src: '/images/rbp/rbp-logo-white.png', alt: 'RBP', h: 30 },
     title: ['All-terrain tires', 'from'],
-    price: '$99',
+    price: '$94',
     sub: '15" to 24", every size priced. 2-year road hazard coverage.',
     cta: { label: 'See sizes & prices', href: '/rbp-tires-los-angeles' },
     img: '/images/rbp/repulsor-at-plateau.png',

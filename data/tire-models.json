@@ -2312,6 +2312,53 @@
         "A5"
       ],
       "source": "https://www.prioritytire.com/by-brand/geoquest-tires/a5-touring/215-60r16-95v-374441"
+    },
+    "RBP|Repulsor R/T": {
+      "category": "Rugged-terrain",
+      "about": "A hybrid between an all-terrain and a mud tire, made to ride comfortably on the street while still digging through mud and rocks off-road.",
+      "features": [
+        "3-ply sidewall",
+        "Open, notched shoulder blocks that clear out mud and stones",
+        "Heavy-duty E/10-ply and F/12-ply sizes"
+      ],
+      "img": "/images/rbp/repulsor-rt.png",
+      "aliases": [
+        "Repulsor RT"
+      ],
+      "source": "https://rbptires.com/tire/repulsor-rt/"
+    },
+    "RBP|Repulsor X/T": {
+      "category": "Extreme-terrain",
+      "about": "An aggressive off-road tire with big staggered tread blocks for deep mud and loose dirt that still keeps road noise low for daily driving.",
+      "features": [
+        "Large staggered tread blocks, wide grooves and open shoulders",
+        "Sidewall tread for grip on the trail",
+        "31-inch to 37-inch sizes"
+      ],
+      "img": "/images/rbp/repulsor-xt.png",
+      "aliases": [
+        "Repulsor XT",
+        "Repulsor X/T RX",
+        "Repulsor XT RX"
+      ],
+      "source": "https://rbptires.com/tire/repulsor-xt-rx/"
+    },
+    "RBP|Repulsor M/T": {
+      "category": "Mud-terrain",
+      "about": "RBP's newer-generation mud tire, with a tougher rubber blend and sturdy sidewalls built for rocks, mud and loose dirt.",
+      "features": [
+        "3-ply sidewalls",
+        "Mixed-size tread blocks for a quieter ride",
+        "Wide grooves and open shoulders for mud and loose dirt"
+      ],
+      "img": "/images/rbp/repulsor-mt3.png",
+      "aliases": [
+        "Repulsor MT",
+        "Repulsor M/T3",
+        "Repulsor MT3",
+        "Repulsor M/T 3"
+      ],
+      "source": "https://rbptires.com/tire/repulsor-mt3/"
     }
   }
 }
