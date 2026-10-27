@@ -37,3 +37,9 @@ insert into storage.buckets (id, name, public) values ('invoices', 'invoices', f
 -- invoice_upload_key: the secret in the texted link. invoice_text_to: phones that get the text, comma separated.
 insert into app_settings (key, value, updated_at) values ('invoice_upload_key', encode(gen_random_bytes(12), 'hex'), now()) on conflict (key) do nothing;
 insert into app_settings (key, value, updated_at) values ('invoice_text_to', '', now()) on conflict (key) do nothing;
+
+-- The texts are scheduled here, not in vercel.json (Vercel Hobby crons run once a day at a loose time).
+-- Both UTC times cover summer and winter; /api/cron/invoice-texts only sends at 10:00 / 4:30 PM LA time.
+insert into app_settings (key, value, updated_at) values ('invoice_cron_key', encode(gen_random_bytes(24), 'hex'), now()) on conflict (key) do nothing;
+select cron.schedule('invoice-texts-am', '0 17,18 * * *', $$select net.http_get(url := 'https://tireplugla.com/api/cron/invoice-texts', headers := jsonb_build_object('Authorization', 'Bearer ' || (select value from public.app_settings where key = 'invoice_cron_key')), timeout_milliseconds := 60000)$$);
+select cron.schedule('invoice-texts-pm', '30 0,23 * * *', $$select net.http_get(url := 'https://tireplugla.com/api/cron/invoice-texts', headers := jsonb_build_object('Authorization', 'Bearer ' || (select value from public.app_settings where key = 'invoice_cron_key')), timeout_milliseconds := 60000)$$);

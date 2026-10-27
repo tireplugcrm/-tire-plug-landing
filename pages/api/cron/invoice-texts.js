@@ -2,13 +2,15 @@
  * Invoice check-in texts (lib/invoices.js). Mon–Sat at 10:00 AM and 4:30 PM shop time, texts
  * everyone in app_settings.invoice_text_to the /invoices link.
  *
- * Vercel Cron runs in UTC, so vercel.json fires this every half hour around both the summer and
- * winter UTC times; the handler only acts at 10:00–10:29 or 16:30–16:59 LA time, and stamps
- * am_texted_at / pm_texted_at so a re-run never double-texts.
+ * Supabase pg_cron calls it (jobs invoice-texts-am / -pm, in UTC) at both the summer and winter
+ * UTC times, because Vercel Hobby crons only run once a day at a loose time. The handler only acts
+ * at 10:00–10:29 or 16:30–16:59 LA time, and stamps am_texted_at / pm_texted_at so a re-run never
+ * double-texts.
  *
- * Auth: "Authorization: Bearer <CRON_SECRET>" (Vercel Cron), or an admin forcing a slot:
- * POST /api/admin/invoices { action: "text-now" } uses sendInvoiceText directly.
+ * Auth: "Authorization: Bearer <CRON_SECRET>" or the random key in app_settings 'invoice_cron_key'
+ * (what pg_cron sends). Admins send a text right away with POST /api/admin/invoices { action: "text-now" }.
  */
+import crypto from "crypto";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { sendSms } from "../../../lib/sms.js";
 import { setting, shopClock, shopDay, uploadLink } from "../../../lib/invoices.js";
@@ -47,10 +49,19 @@ export async function sendInvoiceText(slot, { force = false } = {}) {
   return { sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).map((r) => `${r.phone}: ${r.error}`), body };
 }
 
+const same = (a, b) => !!a && !!b && a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+
+async function authorized(req) {
+  const got = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  if (!got) return false;
+  if (same(got, process.env.CRON_SECRET || "")) return true;
+  const key = await setting("invoice_cron_key");
+  return key.length >= 32 && same(got, key);
+}
+
 export default async function handler(req, res) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || (req.headers.authorization || "") !== `Bearer ${secret}`) return res.status(401).json({ error: "Unauthorized" });
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
+  if (!(await authorized(req))) return res.status(401).json({ error: "Unauthorized" });
 
   const { hour, minute, weekday } = shopClock();
   if (weekday === 0) return res.json({ skipped: "Sunday" });
