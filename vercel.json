@@ -5,6 +5,7 @@
     { "path": "/api/cron/review-requests", "schedule": "0 16 * * *" },
     { "path": "/api/cron/scheduled-emails", "schedule": "0 16 * * *" },
     { "path": "/api/cron/pricing", "schedule": "0 14 * * *" },
-    { "path": "/api/cron/front-desk", "schedule": "0 15 * * *" }
+    { "path": "/api/cron/front-desk", "schedule": "0 15 * * *" },
+    { "path": "/api/cron/invoice-texts", "schedule": "0,30 0,17,18,23 * * *" }
   ]
 }

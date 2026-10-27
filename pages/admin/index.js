@@ -5,6 +5,7 @@ import { EmailTab, BusinessesTab } from "../../components/admin/EmailTools.js";
 import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import TextsTab from "../../components/admin/TextsTab.js";
+import InvoicesTab from "../../components/admin/InvoicesTab.js";
 import { T, Icon } from "../../components/admin/ui.js";
 import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
 
@@ -204,6 +205,7 @@ export default function AdminHub() {
     { title: "Manage", items: [
       { id: "customers", icon: "groups", label: "Customers" },
       { id: "pricing", icon: "inventory_2", label: "Inventory & Pricing" },
+      { id: "invoices", icon: "receipt_long", label: "Invoices" },
       { id: "businesses", icon: "storefront", label: "Businesses" },
     ] },
   ];
@@ -277,6 +279,7 @@ export default function AdminHub() {
         {tab === "customers" && <CustomersTab auth={auth} />}
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         {tab === "pricing" && <PricingTab auth={auth} />}
+        {tab === "invoices" && <InvoicesTab auth={auth} />}
         </main>
       </div>
 
