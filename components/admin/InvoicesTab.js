@@ -77,6 +77,8 @@ export default function InvoicesTab({ auth }) {
         </div>
       </div>
 
+      <TekmetricFiles call={call} pending={notEntered.length} onDone={load} />
+
       <div style={{ ...ui.card, padding: 0 }}>
         {d.days.map((x) => {
           const n = x.uploads.length;
@@ -98,6 +100,100 @@ export default function InvoicesTab({ auth }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// Tekmetric has no API here, so invoices go in through its spreadsheets (lib/tekmetric-bulk.js):
+// export from Bulk Editor, drop it here, upload the two files we hand back, then mark the invoices entered.
+function TekmetricFiles({ call, pending, onDone }) {
+  const [busy, setBusy] = useState("");
+  const [res, setRes] = useState(null);
+  const [err, setErr] = useState("");
+  const [fileName, setFileName] = useState("");
+
+  async function onFile(file) {
+    if (!file) return;
+    setBusy("Reading the file…"); setErr(""); setRes(null); setFileName(file.name);
+    try {
+      const b64 = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = bad; r.readAsDataURL(file); });
+      setRes(await call({ action: "tekmetric-files", file: b64 }));
+    } catch (e) { setErr(e.message); } finally { setBusy(""); }
+  }
+  function save(b64, name) {
+    const bin = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([bin], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+  async function markEntered() {
+    if (!confirm("Mark these invoices entered? Do this after both files are uploaded in Tekmetric.")) return;
+    setBusy("Saving…");
+    try { await call({ action: "mark-entered", ids: res.uploadIds }); setRes(null); onDone(); } catch (e) { alert(e.message); } finally { setBusy(""); }
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const c = res?.counts;
+  const step = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13.5, color: T.text, marginBottom: 8 };
+  const n = (i) => <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 11, background: T.blueSoft, color: T.blue, fontWeight: 600, fontSize: 12, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i}</span>;
+  const RESULT = { add: ["Add", T.green], remove: ["Take out", T.amber], new: ["New part", T.blue], check: ["Check", T.red], skip: ["Skip", T.textMuted] };
+
+  return (
+    <div style={{ ...ui.card, marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+        <Icon name="upload_file" size={20} style={{ color: T.blue }} />
+        <b style={{ fontSize: 15 }}>Put invoices into Tekmetric</b>
+        <span style={{ ...ui.muted, marginLeft: "auto" }}>{pending ? `${pending} invoice${pending === 1 ? "" : "s"} waiting` : "Nothing waiting"}</span>
+      </div>
+      <p style={{ ...ui.muted, margin: "0 0 12px" }}>No typing: Tekmetric exports a spreadsheet, this fills in the invoices, and you upload it back.</p>
+
+      <div style={step}>{n(1)}<div>In Tekmetric: <b>Inventory → Bulk Editor → Download</b>. Drop that file here.</div></div>
+      <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, border: `1.5px dashed ${T.borderStrong}`, borderRadius: 8, padding: "14px", margin: "0 0 12px 32px", cursor: busy ? "wait" : "pointer", color: T.textMuted, fontSize: 13.5, background: T.page }}
+        onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
+        <Icon name="description" size={20} />{busy || (fileName ? `${fileName} · drop a newer one to redo` : "Drop the Bulk Editor file (.xlsx), or click to choose")}
+        <input type="file" accept=".xlsx" hidden onChange={(e) => { onFile(e.target.files[0]); e.target.value = ""; }} />
+      </label>
+      {err && <div style={{ color: T.red, fontSize: 13, margin: "0 0 12px 32px" }}>{err}</div>}
+
+      {res && <>
+        <div style={{ ...ui.muted, margin: "0 0 10px 32px" }}>
+          <b style={{ color: T.text }}>{c.tiresIn} tires in, {c.tiresOut} out.</b> {c.parts} existing part{c.parts === 1 ? "" : "s"} change, {c.new} new part{c.new === 1 ? "" : "s"}.
+          {c.check > 0 && <span style={{ color: T.red }}> {c.check} line{c.check === 1 ? "" : "s"} to enter by hand (marked Check).</span>}
+        </div>
+        <div style={step}>{n(2)}<div style={{ flex: 1 }}>
+          Upload these in Tekmetric <b>right away</b> (the counts overwrite Tekmetric, so a sale in between would be undone):
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+            <button style={ui.primary} disabled={!res.updateFile} onClick={() => save(res.updateFile, `Tekmetric update ${today}.xlsx`)}><Icon name="download" size={18} />Update file ({c.parts} parts)</button>
+            <span style={{ ...ui.muted, alignSelf: "center" }}>→ Bulk Editor → Upload</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+            <button style={ui.btn} disabled={!res.newFile} onClick={() => save(res.newFile, `Tekmetric new parts ${today}.xlsx`)}><Icon name="download" size={18} />New parts file ({c.new})</button>
+            <span style={{ ...ui.muted, alignSelf: "center" }}>→ Add Parts → Bulk Upload</span>
+          </div>
+        </div></div>
+        <div style={step}>{n(3)}<div>When Tekmetric shows both uploads done: <button style={{ ...ui.btn, marginLeft: 6 }} disabled={!!busy} onClick={markEntered}><Icon name="check" size={18} />Mark {res.uploadIds.length} invoice photo{res.uploadIds.length === 1 ? "" : "s"} entered</button></div></div>
+
+        <details style={{ marginLeft: 32, marginTop: 6 }}>
+          <summary style={{ cursor: "pointer", fontSize: 13, color: T.blue }}>See every line ({res.lines.length})</summary>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, marginTop: 8 }}>
+            <thead><tr>{["", "Qty", "Size", "Tire", "Invoice", "Tekmetric part", "Count", ""].map((h, i) => <th key={i} style={{ textAlign: "left", padding: "4px 6px", color: T.textMuted, fontWeight: 500, borderBottom: `1px solid ${T.border}` }}>{h}</th>)}</tr></thead>
+            <tbody>
+              {res.lines.map((l, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${T.border}` }}>
+                  <td style={{ padding: "4px 6px" }}><span style={ui.pill(RESULT[l.result][1])}>{RESULT[l.result][0]}</span></td>
+                  <td style={{ padding: "4px 6px", fontWeight: 600 }}>{l.kind === "return" ? "−" : ""}{l.qty}</td>
+                  <td style={{ padding: "4px 6px" }}>{l.size}</td>
+                  <td style={{ padding: "4px 6px" }}>{[l.brand, l.model].filter(Boolean).join(" ")}</td>
+                  <td style={{ padding: "4px 6px", color: T.textMuted }}>{l.invoice_no}</td>
+                  <td style={{ padding: "4px 6px", color: T.textMuted }}>{l.part || ""}</td>
+                  <td style={{ padding: "4px 6px", whiteSpace: "nowrap" }}>{l.before != null ? `${l.before} → ${l.after}` : ""}</td>
+                  <td style={{ padding: "4px 6px", color: l.result === "check" ? T.red : T.textMuted }}>{l.why || ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      </>}
     </div>
   );
 }

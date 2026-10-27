@@ -8,14 +8,21 @@
  * POST { action: "reread", id }              -> { ok, read, error }
  * POST { action: "settings", textTo }        -> { ok }  (owner only; phones that get the texts)
  * POST { action: "text-now", slot }          -> { sent, failed, body }  (sends the "am" or "pm" text right away)
+ * POST { action: "tekmetric-files", file }   -> { lines, counts, uploadIds, updateFile, newFile }  (lib/tekmetric-bulk.js)
+ *   file: base64 of Tekmetric's Bulk Editor export. Uses every upload not marked entered (last 60 days),
+ *   skipping double uploads. The two files come back base64 (null when empty).
+ * POST { action: "mark-entered", ids }       -> { ok, count }  (after both files are uploaded in Tekmetric)
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { INVOICE_BUCKET, findDuplicate, readUpload, recentUploads, setting, shopDay, uploadLink } from "../../../lib/invoices.js";
+import { buildTekmetricFiles } from "../../../lib/tekmetric-bulk.js";
 import { sendInvoiceText } from "../cron/invoice-texts.js";
 import { digits10 } from "../../../lib/phone.js";
 
 export const maxDuration = 60;
+// The Bulk Editor export is ~120 KB for 630 parts; leave room as the inventory grows.
+export const config = { api: { bodyParser: { sizeLimit: "10mb" } } };
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -72,6 +79,33 @@ export default async function handler(req, res) {
 
   if (action === "text-now") {
     return res.json(await sendInvoiceText(req.body.slot === "pm" ? "pm" : "am", { force: true }));
+  }
+
+  if (action === "tekmetric-files") {
+    if (!req.body.file) return res.status(400).json({ error: "Drop in the file from Tekmetric's Bulk Editor > Download." });
+    const { data: open } = await supabaseAdmin.from("invoice_uploads").select("*").is("entered_at", null).not("read", "is", null)
+      .gte("day", shopDay(60)).order("created_at");
+    const pool = await recentUploads();
+    const uploads = (open || []).filter((u) => !findDuplicate(u, pool));
+    if (!uploads.length) return res.status(400).json({ error: "Every invoice is already marked entered. Nothing to add." });
+    try {
+      const r = await buildTekmetricFiles({ bulkEdit: Buffer.from(req.body.file, "base64"), uploads });
+      return res.json({
+        lines: r.lines, counts: r.counts, uploadIds: uploads.map((u) => u.id),
+        updateFile: r.updateFile ? r.updateFile.toString("base64") : null,
+        newFile: r.newFile ? r.newFile.toString("base64") : null,
+      });
+    } catch (e) {
+      return res.status(400).json({ error: e.message });
+    }
+  }
+
+  if (action === "mark-entered") {
+    const ids = (req.body.ids || []).filter((x) => typeof x === "string").slice(0, 500);
+    if (!ids.length) return res.status(400).json({ error: "No invoices given." });
+    const { data, error } = await supabaseAdmin.from("invoice_uploads").update({ entered_at: new Date().toISOString(), entered_by: auth.user.name })
+      .in("id", ids).is("entered_at", null).select("id");
+    return error ? res.status(500).json({ error: error.message }) : res.json({ ok: true, count: data?.length || 0 });
   }
 
   return res.status(400).json({ error: "Unknown action" });
