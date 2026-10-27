@@ -2296,6 +2296,22 @@
         "Discoverer Road+Trail AT"
       ],
       "source": "https://www.coopertire.ca/en_CA/tires/discoverer-roadtrail-at/24910.html"
+    },
+    "GeoQuest|A5 Touring": {
+      "category": "Passenger Touring All-Season",
+      "about": "A budget-friendly all-season touring tire for cars, minivans and small SUVs, built for a quiet ride and long tread life.",
+      "features": [
+        "75,000-mile limited treadwear warranty",
+        "UTQG 740 A A",
+        "Staggered-pitch tread to cut road noise",
+        "Four wide grooves to clear water"
+      ],
+      "img": "/images/tires/geoquest-a5-touring.webp",
+      "aliases": [
+        "A5 Touring All Season",
+        "A5"
+      ],
+      "source": "https://www.prioritytire.com/by-brand/geoquest-tires/a5-touring/215-60r16-95v-374441"
     }
   }
 }
