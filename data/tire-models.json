@@ -19,7 +19,8 @@
       ],
       "img": "/images/tires/lexani-quattro-tempo-tour-aw.webp",
       "aliases": [
-        "Quattro Tempo AW"
+        "Quattro Tempo AW",
+        "Quattro Tempo"
       ],
       "source": "https://lexanitires.com/en/quattro-tempo-tour-aw"
     },
@@ -242,7 +243,9 @@
       ],
       "img": "/images/rbp/repulsor-at-plateau.png",
       "aliases": [
-        "Repulsor AT Plateau"
+        "Repulsor AT Plateau",
+        "Repulsor A/T",
+        "Repulsor AT"
       ],
       "source": "https://rbptires.com/tire/repulsor-at-plateau/"
     },
@@ -532,7 +535,8 @@
       ],
       "img": "/images/tires/groundspeed-voyager-hp.webp",
       "aliases": [
-        "V. HP"
+        "V. HP",
+        "VYGR HP"
       ],
       "source": "https://groundspeedtires.com/tires/passenger/voyager-hp"
     },
@@ -904,7 +908,9 @@
         "Large shoulder blocks for handling on dry and wet roads"
       ],
       "img": "/images/tires/goodyear-assurance-all-season.webp",
-      "aliases": [],
+      "aliases": [
+        "Assurance AS"
+      ],
       "source": "https://simpletire.com/paid?brand=goodyear&itemId=96629&mpn=407207374&productLine=assurance-all-season&tireSize=235-65r-16&v=1"
     },
     "Goodyear|Eagle LS-2": {
@@ -1095,7 +1101,9 @@
       ],
       "img": "/images/tires/pirelli-p-zero-all-season.webp",
       "aliases": [
-        "PZero All Season"
+        "PZero All Season",
+        "PZERO AS",
+        "P Zero AS"
       ],
       "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/p-zero-all-season/235_45-r18"
     },
@@ -1490,7 +1498,8 @@
       "aliases": [
         "Ecsta Sport A/S PA71",
         "Ecsta PA71",
-        "PA71"
+        "PA71",
+        "Ecsta Sport PA71"
       ],
       "source": "https://www.kumhotireusa.com/tires/ecsta-sport-as"
     },
@@ -1543,7 +1552,8 @@
       "img": "/images/tires/jinyu-a1-touring-as.webp",
       "aliases": [
         "A1 All Season Touring",
-        "A1 Touring A/S"
+        "A1 Touring A/S",
+        "A1 Touring"
       ],
       "source": "https://www.prioritytire.com/by-brand/jinyu-tires/a1-touring-as/185-65r15-88h-376460"
     },
@@ -1759,7 +1769,8 @@
       "img": "/images/tires/falken-azenis-fk510.webp",
       "aliases": [
         "Azenis FK-510",
-        "FK510"
+        "FK510",
+        "AZENI FK510"
       ],
       "source": "https://green.falkentire.com/azenis/fk510"
     },
@@ -2121,6 +2132,170 @@
       "img": "/images/tires/lionhart-lionclaw-atx2.webp",
       "source": "https://lionharttires.com/tire/lionclaw-atx2/",
       "aliases": []
+    },
+    "Goodyear|Eagle Touring ROF SCT (MOE)": {
+      "category": "Grand Touring All-Season Run-Flat",
+      "about": "The run-flat version of the Goodyear Eagle Touring, made as original equipment for Mercedes-Benz (MOE). It can keep going for a short distance after a puncture.",
+      "features": [
+        "Run-flat: drive on it after a puncture to reach a shop",
+        "Mercedes-Benz original equipment (MOE)",
+        "Quiet all-season touring tread"
+      ],
+      "img": "/images/tires/goodyear-eagle-touring.webp",
+      "aliases": [
+        "Eagle Touring ROF",
+        "Eagle Touring ROF MOE"
+      ],
+      "source": "https://simpletire.com/brands/goodyear-tires/eagle-touring"
+    },
+    "Advanta|ATX 850": {
+      "category": "All-Terrain",
+      "about": "An all-terrain tire for pickups and SUVs that handles gravel and dirt but stays usable as a daily driver, including in winter weather.",
+      "features": [
+        "50,000-mile treadwear warranty",
+        "3PMSF severe-snow rated",
+        "Scalloped shoulders and stepped blocks for loose-surface grip",
+        "Zig-zag sipes for wet and snow traction"
+      ],
+      "img": "/images/tires/advanta-atx-850.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/advanta-tires/atx-850"
+    },
+    "GT Radial|Maxtour All Season": {
+      "category": "Passenger Touring All-Season",
+      "about": "A budget-friendly touring tire for everyday cars and small SUVs, aimed at a quiet, comfortable ride and long tread life.",
+      "features": [
+        "60,000-mile limited treadwear warranty",
+        "Variable-pitch tread to cut road noise",
+        "Sipes and lateral grooves for wet and light-snow grip",
+        "30-day test drive"
+      ],
+      "img": "/images/tires/gt-radial-maxtour-all-season.webp",
+      "aliases": [],
+      "source": "https://www.gtradial-us.com/comfort/maxtour-all-season/"
+    },
+    "Goodyear|Winter Command": {
+      "category": "Winter",
+      "about": "A dedicated winter tire for cars and minivans, made for snow, slush and ice on cold-weather commutes.",
+      "features": [
+        "3PMSF severe-snow rated",
+        "Studdable for extra ice grip",
+        "Directional tread with deep grooves and full-depth sipes",
+        "Winter-only tire (no treadwear mileage warranty)"
+      ],
+      "img": "/images/tires/goodyear-winter-command.webp",
+      "aliases": [],
+      "source": "https://www.goodyear.ca/en-ca/tires/wintercommand_24946"
+    },
+    "Evoluxx|Capricorn HP": {
+      "category": "Performance All-Season",
+      "about": "A low-cost all-season tire for cars and crossovers with a ribbed tread meant for steady steering and grip in dry and wet conditions.",
+      "features": [
+        "UTQG 700 A A",
+        "M+S rated",
+        "Ribbed center with siped blocks"
+      ],
+      "img": "/images/tires/evoluxx-capricorn-hp.webp",
+      "aliases": [],
+      "source": "https://www.prioritytire.com/by-brand/evoluxx-tires/capricorn-hp"
+    },
+    "Groundspeed|Voyager HT": {
+      "category": "Highway All-Season (SUV/Light Truck)",
+      "about": "A highway tire for pickups and SUVs that spend most of their time on pavement, focused on a quiet ride and even wear.",
+      "features": [
+        "50,000-mile limited treadwear warranty",
+        "Continuous center rib for steady highway handling",
+        "Four wide circumferential grooves to resist hydroplaning"
+      ],
+      "img": "/images/tires/groundspeed-voyager-ht.webp",
+      "aliases": [
+        "Voyager HT A/S"
+      ],
+      "source": "https://simpletire.com/brands/groundspeed-tires/voyager-ht"
+    },
+    "Kumho|Solus TA31": {
+      "category": "Passenger Touring All-Season",
+      "about": "A quiet, comfortable all-season touring tire that carmakers use as factory equipment on many sedans and crossovers.",
+      "features": [
+        "60,000-mile limited treadwear warranty",
+        "Original-equipment fitment on many vehicles",
+        "Road hazard coverage"
+      ],
+      "img": "/images/tires/kumho-solus-ta31.webp",
+      "aliases": [],
+      "source": "https://www.kumhotireusa.com/tires/solus-ta31"
+    },
+    "Kumho|Solus TA91 EV": {
+      "category": "Grand Touring All-Season (EV)",
+      "about": "A touring tire built for electric cars, with grip for instant torque, low rolling resistance for range, and foam inside to keep cabin noise down.",
+      "features": [
+        "50,000-mile limited treadwear warranty",
+        "K-Silent sound-absorbing foam",
+        "Low rolling resistance for better EV range"
+      ],
+      "img": "/images/kumho/majesty-9-ta91.jpg",
+      "aliases": [
+        "Majesty 9 Solus TA91 EV",
+        "Majesty 9 TA91",
+        "TA91"
+      ],
+      "source": "https://www.kumhotireusa.com/tires/majesty-9-ev-ta91"
+    },
+    "Yokohama|Geolandar AT4": {
+      "category": "All-Terrain",
+      "about": "A tough all-terrain tire for trucks and SUVs that is meant to be comfortable on the road and hold up to rocks and gravel off it.",
+      "features": [
+        "Up to 65,000-mile limited treadwear warranty",
+        "3PMSF severe-snow rated",
+        "Cut and chip resistant compound"
+      ],
+      "img": "/images/tires/yokohama-geolandar-at4.webp",
+      "aliases": [
+        "Geolandar A/T4"
+      ],
+      "source": "https://www.yokohamatire.com/tires/geolandar-a-t4"
+    },
+    "Bridgestone|Dueler H/L 400": {
+      "category": "Highway All-Season (SUV)",
+      "about": "A highway tire for SUVs and crossovers, often fitted at the factory, focused on a quiet, smooth ride on pavement.",
+      "features": [
+        "Original-equipment tire on many SUVs",
+        "Variable-pitch tread to reduce noise",
+        "Siped tread blocks for wet and dry grip",
+        "M+S rated"
+      ],
+      "img": "/images/tires/bridgestone-dueler-h-l-400.webp",
+      "aliases": [],
+      "source": "https://www.bridgestone.com.vn/en/dueler/h-l-400"
+    },
+    "Arroyo|Razzo Sport AS": {
+      "category": "Ultra-High Performance All-Season",
+      "about": "A sporty all-season tire for large-wheel SUVs, trucks and sedans that is meant for dry, wet and light winter driving.",
+      "features": [
+        "40,000-mile limited treadwear warranty",
+        "UTQG 500 treadwear",
+        "M+S rated"
+      ],
+      "img": "/images/tires/arroyo-razzo-sport-as.webp",
+      "aliases": [
+        "Razzo Sport A/S"
+      ],
+      "source": "https://www.arroyotires.com/products/razzo-sport-a-s"
+    },
+    "Cooper|Discoverer Road Trail AT": {
+      "category": "All-Terrain",
+      "about": "An all-terrain tire for SUVs and pickups that mixes pavement manners with grip on gravel, dirt and light mud.",
+      "features": [
+        "65,000-mile limited treadwear warranty",
+        "3PMSF severe-snow rated",
+        "Interlocking tread lugs for wet and dry traction",
+        "Tread built to resist cuts and tears"
+      ],
+      "img": "/images/tires/cooper-discoverer-road-trail-at.webp",
+      "aliases": [
+        "Discoverer Road+Trail AT"
+      ],
+      "source": "https://www.coopertire.ca/en_CA/tires/discoverer-roadtrail-at/24910.html"
     }
   }
 }
