@@ -2343,7 +2343,7 @@
       ],
       "source": "https://rbptires.com/tire/repulsor-xt-rx/"
     },
-    "RBP|Repulsor M/T": {
+    "RBP|Repulsor M/T3": {
       "category": "Mud-terrain",
       "about": "RBP's newer-generation mud tire, with a tougher rubber blend and sturdy sidewalls built for rocks, mud and loose dirt.",
       "features": [
@@ -2354,11 +2354,23 @@
       "img": "/images/rbp/repulsor-mt3.png",
       "aliases": [
         "Repulsor MT",
-        "Repulsor M/T3",
-        "Repulsor MT3",
-        "Repulsor M/T 3"
+        "Repulsor M/T",
+        "Repulsor M/T 3",
+        "Repulsor MT3"
       ],
       "source": "https://rbptires.com/tire/repulsor-mt3/"
+    },
+    "RBP|Repulsor M/T (original)": {
+      "category": "Mud-terrain",
+      "about": "RBP's original mud tire, with big staggered blocks and open shoulders, plus tread that runs onto the sidewall to grip in deep mud and sand.",
+      "features": [
+        "Large staggered tread blocks with open shoulders",
+        "Tread pattern extends onto the upper sidewall",
+        "E/10-ply light-truck sizes"
+      ],
+      "img": "/images/rbp/repulsor-mt.png",
+      "aliases": [],
+      "source": "https://rbptires.com/tire/repulsor-mt/"
     }
   }
 }

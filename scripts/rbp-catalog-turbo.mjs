@@ -9,8 +9,8 @@
  *
  * Rule (owner's, Oct 27): a size on our shelf is shelf cost + $20; any other size is Turbo's price
  * + FET + $20, rounded up to a whole dollar. A size Turbo is out of and we don't stock is left off.
- * Lines listed: Repulsor A/T Plateau, R/T, X/T and M/T (not Guarantor H/T or the Conveyor trailer
- * tires). Re-run after an RBP delivery so shelf prices follow the new cost, and after a Turbo pull.
+ * Lines listed: Repulsor A/T Plateau, R/T, X/T, M/T3 and the original M/T (not Guarantor H/T or
+ * the Conveyor trailer tires). Re-run after an RBP delivery so shelf prices follow the new cost, and after a Turbo pull.
  *
  * WHAT GOES IN lib/rbp-catalog-data.js: model, size, load/speed, ply and our selling price. Never
  * cost, Turbo's stock or part numbers.
@@ -26,14 +26,20 @@ const MARKUP = 20;
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "lib", "rbp-catalog-data.js");
 
+// A line matches on Turbo's description, or on the part number where two lines share a name: the
+// original Repulsor M/T (RBPMT…) and the newer M/T3 (RBPSTMT3…) are different tires.
 const LINES = [
   { re: /A\/T PLATEAU|;AT PLATEAU|AT PLATEAU/, model: "Repulsor A/T Plateau", note: "All-terrain", tag: "at" },
   { re: /X\/T/, model: "Repulsor X/T", note: "Extreme-terrain", tag: "xt" },
-  { re: /M\/T/, model: "Repulsor M/T", note: "Mud-terrain", tag: "mt" },
+  { re: /M\/T 3|M\/T3/, model: "Repulsor M/T3", note: "Mud-terrain", tag: "mt3" },
+  { code: /^RBPMT/, re: /M\/T/, model: "Repulsor M/T (original)", note: "Mud-terrain, original tread", tag: "mt" },
   { re: /R\/T|;RT\b/, model: "Repulsor R/T", note: "Rugged-terrain", tag: "rt" },
 ];
-// Which line a Tekmetric model name is ("Repulsor A/T", "Repulsor MT", "Repulsor R/T").
-const tagOfModel = (m) => { const n = norm(m); return /xt/.test(n) ? "xt" : /mt/.test(n) ? "mt" : /rt/.test(n) ? "rt" : /at|plateau/.test(n) ? "at" : null; };
+// Leftovers Turbo prices far above the other lines in the same size (owner: leave them off).
+const SKIP = new Set(["RBPMT1670010", "RBPMT22135010", "RBPMT20125010"]);
+// Which line a Tekmetric model name is ("Repulsor A/T", "Repulsor MT", "Repulsor R/T"). Our shelf
+// "Repulsor MT" is the M/T3 (RBPSTMT3…).
+const tagOfModel = (m) => { const n = norm(m); return /xt/.test(n) ? "xt" : /original/.test(n) ? "mt" : /mt/.test(n) ? "mt3" : /rt/.test(n) ? "rt" : /at|plateau/.test(n) ? "at" : null; };
 
 // "LT285/65R18", "P285/45R22", "33x12.50R20LT", "285/40R24" -> { size, key, rim, lt } (null for ST / C sizes)
 function parseSize(tok) {
@@ -72,7 +78,8 @@ const best = new Map(); // tag|size -> entry
 const skipped = [];
 for (const row of fs.readFileSync(turboFile, "utf8").trim().split(/\r?\n/).slice(1)) {
   const [code, desc, stock, buy, fet] = row.split("|");
-  const line = LINES.find((L) => L.re.test(desc));
+  if (SKIP.has(code)) continue;
+  const line = LINES.find((L) => (L.code ? L.code.test(code) : true) && L.re.test(desc));
   const sz = parseSize(desc.split(" ")[0]);
   if (!line || !sz) { skipped.push(`${code} ${desc.slice(0, 40)}`); continue; }
   const shelfCost = shelf.get(`${line.tag}|${sz.key}|${sz.lt}`);
