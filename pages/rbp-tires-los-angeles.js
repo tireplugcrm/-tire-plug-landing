@@ -3,7 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
-import { RBP_AT as AT, RBP_RT as RT, RBP_CATALOG as CATALOG, INSTALL_FROM as INSTALL } from "../lib/tire-catalog";
+import { RBP_AT as AT, RBP_RT as RT, RBP_CATALOG as CATALOG, INSTALL_FROM as INSTALL, sizeKey, sizeToSlug } from "../lib/tire-catalog";
 import { PHONE } from "../lib/shop";
 
 const URL = "https://tireplugla.com/rbp-tires-los-angeles";
@@ -110,7 +110,7 @@ export default function RbpTires() {
           <div className="wrap">
             <div className="head">
               <div><span className="eyebrow">Size catalog</span><h2 className="display">Find your <span className="r">size.</span></h2></div>
-              <p>Pick your rim size. Prices are per tire, product only. Don't see your size? Call or text us and we'll check.</p>
+              <p>Pick your rim size, then tap your size to see what's in stock and book. Prices are per tire, product only. Don't see your size? Call or text us and we'll check.</p>
             </div>
             <a className="install" href={PHONE.tel}><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
             <div className="tabs" role="tablist" aria-label="Rim size" onKeyDown={onTabKey}>
@@ -133,7 +133,7 @@ export default function RbpTires() {
                     <tbody>
                       {g.sizes.map(([s, ls, ply, p]) => (
                         <tr key={s}>
-                          <td className="size">{s}{isLT(s) && <i>LT</i>}</td>
+                          <td className="size"><a href={`/tires/${sizeToSlug(sizeKey(s))}`}>{s}{isLT(s) && <i>LT</i>}</a></td>
                           <td className="spec">{ls}</td>
                           <td className="spec ply">{ply || "—"}</td>
                           <td className="price"><span className="c">$</span>{p}</td>
@@ -289,7 +289,8 @@ export default function RbpTires() {
         .rbp th:last-child, .rbp td:last-child, .rbp th:nth-last-child(2), .rbp td.price { text-align: right; }
         .rbp td.inst { font-weight: 800; font-stretch: 80%; font-size: 18px; color: #555; padding-left: 14px; white-space: nowrap; }
         .rbp th.inst { padding-left: 14px; }
-        .rbp td.size { font-weight: 800; font-stretch: 80%; font-size: 24px; }
+        .rbp td.size { font-weight: 800; font-stretch: 80%; font-size: 24px; padding-right: 10px; }
+        .rbp td.size a { color: inherit; text-decoration: underline; text-decoration-color: var(--red, #E01B22); text-underline-offset: 3px; white-space: nowrap; }
         .rbp td.size i { font-style: normal; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 11px; color: #fff; background: #111; padding: 2px 6px; border-radius: 3px; margin-left: 8px; vertical-align: 4px; }
         .rbp td.spec { font-family: "JetBrains Mono", monospace; font-size: 14px; color: #555; }
         .rbp td.price { font-weight: 900; font-stretch: 66%; font-size: 34px; line-height: 1; }

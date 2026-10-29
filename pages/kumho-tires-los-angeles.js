@@ -3,7 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
-import { KUMHO_MODELS as MODELS } from "../lib/tire-catalog";
+import { KUMHO_MODELS as MODELS, INSTALL_FROM as INSTALL, sizeKey, sizeToSlug } from "../lib/tire-catalog";
 import { PHONE } from "../lib/shop";
 
 const URL = "https://tireplugla.com/kumho-tires-los-angeles";
@@ -15,7 +15,6 @@ const ALIGNMENT = 49;
 
 // Prices are per tire, product only (install not included), set by The Tire Plug.
 // Mount + balance is extra, from $INSTALL per wheel.
-const INSTALL = 25;
 // Specs from Kumho USA (kumhotireusa.com).
 const FAQ = [
   { q: "Is installation included?", a: `Prices shown are for the tire only. Install and balance start at $${INSTALL} per wheel. Get it installed today at our Downtown LA location.` },
@@ -100,7 +99,7 @@ export default function KumhoTires() {
           <div className="wrap">
             <div className="head">
               <div><span className="eyebrow">The lineup</span><h2 className="display">Pick your <span className="r">Kumho.</span></h2></div>
-              <p>Prices are per tire, product only. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set.</p>
+              <p>Prices are per tire, product only. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set. Tap a size to see what's in stock and book.</p>
             </div>
             <a className="install" href={PHONE.tel}><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
             <div className="grid">
@@ -121,7 +120,7 @@ export default function KumhoTires() {
                       <tbody>
                         {m.sizes.map(([s, ls, p]) => (
                           <tr key={s}>
-                            <td className="size">{s}</td>
+                            <td className="size"><a href={`/tires/${sizeToSlug(sizeKey(s))}`}>{s}</a></td>
                             <td className="spec">{ls}</td>
                             <td className="price">{money(p)}</td>
                             <td className="set">{money(p * 4)}</td>
@@ -253,7 +252,8 @@ export default function KumhoTires() {
         .kp th { text-align: left; font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 8px 0 6px; border-bottom: 1px solid var(--line); }
         .kp td { padding: 10px 0; border-bottom: 1px solid var(--line); }
         .kp th:nth-child(n+3), .kp td:nth-child(n+3) { text-align: right; }
-        .kp td.size { font-weight: 800; font-stretch: 80%; font-size: 19px; }
+        .kp td.size { font-weight: 800; font-stretch: 80%; font-size: 19px; padding-right: 10px; }
+        .kp td.size a { color: inherit; text-decoration: underline; text-decoration-color: var(--red, #E01B22); text-underline-offset: 3px; white-space: nowrap; }
         .kp td.spec { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: #555; }
         .kp td.price { font-weight: 900; font-stretch: 66%; font-size: 28px; line-height: 1; }
         .kp td.set { color: var(--muted); font-size: 14px; font-weight: 700; padding-left: 10px; }
