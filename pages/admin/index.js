@@ -6,6 +6,7 @@ import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import TextsTab from "../../components/admin/TextsTab.js";
 import InvoicesTab from "../../components/admin/InvoicesTab.js";
+import ShopFloor from "../../components/admin/ShopFloor.js";
 import { T, Icon } from "../../components/admin/ui.js";
 import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
 
@@ -193,12 +194,13 @@ export default function AdminHub() {
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
   const navCounts = { frontdesk: unansweredCount, crm: data.leads.filter((l) => (!l.channel || l.channel === "web") && crmStage(l) === "new").length, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
-  // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview, Shop Floor,
+  // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview,
   // Email, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
   // Work Log, Hiring, Training) still exist and their data is untouched; add them back here to show them.
   const NAV_GROUPS = [
     { items: [
       { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 },
+      { id: "shopfloor", icon: "garage", label: "Shop Floor" },
       { id: "crm", icon: "view_kanban", label: "CRM" },
       { id: "texts", icon: "sms", label: "Texts" },
     ] },
@@ -260,7 +262,7 @@ export default function AdminHub() {
         {tab === "texts" && <TextsTab auth={auth} onOpenLead={openLead} />}
         {tab === "crm" && <CrmBoard leads={data.leads} unreadByLead={data.unreadByLead} onOpen={openLead} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
-        {tab === "shopfloor" && <ShopFloorTab auth={auth} />}
+        {tab === "shopfloor" && <ShopFloor auth={auth} />}
         {tab === "leads" && (
           <LeadsTab data={data} dueCount={dueCount} onOpen={setSelectedLeadId} onReminder={reminderAction} onRevoke={revoke} />
         )}
@@ -1026,121 +1028,6 @@ function OverviewTab({ auth }) {
         {loading ? <Empty>Reading every department…</Empty> : err ? <p style={{ color: "#b91c1c" }}>⚠ {err}</p> : (
           <div style={{ color: "rgba(0,0,0,0.78)", fontSize: "0.92rem", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{d.briefing}</div>
         )}
-      </div>
-    </>
-  );
-}
-
-/* ---------------- SHOP FLOOR / WORK ORDERS ---------------- */
-const WO_COLS = [
-  { k: "waiting", l: "Waiting", c: "#FFB800" },
-  { k: "in_bay", l: "In Bay", c: "#5BC8FF" },
-  { k: "done", l: "Done", c: "#15803d" },
-];
-function woMins(iso) {
-  if (!iso) return "";
-  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-  if (m < 1) return "just now"; if (m < 60) return `${m}m`;
-  return `${Math.floor(m / 60)}h ${m % 60}m`;
-}
-function ShopFloorTab({ auth }) {
-  const chip = { background: "#ffffff", color: "#1f2937", height: 32, padding: "0 0.75rem", fontSize: 13, fontWeight: 500, border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer", fontFamily: "inherit" };
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-  const [loc, setLoc] = useState("all");
-  const [showNew, setShowNew] = useState(false);
-  const [form, setForm] = useState({ customer_name: "", phone: "", vehicle: "", service: "", location: "Olympic", assigned_staff_id: "", note: "" });
-
-  async function call(body) {
-    const res = await fetch("/api/admin/work-orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
-    const j = await res.json();
-    if (!res.ok) throw new Error(j.error || "Request failed");
-    return j;
-  }
-  async function load(silent) {
-    if (!silent) setLoading(true);
-    try { setData(await call({ action: "list" })); setErr(""); }
-    catch (e) { setErr(e.message); }
-    finally { if (!silent) setLoading(false); }
-  }
-  useEffect(() => { load(); const t = setInterval(() => load(true), 20000); return () => clearInterval(t); /* eslint-disable-next-line */ }, []);
-
-  async function create() {
-    if (!form.customer_name && !form.vehicle) return;
-    try { setData(await call({ action: "create", order: form })); setForm({ customer_name: "", phone: "", vehicle: "", service: "", location: form.location, assigned_staff_id: "", note: "" }); setShowNew(false); }
-    catch (e) { alert(e.message); }
-  }
-  async function act(body) { try { setData(await call(body)); } catch (e) { alert(e.message); } }
-
-  if (loading && !data) return <Empty>Loading the shop floor…</Empty>;
-  const d = data || { orders: [], staff: [] };
-  const nameById = Object.fromEntries(d.staff.map((s) => [s.id, s.name]));
-  const orders = d.orders.filter((o) => loc === "all" || o.location === loc);
-
-  return (
-    <>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-        <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-          {["all", "Olympic"].map((l) => <button key={l} onClick={() => setLoc(l)} style={{ ...chip, ...(loc === l ? { background: "#e8f0fe", color: "#1a66d6", borderColor: "#1a66d6" } : {}) }}>{l === "all" ? "All" : l}</button>)}
-        </div>
-        <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-          <span style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.72rem" }}>auto-refreshes</span>
-          <button onClick={() => setShowNew((s) => !s)} style={cta}>{showNew ? "✕ Close" : "+ New work order"}</button>
-        </div>
-      </div>
-
-      {showNew && (
-        <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "1.1rem", marginBottom: "1.25rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-            <input style={inp} placeholder="Customer name" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
-            <input style={inp} placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-            <input style={inp} placeholder="Vehicle (e.g. 2019 Camry)" value={form.vehicle} onChange={(e) => setForm({ ...form, vehicle: e.target.value })} />
-            <input style={inp} placeholder="Service (4 tires + align)" value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} />
-            <select style={inp} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}><option value="Olympic">Olympic</option></select>
-            <select style={inp} value={form.assigned_staff_id} onChange={(e) => setForm({ ...form, assigned_staff_id: e.target.value })}><option value="">Assign tech…</option>{d.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
-          </div>
-          <button onClick={create} disabled={!form.customer_name && !form.vehicle} style={{ ...cta, marginTop: "0.5rem", opacity: (!form.customer_name && !form.vehicle) ? 0.5 : 1 }}>Add to board</button>
-        </div>
-      )}
-
-      {err && <p style={{ color: "#b91c1c" }}>⚠ {err}</p>}
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
-        {WO_COLS.map((col) => {
-          const items = orders.filter((o) => o.status === col.k);
-          return (
-            <div key={col.k}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                <span style={{ width: 9, height: 9, borderRadius: "50%", background: col.c }} />
-                <span style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.12em" }}>{col.l}</span>
-                <span style={{ color: "rgba(0,0,0,0.42)" }}>{items.length}</span>
-              </div>
-              <div style={{ display: "grid", gap: "0.5rem" }}>
-                {items.length === 0 && <div style={{ color: "rgba(0,0,0,0.2)", fontSize: "0.8rem", padding: "0.5rem" }}>—</div>}
-                {items.map((o) => {
-                  const t = o.status === "done" ? o.done_at : o.status === "in_bay" ? o.started_at : o.created_at;
-                  return (
-                    <div key={o.id} style={{ background: "#ffffff", border: `1px solid ${col.c}33`, borderRadius: 12, padding: "0.75rem 0.85rem" }}>
-                      <div style={{ color: "#1a1a1a", fontWeight: 700, fontSize: "0.86rem" }}>{o.customer_name || "—"} {o.location && <span style={{ color: "rgba(0,0,0,0.4)", fontWeight: 500, fontSize: "0.72rem" }}>{o.location}</span>}</div>
-                      {o.vehicle && <div style={{ color: "rgba(0,0,0,0.62)", fontSize: "0.78rem" }}>{o.vehicle}</div>}
-                      {o.service && <div style={{ color: "rgba(0,0,0,0.55)", fontSize: "0.78rem" }}>{o.service}</div>}
-                      <div style={{ color: "rgba(0,0,0,0.42)", fontSize: "0.7rem", margin: "0.3rem 0" }}>{woMins(t)} {o.assigned_staff_id ? `· ${nameById[o.assigned_staff_id] || "tech"}` : ""}</div>
-                      <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
-                        <select value={o.assigned_staff_id || ""} onChange={(e) => act({ action: "assign", id: o.id, assigned_staff_id: e.target.value })} style={{ ...inp, marginBottom: 0, padding: "0.3rem 0.5rem", fontSize: "0.72rem", width: 110 }}>
-                          <option value="">tech…</option>{d.staff.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                        </select>
-                        {o.status === "waiting" && <button onClick={() => act({ action: "setStatus", id: o.id, status: "in_bay" })} style={{ ...chip, padding: "0.3rem 0.6rem" }}>▶ In Bay</button>}
-                        {o.status === "in_bay" && <button onClick={() => act({ action: "setStatus", id: o.id, status: "done" })} style={{ ...chip, padding: "0.3rem 0.6rem", background: "#1f7a4d", borderColor: "#1f7a4d" }}>✓ Done</button>}
-                        {o.status === "done" && <button onClick={() => act({ action: "archive", id: o.id })} style={{ ...chip, padding: "0.3rem 0.6rem" }}>Clear</button>}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
       </div>
     </>
   );
