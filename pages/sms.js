@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import Head from "next/head";
+import { MARKETING_CONSENT_TEXT } from "../lib/consent-text";
+import { PHONE } from "../lib/shop";
 
 /* Public SMS opt-in page — a clear, single-screen consent form (for customers
-   and for A2P carrier review). Linked from the footer. */
+   and for A2P carrier review). Linked from the footer. Same sign-up as /deals:
+   it logs the marketing opt-in and sends the opt-in confirmation text. */
 export default function SmsOptIn() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -18,19 +21,14 @@ export default function SmsOptIn() {
     if (!canSubmit) return;
     setSubmitting(true); setErr("");
     try {
-      const res = await fetch("/api/submit-booking", {
+      const res = await fetch("/api/deals-signup", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name, phone, email: "", vehicle: "N/A", tireSize: "N/A", tireType: "N/A",
-          service: "SMS Updates", serviceTiming: "SMS Opt-in", leadPriority: "WARM",
-          smsConsent: true, source: "Website SMS Opt-in",
-          date: new Date().toISOString().split("T")[0], time: "00:00",
-        }),
+        body: JSON.stringify({ name, phone, consent: true, src: "sms" }),
       });
       const d = await res.json();
-      if (d.success) setDone(true);
-      else setErr("Something went wrong — please call 562-500-4625.");
-    } catch (e2) { setErr("Network error — please call 562-500-4625."); }
+      if (res.ok) setDone(true);
+      else setErr(d.error || `Something went wrong — please call ${PHONE.plain}.`);
+    } catch (e2) { setErr(`Network error — please call ${PHONE.plain}.`); }
     finally { setSubmitting(false); }
   }
 
@@ -48,7 +46,7 @@ export default function SmsOptIn() {
             Get Tire Plug <span style={{ color: "#FF1F1F" }}>Text Updates</span>
           </h1>
           <p style={{ textAlign: "center", color: "rgba(255,255,255,0.6)", fontSize: "0.92rem", lineHeight: 1.5, marginBottom: "2rem" }}>
-            Quotes, appointment reminders, and exclusive deals — straight to your phone.
+            Tire deals and service reminders, straight to your phone.
           </p>
 
           {done ? (
@@ -65,10 +63,7 @@ export default function SmsOptIn() {
               <label style={{ display: "flex", alignItems: "flex-start", gap: "0.7rem", margin: "1rem 0 1.25rem", cursor: "pointer" }}>
                 <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: "0.2rem", width: 20, height: 20, accentColor: "#FF1F1F", flexShrink: 0, cursor: "pointer" }} />
                 <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.8rem", lineHeight: 1.55 }}>
-                  Yes, sign me up. I agree to receive recurring automated text messages from The Tire Plug
-                  (quotes, appointment reminders, and offers). Msg frequency varies. Msg &amp; data rates may apply.
-                  Reply <strong>STOP</strong> to opt out, <strong>HELP</strong> for help. Consent is not a condition
-                  of any purchase. See our{" "}
+                  {MARKETING_CONSENT_TEXT} See our{" "}
                   <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "#FF3838", textDecoration: "underline" }}>Privacy Policy</a>{" "}&amp;{" "}
                   <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "#FF3838", textDecoration: "underline" }}>Terms</a>.
                 </span>
@@ -82,7 +77,7 @@ export default function SmsOptIn() {
           )}
 
           <p style={{ textAlign: "center", color: "rgba(255,255,255,0.35)", fontSize: "0.72rem", marginTop: "1.5rem", lineHeight: 1.5 }}>
-            The Tire Plug · Los Angeles, CA · 562-500-4625
+            The Tire Plug · Los Angeles, CA · {PHONE.plain}
           </p>
         </div>
       </main>

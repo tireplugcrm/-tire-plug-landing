@@ -1,12 +1,12 @@
 /**
- * /deals sign-up: name + mobile (+ email) with the marketing consent box ticked.
+ * /deals and /sms sign-up: name + mobile (+ email) with the marketing consent box ticked.
  * Logs the consent (lib/consent.js) and sends the opt-in confirmation text carriers expect.
  */
 import { recordOptIn } from "../../lib/consent.js";
 import { sendSms } from "../../lib/sms.js";
 import { digits10 } from "../../lib/phone.js";
 
-const SOURCES = { counter: "counter-qr", invoice: "invoice-qr", text: "text-link", web: "deals-page" };
+const SOURCES = { counter: "counter-qr", invoice: "invoice-qr", text: "text-link", web: "deals-page", sms: "sms-page" };
 const CONFIRM_TEXT = "The Tire Plug: you're signed up for tire deals and service reminders. Up to 4 msgs/month. Msg & data rates may apply. Reply STOP to opt out, HELP for help.";
 
 export default async function handler(req, res) {
