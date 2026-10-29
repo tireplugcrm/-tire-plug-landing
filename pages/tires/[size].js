@@ -47,15 +47,17 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
   // Lowest price on the page, for the title Google shows: "Cheap 205/55R16 Tires in Los Angeles from $49".
   const lowest = [stockFrom, from, nextDayFrom].filter((p) => p != null).reduce((a, b) => Math.min(a, b), Infinity);
   const hasLowest = Number.isFinite(lowest);
-  const today = inStock ? ", Installed Today" : "";
+  // "In Stock Today" only when the lowest price is a tire on our shelf; a cheaper next-day
+  // or order-in tire can't go on today. Prices are per tire; install is extra.
+  const lowestOnShelf = inStock && stockFrom != null && stockFrom <= lowest;
   const title = hasLowest
-    ? `Cheap ${display} Tires in Los Angeles from ${money(lowest)}${today} | The Tire Plug`
+    ? `Cheap ${display} Tires in Los Angeles from ${money(lowest)} a Tire${lowestOnShelf ? ", In Stock Today" : ""} | The Tire Plug`
     : inStock
-      ? `${display} Tires in Stock in Los Angeles, Installed Today | The Tire Plug`
+      ? `${display} Tires in Stock in Los Angeles Today | The Tire Plug`
       : `${display} Tires in Los Angeles | The Tire Plug`;
   const allBrands = [...new Set([...stock, ...nextDay, ...tires].map((t) => t.brand))].slice(0, 5).join(", ");
   const description = hasLowest || inStock
-    ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock and installed today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
+    ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock to install today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
     : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
 
   // Product + Offer for every priced tire on the page: shelf stock first (with availability), then catalog.
@@ -128,10 +130,10 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         </section>
 
         <div className="wrap">
-          <a className="install" href={PHONE.tel}>
+          <div className="install">
             <b>Install &amp; balance start at ${INSTALL_FROM} per wheel</b>
-            <span>Get it installed today at our Downtown LA location →</span>
-          </a>
+            <span>{inStock ? "In-stock tires go on today at our Downtown LA shop." : "Order today, installed tomorrow at our Downtown LA shop."}</span>
+          </div>
           <div className="fin-row"><FinancingNote /></div>
 
           {inStock && (
@@ -210,7 +212,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
               <h2>Other {sizeKey.match(/R(\d{2})$/)[1]}" sizes we carry</h2>
               <div className="chips">
                 {nearby.map((s) => (
-                  <a key={s.key} href={`/tires/${s.slug}`}>{s.key.replace("X", "x")} <span>{s.from != null ? `from ${money(s.from)}` : "in stock"}</span></a>
+                  <a key={s.key} href={`/tires/${s.slug}`}>{s.key.replace("X", "x")} <span>{s.label}</span></a>
                 ))}
               </div>
             </section>

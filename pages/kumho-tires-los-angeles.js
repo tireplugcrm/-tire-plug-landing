@@ -17,7 +17,7 @@ const ALIGNMENT = 49;
 // Mount + balance is extra, from $INSTALL per wheel.
 // Specs from Kumho USA (kumhotireusa.com).
 const FAQ = [
-  { q: "Is installation included?", a: `Prices shown are for the tire only. Install and balance start at $${INSTALL} per wheel. Get it installed today at our Downtown LA location.` },
+  { q: "Is installation included?", a: `Prices shown are for the tire only. Install and balance start at $${INSTALL} per wheel. Sizes on our shelf go on today; anything we order in is installed the next day.` },
   { q: "How does the $49 alignment deal work?", a: `Buy a set of 4 Kumho tires and add a 4-wheel alignment for $${ALIGNMENT}. We do it the same visit.` },
   { q: "What warranty comes with Kumho?", a: "Kumho's own programs:", list: [
     "Treadwear warranty: up to 75,000 miles depending on the tire (shown on each tire above)",
@@ -79,7 +79,7 @@ export default function KumhoTires() {
           <div className="wrap hero-grid">
             <div>
               <img className="brand" src="/images/kumho/kumho-logo.png" alt="Kumho Tires" />
-              <h1 className="display">Kumho tires.<br /><span className="r">Priced and in stock.</span></h1>
+              <h1 className="display">Kumho tires.<br /><span className="r">Every size, priced.</span></h1>
               <p className="sub serif">Performance, SUV, truck and Tesla EV tires, from {money(Math.min(...allPrices))} a tire.</p>
               <div className="ctas">
                 <a className="btn btn-red" href="#tires">See tires &amp; prices →</a>
@@ -101,7 +101,7 @@ export default function KumhoTires() {
               <div><span className="eyebrow">The lineup</span><h2 className="display">Pick your <span className="r">Kumho.</span></h2></div>
               <p>Prices are per tire, product only. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set. Tap a size to see what's in stock and book.</p>
             </div>
-            <a className="install" href={PHONE.tel}><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
+            <div className="install"><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>In stock goes on today. Not on the shelf? We order it in and install it tomorrow.</span></div>
             <div className="grid">
               {MODELS.map((m) => (
                 <article className={`card${m.tesla ? " tesla" : ""}`} key={m.id} id={m.id}>

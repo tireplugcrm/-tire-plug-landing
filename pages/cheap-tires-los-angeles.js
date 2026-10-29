@@ -35,8 +35,8 @@ export async function getStaticProps() {
 
 export default function CheapTires({ cheapest, rims, count, from }) {
   const title = from != null
-    ? `Cheap Tires in Los Angeles from ${money(from)}, Installed Today | The Tire Plug`
-    : "Cheap Tires in Los Angeles, Installed Today | The Tire Plug";
+    ? `Cheap Tires in Los Angeles from ${money(from)} a Tire, In Stock Today | The Tire Plug`
+    : "Cheap Tires in Los Angeles, In Stock Today | The Tire Plug";
   const description = `Cheap new and used tires in Los Angeles at The Tire Plug, 2331 E Olympic Blvd.${count ? ` ${count} tires in stock${from != null ? ` from ${money(from)} each` : ""}, installed today.` : ""} Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`;
   const seller = {
     "@type": "TireShop", "@id": "https://tireplugla.com/#olympic", name: "The Tire Plug", url: "https://tireplugla.com/",

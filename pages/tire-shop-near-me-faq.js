@@ -26,11 +26,11 @@ const FAQS = [
   },
   {
     q: "Can I get tires installed the same day?",
-    a: "Almost always, yes. The Tire Plug does same-day tire installation at our Downtown LA shop. Call ahead at (562) 500-4625 or send us your size so we can confirm we have your tire in stock and get you in and out fast.",
+    a: `Yes, if the tire is on our shelf. Search your size at tireplugla.com/tires: tires marked "In stock" go on today, and tires we order in are installed the next day. Or call ${PHONE.display} and we'll check for you.`,
   },
   {
     q: "What tire brands do you carry?",
-    a: "We stock a full range of brands and budgets — premium (Michelin, Goodyear, Continental, Bridgestone), mid-tier (Falken, Hankook, Yokohama), and reliable value brands — plus inspected used tires. If we don't have your exact tire on the shelf, we can usually get it the same or next day.",
+    a: "We stock a full range of brands and budgets — premium (Michelin, Goodyear, Continental, Bridgestone), mid-tier (Falken, Hankook, Yokohama), and reliable value brands — plus inspected used tires. If we don't have your exact tire on the shelf, we can usually get it by the next day.",
   },
   {
     q: "How do I know what tire size I need?",

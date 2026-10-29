@@ -86,7 +86,7 @@ export default function RbpTires() {
         <header className="hero">
           <div className="wrap hero-grid">
             <div>
-              <span className="eyebrow">In stock at The Tire Plug</span>
+              <span className="eyebrow">At The Tire Plug · in stock or next day</span>
               <h1 className="display">RBP Repulsor.<br /><span className="r">Every size, priced.</span></h1>
               <p className="sub serif">All-terrain, rugged, extreme and mud-terrain tires for trucks &amp; SUVs. 15" to 28", no surprises.</p>
               <div className="ctas">
@@ -112,7 +112,7 @@ export default function RbpTires() {
               <div><span className="eyebrow">Size catalog</span><h2 className="display">Find your <span className="r">size.</span></h2></div>
               <p>Pick your rim size, then tap your size to see what's in stock and book. Prices are per tire, product only. Don't see your size? Call or text us and we'll check.</p>
             </div>
-            <a className="install" href={PHONE.tel}><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
+            <div className="install"><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>In stock goes on today. Not on the shelf? We order it in and install it tomorrow.</span></div>
             <div className="tabs" role="tablist" aria-label="Rim size" onKeyDown={onTabKey}>
               {CATALOG.map((c, i) => (
                 <button

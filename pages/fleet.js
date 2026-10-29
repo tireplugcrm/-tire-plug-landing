@@ -64,20 +64,20 @@ export default function Fleet({ cat }) {
 
         <section className="wrap list">
           <h2>Price list</h2>
-          <p className="sub">The lowest price we have in each size, per tire, as of {updated}. Install &amp; balance from <b>${cat.install} per wheel</b>. Ask for budget, mid-range and premium options in any size.</p>
+          <p className="sub">Our best price in each size, per tire, as of {updated}: the cheapest tire on our shelf, or the cheapest we can get next day when none is in stock. Install &amp; balance from <b>${cat.install} per wheel</b>. Ask for budget, mid-range and premium options in any size.</p>
           {cat.groups.map((g) => (
             <div className="grp" key={g.id}>
               <h3>{g.title}</h3>
               <p className="blurb">{g.blurb}</p>
               <table>
-                <thead><tr><th>Size</th><th>Lowest-priced tire</th><th className="r">Per tire</th><th className="hide-sm">Availability</th></tr></thead>
+                <thead><tr><th>Size</th><th>Best-priced tire</th><th className="r">Per tire</th><th className="hide-sm">Availability</th></tr></thead>
                 <tbody>
                   {g.rows.map((r) => (
                     <tr key={r.key}>
                       <td className="size"><a href={`/tires/${sizeToSlug(r.key)}`}>{r.key.replace("X", "x")}</a></td>
                       <td>{r.brand} {r.model}{r.options > 1 && <span className="more"> · {r.options} options</span>}{r.special && <span className="special">{r.special}</span>}</td>
                       <td className="r price">{money(r.price)}</td>
-                      <td className="hide-sm"><span className={`when ${r.today ? "today" : r.when}`}>{r.today ? "In stock" : WHEN[r.when]}</span></td>
+                      <td className="hide-sm"><span className={`when ${r.when}`}>{WHEN[r.when]}</span></td>
                     </tr>
                   ))}
                 </tbody>

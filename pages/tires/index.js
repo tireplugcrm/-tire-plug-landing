@@ -15,7 +15,6 @@ export async function getStaticProps() {
 const URL = "https://tireplugla.com/tires";
 const TITLE = "Shop Tires by Size in Los Angeles | Every Option, Every Price | The Tire Plug";
 const DESCRIPTION = "Search your tire size and see every tire The Tire Plug carries in it, cheapest first: Kumho, RBP and more. 2331 E Olympic Blvd, Downtown LA. Install & balance from $25 per wheel.";
-const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
 export default function TiresIndex({ sizes }) {
   const rims = [...new Set(sizes.map((s) => s.rim))];
@@ -38,7 +37,7 @@ export default function TiresIndex({ sizes }) {
             <h1>Find your size. <span>See every option.</span></h1>
             <p className="lead">Pick the size on your tire's sidewall and we'll show every tire we carry in it, cheapest first.</p>
             <div className="box"><TireSizeSearch /></div>
-            <p className="install">Install &amp; balance start at <b>${INSTALL_FROM} per wheel</b>. Get it installed today at our Downtown LA location.</p>
+            <p className="install">Install &amp; balance start at <b>${INSTALL_FROM} per wheel</b>. In-stock tires go on today at our Downtown LA shop.</p>
           </div>
         </section>
         <section className="wrap all">
@@ -49,10 +48,8 @@ export default function TiresIndex({ sizes }) {
               <div className="chips">
                 {sizes.filter((s) => s.rim === rim).map((s) => (
                   <a key={s.key} href={`/tires/${s.slug}`}>
-                    {s.key.replace("X", "x")} <span>{s.from != null
-                      ? `${s.count > 1 ? `${s.count} options · ` : ""}from ${money(s.from)}`
-                      : "in stock"}</span>
-                    {s.stock > 0 && s.from != null && <i className="dot" title="In stock" />}
+                    {s.key.replace("X", "x")} <span>{s.label}</span>
+                    {s.stock > 0 && <i className="dot" title="In stock" />}
                   </a>
                 ))}
               </div>
