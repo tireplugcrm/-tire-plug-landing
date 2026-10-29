@@ -6,6 +6,7 @@ import StockTireCard from "../components/StockTireCard";
 import FinancingNote from "../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug } from "../lib/tire-catalog";
 import { stockForSize } from "../lib/inventory";
+import { PHONE } from "../lib/shop";
 
 // Landspider special: the 10 sizes received from the October 2026 Landspider buy. Cards, stock and prices come
 // from the same place as /tires/<size> (lib/inventory.js -> lib/pricing.js), so a price changed in
@@ -16,7 +17,6 @@ const LINES = [
   { model: "Citytraxx H/P", title: "Citytraxx H/P", sub: "Performance all-season for coupes, sedans and crossovers", sizes: ["235/45R18", "235/40R19", "245/50R20"] },
   { model: "Citytraxx H/T", title: "Citytraxx H/T", sub: "Highway all-season for SUVs and crossovers", sizes: ["235/60R18"] },
 ];
-const SMS = "5625004625";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
 export async function getStaticProps() {
@@ -39,7 +39,7 @@ export default function LandspiderTires({ lines }) {
   const from = priced.length ? Math.min(...priced.map((t) => t.price)) : null;
   const title = `Landspider Tires in Los Angeles${from ? ` from ${money(from)}` : ""} | The Tire Plug`;
   const description = `Landspider Citytraxx G/P, H/P and H/T tires in stock at The Tire Plug, 2331 E Olympic Blvd, Los Angeles.${from ? ` From ${money(from)} a tire.` : ""} Install and balance $${INSTALL_FROM} per wheel. Call (562) 500-4625.`;
-  const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I saw the Landspider ${t.model} in ${t.size}${t.price != null ? ` for ${money(t.price)} each` : ""}. Can you hold a set for me?`)}`;
+  const smsFor = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I saw the Landspider ${t.model} in ${t.size}${t.price != null ? ` for ${money(t.price)} each` : ""}. Can you hold a set for me?`)}`;
 
   return (
     <>
@@ -69,7 +69,7 @@ export default function LandspiderTires({ lines }) {
             </p>
             <div className="ctas">
               <a className="btn red" href="/book">Book install →</a>
-              <a className="btn ghost" href="tel:5625004625">Call (562) 500-4625</a>
+              <a className="btn ghost" href={PHONE.tel}>Call {PHONE.display}</a>
             </div>
             <div className="fin-row"><FinancingNote /></div>
           </div>
@@ -87,7 +87,7 @@ export default function LandspiderTires({ lines }) {
                   ))}
                 </ul>
               ) : (
-                <p className="empty">These sizes just sold out. <a href="tel:5625004625">Call (562) 500-4625</a> and we'll find you a set.</p>
+                <p className="empty">These sizes just sold out. <a href={PHONE.tel}>Call {PHONE.display}</a> and we'll find you a set.</p>
               )}
               <p className="sizes">
                 {line.sizes.map((s) => <a key={s} href={`/tires/${sizeToSlug(s)}`}>{s}</a>)}

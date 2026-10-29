@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
 import { RBP_AT as AT, RBP_RT as RT, RBP_CATALOG as CATALOG, INSTALL_FROM as INSTALL } from "../lib/tire-catalog";
+import { PHONE } from "../lib/shop";
 
 const URL = "https://tireplugla.com/rbp-tires-los-angeles";
 const TITLE = "RBP Repulsor A/T, R/T, X/T & M/T Tires in Los Angeles | Every Size Priced | The Tire Plug";
@@ -57,7 +58,7 @@ export default function RbpTires() {
       priceCurrency: "USD",
       lowPrice: Math.min(...CATALOG.flatMap(allSizes).map((s) => s[3])),
       highPrice: Math.max(...CATALOG.flatMap(allSizes).map((s) => s[3])),
-      seller: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/" },
+      seller: { "@type": "AutoRepair", name: "The Tire Plug", telephone: PHONE.schema, url: "https://tireplugla.com/" },
     },
   };
 
@@ -90,7 +91,7 @@ export default function RbpTires() {
               <p className="sub serif">All-terrain, rugged, extreme and mud-terrain tires for trucks &amp; SUVs. 15" to 28", no surprises.</p>
               <div className="ctas">
                 <a className="btn btn-red" href="#sizes">Find your size →</a>
-                <a className="btn btn-ghost" href="tel:5625004625">Call (562) 500-4625</a>
+                <a className="btn btn-ghost" href={PHONE.tel}>Call {PHONE.display}</a>
               </div>
             </div>
             <img className="tire" src="/images/rbp/repulsor-at-plateau.png" alt="RBP Repulsor A/T Plateau all-terrain tire" />
@@ -111,7 +112,7 @@ export default function RbpTires() {
               <div><span className="eyebrow">Size catalog</span><h2 className="display">Find your <span className="r">size.</span></h2></div>
               <p>Pick your rim size. Prices are per tire, product only. Don't see your size? Call or text us and we'll check.</p>
             </div>
-            <a className="install" href="tel:5625004625"><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
+            <a className="install" href={PHONE.tel}><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
             <div className="tabs" role="tablist" aria-label="Rim size" onKeyDown={onTabKey}>
               {CATALOG.map((c, i) => (
                 <button
@@ -144,7 +145,7 @@ export default function RbpTires() {
               ))}
               <div className="foot">
                 <span>{allSizes(cur).length} sizes in {cur.rim}". Product-only prices. Install &amp; balance start at ${INSTALL} per wheel.</span>
-                <a className="btn btn-red" href="tel:5625004625">Call to reserve</a>
+                <a className="btn btn-red" href={PHONE.tel}>Call to reserve</a>
               </div>
             </div>
           </div>
@@ -184,9 +185,9 @@ export default function RbpTires() {
               <span className="eyebrow">Visit us</span>
               <h2 className="display" style={{ marginTop: 14 }}>Pull up.<br /><span className="r">No appointment.</span></h2>
               <div className="addr">2331 E Olympic Blvd, Los Angeles</div>
-              <div className="meta">Downtown LA · (562) 500-4625 · @tireplugcali</div>
+              <div className="meta">Downtown LA · {PHONE.display} · @tireplugcali</div>
               <div className="ctas">
-                <a className="btn btn-red" href="tel:5625004625">Call now</a>
+                <a className="btn btn-red" href={PHONE.tel}>Call now</a>
                 <a className="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=2331+E+Olympic+Blvd+Los+Angeles+CA" target="_blank" rel="noopener noreferrer">Get directions</a>
                 <a className="btn btn-ghost" href="https://www.instagram.com/tireplugcali" target="_blank" rel="noopener noreferrer">Instagram</a>
               </div>

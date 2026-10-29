@@ -2,21 +2,19 @@ import React from "react";
 import Head from "next/head";
 import Header from "./Header";
 import Footer from "./Footer";
+import { PHONE, OPENING_HOURS, HOURS_LINES } from "../lib/shop";
 
 const SERVICES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Changes", "Brake Service", "Tire Rotation & Balance", "Free Tire Inspection", "Battery Service", "Free Air Check"];
 
 export default function LocationPage({ loc }) {
   const url = `https://tireplugla.com/${loc.slug}`;
-  const weekday = loc.weekday || [{ dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00" }];
-  const hours = weekday.map((w) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: w.dayOfWeek, opens: w.opens, closes: w.closes }));
-  if (loc.sunday) hours.push({ "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: loc.sunday[0], closes: loc.sunday[1] });
   const schema = {
     "@context": "https://schema.org", "@type": "AutoRepair",
     name: `The Tire Plug — ${loc.label}`, image: "https://tireplugla.com/images/logo.webp", url,
-    telephone: "+1-562-500-4625", priceRange: "$$",
+    telephone: PHONE.schema, priceRange: "$$",
     address: { "@type": "PostalAddress", streetAddress: loc.street, addressLocality: "Los Angeles", addressRegion: "CA", postalCode: loc.zip, addressCountry: "US" },
     areaServed: loc.neighborhoods.map((n) => ({ "@type": "Place", name: n })),
-    openingHoursSpecification: hours,
+    openingHoursSpecification: OPENING_HOURS,
     makesOffer: SERVICES.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s } })),
   };
   return (
@@ -42,11 +40,11 @@ export default function LocationPage({ loc }) {
           <p style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.6, maxWidth: 700 }}>{loc.intro}</p>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", margin: "2rem 0 1.5rem" }}>
             <div style={card}><div style={cardLabel}>📍 Address</div><div style={cardVal}>{loc.street}<br />Los Angeles, CA {loc.zip}</div></div>
-            <div style={card}><div style={cardLabel}>🕐 Hours</div><div style={cardVal}>{(loc.hoursLines || ["Mon–Sat · 9AM–6PM", loc.sundayText]).map((line, i) => (<React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>))}</div></div>
-            <div style={card}><div style={cardLabel}>📞 Phone</div><div style={cardVal}>(562) 500-4625</div></div>
+            <div style={card}><div style={cardLabel}>🕐 Hours</div><div style={cardVal}>{HOURS_LINES.map((line, i) => (<React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>))}</div></div>
+            <div style={card}><div style={cardLabel}>📞 Phone</div><div style={cardVal}>{PHONE.display}</div></div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-            <a href="tel:5625004625" style={ctaRed}>📞 Call Now</a>
+            <a href={PHONE.tel} style={ctaRed}>📞 Call Now</a>
             <a href={loc.directionsUrl} target="_blank" rel="noopener noreferrer" style={ctaGhost}>🗺️ Get Directions</a>
             <a href="/book" style={ctaGhost}>Book a Tire Install</a>
           </div>
@@ -63,7 +61,7 @@ export default function LocationPage({ loc }) {
           <h2 style={h2}>Proudly serving {loc.areaText}</h2>
           <p style={{ color: "#555", lineHeight: 1.6, maxWidth: 720 }}>
             Drivers around {loc.neighborhoods.join(", ")} trust The Tire Plug for honest pricing and same-day tire service.
-            Come by {loc.street} in Los Angeles or call <a href="tel:5625004625" style={{ color: "#E01B22" }}>(562) 500-4625</a> for a fast quote on new or used tires, an alignment, or an oil change.
+            Come by {loc.street} in Los Angeles or call <a href={PHONE.tel} style={{ color: "#E01B22" }}>{PHONE.display}</a> for a fast quote on new or used tires, an alignment, or an oil change.
           </p>
           <p style={{ marginTop: "1.25rem" }}><a href="/" style={{ color: "#E01B22", fontWeight: 700 }}>← Back to The Tire Plug home</a></p>
         </section>

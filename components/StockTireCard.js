@@ -1,4 +1,5 @@
 import React from 'react';
+import { PHONE } from "../lib/shop";
 
 // One tire we have on the shelf, on /tires/<size>: brand, what the tire is, the spec sheet
 // we have for it, and a text-to-reserve button. Availability only, no price.
@@ -76,7 +77,7 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
         <a className="stc-btn red stc-book" href={bookHref}>Book install</a>
         <div className="stc-ctas">
           <a className="stc-btn ghost stc-text" href={smsHref}>{cta}</a>
-          <a className="stc-btn ghost" href="tel:5625004625">Call</a>
+          <a className="stc-btn ghost" href={PHONE.tel}>Call</a>
         </div>
         {(rows.length > 0 || t.about || t.features.length > 0) && (
           <details className="stc-specs">

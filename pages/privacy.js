@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import { PHONE } from "../lib/shop";
 
 export default function Privacy() {
   return (
@@ -66,7 +67,7 @@ export default function Privacy() {
       <P>
         The Tire Plug<br />
         2331 E Olympic Blvd, Los Angeles, CA 90021<br />
-        Phone: <A href="tel:562-500-4625">562-500-4625</A><br />
+        Phone: <A href={PHONE.tel}>{PHONE.plain}</A><br />
         Email: <A href="mailto:tiredepotplug@gmail.com">tiredepotplug@gmail.com</A>
       </P>
     </Legal>

@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { PHONE } from "../lib/shop";
 
 /*
   Text-message consent page.
@@ -136,13 +137,13 @@ export default function TextUs() {
           Los Angeles, CA 90021
           <br />
           Phone:{" "}
-          <a href="tel:+15625004625" style={{ color: "#0071c5" }}>
-            562-500-4625
+          <a href={PHONE.tel} style={{ color: "#0071c5" }}>
+            {PHONE.plain}
           </a>
           <br />
           Text:{" "}
-          <a href="sms:+15625004625" style={{ color: "#0071c5" }}>
-            562-500-4625
+          <a href={PHONE.sms} style={{ color: "#0071c5" }}>
+            {PHONE.plain}
           </a>
           <br />
           Email:{" "}

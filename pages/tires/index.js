@@ -5,6 +5,7 @@ import Footer from "../../components/Footer";
 import TireSizeSearch from "../../components/TireSizeSearch";
 import { INSTALL_FROM } from "../../lib/tire-catalog";
 import { allSizes } from "../../lib/inventory";
+import { PHONE } from "../../lib/shop";
 
 // /tires: search by size, plus every size we list or have in stock (grouped by rim) for browsing and for Google.
 export async function getStaticProps() {
@@ -57,7 +58,7 @@ export default function TiresIndex({ sizes }) {
               </div>
             </div>
           ))}
-          <p className="note">Don't see your size? Pick it above anyway, or text us at <a href="sms:+15625004625">(562) 500-4625</a>. We can usually get it fast.</p>
+          <p className="note">Don't see your size? Pick it above anyway, or text us at <a href={PHONE.sms}>{PHONE.display}</a>. We can usually get it fast.</p>
         </section>
       </main>
       <Footer />

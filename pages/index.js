@@ -6,27 +6,22 @@ import PromoHero from '../components/PromoHero';
 import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
 import Footer from '../components/Footer';
+import { PHONE, ADDRESS, OPENING_HOURS } from '../lib/shop';
 
 const SERVICE_NAMES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Change", "Brake Service", "Tire Rotation & Balance", "Tire Repair"];
-function makeLocation(name, street, zip, sundayHours, weekday) {
-  const wk = weekday || [{ dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "18:00" }];
-  const hours = wk.map((w) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: w.dayOfWeek, opens: w.opens, closes: w.closes }));
-  if (sundayHours) hours.push({ "@type": "OpeningHoursSpecification", dayOfWeek: "Sunday", opens: sundayHours[0], closes: sundayHours[1] });
+function makeLocation(name, street, zip) {
   return {
     "@context": "https://schema.org", "@type": ["TireShop", "AutoRepair"],
     name, image: "https://tireplugla.com/images/logo.webp", url: "https://tireplugla.com/",
-    telephone: "+1-562-500-4625", priceRange: "$$",
+    telephone: PHONE.schema, priceRange: "$$",
     address: { "@type": "PostalAddress", streetAddress: street, addressLocality: "Los Angeles", addressRegion: "CA", postalCode: zip, addressCountry: "US" },
     areaServed: { "@type": "City", name: "Los Angeles" },
-    openingHoursSpecification: hours,
+    openingHoursSpecification: OPENING_HOURS,
     makesOffer: SERVICE_NAMES.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s } })),
   };
 }
 const TIRE_PLUG_SCHEMA = [
-  makeLocation("The Tire Plug — Olympic", "2331 E Olympic Blvd", "90021", ["10:00", "16:00"], [
-    { dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "19:00" },
-    { dayOfWeek: ["Saturday"], opens: "09:00", closes: "18:00" },
-  ]),
+  makeLocation("The Tire Plug — Olympic", ADDRESS.street, ADDRESS.zip),
 ];
 
 export default function Home() {

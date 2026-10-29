@@ -1,4 +1,5 @@
 import React from 'react';
+import { PHONE, ADDRESS } from "../lib/shop";
 
 export default function Footer() {
   const scrollToBooking = () => { window.location.href = '/book'; };
@@ -86,7 +87,7 @@ export default function Footer() {
           {/* Dual CTAs */}
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             
-              <a href="tel:562-500-4625"
+              <a href={PHONE.tel}
               className="cta-primary"
               style={{
                 position: 'relative',
@@ -242,13 +243,13 @@ export default function Footer() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
                   <p style={{ color: '#E01B22', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                    East LA
+                    {ADDRESS.area}
                   </p>
                   <p style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.2rem', lineHeight: 1.4 }}>
-                    2331 E Olympic Blvd
+                    {ADDRESS.street}
                   </p>
                   <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>
-                    Los Angeles, CA 90021
+                    {ADDRESS.city}, {ADDRESS.region} {ADDRESS.zip}
                   </p>
                 </div>
               </div>
@@ -260,7 +261,7 @@ export default function Footer() {
 
               {/* GIANT PHONE NUMBER */}
               
-                <a href="tel:562-500-4625"
+                <a href={PHONE.tel}
                 className="footer-phone"
                 style={{
                   display: 'block',
@@ -288,7 +289,7 @@ export default function Footer() {
                   lineHeight: 1.1,
                   transition: 'color 0.3s ease',
                 }}>
-                  562-500-4625
+                  {PHONE.plain}
                 </span>
               </a>
 

@@ -6,6 +6,7 @@ import TireSizeSearch from "../components/TireSizeSearch";
 import FinancingNote from "../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug } from "../lib/tire-catalog";
 import { pricedStock } from "../lib/inventory";
+import { PHONE, ADDRESS, OPENING_HOURS } from "../lib/shop";
 
 // /cheap-tires-los-angeles: for "cheap tires near me" / "cheap tires Los Angeles". The cheapest tires
 // on our shelf right now (same stock and prices as /tires/<size>), the cheapest per rim size,
@@ -39,13 +40,9 @@ export default function CheapTires({ cheapest, rims, count, from }) {
   const description = `Cheap new and used tires in Los Angeles at The Tire Plug, 2331 E Olympic Blvd.${count ? ` ${count} tires in stock${from != null ? ` from ${money(from)} each` : ""}, installed today.` : ""} Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`;
   const seller = {
     "@type": "TireShop", "@id": "https://tireplugla.com/#olympic", name: "The Tire Plug", url: "https://tireplugla.com/",
-    image: "https://tireplugla.com/images/logo.webp", telephone: "+1-562-500-4625", priceRange: "$",
-    address: { "@type": "PostalAddress", streetAddress: "2331 E Olympic Blvd", addressLocality: "Los Angeles", addressRegion: "CA", postalCode: "90021", addressCountry: "US" },
-    openingHoursSpecification: [
-      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "19:00" },
-      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Saturday"], opens: "09:00", closes: "18:00" },
-      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Sunday"], opens: "10:00", closes: "16:00" },
-    ],
+    image: "https://tireplugla.com/images/logo.webp", telephone: PHONE.schema, priceRange: "$",
+    address: { "@type": "PostalAddress", streetAddress: ADDRESS.street, addressLocality: ADDRESS.city, addressRegion: ADDRESS.region, postalCode: ADDRESS.zip, addressCountry: "US" },
+    openingHoursSpecification: OPENING_HOURS,
   };
   const schema = [
     { "@context": "https://schema.org", ...seller },
@@ -132,7 +129,7 @@ export default function CheapTires({ cheapest, rims, count, from }) {
               <h2>Used tires, even cheaper</h2>
               <p>We stock quality used tires too, every one inspected for tread and safety before it goes on your car. Text us your size for today's used options and price.</p>
               <div className="ctas">
-                <a className="btn red" href={`sms:+15625004625?&body=${encodeURIComponent("Hi Tire Plug! Do you have used tires in my size? My size is: ")}`}>Text your size</a>
+                <a className="btn red" href={`${PHONE.sms}?&body=${encodeURIComponent("Hi Tire Plug! Do you have used tires in my size? My size is: ")}`}>Text your size</a>
                 <a className="btn ghost" href="/used-tires-los-angeles">Used tires</a>
               </div>
             </div>
@@ -141,7 +138,7 @@ export default function CheapTires({ cheapest, rims, count, from }) {
               <p>Financing available with Snap Finance. Ask in store or call us and we'll walk you through it.</p>
               <div className="ctas">
                 <a className="btn red" href="/book">Book install</a>
-                <a className="btn ghost" href="tel:5625004625">Call (562) 500-4625</a>
+                <a className="btn ghost" href={PHONE.tel}>Call {PHONE.display}</a>
               </div>
             </div>
           </section>

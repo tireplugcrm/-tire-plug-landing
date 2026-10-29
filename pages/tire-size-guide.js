@@ -3,6 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
+import { PHONE } from "../lib/shop";
 
 const URL = "https://tireplugla.com/tire-size-guide";
 const TITLE = "What Tire Size Do I Need? Tire Size Guide | The Tire Plug — Los Angeles";
@@ -33,7 +34,7 @@ export default function TireSizeGuide() {
     headline: "What Tire Size Do I Need? A Plain-English Tire Size Guide",
     description: DESCRIPTION,
     author: { "@type": "Organization", name: "The Tire Plug" },
-    publisher: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/", image: "https://tireplugla.com/images/logo.webp" },
+    publisher: { "@type": "AutoRepair", name: "The Tire Plug", telephone: PHONE.schema, url: "https://tireplugla.com/", image: "https://tireplugla.com/images/logo.webp" },
     mainEntityOfPage: URL,
     image: "https://tireplugla.com/images/logo.webp",
   };
@@ -62,7 +63,7 @@ export default function TireSizeGuide() {
             Those numbers on your tire — like <strong style={{ color: "#111" }}>225/45R17</strong> — tell you exactly what fits your car. Here's what each part means and where to find your size. Or skip the homework: <strong style={{ color: "#111" }}>snap a photo of your sidewall and text it to us</strong> — we'll read it and quote you in minutes.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
-            <a href="sms:+15625004625" style={ctaRed}>📲 Text a Photo for a Quote</a>
+            <a href={PHONE.sms} style={ctaRed}>📲 Text a Photo for a Quote</a>
             <a href="/book" style={ctaGhost}>Book a Tire Install</a>
           </div>
         </section>
@@ -103,7 +104,7 @@ export default function TireSizeGuide() {
             You don't need to figure any of this out alone. Send us a <strong style={{ color: "#111" }}>photo of your tire's sidewall</strong> or just your <strong style={{ color: "#111" }}>year, make and model</strong> by text, and we'll confirm the exact size, check what's in stock, and send you an honest, upfront price — new or used. Same-day installation at our Downtown LA shop.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
-            <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
+            <a href={PHONE.tel} style={ctaRed}>📞 Call {PHONE.display}</a>
             <a href="/tire-shop-near-me-faq" style={ctaGhost}>Read the Tire FAQ</a>
           </div>
         </section>

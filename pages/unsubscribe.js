@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { PHONE } from "../lib/shop";
 
 // Landing page for the "Unsubscribe" link in every marketing email.
 // One button, no login: the signed link identifies the address.
@@ -26,7 +27,7 @@ export default function Unsubscribe() {
         {state === "done" ? (
           <>
             <h1 style={{ fontSize: 22, margin: "0 0 10px", color: "#111" }}>You're unsubscribed</h1>
-            <p style={{ color: "#555", lineHeight: 1.6, margin: 0 }}><strong>{msg}</strong> won't get marketing emails from us anymore. Need tires later? Call <a href="tel:562-500-4625" style={{ color: "#E01B22" }}>562-500-4625</a>.</p>
+            <p style={{ color: "#555", lineHeight: 1.6, margin: 0 }}><strong>{msg}</strong> won't get marketing emails from us anymore. Need tires later? Call <a href={PHONE.tel} style={{ color: "#E01B22" }}>{PHONE.plain}</a>.</p>
           </>
         ) : (
           <>

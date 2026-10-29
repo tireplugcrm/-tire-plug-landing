@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { fleetCatalog } from "../lib/fleet-catalog";
 import { sizeToSlug } from "../lib/tire-catalog";
+import { PHONE, smsHref } from "../lib/shop";
 
 // /fleet: the business & fleet price list the outreach emails link to. Live public prices only
 // (lib/fleet-catalog.js), rebuilt hourly. "Save as PDF" prints the same page as the PDF catalog.
@@ -48,8 +49,8 @@ export default function Fleet({ cat }) {
             <h1>Keep your vehicles <span>on the road.</span></h1>
             <p className="lead">Tires and service for local businesses with vans, trucks, sales cars and rideshare fleets, right in Downtown LA. 5.0 stars on Google, 10,000+ vehicles serviced.</p>
             <div className="ctas no-print">
-              <a className="btn red" href="tel:5625004625">Call (562) 500-4625</a>
-              <a className="btn dark" href="sms:+15625004625?&body=Hi%2C%20I%27d%20like%20to%20set%20up%20a%20business%20account.">Text us</a>
+              <a className="btn red" href={PHONE.tel}>Call {PHONE.display}</a>
+              <a className="btn dark" href={smsHref("Hi, I'd like to set up a business account.")}>Text us</a>
               <button className="btn ghost" onClick={() => window.print()}>Save as PDF</button>
             </div>
           </div>
@@ -88,7 +89,7 @@ export default function Fleet({ cat }) {
 
         <section className="wrap contact">
           <h2>Set up a business account</h2>
-          <p>Call or text <a href="tel:5625004625"><b>(562) 500-4625</b></a> and tell us what you drive. We'll set you up with one contact and quote your vehicles by text.</p>
+          <p>Call or text <a href={PHONE.tel}><b>{PHONE.display}</b></a> and tell us what you drive. We'll set you up with one contact and quote your vehicles by text.</p>
           <p className="addr"><b>The Tire Plug</b> · 2331 E Olympic Blvd, Los Angeles, CA 90021 · Mon–Fri 9–7, Sat 9–6, Sun 10–4 · tireplugla.com</p>
         </section>
       </main>

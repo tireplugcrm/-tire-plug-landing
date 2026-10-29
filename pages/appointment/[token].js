@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import SlotPicker from "../../components/SlotPicker";
+import { PHONE } from "../../lib/shop";
 
 // Customer's own appointment, from the link in their confirmation / reminder:
 // see it, reschedule it, or cancel it. Server side is POST /api/booking/manage.
@@ -187,8 +188,8 @@ export default function AppointmentPage() {
 function Contact() {
   return (
     <p style={{ marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid #eee", fontSize: "0.88rem", color: "#555" }}>
-      Questions? <a href="tel:562-500-4625" style={{ color: "#E01B22", fontWeight: 700 }}>Call</a> or{" "}
-      <a href="sms:+15625004625" style={{ color: "#E01B22", fontWeight: 700 }}>text</a> (562) 500-4625.
+      Questions? <a href={PHONE.tel} style={{ color: "#E01B22", fontWeight: 700 }}>Call</a> or{" "}
+      <a href={PHONE.sms} style={{ color: "#E01B22", fontWeight: 700 }}>text</a> (562) 500-4625.
     </p>
   );
 }

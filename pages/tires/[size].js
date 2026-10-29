@@ -7,12 +7,12 @@ import StockTireCard from "../../components/StockTireCard";
 import FinancingNote from "../../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
 import { allSizes, stockForSize, nextDayForSize } from "../../lib/inventory";
+import { PHONE } from "../../lib/shop";
 
 // One page per tire size, e.g. /tires/265-70r17: what's on our shelf in that size (from Tekmetric),
 // then every tire we can order in it, cheapest first.
 // Listed and stocked sizes are prebuilt; any other valid size renders on demand with a "text us" fallback.
 const SIZE_RE = /^(\d{3}\/\d{2}R\d{2}|\d{2}X\d{1,2}\.\d{2}R\d{2})$/;
-const SMS = "+15625004625";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
 export async function getStaticPaths() {
@@ -59,7 +59,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
     : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
 
   // Product + Offer for every priced tire on the page: shelf stock first (with availability), then catalog.
-  const seller = { "@type": "TireShop", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/",
+  const seller = { "@type": "TireShop", name: "The Tire Plug", telephone: PHONE.schema, url: "https://tireplugla.com/",
     address: { "@type": "PostalAddress", streetAddress: "2331 E Olympic Blvd", addressLocality: "Los Angeles", addressRegion: "CA", postalCode: "90021", addressCountry: "US" } };
   const product = (t, availability) => ({
     "@type": "Product",
@@ -81,10 +81,10 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
     itemListElement: schemaItems.map((item, i) => ({ "@type": "ListItem", position: i + 1, item })),
   };
 
-  const smsFor = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;
-  const smsAsk = `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'm looking for tires in ${display}. Can you send me options and prices?`)}`;
-  const smsNextDay = (t) => `sms:${SMS}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next-day install. Can you order a set for me?`)}`;
-  const smsStock = (t) => `sms:${SMS}?&body=${encodeURIComponent(t.price != null
+  const smsFor = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;
+  const smsAsk = `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'm looking for tires in ${display}. Can you send me options and prices?`)}`;
+  const smsNextDay = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next-day install. Can you order a set for me?`)}`;
+  const smsStock = (t) => `${PHONE.sms}?&body=${encodeURIComponent(t.price != null
     ? `Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock for ${money(t.price)} each. Can you hold a set for me?`
     : `Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price, and can you hold a set for me?`)}`;
 
@@ -128,7 +128,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         </section>
 
         <div className="wrap">
-          <a className="install" href="tel:5625004625">
+          <a className="install" href={PHONE.tel}>
             <b>Install &amp; balance start at ${INSTALL_FROM} per wheel</b>
             <span>Get it installed today at our Downtown LA location →</span>
           </a>
@@ -182,7 +182,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
                     <a className="btn red book" href={`/book?${new URLSearchParams({ size: display, tire: `${t.brand} ${t.model}` })}`}>Book install</a>
                     <div className="ctas">
                       <a className="btn ghost txt" href={smsFor(t)}>Text to reserve</a>
-                      <a className="btn ghost" href="tel:5625004625">Call</a>
+                      <a className="btn ghost" href={PHONE.tel}>Call</a>
                     </div>
                     <a className="more" href={t.page}>{t.brand} {t.model} details →</a>
                   </div>
@@ -194,8 +194,8 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
               <h2>Text us your size</h2>
               <p>We'll check every brand we can get in {display} and text you back real prices, usually within minutes.</p>
               <div className="ctas">
-                <a className="btn red" href={smsAsk}>Text us · (562) 500-4625</a>
-                <a className="btn ghost" href="tel:5625004625">Call (562) 500-4625</a>
+                <a className="btn red" href={smsAsk}>Text us · {PHONE.display}</a>
+                <a className="btn ghost" href={PHONE.tel}>Call {PHONE.display}</a>
               </div>
             </div>
           )}

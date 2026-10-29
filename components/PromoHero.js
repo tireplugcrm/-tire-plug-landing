@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import QuoteByText from './QuoteByText';
 import FinancingNote from './FinancingNote';
+import { PHONE } from "../lib/shop";
 
 // Promo-first homepage hero: the first thing a customer sees is the current deals.
 // Edit SLIDES to change what rotates; each slide links to its page or the booking form.
@@ -139,7 +140,7 @@ export default function PromoHero() {
               <p className="ph-sub">{s.sub}</p>
               <div className="ph-ctas">
                 <a className="ph-btn" href={s.cta.href} onClick={(e) => onCta(e, s.cta.href)}>{s.cta.label} →</a>
-                <a className="ph-btn ghost" href="tel:562-500-4625">Call (562) 500-4625</a>
+                <a className="ph-btn ghost" href={PHONE.tel}>Call {PHONE.display}</a>
               </div>
             </div>
             {!s.photo && <img className="ph-tire" src={s.img} alt={s.imgAlt} />}

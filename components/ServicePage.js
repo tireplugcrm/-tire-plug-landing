@@ -2,6 +2,7 @@ import React from "react";
 import Head from "next/head";
 import Header from "./Header";
 import Footer from "./Footer";
+import { PHONE } from "../lib/shop";
 
 // Where each page's "Book" button goes: tire pages start with the size, services skip to the service.
 const BOOK = {
@@ -35,7 +36,7 @@ export default function ServicePage({ svc }) {
     "@context": "https://schema.org", "@type": "Service",
     name: `${svc.label} in Los Angeles`, serviceType: svc.label,
     areaServed: { "@type": "City", name: "Los Angeles" },
-    provider: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/", image: "https://tireplugla.com/images/logo.webp" },
+    provider: { "@type": "AutoRepair", name: "The Tire Plug", telephone: PHONE.schema, url: "https://tireplugla.com/", image: "https://tireplugla.com/images/logo.webp" },
     url,
   };
   const related = SERVICE_INDEX.filter((s) => s.slug !== svc.slug);
@@ -61,7 +62,7 @@ export default function ServicePage({ svc }) {
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>{svc.h1}</h1>
           {svc.intro.map((p, i) => <p key={i} style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>{p}</p>)}
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.5rem" }}>
-            <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
+            <a href={PHONE.tel} style={ctaRed}>📞 Call {PHONE.display}</a>
             <a href={bookHref} style={ctaGhost}>Book an Appointment</a>
           </div>
         </section>

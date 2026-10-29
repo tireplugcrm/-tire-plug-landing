@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { PHONE, ADDRESS, HOURS_LINES } from '../lib/shop';
 
 export default function Locations() {
   const [isVisible, setIsVisible] = useState(false);
@@ -9,13 +10,13 @@ export default function Locations() {
       id: 'downtown-la',
       label: 'Downtown LA',
       tag: 'Flagship Location',
-      address: '2331 E Olympic Blvd',
-      city: 'Los Angeles, CA 90021',
-      hours: 'Mon - Fri · 9AM - 7PM',
-      sundayHours: 'Sat 9AM - 6PM · Sun 10AM - 4PM',
+      address: ADDRESS.street,
+      city: `${ADDRESS.city}, ${ADDRESS.region} ${ADDRESS.zip}`,
+      hours: HOURS_LINES[0],
+      sundayHours: HOURS_LINES.slice(1).join(' · '),
       image: '/images/shop-exterior.webp',
-      directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=2331+E+Olympic+Blvd+Los+Angeles+CA+90021',
-      phone: '562-500-4625',
+      directionsUrl: ADDRESS.directions,
+      phone: PHONE.plain,
       highlights: ['Full Service', 'Oil Changes', 'Brake Service'],
     },
   ];

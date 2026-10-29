@@ -1,14 +1,15 @@
 import React from 'react';
+import { PHONE } from "../lib/shop";
 
 // "We finance" line for shoppers coming from the ads. Only what the owner confirmed:
 // Snap Finance, pay over time, handled in store. Don't add rates or approval claims here.
 export default function FinancingNote({ className = '' }) {
   return (
-    <a className={`fin ${className}`} href="tel:5625004625">
+    <a className={`fin ${className}`} href={PHONE.tel}>
       <img className="fin-logo" src="/images/snap/snap-finance-logo.webp" alt="Snap Finance" width="85" height="36" />
       <span className="fin-txt">
         <b>Financing available</b>
-        <span>Pay over time with Snap Finance. Ask in store or call (562) 500-4625 →</span>
+        <span>Pay over time with Snap Finance. Ask in store or call {PHONE.display} →</span>
       </span>
       <style jsx>{`
         .fin { display: flex; align-items: center; gap: 0.8rem; padding: 0.85rem 1.1rem; border-radius: 12px; background: #fff;

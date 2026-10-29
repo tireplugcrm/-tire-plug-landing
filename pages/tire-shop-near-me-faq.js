@@ -3,6 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
+import { PHONE, ADDRESS, HOURS_TEXT } from "../lib/shop";
 
 const URL = "https://tireplugla.com/tire-shop-near-me-faq";
 const TITLE = "Tire Shop Near Me in Los Angeles — FAQ | The Tire Plug";
@@ -53,7 +54,7 @@ const FAQS = [
   },
   {
     q: "What are your hours and locations?",
-    a: "The Tire Plug is in Downtown / East LA at 2331 E Olympic Blvd (LA 90021). Call (562) 500-4625 for current hours — we're open 7 days a week with same-day service.",
+    a: `The Tire Plug is in ${ADDRESS.area} at ${ADDRESS.street} (LA ${ADDRESS.zip}). We're open 7 days: ${HOURS_TEXT}. Call ${PHONE.display} with any questions.`,
   },
   {
     q: "How do I get a tire quote fast?",
@@ -95,10 +96,10 @@ export default function TireShopFaq() {
           <span style={{ color: "#E01B22", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "0.76rem" }}>The Tire Plug · Los Angeles</span>
           <h1 style={{ fontSize: "2.3rem", fontWeight: 900, lineHeight: 1.1, margin: "0.6rem 0 1rem" }}>Tire Shop Near Me — Los Angeles FAQ</h1>
           <p style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>
-            Looking for a tire shop near you in Los Angeles? Here are honest answers to the questions we hear most — about pricing, same-day install, used tires, brands and what we offer. Still have a question? Call or text us at <a href="tel:5625004625" style={{ color: "#E01B22", fontWeight: 700 }}>(562) 500-4625</a>.
+            Looking for a tire shop near you in Los Angeles? Here are honest answers to the questions we hear most — about pricing, same-day install, used tires, brands and what we offer. Still have a question? Call or text us at <a href={PHONE.tel} style={{ color: "#E01B22", fontWeight: 700 }}>{PHONE.display}</a>.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
-            <a href="tel:5625004625" style={ctaRed}>📞 Call (562) 500-4625</a>
+            <a href={PHONE.tel} style={ctaRed}>📞 Call {PHONE.display}</a>
             <a href="/book" style={ctaGhost}>Book a Tire Install</a>
           </div>
         </section>

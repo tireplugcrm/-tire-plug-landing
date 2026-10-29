@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
 import { KUMHO_MODELS as MODELS } from "../lib/tire-catalog";
+import { PHONE } from "../lib/shop";
 
 const URL = "https://tireplugla.com/kumho-tires-los-angeles";
 const TITLE = "Kumho Tires in Los Angeles | Ecsta, Crugen, Road Venture, Tesla EV | The Tire Plug";
@@ -48,7 +49,7 @@ export default function KumhoTires() {
         offers: {
           "@type": "AggregateOffer", priceCurrency: "USD",
           lowPrice: Math.min(...m.sizes.map((s) => s[2])), highPrice: Math.max(...m.sizes.map((s) => s[2])),
-          seller: { "@type": "AutoRepair", name: "The Tire Plug", telephone: "+1-562-500-4625", url: "https://tireplugla.com/" },
+          seller: { "@type": "AutoRepair", name: "The Tire Plug", telephone: PHONE.schema, url: "https://tireplugla.com/" },
         },
       },
     })),
@@ -83,7 +84,7 @@ export default function KumhoTires() {
               <p className="sub serif">Performance, SUV, truck and Tesla EV tires, from {money(Math.min(...allPrices))} a tire.</p>
               <div className="ctas">
                 <a className="btn btn-red" href="#tires">See tires &amp; prices →</a>
-                <a className="btn btn-ghost" href="tel:5625004625">Call (562) 500-4625</a>
+                <a className="btn btn-ghost" href={PHONE.tel}>Call {PHONE.display}</a>
               </div>
             </div>
             <div className="deal">
@@ -101,7 +102,7 @@ export default function KumhoTires() {
               <div><span className="eyebrow">The lineup</span><h2 className="display">Pick your <span className="r">Kumho.</span></h2></div>
               <p>Prices are per tire, product only. Set-of-4 price shown for each size. Add a 4-wheel alignment for ${ALIGNMENT} with any set.</p>
             </div>
-            <a className="install" href="tel:5625004625"><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
+            <a className="install" href={PHONE.tel}><b>Install &amp; balance start at ${INSTALL} per wheel</b><span>Get it installed today at our Downtown LA location →</span></a>
             <div className="grid">
               {MODELS.map((m) => (
                 <article className={`card${m.tesla ? " tesla" : ""}`} key={m.id} id={m.id}>
@@ -155,9 +156,9 @@ export default function KumhoTires() {
               <span className="eyebrow">Visit us</span>
               <h2 className="display" style={{ marginTop: 14 }}>Pull up.<br /><span className="r">No appointment.</span></h2>
               <div className="addr">2331 E Olympic Blvd, Los Angeles</div>
-              <div className="meta">Downtown LA · (562) 500-4625 · @tireplugcali · Open 7 days</div>
+              <div className="meta">Downtown LA · {PHONE.display} · @tireplugcali · Open 7 days</div>
               <div className="ctas">
-                <a className="btn btn-red" href="tel:5625004625">Call now</a>
+                <a className="btn btn-red" href={PHONE.tel}>Call now</a>
                 <a className="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=2331+E+Olympic+Blvd+Los+Angeles+CA" target="_blank" rel="noopener noreferrer">Get directions</a>
                 <a className="btn btn-ghost" href="/rbp-tires-los-angeles">See RBP tires</a>
               </div>
