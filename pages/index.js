@@ -7,6 +7,7 @@ import Reviews from '../components/Reviews';
 import Locations from '../components/Locations';
 import Footer from '../components/Footer';
 import { PHONE, ADDRESS, OPENING_HOURS } from '../lib/shop';
+import { promoFacts } from '../lib/promo-facts';
 
 const SERVICE_NAMES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Change", "Brake Service", "Tire Rotation & Balance", "Tire Repair"];
 function makeLocation(name, street, zip) {
@@ -24,7 +25,12 @@ const TIRE_PLUG_SCHEMA = [
   makeLocation("The Tire Plug — Olympic", ADDRESS.street, ADDRESS.zip),
 ];
 
-export default function Home() {
+// Slide prices come from stock and the catalog; prices change in admin, so refresh every 10 minutes.
+export async function getStaticProps() {
+  return { props: { promo: await promoFacts() }, revalidate: 600 };
+}
+
+export default function Home({ promo }) {
   return (
     <>
       <Head>
@@ -49,7 +55,7 @@ export default function Home() {
 
       <PromoPopup />
       <Header />
-      <PromoHero />
+      <PromoHero facts={promo} />
       <Reviews />
       <Locations />
       <Footer />

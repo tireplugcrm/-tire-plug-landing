@@ -5,30 +5,17 @@ import Footer from "../components/Footer";
 import StockTireCard from "../components/StockTireCard";
 import FinancingNote from "../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug } from "../lib/tire-catalog";
-import { stockForSize } from "../lib/inventory";
+import { landspiderStock } from "../lib/promo-facts";
 import { PHONE } from "../lib/shop";
 
-// Landspider special: the 10 sizes received from the October 2026 Landspider buy. Cards, stock and prices come
+// Landspider special: the sizes from the October 2026 Landspider buy (lib/promo-facts.js). Cards, stock and prices come
 // from the same place as /tires/<size> (lib/inventory.js -> lib/pricing.js), so a price changed in
 // admin -> Inventory & Pricing shows here too. A size that sells out drops off on its own.
 const URL = "https://tireplugla.com/landspider-tires-los-angeles";
-const LINES = [
-  { model: "Citytraxx G/P", title: "Citytraxx G/P", sub: "Everyday all-season for sedans and compacts", sizes: ["195/65R15", "205/65R15", "205/55R16", "205/60R16", "215/60R16", "215/55R17"] },
-  { model: "Citytraxx H/P", title: "Citytraxx H/P", sub: "Performance all-season for coupes, sedans and crossovers", sizes: ["235/45R18", "235/40R19", "245/50R20"] },
-  { model: "Citytraxx H/T", title: "Citytraxx H/T", sub: "Highway all-season for SUVs and crossovers", sizes: ["235/60R18"] },
-];
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
 export async function getStaticProps() {
-  const lines = [];
-  for (const line of LINES) {
-    const tires = [];
-    for (const size of line.sizes) {
-      const stock = await stockForSize(size);
-      for (const t of stock) if (t.brand === "Landspider" && t.model === line.model) tires.push({ ...t, size });
-    }
-    lines.push({ ...line, tires });
-  }
+  const lines = await landspiderStock();
   // Prices can change in admin; the autopilot doesn't rebuild this page, so refresh it every 10 minutes.
   return { props: { lines }, revalidate: 600 };
 }

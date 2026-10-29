@@ -4,14 +4,23 @@ import FinancingNote from './FinancingNote';
 import { PHONE } from "../lib/shop";
 
 // Promo-first homepage hero: the first thing a customer sees is the current deals.
-// Edit SLIDES to change what rotates; each slide links to its page or the booking form.
-const SLIDES = [
+// Edit slides() to change what rotates; each slide links to its page or the booking form.
+// Tire prices and ranges come from `facts` (lib/promo-facts.js, built with the page), so a slide
+// always matches the page it links to; a price we can't read is left off rather than guessed.
+const money = (n) => (n == null ? null : `$${Number(n).toFixed(2).replace(/\.00$/, '')}`);
+const range = (a, b) => (a && b ? (a === b ? `${a}"` : `${a}" to ${b}"`) : null);
+
+const slides = (f = {}) => {
+  const ls = f.landspider || {};
+  const rbp = f.rbpAt || {};
+  const install = f.install || 25;
+  return [
   {
     kicker: 'OG Classics · whitewalls in stock',
     brand: { src: '/images/brands/remington.svg', alt: 'Remington', h: 18, white: true },
     title: ['Remington whitewalls,', '155/80R13'],
-    price: '$75',
-    sub: 'Touring L/X whitewall for lowriders and classics. Install & balance $25 per wheel.',
+    price: money(f.remington),
+    sub: `Touring L/X whitewall for lowriders and classics. Install & balance from $${install} per wheel.`,
     cta: { label: 'See price & book', href: '/tires/155-80r13' },
     img: '/images/promo/remington-touring-lx-wire.webp',
     imgAlt: 'Remington Touring L/X whitewall on a chrome wire-spoke wheel',
@@ -20,9 +29,9 @@ const SLIDES = [
   {
     kicker: 'Landspider special',
     brand: { src: '/images/landspider/landspider-logo-white.png', alt: 'Landspider', h: 30 },
-    title: ['Brand-new tires,', '15" to 20", from'],
-    price: '$49',
-    sub: 'Citytraxx G/P, H/P and H/T in 10 sizes. Install & balance $25 per wheel. While supplies last.',
+    title: ['Brand-new tires,', [range(ls.rimMin, ls.rimMax), ls.from != null && 'from'].filter(Boolean).join(', ')],
+    price: money(ls.from),
+    sub: `Citytraxx G/P, H/P and H/T${ls.sizes ? ` in ${ls.sizes} ${ls.sizes === 1 ? 'size' : 'sizes'}` : ''}. Install & balance from $${install} per wheel. While supplies last.`,
     cta: { label: 'See sizes & prices', href: '/landspider-tires-los-angeles' },
     img: '/images/tires/landspider-citytraxx-h-p.webp',
     imgAlt: 'Landspider Citytraxx H/P tire',
@@ -32,7 +41,7 @@ const SLIDES = [
     brand: { src: '/images/kumho/kumho-logo.png', alt: 'Kumho Tires', h: 40 },
     title: ['Buy 4 Kumho tires,', 'get a 4-wheel alignment'],
     price: '$49',
-    sub: 'Ecsta · Crugen · Road Venture · Tesla-ready TA91 EV. From $87 a tire. Install & balance from $25 per wheel.',
+    sub: `Ecsta · Crugen · Road Venture · Tesla-ready TA91 EV.${f.kumhoFrom != null ? ` From ${money(f.kumhoFrom)} a tire.` : ''} Install & balance from $${install} per wheel.`,
     cta: { label: 'Shop Kumho', href: '/kumho-tires-los-angeles' },
     img: '/images/kumho/road-venture-ht52-cut.webp',
     imgAlt: 'Kumho Road Venture HT tire',
@@ -40,9 +49,9 @@ const SLIDES = [
   {
     kicker: 'New · RBP Repulsor A/T',
     brand: { src: '/images/rbp/rbp-logo-white.png', alt: 'RBP', h: 30 },
-    title: ['All-terrain tires', 'from'],
-    price: '$94',
-    sub: '15" to 24", every size priced. 2-year road hazard coverage.',
+    title: ['All-terrain tires', rbp.from != null ? 'from' : 'every size priced'],
+    price: money(rbp.from),
+    sub: `${range(rbp.rimMin, rbp.rimMax) ? `${range(rbp.rimMin, rbp.rimMax)}, every size priced. ` : ''}2-year road hazard coverage.`,
     cta: { label: 'See sizes & prices', href: '/rbp-tires-los-angeles' },
     img: '/images/rbp/repulsor-at-plateau.png',
     imgAlt: 'RBP Repulsor A/T Plateau tire',
@@ -68,7 +77,8 @@ const SLIDES = [
     imgAlt: 'The Tire Plug shop on Olympic Blvd',
     photo: true,
   },
-];
+  ];
+};
 
 const TRUST = [
   ['5.0', 'Google rated'],
@@ -79,7 +89,8 @@ const TRUST = [
 
 const INTERVAL = 6000;
 
-export default function PromoHero() {
+export default function PromoHero({ facts }) {
+  const SLIDES = slides(facts);
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduce = useRef(false);
@@ -94,7 +105,7 @@ export default function PromoHero() {
     return () => clearTimeout(t);
   }, [i, paused]);
 
-  const go = useCallback((n) => setI((n + SLIDES.length) % SLIDES.length), []);
+  const go = useCallback((n) => setI((n + SLIDES.length) % SLIDES.length), [SLIDES.length]);
 
   const onCta = (e, href) => {
     if (href.startsWith('#')) {
@@ -133,10 +144,12 @@ export default function PromoHero() {
                 <span>{s.title[0]}</span>
                 <span>{s.title[1]}</span>
               </h1>
-              <div className="ph-price">
-                {s.price}
-                {s.was && <s>{s.was}</s>}
-              </div>
+              {s.price && (
+                <div className="ph-price">
+                  {s.price}
+                  {s.was && <s>{s.was}</s>}
+                </div>
+              )}
               <p className="ph-sub">{s.sub}</p>
               <div className="ph-ctas">
                 <a className="ph-btn" href={s.cta.href} onClick={(e) => onCta(e, s.cta.href)}>{s.cta.label} →</a>
