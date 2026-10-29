@@ -7,12 +7,15 @@
  *   { action: "setStatus", id, status, hold_reason } -> waiting | in_bay | on_hold | done (stamps times, logs it)
  *   { action: "assign", id, assigned_staff_id }
  *   { action: "archive", id }                -> picked up, off the board
+ *   { action: "remove", id, reason }         -> off the board without a pickup (mistake, duplicate, left);
+ *                                               not counted as completed, kept in the history
+ *   { action: "clearCompleted" }             -> every completed job on the board marked picked up
  *   { action: "tvLink" }                     -> { url } for the shop TVs (owner only)
  *   { action: "showAppointments", on }       -> switch the Appointments column on/off (admin + TVs)
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
-import { JOB_TYPE_KEYS, PARTS_KEYS, fixTireTypes } from "../../../lib/shop-floor.js";
+import { JOB_TYPE_KEYS, PARTS_KEYS, REMOVE_KEYS, fixTireTypes } from "../../../lib/shop-floor.js";
 import { loadBoard, setJobStatus } from "../../../lib/shop-floor-db.js";
 
 const text = (v, max = 200) => (v == null || v === "" ? null : String(v).trim().slice(0, max) || null);
@@ -87,6 +90,19 @@ export default async function handler(req, res) {
       const { error } = await supabaseAdmin.from("work_orders").update({ archived: true, picked_up_at: now, updated_at: now }).eq("id", id);
       if (error) return fail(error);
       await log("done", "picked_up");
+    } else if (action === "remove") {
+      const reason = REMOVE_KEYS.includes(req.body.reason) ? req.body.reason : "other";
+      const { data: cur } = await supabaseAdmin.from("work_orders").select("status").eq("id", id).maybeSingle();
+      if (!cur) return res.status(404).json({ error: "That job isn't on the board." });
+      // done_at cleared so a removed job never counts as completed in today's numbers.
+      const { error } = await supabaseAdmin.from("work_orders").update({ archived: true, done_at: null, updated_at: now }).eq("id", id);
+      if (error) return fail(error);
+      await log(cur.status, "removed", reason);
+    } else if (action === "clearCompleted") {
+      const { data: done, error } = await supabaseAdmin.from("work_orders").update({ archived: true, picked_up_at: now, updated_at: now })
+        .eq("archived", false).eq("status", "done").select("id");
+      if (error) return fail(error);
+      if (done?.length) await supabaseAdmin.from("work_order_events").insert(done.map((d) => ({ work_order_id: d.id, from_status: "done", to_status: "picked_up", note: "cleared all completed", by_name: by })));
     }
 
     return res.status(200).json(await loadBoard());

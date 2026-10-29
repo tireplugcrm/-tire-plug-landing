@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { T, Icon, ui } from "./ui.js";
 import {
-  COLUMNS, JOB_TYPES, HOLD_REASONS, BAYS, bayLabel, tireLine, tireName, apptStatus, apptTime,
+  COLUMNS, JOB_TYPES, HOLD_REASONS, REMOVE_REASONS, BAYS, bayLabel, tireLine, tireName, apptStatus, apptTime,
   boardTimer, fmtMins, sortJobs, floorStats,
 } from "../../lib/shop-floor.js";
 
@@ -120,7 +120,8 @@ export default function ShopFloor({ auth, demo }) {
           const items = sortJobs(d.orders.filter((o) => col.statuses.includes(o.status)));
           return (
             <section key={col.k} style={colStyle}>
-              <ColHead icon={col.icon} color={col.c} label={col.l} count={items.length} />
+              <ColHead icon={col.icon} color={col.c} label={col.l} count={items.length}
+                action={col.k === "done" && items.length > 0 && <ClearAll count={items.length} busy={busy} onClear={() => act({ action: "clearCompleted" })} />} />
               <div style={{ display: "grid", gap: 8 }}>
                 {items.length === 0 && <Nothing>Nothing here</Nothing>}
                 {items.map((o) => <JobCard key={o.id} o={o} col={col} staff={d.staff} techName={techName} busy={busy} act={act} searchTires={searchTires} />)}
@@ -153,13 +154,29 @@ function Toggle({ on }) {
     </span>
   );
 }
-function ColHead({ icon, color, label, count }) {
+function ColHead({ icon, color, label, count, action }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 4px 10px" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 4px 10px", minHeight: 30 }}>
       <Icon name={icon} size={18} style={{ color }} />
       <span style={{ fontWeight: 600, fontSize: 14 }}>{label}</span>
       <span style={{ color: T.textMuted, fontSize: 13 }}>{count}</span>
+      {action && <span style={{ marginLeft: "auto" }}>{action}</span>}
     </div>
+  );
+}
+
+// Mark every completed car as picked up (asks once more first).
+function ClearAll({ count, busy, onClear }) {
+  const [sure, setSure] = useState(false);
+  useEffect(() => { if (!sure) return undefined; const t = setTimeout(() => setSure(false), 5000); return () => clearTimeout(t); }, [sure]);
+  const small = { ...ui.btn, height: 28, padding: "0 8px", fontSize: 12.5 };
+  return sure ? (
+    <span style={{ display: "inline-flex", gap: 4 }}>
+      <button disabled={busy} onClick={() => { setSure(false); onClear(); }} style={{ ...small, background: T.blue, borderColor: T.blue, color: "#fff" }}>Clear {count}</button>
+      <button onClick={() => setSure(false)} style={small}>Cancel</button>
+    </span>
+  ) : (
+    <button onClick={() => setSure(true)} style={small} title="Mark every completed car as picked up"><Icon name="clear_all" size={16} />Clear all</button>
   );
 }
 const Nothing = ({ children }) => <div style={{ color: T.textFaint, fontSize: 13, padding: "4px 6px 10px" }}>{children}</div>;
@@ -210,6 +227,7 @@ function ApptCard({ a, busy, onCheckIn }) {
 
 function JobCard({ o, col, staff, techName, busy, act, searchTires }) {
   const [editing, setEditing] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const { mins, level } = boardTimer(o);
   const types = JOB_TYPES.filter((j) => (o.job_types || []).includes(j.k));
   const hold = HOLD_REASONS.find((h) => h.k === o.hold_reason);
@@ -256,6 +274,15 @@ function JobCard({ o, col, staff, techName, busy, act, searchTires }) {
       </div>
       {o.status === "on_hold" && hold && <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: T.red }}>{hold.l}</div>}
 
+      {removing ? (
+        <div style={{ display: "grid", gap: 6, marginTop: 10, padding: 8, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#991b1b" }}>Take this car off the board? Pick why:</div>
+          {REMOVE_REASONS.map((r) => (
+            <button key={r.k} disabled={busy} onClick={() => act({ action: "remove", id: o.id, reason: r.k })} style={{ ...small, height: 32, justifyContent: "flex-start", background: T.surface }}>{r.l}</button>
+          ))}
+          <button onClick={() => setRemoving(false)} style={{ ...small, height: 32, color: T.textMuted, background: T.surface }}>Keep it</button>
+        </div>
+      ) : (
       <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
         {o.status !== "done" ? (
           <button disabled={busy} onClick={() => act({ action: "setStatus", id: o.id, status: "done" })} style={{ ...ui.primary, height: 36, flex: 1, background: T.green, borderColor: T.green }}><Icon name="check" size={18} />Complete</button>
@@ -266,7 +293,9 @@ function JobCard({ o, col, staff, techName, busy, act, searchTires }) {
           </>
         )}
         <button onClick={() => setEditing(true)} style={small} title="Edit job"><Icon name="edit" size={18} /></button>
+        <button onClick={() => setRemoving(true)} style={{ ...small, color: T.red }} title="Remove from board"><Icon name="delete" size={18} /></button>
       </div>
+      )}
     </div>
   );
 }
