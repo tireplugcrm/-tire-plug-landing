@@ -3,7 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
-import { PHONE } from "../lib/shop";
+import { PHONE, CTA } from "../lib/shop";
 
 const URL = "https://tireplugla.com/tire-size-guide";
 const TITLE = "What Tire Size Do I Need? Tire Size Guide | The Tire Plug — Los Angeles";
@@ -64,7 +64,7 @@ export default function TireSizeGuide() {
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href={PHONE.sms} style={ctaRed}>📲 Text a Photo for a Quote</a>
-            <a href="/book" style={ctaGhost}>Book a Tire Install</a>
+            <a href="/tires" style={ctaGhost}>{CTA.shopTires}</a>
           </div>
         </section>
 

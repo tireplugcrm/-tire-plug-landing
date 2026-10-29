@@ -2,7 +2,7 @@ import React from "react";
 import Head from "next/head";
 import Header from "./Header";
 import Footer from "./Footer";
-import { PHONE, OPENING_HOURS, HOURS_LINES } from "../lib/shop";
+import { PHONE, OPENING_HOURS, HOURS_LINES, CTA } from "../lib/shop";
 
 const SERVICES = ["New Tires", "Used Tires", "Wheel Alignment", "TPMS Sensors", "Oil Changes", "Brake Service", "Tire Rotation & Balance", "Free Tire Inspection", "Battery Service", "Free Air Check"];
 
@@ -46,7 +46,7 @@ export default function LocationPage({ loc }) {
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
             <a href={PHONE.tel} style={ctaRed}>📞 Call Now</a>
             <a href={loc.directionsUrl} target="_blank" rel="noopener noreferrer" style={ctaGhost}>🗺️ Get Directions</a>
-            <a href="/book" style={ctaGhost}>Book a Tire Install</a>
+            <a href="/tires" style={ctaGhost}>{CTA.shopTires}</a>
           </div>
         </section>
 

@@ -3,7 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SERVICE_INDEX } from "../components/ServicePage";
-import { PHONE, ADDRESS, HOURS_TEXT } from "../lib/shop";
+import { PHONE, ADDRESS, HOURS_TEXT, CTA } from "../lib/shop";
 
 const URL = "https://tireplugla.com/tire-shop-near-me-faq";
 const TITLE = "Tire Shop Near Me in Los Angeles — FAQ | The Tire Plug";
@@ -100,7 +100,7 @@ export default function TireShopFaq() {
           </p>
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
             <a href={PHONE.tel} style={ctaRed}>📞 Call {PHONE.display}</a>
-            <a href="/book" style={ctaGhost}>Book a Tire Install</a>
+            <a href="/tires" style={ctaGhost}>{CTA.shopTires}</a>
           </div>
         </section>
 

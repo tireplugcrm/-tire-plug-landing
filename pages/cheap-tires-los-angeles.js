@@ -6,7 +6,7 @@ import TireSizeSearch from "../components/TireSizeSearch";
 import FinancingNote from "../components/FinancingNote";
 import { INSTALL_FROM, sizeToSlug } from "../lib/tire-catalog";
 import { pricedStock } from "../lib/inventory";
-import { PHONE, ADDRESS, OPENING_HOURS } from "../lib/shop";
+import { PHONE, ADDRESS, OPENING_HOURS, CTA } from "../lib/shop";
 
 // /cheap-tires-los-angeles: for "cheap tires near me" / "cheap tires Los Angeles". The cheapest tires
 // on our shelf right now (same stock and prices as /tires/<size>), the cheapest per rim size,
@@ -137,7 +137,7 @@ export default function CheapTires({ cheapest, rims, count, from }) {
               <h2>Pay over time</h2>
               <p>Financing available with Snap Finance. Ask in store or call us and we'll walk you through it.</p>
               <div className="ctas">
-                <a className="btn red" href="/book">Book install</a>
+                <a className="btn red" href="/tires">{CTA.shopTires}</a>
                 <a className="btn ghost" href={PHONE.tel}>Call {PHONE.display}</a>
               </div>
             </div>

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { MARKETING_CONSENT_TEXT } from "../lib/consent-text";
-import { PHONE, TEXT_LINE } from "../lib/shop";
+import { PHONE, TEXT_LINE, CTA } from "../lib/shop";
 
 // Deals sign-up: /deals (?src=counter for the QR sign at the counter, ?src=invoice, ?src=text).
 // The box must be ticked to sign up; the exact wording is logged with each sign-up (lib/consent.js).
@@ -60,7 +60,7 @@ export default function Deals() {
               </div>
               <h1>You're in</h1>
               <p className="es">¡Listo! Ya está inscrito.</p>
-              <p className="muted">Watch for a text from our texting line, {TEXT_LINE.display}. Need tires now? <a href="/book">Book an install</a> or call <a href={PHONE.tel}>{PHONE.display}</a>.</p>
+              <p className="muted">Watch for a text from our texting line, {TEXT_LINE.display}. Need tires now? <a href="/tires">{CTA.shopTires}</a> or call <a href={PHONE.tel}>{PHONE.display}</a>.</p>
             </div>
           ) : (
             <form onSubmit={submit} noValidate>

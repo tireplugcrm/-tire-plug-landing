@@ -1,8 +1,8 @@
 import React from 'react';
-import { PHONE, ADDRESS } from "../lib/shop";
+import { PHONE, ADDRESS, CTA } from "../lib/shop";
 
 export default function Footer() {
-  const scrollToBooking = () => { window.location.href = '/book'; };
+  const scrollToBooking = () => { window.location.href = '/tires'; };
 
   return (
     <>
@@ -135,7 +135,7 @@ export default function Footer() {
                 fontFamily: 'inherit',
               }}
             >
-              Book Service
+              {CTA.shopTires}
               <span style={{ fontSize: '1.1rem' }}>→</span>
             </button>
           </div>

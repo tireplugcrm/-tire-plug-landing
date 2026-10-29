@@ -68,14 +68,14 @@ export default function LandspiderTires({ lines }) {
               Install &amp; balance <b>${INSTALL_FROM} per wheel</b>. Downtown LA, open 7 days.
             </p>
             <div className="ctas">
-              <a className="btn red" href="/book">Book install →</a>
+              <a className="btn red" href="#stock">See sizes in stock →</a>
               <a className="btn ghost" href={PHONE.tel}>Call {PHONE.display}</a>
             </div>
             <div className="fin-row"><FinancingNote /></div>
           </div>
         </section>
 
-        <div className="wrap">
+        <div className="wrap" id="stock">
           {lines.map((line) => (
             <section className="line" key={line.model}>
               <h2>Landspider {line.title}</h2>

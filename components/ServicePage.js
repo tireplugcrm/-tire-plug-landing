@@ -2,14 +2,17 @@ import React from "react";
 import Head from "next/head";
 import Header from "./Header";
 import Footer from "./Footer";
-import { PHONE } from "../lib/shop";
+import { PHONE, CTA, smsHref } from "../lib/shop";
 
-// Where each page's "Book" button goes: tire pages start with the size, services skip to the service.
+// Each page's second button: services book straight into /book, new tires start by
+// picking a size and a tire, used tires (not listed online) start with a text.
 const BOOK = {
-  "wheel-alignment-los-angeles": "/book?service=alignment",
-  "oil-change-los-angeles": "/book?service=oil-change",
-  "tpms-sensors-los-angeles": "/book?service=tpms",
-  "brake-service-los-angeles": "/book?service=brakes",
+  "wheel-alignment-los-angeles": { href: "/book?service=alignment", label: CTA.bookService },
+  "oil-change-los-angeles": { href: "/book?service=oil-change", label: CTA.bookService },
+  "tpms-sensors-los-angeles": { href: "/book?service=tpms", label: CTA.bookService },
+  "brake-service-los-angeles": { href: "/book?service=brakes", label: CTA.bookService },
+  "new-tires-los-angeles": { href: "/tires", label: CTA.shopTires },
+  "used-tires-los-angeles": { href: smsHref("Hi Tire Plug! Do you have used tires in my size? My size is: "), label: "Text your size" },
 };
 
 export const SERVICE_INDEX = [
@@ -31,7 +34,7 @@ const WHY = [
 
 export default function ServicePage({ svc }) {
   const url = `https://tireplugla.com/${svc.slug}`;
-  const bookHref = BOOK[svc.slug] || "/book";
+  const next = BOOK[svc.slug] || { href: "/tires", label: CTA.shopTires };
   const schema = {
     "@context": "https://schema.org", "@type": "Service",
     name: `${svc.label} in Los Angeles`, serviceType: svc.label,
@@ -63,7 +66,7 @@ export default function ServicePage({ svc }) {
           {svc.intro.map((p, i) => <p key={i} style={{ color: "#555", fontSize: "1.05rem", lineHeight: 1.65, maxWidth: 720, marginBottom: "1rem" }}>{p}</p>)}
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.5rem" }}>
             <a href={PHONE.tel} style={ctaRed}>📞 Call {PHONE.display}</a>
-            <a href={bookHref} style={ctaGhost}>Book an Appointment</a>
+            <a href={next.href} style={ctaGhost}>{next.label}</a>
           </div>
         </section>
 

@@ -94,14 +94,15 @@ export default function BookPage({ sizeKey, options, picked, service }) {
       .catch(() => setDays([]));
   }, [booking]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Tires that aren't on the shelf can't go on today.
-  const pickDays = days && tire?.nextDay ? days.filter((d) => timingForDay(d) !== "ASAP") : days;
+  // Tires that aren't on the shelf (or a size we don't list, which we'd order in) can't go on today.
+  const ordered = tire ? tire.nextDay : !!sizeKey && options.length === 0;
+  const pickDays = days && ordered ? days.filter((d) => timingForDay(d) !== "ASAP") : days;
   useEffect(() => {
     if (slot && pickDays && !pickDays.some((d) => d.slots.some((s) => s.at === slot.at))) setSlot(null);
   }, [tireId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const hasSlots = Array.isArray(pickDays) && pickDays.length > 0;
-  const what = sizeKey ? !!tire : picks.length > 0;
+  const what = sizeKey ? !!tire || options.length === 0 : picks.length > 0;
   const ready = what && form.name.trim() && form.phone.trim() && (slot || (days && !hasSlots));
   const set = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -118,7 +119,9 @@ export default function BookPage({ sizeKey, options, picked, service }) {
         body: JSON.stringify({
           name: form.name.trim(), phone: form.phone, email: form.email,
           ...(sizeKey
-            ? { vehicle: "N/A", tireSize: display, tireType: tire.name, service: `New Tires: ${tire.name} ${display} x${qty}`, quantity: qty, price: tire.price, availability: AVAILABILITY[tire.group] }
+            ? tire
+              ? { vehicle: "N/A", tireSize: display, tireType: tire.name, service: `New Tires: ${tire.name} ${display} x${qty}`, quantity: qty, price: tire.price, availability: AVAILABILITY[tire.group] }
+              : { vehicle: "N/A", tireSize: display, tireType: "Find options", service: `New Tires: ${display} (options to find)`, availability: "special_order" }
             : { vehicle: vehicle.trim() || "N/A", tireSize: "N/A", tireType: "N/A", service: picks.map((id) => SERVICES.find((x) => x.id === id).label).join(", ") }),
           serviceTiming: timing,
           appointmentAt: slot ? slot.at : undefined,
@@ -176,7 +179,7 @@ export default function BookPage({ sizeKey, options, picked, service }) {
               </div>
               <h1>{booked.when ? "You're booked" : "Request received"}</h1>
               {booked.when && <p className="when">{booked.when}</p>}
-              <p className="muted">{sizeKey ? `${qty} × ${tire.name} · ${display}` : picks.map((id) => SERVICES.find((x) => x.id === id).label).join(", ")}</p>
+              <p className="muted">{sizeKey ? (tire ? `${qty} × ${tire.name} · ${display}` : `${display} tires · we'll find you options`) : picks.map((id) => SERVICES.find((x) => x.id === id).label).join(", ")}</p>
               <p className="muted">
                 {booked.when ? (form.email || smsConsent ? "Your confirmation is on its way." : "We'll call or text you to confirm.") : "We'll call you shortly to set a time."}{" "}
                 2331 E Olympic Blvd, Los Angeles.
@@ -289,7 +292,7 @@ export default function BookPage({ sizeKey, options, picked, service }) {
               <div className="bar">
                 <div className="bar-sum">
                   {slot ? <b>{slot.dayLabel}, {slot.label}</b> : <span>Pick a time</span>}
-                  {sizeKey ? tire && <span>{qty} × {tire.name}</span> : picks.length > 0 && <span>{picks.map((id) => SERVICES.find((x) => x.id === id).label).join(", ")}</span>}
+                  {sizeKey ? <span>{tire ? `${qty} × ${tire.name}` : `${display} tires`}</span> : picks.length > 0 && <span>{picks.map((id) => SERVICES.find((x) => x.id === id).label).join(", ")}</span>}
                 </div>
                 <button type="submit" disabled={!ready || busy}>{busy ? "Booking…" : "Book"}</button>
               </div>
