@@ -5,7 +5,8 @@ import Footer from "../../components/Footer";
 import TireSizeSearch from "../../components/TireSizeSearch";
 import StockTireCard from "../../components/StockTireCard";
 import FinancingNote from "../../components/FinancingNote";
-import { INSTALL_FROM, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
+import { INSTALL_FROM, sizeKey as cleanSize, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
+import { tireId } from "../../lib/pricing-engine";
 import { allSizes, stockForSize, nextDayForSize } from "../../lib/inventory";
 import { PHONE } from "../../lib/shop";
 
@@ -20,12 +21,15 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const key = slugToKey(params.size);
+  // LT265/70R17, P215/65R15 and 225/40ZR18 are the same page as the plain size.
+  const key = cleanSize(slugToKey(params.size)).replace(/^P(?=\d{3}\/)/, "");
   if (!SIZE_RE.test(key)) return { notFound: true };
   if (sizeToSlug(key) !== params.size) return { redirect: { destination: `/tires/${sizeToSlug(key)}`, permanent: true } };
-  const tires = tiresForSize(key);
   const stock = await stockForSize(key);
   const nextDay = await nextDayForSize(key);
+  // A catalog tire that's already on the shelf (or coming next day) shows once, in that section.
+  const listed = new Set([...stock, ...nextDay].map((t) => tireId({ ...t, key })));
+  const tires = tiresForSize(key).filter((t) => !listed.has(tireId(t)));
   const rim = Number(key.match(/R(\d{2})$/)[1]);
   const nearby = (await allSizes()).filter((s) => s.rim === rim && s.key !== key).slice(0, 12);
   return { props: { sizeKey: key, tires, stock, nextDay, nearby }, revalidate: 3600 };
