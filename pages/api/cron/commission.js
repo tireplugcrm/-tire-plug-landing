@@ -3,7 +3,8 @@
  * it at both summer and winter UTC hours; it only acts in the right LA hour, Mon–Sat:
  *   12 PM  text Lexi to report her ROs so far
  *    5 PM  text Lexi to report the rest of the day
- *    7 PM  re-try Tekmetric matches, then email the recap (today / this week / this month).
+ *    7 PM  re-try Tekmetric matches, email the recap (today / this week / this month), then text
+ *          Lexi that it's in her inbox. ?force=recap&test=1 marks the email as a test.
  *          Saturday's says "Week recap", the last day of the month says "Month recap".
  * commission_days stamps each one so a re-run never doubles. ?force=midday|eod|recap sends now;
  * ?force=welcome sends Lexi her link with a how-to.
@@ -27,15 +28,17 @@ async function text(slot) {
   const link = await reportLink();
   const body = slot === "welcome"
     ? `Hi Lexi! This is your commission tracker from The Tire Plug. Every time you sell an RO, open this link, tap Start, and enter the RO # and the name on the RO. Save it to your home screen: ${link}`
+    : slot === "emailed"
+    ? "Hi Lexi! We just emailed you today's commission report from The Tire Plug. Check your inbox (and spam). Questions? Call or text us at (562) 250-3737."
     : slot === "midday"
-    ?`Hi Lexi! Midday check-in from The Tire Plug: report the ROs you've sold so far (${today.count} in today): ${link}`
+    ? `Hi Lexi! Midday check-in from The Tire Plug: report the ROs you've sold so far (${today.count} in today): ${link}`
     : `Hi Lexi! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
   const results = [];
   for (const phone of to) results.push({ phone, ...(await sendSms({ to: phone, body })) });
   return { sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).map((r) => `${r.phone}: ${r.error}`) };
 }
 
-async function recap() {
+async function recap({ test = false } = {}) {
   const day = shopDay(0);
   const { data: open } = await supabaseAdmin.from("commission_reports").select("*").neq("status", "matched").gte("day", `${day.slice(0, 7)}-01`);
   for (const row of open || []) await matchReport(row);
@@ -50,15 +53,18 @@ async function recap() {
   const roRows = t.todayRows.map((r) => [
     `RO #${r.ro_number}`,
     `${r.ro_name} · ${r.status === "matched"
-      ? `${$(r.sold_total)} sold${r.commission != null ? ` · ${$(r.commission)} commission` : ""} · ${(r.lines || []).map((l) => `${l.qty}× ${l.name}`).join(", ")}`
-      : r.status === "no-match" ? "not found in Tekmetric, check the RO #" : "waiting on the Tekmetric match"}${r.notes && r.status === "matched" ? ` (${r.notes})` : ""}`,
+      ? `${$(r.labor_total)} labor${r.commission != null ? ` · ${$(r.commission)} commission` : ""} · ${(r.lines || []).map((l) => `${l.qty}× ${l.name}`).join(", ")}`
+      : r.status === "no-match" ? "not found in Tekmetric, check the RO #" : "waiting on the Tekmetric match"}${r.notes && r.status === "matched" ? ` ⚑ ${r.notes}` : ""}`,
   ]);
+  const flagged = t.todayRows.filter((r) => r.notes).length;
 
   const message = [
     `${amt(t.today)} in commission today`,
     `${amt(t.week)} in commission this week`,
     `${amt(t.month)} in commission this month`,
-    pct == null ? "Commission rate isn't set yet, so these are RO counts." : "",
+    test ? "This is a test of the daily recap email." : "",
+    pct == null ? "Commission rate isn't set yet, so these are RO counts." : `Commission is ${Math.round(pct * 1000) / 10}% of labor on your ROs.`,
+    flagged ? `${flagged} RO${flagged === 1 ? " needs" : "s need"} a check (marked ⚑ below).` : "",
     t.month.pending ? `${t.month.pending} RO${t.month.pending === 1 ? " is" : "s are"} still waiting on the Tekmetric match and will count once matched.` : "",
   ].filter(Boolean).join("\n\n");
 
@@ -70,7 +76,7 @@ async function recap() {
   });
   const to = list(await setting("commission_email_to"));
   let sent = 0;
-  for (const addr of to) sent += (await sendOne({ to: addr, subject: `Lexi's ${kind} Commission Recap · ${amt(t.today)} today`, html, text: message, transactional: true })).sent;
+  for (const addr of to) sent += (await sendOne({ to: addr, subject: `${test ? "Test: " : ""}Lexi's ${kind} Commission Recap · ${amt(t.today)} today`, html, text: message, transactional: true })).sent;
   return { sent, kind, today: t.today, week: t.week, month: t.month };
 }
 
@@ -87,17 +93,22 @@ export default async function handler(req, res) {
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
   if (!(await authorized(req))) return res.status(401).json({ error: "Unauthorized" });
 
-  const force = ["welcome", "midday", "eod", "recap"].includes(req.query.force) ? req.query.force : null;
+  const force = ["welcome", "emailed", "midday", "eod", "recap"].includes(req.query.force) ? req.query.force : null;
   const { hour, weekday } = shopClock();
   const slot = force || (weekday === 0 ? null : hour === 12 ? "midday" : hour === 17 ? "eod" : hour === 19 ? "recap" : null);
   if (!slot) return res.json({ skipped: `Nothing due at ${hour}:00 LA.` });
 
   const day = shopDay(0);
-  const col = { welcome: "midday_texted_at", midday: "midday_texted_at", eod: "eod_texted_at", recap: "recap_sent_at" }[slot];
+  const col = { welcome: "midday_texted_at", emailed: "recap_sent_at", midday: "midday_texted_at", eod: "eod_texted_at", recap: "recap_sent_at" }[slot];
   const { data: stamp } = await supabaseAdmin.from("commission_days").select("*").eq("day", day).maybeSingle();
   if (stamp?.[col] && !force) return res.json({ skipped: "Already done today." });
 
-  const out = slot === "recap" ? await recap() : await text(slot);
+  let out;
+  if (slot === "recap") {
+    // After the email goes out, text Lexi that it's in her inbox.
+    out = await recap({ test: req.query.test === "1" });
+    if (out.sent) out.text = await text("emailed");
+  } else out = await text(slot);
   if (!force && out.sent) await supabaseAdmin.from("commission_days").upsert({ day, [col]: new Date().toISOString() });
   return res.json({ slot, ...out });
 }

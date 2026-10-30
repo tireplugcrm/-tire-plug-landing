@@ -40,3 +40,9 @@ insert into app_settings (key, value, updated_at) values ('commission_cron_key',
 -- 12:00 PM text, 5:00 PM text, 7:00 PM recap email (LA). Both UTC hours cover summer and winter;
 -- /api/cron/commission only acts in the right LA hour and stamps commission_days so nothing doubles.
 select cron.schedule('commission-tick', '0 0,1,2,3,19,20 * * *', $$select net.http_get(url := 'https://tireplugla.com/api/cron/commission', headers := jsonb_build_object('Authorization', 'Bearer ' || (select value from public.app_settings where key = 'commission_cron_key')), timeout_milliseconds := 60000)$$);
+
+-- 2026-10-29: Lexy is the service writer in Tekmetric on ROs she sells (employee 323200, Lexy Reyes).
+-- Reports where someone else is the writer get flagged; ROs she wrote but didn't report get added.
+alter table commission_reports add column if not exists labor_total numeric(10,2);
+alter table commission_reports add column if not exists tekmetric_writer text;
+insert into app_settings (key, value, updated_at) values ('commission_writer_id', '323200', now()) on conflict (key) do nothing;
