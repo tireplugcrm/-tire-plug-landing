@@ -4,7 +4,8 @@
  *   12 PM  text Lexi to report her ROs so far
  *    5 PM  text Lexi to report the rest of the day
  *    7 PM  re-try Tekmetric matches, email the recap (today / this week / this month), then text
- *          Lexi that it's in her inbox. ?force=recap&test=1 marks the email as a test.
+ *          Lexi that it's in her inbox. ?force=recap&test=1 marks the email as a test;
+ *          &notext=1 skips the text (a resend).
  *          Saturday's says "Week recap", the last day of the month says "Month recap".
  * commission_days stamps each one so a re-run never doubles. ?force=midday|eod|recap sends now;
  * ?force=welcome sends Lexi her link with a how-to.
@@ -107,7 +108,7 @@ export default async function handler(req, res) {
   if (slot === "recap") {
     // After the email goes out, text Lexi that it's in her inbox.
     out = await recap({ test: req.query.test === "1" });
-    if (out.sent) out.text = await text("emailed");
+    if (out.sent && req.query.notext !== "1") out.text = await text("emailed");
   } else out = await text(slot);
   if (!force && out.sent) await supabaseAdmin.from("commission_days").upsert({ day, [col]: new Date().toISOString() });
   return res.json({ slot, ...out });
