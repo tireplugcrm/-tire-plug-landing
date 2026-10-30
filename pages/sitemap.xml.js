@@ -7,6 +7,7 @@ const PAGES = [
   ["/", "weekly", "1.0"],
   ["/tires", "weekly", "0.9"],
   ["/cheap-tires-los-angeles", "daily", "0.9"],
+  ["/commercial-tires", "daily", "0.8"],
   ["/olympic", "monthly", "0.8"],
   ["/new-tires-los-angeles", "monthly", "0.8"],
   ["/rbp-tires-los-angeles", "weekly", "0.8"],

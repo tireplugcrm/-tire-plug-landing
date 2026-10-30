@@ -9,7 +9,7 @@ create table if not exists tire_stock (
   brand           text not null,
   model           text not null,
   size_key        text not null,             -- 265/70R16, 35X12.50R20
-  rim             int,
+  rim             numeric,                   -- 17, or 19.5 for commercial sizes
   lt              boolean not null default false,
   level           text,                      -- in | low
   specs           jsonb,
@@ -23,6 +23,8 @@ create table if not exists tire_stock (
 );
 create index if not exists tire_stock_active_idx on tire_stock (active, size_key);
 alter table tire_stock enable row level security;
+-- Commercial sizes have half-inch rims (245/70R19.5); tables created before that stored rim as int.
+alter table tire_stock alter column rim type numeric;
 
 -- The owner's per-tire overrides.
 create table if not exists tire_prices (

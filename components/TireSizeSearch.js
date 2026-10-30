@@ -12,7 +12,7 @@ export const SIZE_MODES = {
     labels: ['Width', 'Height', 'Rim'],
     s1: ['155', '165', '175', '185', '195', '205', '215', '225', '235', '245', '255', '265', '275', '285', '295', '305', '315', '325', '335'],
     s2: ['25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85'],
-    s3: ['13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '24', '26'],
+    s3: ['13', '14', '15', '16', '17', '17.5', '18', '19', '19.5', '20', '21', '22', '22.5', '24', '26'],
     build: (a, b, c) => `${a}/${b}R${c}`,
   },
   truck: {
@@ -88,7 +88,7 @@ export default function TireSizeSearch({ initial, compact = false }) {
 // "265/70R17" -> { mode, s1, s2, s3 } so the picker can show the current size.
 function parseSize(key) {
   if (!key) return null;
-  let m = String(key).match(/^(\d{3})\/(\d{2})R(\d{2})$/i);
+  let m = String(key).match(/^(\d{3})\/(\d{2})R(\d{2}(?:\.5)?)$/i);
   if (m) return { mode: 'metric', s1: m[1], s2: m[2], s3: m[3] };
   m = String(key).match(/^(\d{2})X([\d.]+)R(\d{2})$/i);
   if (m) return { mode: 'truck', s1: m[1], s2: m[2], s3: m[3] };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PHONE } from "../lib/shop";
+import { COMMERCIAL_ACCOUNT_SAVINGS } from "../lib/pricing-engine";
 
 // One tire we have on the shelf, on /tires/<size>: brand, what the tire is, the spec sheet
 // we have for it, and a text-to-reserve button. Availability only, no price.
@@ -28,8 +29,9 @@ const LEVELS = { in: 'In stock', low: 'Low stock', nextday: 'Next-day' };
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
 
 // `cta` / `ready` let the next-day section reuse the card ("Text to order", "Installed tomorrow").
-// A tire with `price` shows it, with the set-of-4 total.
-export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to reserve', ready = 'Ready to install today' }) {
+// A tire with `price` shows it, with the set-of-4 total. `commercial` tires (19.5", 22.5") are
+// ordered by text or call, so there's no booking button, plus the commercial-account savings line.
+export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to reserve', ready = 'Ready to install today', commercial = false }) {
   const s = t.specs || {};
   const rows = specRows(s);
   // The booking page, with this tire and size filled in.
@@ -73,12 +75,24 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
           </div>
         )}
         {t.priceNote && <div className="stc-pnote">{t.priceNote}</div>}
-        <div className="stc-ready">{ready}</div>
-        <a className="stc-btn red stc-book" href={bookHref}>Book install</a>
-        <div className="stc-ctas">
-          <a className="stc-btn ghost stc-text" href={smsHref}>{cta}</a>
-          <a className="stc-btn ghost" href={PHONE.tel}>Call</a>
-        </div>
+        {commercial ? (
+          <>
+            <div className="stc-pnote">Save ${COMMERCIAL_ACCOUNT_SAVINGS} per tire with a resale license &amp; commercial account</div>
+            <div className="stc-ctas">
+              <a className="stc-btn red stc-text" href={smsHref}>Text to order</a>
+              <a className="stc-btn ghost" href={PHONE.tel}>Call</a>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="stc-ready">{ready}</div>
+            <a className="stc-btn red stc-book" href={bookHref}>Book install</a>
+            <div className="stc-ctas">
+              <a className="stc-btn ghost stc-text" href={smsHref}>{cta}</a>
+              <a className="stc-btn ghost" href={PHONE.tel}>Call</a>
+            </div>
+          </>
+        )}
         {(rows.length > 0 || t.about || t.features.length > 0) && (
           <details className="stc-specs">
             <summary>Specs</summary>
@@ -124,6 +138,7 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
         .stc-btn.ghost:hover { border-color: #E01B22; }
         .stc-book { display: block; margin-top: 0.3rem; }
         .stc-btn.ghost.stc-text { flex: 1; }
+        .stc-btn.red.stc-text { flex: 1; }
         .stc-specs { margin-top: 0.4rem; border-top: 1px solid #f0f0f0; padding-top: 0.5rem; }
         .stc-specs summary { cursor: pointer; color: #E01B22; font-weight: 700; font-size: 0.85rem; }
         .stc-specs dl { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 1rem; margin: 0.6rem 0 0; font-size: 0.82rem; }

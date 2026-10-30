@@ -6,14 +6,15 @@ import TireSizeSearch from "../../components/TireSizeSearch";
 import StockTireCard from "../../components/StockTireCard";
 import FinancingNote from "../../components/FinancingNote";
 import { INSTALL_FROM, sizeKey as cleanSize, sizeToSlug, slugToKey, tiresForSize } from "../../lib/tire-catalog";
-import { tireId } from "../../lib/pricing-engine";
-import { allSizes, stockForSize, nextDayForSize } from "../../lib/inventory";
+import { tireId, isCommercialSize, COMMERCIAL_ACCOUNT_SAVINGS } from "../../lib/pricing-engine";
+import { allSizes, stockForSize, nextDayForSize, PAGE_SIZE_RE } from "../../lib/inventory";
 import { PHONE } from "../../lib/shop";
 
 // One page per tire size, e.g. /tires/265-70r17: what's on our shelf in that size (from Tekmetric),
 // then every tire we can order in it, cheapest first.
 // Listed and stocked sizes are prebuilt; any other valid size renders on demand with a "text us" fallback.
-const SIZE_RE = /^(\d{3}\/\d{2}R\d{2}|\d{2}X\d{1,2}\.\d{2}R\d{2})$/;
+// Commercial sizes (245/70R19.5, 11R22.5) are ordered by text or call, not booked online.
+const rimOf = (key) => Number(key.match(/R([\d.]+)$/)[1]);
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
 export async function getStaticPaths() {
@@ -23,14 +24,14 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   // LT265/70R17, P215/65R15 and 225/40ZR18 are the same page as the plain size.
   const key = cleanSize(slugToKey(params.size)).replace(/^P(?=\d{3}\/)/, "");
-  if (!SIZE_RE.test(key)) return { notFound: true };
+  if (!PAGE_SIZE_RE.test(key)) return { notFound: true };
   if (sizeToSlug(key) !== params.size) return { redirect: { destination: `/tires/${sizeToSlug(key)}`, permanent: true } };
   const stock = await stockForSize(key);
   const nextDay = await nextDayForSize(key);
   // A catalog tire that's already on the shelf (or coming next day) shows once, in that section.
   const listed = new Set([...stock, ...nextDay].map((t) => tireId({ ...t, key })));
   const tires = tiresForSize(key).filter((t) => !listed.has(tireId(t)));
-  const rim = Number(key.match(/R(\d{2})$/)[1]);
+  const rim = rimOf(key);
   const nearby = (await allSizes()).filter((s) => s.rim === rim && s.key !== key).slice(0, 12);
   return { props: { sizeKey: key, tires, stock, nextDay, nearby }, revalidate: 3600 };
 }
@@ -40,6 +41,8 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
   // Remember the size so the booking form can fill it in.
   useEffect(() => { try { localStorage.setItem("tp_tire_size", display); } catch (_) {} }, [display]);
   const url = `https://tireplugla.com/tires/${sizeToSlug(sizeKey)}`;
+  const commercial = isCommercialSize(sizeKey);
+  const savings = `Save $${COMMERCIAL_ACCOUNT_SAVINGS} per tire with a resale license & commercial account`;
   const has = tires.length > 0;
   const inStock = stock.length > 0;
   const hasNextDay = nextDay.length > 0;
@@ -60,7 +63,9 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
       ? `${display} Tires in Stock in Los Angeles Today | The Tire Plug`
       : `${display} Tires in Los Angeles | The Tire Plug`;
   const allBrands = [...new Set([...stock, ...nextDay, ...tires].map((t) => t.brand))].slice(0, 5).join(", ");
-  const description = hasLowest || inStock
+  const description = commercial
+    ? `${display} commercial truck tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock today` : ""} at The Tire Plug, 2331 E Olympic Blvd. Text or call ${PHONE.display} to order. ${savings}.`
+    : hasLowest || inStock
     ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock to install today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
     : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
 
@@ -134,18 +139,27 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         </section>
 
         <div className="wrap">
-          <div className="install">
-            <b>Install &amp; balance start at ${INSTALL_FROM} per wheel</b>
-            <span>{inStock ? "In-stock tires go on today at our Downtown LA shop." : "Order today, installed tomorrow at our Downtown LA shop."}</span>
-          </div>
-          <div className="fin-row"><FinancingNote /></div>
+          {commercial ? (
+            <div className="install">
+              <b>Commercial tires: text or call to order</b>
+              <span>{savings}. <a href="/commercial-tires">All commercial tires →</a></span>
+            </div>
+          ) : (
+            <>
+              <div className="install">
+                <b>Install &amp; balance start at ${INSTALL_FROM} per wheel</b>
+                <span>{inStock ? "In-stock tires go on today at our Downtown LA shop." : "Order today, installed tomorrow at our Downtown LA shop."}</span>
+              </div>
+              <div className="fin-row"><FinancingNote /></div>
+            </>
+          )}
 
           {inStock && (
             <section className="stock">
               <h2>In stock at our shop</h2>
               <ul className="list">
                 {stock.map((t) => (
-                  <StockTireCard key={`${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsStock(t)} />
+                  <StockTireCard key={`${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsStock(t)} commercial={commercial} />
                 ))}
               </ul>
             </section>
@@ -213,7 +227,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
 
           {nearby.length > 0 && (
             <section className="nearby">
-              <h2>Other {sizeKey.match(/R(\d{2})$/)[1]}" sizes we carry</h2>
+              <h2>Other {rimOf(sizeKey)}" sizes we carry</h2>
               <div className="chips">
                 {nearby.map((s) => (
                   <a key={s.key} href={`/tires/${s.slug}`}>{s.key.replace("X", "x")} <span>{s.label}</span></a>
@@ -222,7 +236,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
             </section>
           )}
 
-          <p className="fine">Prices are per tire, product only, and subject to availability. Install and balance start at ${INSTALL_FROM} per wheel. Tax not included. LT = light-truck construction. In-stock tires are updated daily and can sell out; text us to hold a set.</p>
+          <p className="fine">Prices are per tire, product only, and subject to availability. {commercial ? `Commercial mounting is quoted with your order. ${savings}.` : `Install and balance start at $${INSTALL_FROM} per wheel.`} Tax not included. LT = light-truck construction. In-stock tires are updated daily and can sell out; text us to hold a set.</p>
         </div>
       </main>
 
@@ -244,6 +258,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         .ts .fin-row { margin: -0.75rem 0 1.5rem; }
         .ts .install b { font-weight: 800; text-transform: uppercase; font-size: 0.95rem; }
         .ts .install span { color: #555; font-size: 0.9rem; }
+        .ts .install a { color: #E01B22; font-weight: 700; text-decoration: none; white-space: nowrap; }
         .ts .list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
         .ts .card { display: grid; grid-template-columns: 170px 1fr; background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
         .ts .ph { position: relative; display: grid; place-items: center; padding: 0.75rem; border-right: 1px solid #f0f0f0; }
