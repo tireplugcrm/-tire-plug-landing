@@ -5,7 +5,8 @@
  *    5 PM  text Lexi to report the rest of the day
  *    7 PM  re-try Tekmetric matches, then email the recap (today / this week / this month).
  *          Saturday's says "Week recap", the last day of the month says "Month recap".
- * commission_days stamps each one so a re-run never doubles. ?force=midday|eod|recap sends now.
+ * commission_days stamps each one so a re-run never doubles. ?force=midday|eod|recap sends now;
+ * ?force=welcome sends Lexi her link with a how-to.
  *
  * Auth: "Authorization: Bearer <CRON_SECRET>" or app_settings 'commission_cron_key' (what pg_cron sends).
  */
@@ -24,8 +25,10 @@ async function text(slot) {
   if (!to.length) return { skipped: "No phone set (app_settings commission_text_to)." };
   const { today } = await totals();
   const link = await reportLink();
-  const body = slot === "midday"
-    ? `Hi Lexi! Midday check-in from The Tire Plug: report the ROs you've sold so far (${today.count} in today): ${link}`
+  const body = slot === "welcome"
+    ? `Hi Lexi! This is your commission tracker from The Tire Plug. Every time you sell an RO, open this link, tap Start, and enter the RO # and the name on the RO. Save it to your home screen: ${link}`
+    : slot === "midday"
+    ?`Hi Lexi! Midday check-in from The Tire Plug: report the ROs you've sold so far (${today.count} in today): ${link}`
     : `Hi Lexi! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
   const results = [];
   for (const phone of to) results.push({ phone, ...(await sendSms({ to: phone, body })) });
@@ -84,13 +87,13 @@ export default async function handler(req, res) {
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
   if (!(await authorized(req))) return res.status(401).json({ error: "Unauthorized" });
 
-  const force = ["midday", "eod", "recap"].includes(req.query.force) ? req.query.force : null;
+  const force = ["welcome", "midday", "eod", "recap"].includes(req.query.force) ? req.query.force : null;
   const { hour, weekday } = shopClock();
   const slot = force || (weekday === 0 ? null : hour === 12 ? "midday" : hour === 17 ? "eod" : hour === 19 ? "recap" : null);
   if (!slot) return res.json({ skipped: `Nothing due at ${hour}:00 LA.` });
 
   const day = shopDay(0);
-  const col = { midday: "midday_texted_at", eod: "eod_texted_at", recap: "recap_sent_at" }[slot];
+  const col = { welcome: "midday_texted_at", midday: "midday_texted_at", eod: "eod_texted_at", recap: "recap_sent_at" }[slot];
   const { data: stamp } = await supabaseAdmin.from("commission_days").select("*").eq("day", day).maybeSingle();
   if (stamp?.[col] && !force) return res.json({ skipped: "Already done today." });
 
