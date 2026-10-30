@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import StockTireCard from "../components/StockTireCard";
 import { sizeToSlug } from "../lib/tire-catalog";
-import { commercialStock } from "../lib/inventory";
+import { commercialStock, commercialNextDay } from "../lib/inventory";
 import { COMMERCIAL_ACCOUNT_SAVINGS } from "../lib/pricing-engine";
 import { PHONE, ADDRESS, OPENING_HOURS } from "../lib/shop";
 
@@ -17,21 +17,26 @@ const SAVINGS = `Save $${COMMERCIAL_ACCOUNT_SAVINGS} per tire with a resale lice
 
 export async function getStaticProps() {
   const stock = await commercialStock();
+  const nextDay = await commercialNextDay();
   const sizes = [];
-  for (const t of stock) {
+  const group = (t) => {
     let g = sizes.find((s) => s.key === t.key);
-    if (!g) sizes.push((g = { key: t.key, slug: sizeToSlug(t.key), rim: t.rim, tires: [] }));
-    g.tires.push(t);
-  }
-  const prices = stock.map((t) => t.price).filter((p) => p != null);
-  return { props: { sizes, count: stock.length, from: prices.length ? Math.min(...prices) : null }, revalidate: 3600 };
+    if (!g) sizes.push((g = { key: t.key, slug: sizeToSlug(t.key), rim: t.rim, tires: [], nextDay: [] }));
+    return g;
+  };
+  for (const t of stock) group(t).tires.push(t);
+  for (const t of nextDay) group(t).nextDay.push(t);
+  sizes.sort((a, b) => a.rim - b.rim || a.key.localeCompare(b.key, "en", { numeric: true }));
+  const prices = [...stock, ...nextDay].map((t) => t.price).filter((p) => p != null);
+  return { props: { sizes, count: stock.length, nextCount: nextDay.length, from: prices.length ? Math.min(...prices) : null }, revalidate: 3600 };
 }
 
-export default function CommercialTires({ sizes, count, from }) {
+export default function CommercialTires({ sizes, count, nextCount = 0, from }) {
   const title = from != null
     ? `Commercial Truck Tires in Los Angeles from ${money(from)} | The Tire Plug`
     : "Commercial Truck Tires in Los Angeles | The Tire Plug";
   const description = `Commercial truck tires in Los Angeles at The Tire Plug, 2331 E Olympic Blvd: 19.5" and 22.5" sizes in stock${from != null ? ` from ${money(from)} per tire` : ""}. Text or call ${PHONE.display} to order. ${SAVINGS}.`;
+  const smsNextDay = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${t.key} (${money(t.price)} each) for next day. How many can you get?`)}`;
   const smsTire = (t) => `${PHONE.sms}?&body=${encodeURIComponent(t.price != null
     ? `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model || ""} in ${t.key} (${money(t.price)} each). How many can I get?`.replace(/\s+/g, " ")
     : `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model || ""} in ${t.key}. What's the price?`.replace(/\s+/g, " "))}`;
@@ -81,8 +86,8 @@ export default function CommercialTires({ sizes, count, from }) {
             <span className="eyebrow">Fleets · Box trucks · Delivery · Downtown LA</span>
             <h1>Commercial truck tires, <span>in stock in Los Angeles.</span></h1>
             <p className="lead">
-              {count > 0 && <><b>{count} commercial {count === 1 ? "tire" : "tires"} in stock</b>{from != null && <> from <b>{money(from)}</b> each</>}. </>}
-              19.5" and 22.5" sizes for box trucks, step vans and fleets. Text or call to order.
+              {count > 0 && <><b>{count} commercial {count === 1 ? "tire" : "tires"} in stock</b>{nextCount > 0 && <> and <b>{nextCount} more next day</b></>}{from != null && <>, from <b>{money(from)}</b> each</>}. </>}
+              17.5", 19.5", 22.5" and 24.5" sizes for box trucks, step vans, buses and semis. Text or call to order.
             </p>
             <div className="ctas top">
               <a className="btn red" href={smsAsk}>Text us · {PHONE.display}</a>
@@ -99,16 +104,28 @@ export default function CommercialTires({ sizes, count, from }) {
           {sizes.length > 0 ? (
             <>
               <div className="chips">
-                {sizes.map((s) => <a key={s.key} href={`#${s.slug}`}>{s.key} <span>{s.tires.length} {s.tires.length === 1 ? "option" : "options"}</span></a>)}
+                {sizes.map((s) => <a key={s.key} href={`#${s.slug}`}>{s.key} <span>{s.tires.length > 0 ? "in stock" : "next day"}</span></a>)}
               </div>
               {sizes.map((s) => (
                 <section key={s.key} id={s.slug} className="size">
                   <h2><a href={`/tires/${s.slug}`}>{s.key}</a></h2>
-                  <ul className="list">
-                    {s.tires.map((t) => (
-                      <StockTireCard key={`${t.brand}-${t.model}-${t.lt}`} tire={t} size={t.key} smsHref={smsTire(t)} commercial />
-                    ))}
-                  </ul>
+                  {s.tires.length > 0 && (
+                    <ul className="list">
+                      {s.tires.map((t) => (
+                        <StockTireCard key={`${t.brand}-${t.model}-${t.lt}`} tire={t} size={t.key} smsHref={smsTire(t)} commercial />
+                      ))}
+                    </ul>
+                  )}
+                  {s.nextDay.length > 0 && (
+                    <>
+                      <h3 className="nd">Next day: order today, here tomorrow</h3>
+                      <ul className="list">
+                        {s.nextDay.map((t) => (
+                          <StockTireCard key={`nd-${t.brand}-${t.model}-${t.lt}`} tire={t} size={t.key} smsHref={smsNextDay(t)} commercial />
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </section>
               ))}
             </>
@@ -151,6 +168,7 @@ export default function CommercialTires({ sizes, count, from }) {
         .cm .size h2 { font-size: 1.5rem; font-weight: 900; margin: 2rem 0 0.75rem; }
         .cm .size h2 a { color: #111; text-decoration: none; }
         .cm .size h2 a:hover { color: #E01B22; }
+        .cm .size h3.nd { font-size: 1rem; font-weight: 800; color: #6b6b6b; margin: 1.25rem 0 0.75rem; }
         .cm .list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
         .cm .empty { background: #f5f5f5; border: 1px solid #e6e6e6; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; margin-top: 2rem; }
         .cm .empty h2 { font-size: 1.6rem; font-weight: 900; margin: 0 0 0.5rem; }

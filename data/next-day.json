@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-25T18:35:19.387Z",
+  "updatedAt": "2026-10-30T23:07:34.112Z",
   "source": "Tire Outlet",
   "priceCheckedAt": "2026-10-16",
   "tires": [
@@ -2022,6 +2022,32 @@
       "priceNote": "Beats Amazon & Walmart by $5+"
     },
     {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "215/75R17.5",
+      "rim": 17.5,
+      "lt": false,
+      "price": 166,
+      "specs": {
+        "loadIndex": "135/133",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "235/75R17.5",
+      "rim": 17.5,
+      "lt": false,
+      "price": 188,
+      "specs": {
+        "loadIndex": "143/141",
+        "speed": "J"
+      },
+      "from": "Tire Network"
+    },
+    {
       "brand": "Lionhart",
       "model": "Ramani A/S",
       "key": "225/40R18",
@@ -3958,6 +3984,45 @@
       "priceNote": "Beats Amazon & Walmart by $5+"
     },
     {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "245/70R19.5",
+      "rim": 19.5,
+      "lt": false,
+      "price": 203,
+      "specs": {
+        "loadIndex": "136/134",
+        "speed": "N"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "DR601",
+      "key": "245/70R19.5",
+      "rim": 19.5,
+      "lt": false,
+      "price": 214,
+      "specs": {
+        "loadIndex": "133/131",
+        "speed": "N"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "265/70R19.5",
+      "rim": 19.5,
+      "lt": false,
+      "price": 241,
+      "specs": {
+        "loadIndex": "137/134",
+        "speed": "M"
+      },
+      "from": "Tire Network"
+    },
+    {
       "brand": "Michelin",
       "model": "Pilot Sport 4 S",
       "key": "235/35R20",
@@ -4741,6 +4806,253 @@
         "speed": "T"
       },
       "from": "Turbo"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "11R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 301,
+      "specs": {
+        "loadIndex": "146/143",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AM210",
+      "key": "11R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 302,
+      "specs": {
+        "loadIndex": "146/143",
+        "speed": "K"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "DH106",
+      "key": "11R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 329,
+      "specs": {
+        "loadIndex": "146/143",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Kumho",
+      "model": "KRS12E",
+      "key": "11R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 448,
+      "specs": {
+        "loadIndex": "148/145",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Kumho",
+      "model": "KMA01",
+      "key": "11R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 477,
+      "specs": {
+        "loadIndex": "148/145",
+        "speed": "K"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "255/70R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 232,
+      "specs": {
+        "loadIndex": "140/137",
+        "speed": "M"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "275/70R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 277,
+      "specs": {
+        "loadIndex": "148/145",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "TH107",
+      "key": "295/75R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 281,
+      "specs": {
+        "loadIndex": "144/141",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "295/75R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 295,
+      "specs": {
+        "loadIndex": "146/143",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "DH106",
+      "key": "295/75R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 318,
+      "specs": {
+        "loadIndex": "146/143",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "PSL1",
+      "key": "295/75R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 349,
+      "specs": {
+        "loadIndex": "149/146",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Kumho",
+      "model": "KLS12E",
+      "key": "295/75R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 454,
+      "specs": {
+        "loadIndex": "149/146",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AM210",
+      "key": "315/80R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 399,
+      "specs": {
+        "loadIndex": "161/157",
+        "speed": "K"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AM210-A",
+      "key": "315/80R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 412,
+      "specs": {
+        "loadIndex": "160/157",
+        "speed": "K"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Kumho",
+      "model": "KMA31",
+      "key": "315/80R22.5",
+      "rim": 22.5,
+      "lt": false,
+      "price": 613,
+      "specs": {
+        "loadIndex": "160/157",
+        "speed": "K"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "11R24.5",
+      "rim": 24.5,
+      "lt": false,
+      "price": 328,
+      "specs": {
+        "loadIndex": "149/146",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "DH106",
+      "key": "11R24.5",
+      "rim": 24.5,
+      "lt": false,
+      "price": 354,
+      "specs": {
+        "loadIndex": "149/146",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
+      "key": "285/75R24.5",
+      "rim": 24.5,
+      "lt": false,
+      "price": 312,
+      "specs": {
+        "loadIndex": "147/144",
+        "speed": "L"
+      },
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "DH106",
+      "key": "285/75R24.5",
+      "rim": 24.5,
+      "lt": false,
+      "price": 324,
+      "specs": {
+        "loadIndex": "144/141",
+        "speed": "L"
+      },
+      "from": "Tire Network"
     }
   ]
 }

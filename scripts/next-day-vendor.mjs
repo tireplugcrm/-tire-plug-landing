@@ -7,7 +7,8 @@
  *   size|type|brand|model|code|load|speed|qty|cost      (type is P or LT)
  *
  * Rule (owner's): drop-shipped tires are cost + $20 (the shelf markup), Falken cost + $25, rounded
- * up to a whole dollar like the shelf prices (lib/pricing-engine.js). The vendor file is already narrowed to the
+ * up to a whole dollar like the shelf prices (lib/pricing-engine.js). Commercial sizes (11R22.5,
+ * 245/70R19.5) are cost + $35 like the shelf commercial tires; put the cost with FET in the file. The vendor file is already narrowed to the
  * lines and sizes we sell. A tire also on the price-matched list keeps the lower price.
  * Every tire on the site needs a photo: a model with no photo in data/tire-models.json is held back
  * (and listed) until one is added.
@@ -21,6 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { allTires } from "../lib/tire-catalog.js";
+import { DEFAULT_SETTINGS, isCommercialSize } from "../lib/pricing-engine.js";
 
 const MARKUP = { default: 20, falken: 25 };
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -53,16 +55,19 @@ const fresh = [], noPhoto = new Map();
 let catalogged = 0;
 for (const line of lines) {
   const [size, type, brand, model, , load, speed, , cost] = line.split("|");
-  const m = size.match(/^(\d{3})\/(\d{2})R(\d{2})$/);
+  const m = size.match(/^\d{3}\/\d{2}R(\d{2})$/) || size.match(/^(?:\d{3}\/\d{2}|\d{2})R(\d{2}\.5)$/);
   if (!m || !(Number(cost) > 0)) continue;
+  // Commercial sizes (19.5", 22.5"...) follow the in-stock commercial rule, cost + $35 (cost
+  // includes FET), and show with the brand mark when there's no photo, like the shelf ones.
+  const commercial = isCommercialSize(size);
   const name = canon.get(`${norm(brand)}|${norm(model)}`) || model;
   if (inCatalog.has([norm(brand), norm(name), size, type === "LT" ? "lt" : "p"].join("|"))) { catalogged++; continue; }
-  if (!hasPhoto.has(`${norm(brand)}|${norm(name)}`)) { noPhoto.set(`${brand} ${name}`, (noPhoto.get(`${brand} ${name}`) || 0) + 1); continue; }
-  const markup = MARKUP[norm(brand)] ?? MARKUP.default;
+  if (!commercial && !hasPhoto.has(`${norm(brand)}|${norm(name)}`)) { noPhoto.set(`${brand} ${name}`, (noPhoto.get(`${brand} ${name}`) || 0) + 1); continue; }
+  const markup = commercial ? DEFAULT_SETTINGS.commercialMarkup : MARKUP[norm(brand)] ?? MARKUP.default;
   fresh.push({
     brand,
     model: name,
-    key: size, rim: Number(m[3]), lt: type === "LT",
+    key: size, rim: Number(m[1]), lt: type === "LT",
     price: Math.ceil(Number(cost) + markup),
     ...(load ? { specs: { loadIndex: load, ...(speed ? { speed } : {}) } } : {}),
     from: vendor,

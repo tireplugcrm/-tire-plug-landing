@@ -94,7 +94,9 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
 
   const smsFor = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like the ${t.brand} ${t.model} in ${t.size} (${money(t.price)} each). Do you have it in stock?`)}`;
   const smsAsk = `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'm looking for tires in ${display}. Can you send me options and prices?`)}`;
-  const smsNextDay = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next-day install. Can you order a set for me?`)}`;
+  const smsNextDay = (t) => `${PHONE.sms}?&body=${encodeURIComponent(commercial
+    ? `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next day. How many can you get?`
+    : `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${display} (${money(t.price)} each) for next-day install. Can you order a set for me?`)}`;
   const smsStock = (t) => `${PHONE.sms}?&body=${encodeURIComponent(t.price != null
     ? `Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock for ${money(t.price)} each. Can you hold a set for me?`
     : `Hi Tire Plug! I saw you have the ${t.brand} ${t.model} in ${display} in stock. What's the price, and can you hold a set for me?`)}`;
@@ -168,10 +170,12 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
           {hasNextDay && (
             <section className="stock nextday">
               <h2>Next-day order</h2>
-              <p className="nd-sub">Order today, installed tomorrow or any day after. Install &amp; balance from ${INSTALL_FROM} per wheel.</p>
+              <p className="nd-sub">{commercial
+                ? "Order today, here tomorrow. Commercial mounting is quoted with your order."
+                : <>Order today, installed tomorrow or any day after. Install &amp; balance from ${INSTALL_FROM} per wheel.</>}</p>
               <ul className="list">
                 {nextDay.map((t) => (
-                  <StockTireCard key={`nd-${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsNextDay(t)} cta="Text to order" ready="Installed tomorrow" />
+                  <StockTireCard key={`nd-${t.brand}-${t.model}-${t.lt}`} tire={t} size={display} smsHref={smsNextDay(t)} cta="Text to order" ready="Installed tomorrow" commercial={commercial} />
                 ))}
               </ul>
             </section>
