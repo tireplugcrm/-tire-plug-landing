@@ -2,9 +2,10 @@
  * Jarvis API for the scheduled Claude agents on the shop PC (lib/agent.js).
  * Auth: "Authorization: Bearer <app_settings.agent_key>".
  *
- * POST { action: "ask", agent, question, details? }   text the owner a yes/no question -> { id, code }
+ * POST { action: "ask", agent, question, details?, call? }  text the owner a yes/no question -> { id, code };
+ *                                                     call: true also phones them (pages/api/agent-voice.js)
  * POST { action: "status", id }                       -> { status: open|yes|no, answer }
- * POST { action: "notify", agent, text }              text the owner a FYI
+ * POST { action: "notify", agent, text, call? }       text the owner a FYI (call: true also reads it out)
  * POST { action: "log", agent, message, data? }       write to agent_log
  * POST { action: "invoices" }                         check-in uploads not entered in Tekmetric yet,
  *                                                     with the AI read and a 1-hour photo link
@@ -70,14 +71,14 @@ export default async function handler(req, res) {
   try {
     if (b.action === "ask") {
       if (!b.question) return res.status(400).json({ error: "question is required" });
-      return res.status(200).json({ ok: true, ...(await ask(agent, String(b.question).slice(0, 600), b.details || null)) });
+      return res.status(200).json({ ok: true, ...(await ask(agent, String(b.question).slice(0, 600), b.details || null, { call: !!b.call })) });
     }
     if (b.action === "status") {
       const a = await approval(b.id);
       if (!a) return res.status(404).json({ error: "No such request." });
       return res.status(200).json({ ok: true, status: a.status, answer: a.answer, answered_at: a.answered_at });
     }
-    if (b.action === "notify") return res.status(200).json(await notify(agent, String(b.text || "").slice(0, 600)));
+    if (b.action === "notify") return res.status(200).json(await notify(agent, String(b.text || "").slice(0, 600), { call: !!b.call }));
     if (b.action === "log") { await log(agent, String(b.message || "").slice(0, 2000), b.data || null); return res.status(200).json({ ok: true }); }
 
     if (b.action === "invoices") {
