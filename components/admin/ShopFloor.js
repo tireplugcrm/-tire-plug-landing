@@ -18,7 +18,7 @@ const str = (v) => (v == null ? "" : String(v));
 const roForm = (ro) => {
   const r = { ...EMPTY_RO, ...(ro || {}) };
   const line = (l) => ({ ...l, price: str(l.price) });
-  return { ...r, tire_price: str(r.tire_price), labor: (r.labor || []).map(line) };
+  return { ...r, tire_price: str(r.tire_price), rear_price: str(r.rear_price), rear_qty: str(r.rear_qty), labor: (r.labor || []).map(line) };
 };
 // "Promised by" choices: every half hour of the shop day.
 const SLOTS = Array.from({ length: 25 }, (_, i) => { const m = 7 * 60 + i * 30; return `${String(Math.floor(m / 60)).padStart(2, "0")}:${m % 60 ? "30" : "00"}`; });
@@ -415,7 +415,8 @@ function TirePicker({ f, set, searchTires }) {
   };
   const clear = () => { set({ tire_brand: "", tire_model: "", tire_img: "" }); setOpen(true); };
   const inp = { ...ui.input, marginBottom: 0 };
-  const qty = (
+  // A staggered set picks its front and rear counts below, by axle.
+  const qty = f.ro.staggered ? null : (
     <select style={{ ...inp, width: 96 }} value={f.tire_qty} onChange={(e) => set({ tire_qty: e.target.value })} aria-label="How many tires">
       <option value="">Qty</option>{["1", "2", "3", "4", "5", "6"].map((n) => <option key={n} value={n}>{n} tire{n === "1" ? "" : "s"}</option>)}
     </select>
@@ -549,6 +550,17 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
     const cur = f.ro.positions || [];
     setRo("positions", cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k].slice(-qty));
   };
+  // Staggered set: the tire count is front + rear; the front size is the job's tire size.
+  const rearQty = Math.min(qty, Number(f.ro.rear_qty) || 0);
+  const frontQty = qty - rearQty;
+  const setAxles = (front, rear) => setF((x) => ({ ...x, tire_qty: String(front + rear), ro: { ...x.ro, rear_qty: String(rear) } }));
+  const toggleStaggered = (on) => setF((x) => {
+    const total = Number(x.tire_qty) || 4;
+    const ro = { ...x.ro, staggered: on, rear_qty: on ? String(Math.floor(total / 2)) : "" };
+    // Staggered tires can't cross axles: a rotation goes side to side.
+    if (on && x.job_types.includes("rotate") && !ro.rotation) ro.rotation = "side_side";
+    return { ...x, tire_qty: String(total), ro };
+  });
   const setTech = (i, name) => {
     const t = [...(f.ro.techs || [])]; t[i] = name;
     setRo("techs", [...new Set(t.filter(Boolean))]);
@@ -609,9 +621,35 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
         </div>
         <TirePicker f={f} set={set} searchTires={searchTires} />
         {hasTire && (
+          <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13.5, cursor: "pointer", width: "fit-content" }}>
+            <input type="checkbox" checked={!!f.ro.staggered} onChange={(e) => toggleStaggered(e.target.checked)} />
+            <b>Staggered set</b><span style={{ color: T.textMuted }}>different front and rear sizes</span>
+          </label>
+        )}
+        {hasTire && !f.ro.staggered && (
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, color: T.textMuted, flexWrap: "wrap" }}>
             Tire price each <Price value={f.ro.tire_price} onChange={(v) => setRo("tire_price", v)} label="Tire price each" />
             <span style={{ fontVariantNumeric: "tabular-nums" }}>× {qty || 1} = <b style={{ color: T.text }}>{roMoney(totals.parts)}</b></span>
+          </div>
+        )}
+        {hasTire && f.ro.staggered && (
+          <div style={{ display: "grid", gap: 6, padding: 10, border: `1px solid ${T.border}`, borderRadius: 6, background: "#f8fafc" }}>
+            {[
+              { axle: "Front", n: frontQty, size: f.tire_size, setSize: (v) => set("tire_size", v), price: f.ro.tire_price, setPrice: (v) => setRo("tire_price", v), setN: (n) => setAxles(n, rearQty) },
+              { axle: "Rear", n: rearQty, size: f.ro.rear_size, setSize: (v) => setRo("rear_size", v), price: f.ro.rear_price, setPrice: (v) => setRo("rear_price", v), setN: (n) => setAxles(frontQty, n) },
+            ].map((a) => (
+              <div key={a.axle} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, color: T.textMuted, flexWrap: "wrap" }}>
+                <b style={{ width: 44, color: T.text }}>{a.axle}</b>
+                <select style={{ ...inp, width: 96 }} value={String(a.n)} onChange={(e) => a.setN(Number(e.target.value))} aria-label={`${a.axle} tires`}>
+                  {[0, 1, 2, 3, 4].map((n) => <option key={n} value={n}>{n} tire{n === 1 ? "" : "s"}</option>)}
+                </select>
+                <input style={{ ...inp, width: 150 }} placeholder={a.axle === "Rear" ? "Rear size (255/40R18)" : "Front size"} value={a.size} onChange={(e) => a.setSize(e.target.value.toUpperCase())} aria-label={`${a.axle} size`} />
+                each <Price value={a.price} onChange={a.setPrice} label={`${a.axle} price each`} />
+              </div>
+            ))}
+            <div style={{ fontSize: 13.5, color: T.textMuted, fontVariantNumeric: "tabular-nums" }}>
+              {frontQty + rearQty} tires = <b style={{ color: T.text }}>{roMoney(totals.parts)}</b>{!f.ro.rear_size ? " · type the rear size" : ""}
+            </div>
           </div>
         )}
         {(pickWheels || rotating) && (
@@ -621,7 +659,7 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
               {pickWheels && (
                 <div style={{ fontSize: 13.5 }}>
                   <b>Tap the {qty === 1 ? "wheel" : `${qty} wheels`} getting new tires</b>
-                  <div style={ui.muted}>{f.ro.positions.length}/{qty} picked. They light up on the shop TVs.{qty === 2 ? " New pairs usually go on the rear, even when the customer is replacing the fronts." : ""}</div>
+                  <div style={ui.muted}>{f.ro.positions.length}/{qty} picked. They light up on the shop TVs.{qty === 2 && !f.ro.staggered ?" New pairs usually go on the rear, even when the customer is replacing the fronts." : ""}</div>
                 </div>
               )}
               {rotating && (

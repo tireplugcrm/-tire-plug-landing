@@ -290,7 +290,8 @@ function Card({ o, color, now, live, confirming, busy, onComplete, onUndo }) {
           </div>
           <div className="tv-vehicle">{o.vehicle || o.customer || "Vehicle"}</div>
           {name && <div className="tv-tire-name">{name}</div>}
-          {tireLine(o) && <div className="tv-tires">{tireLine(o)}</div>}
+          {/* a staggered set: front and rear each on their own line */}
+          {tireLine(o) && tireLine(o).split(" · ").map((l) => <div key={l} className="tv-tires">{l}</div>)}
         </div>
         {(o.wheels?.length > 0 || o.rotation) && (
           <div className="tv-wheels"><TireDiagram wheels={o.wheels} rotation={o.rotation} size="100%" colors={{ body: "#2b3a4c", bodyLine: "#3d4f66", tire: "#64748b", on: C.tire, arrow: C.blue }} /></div>
