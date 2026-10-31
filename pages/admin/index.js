@@ -2667,7 +2667,8 @@ const ADMIN_CSS = `
           .tp-admin [style*="background: rgb(246, 245, 242)"], .tp-admin [style*="background: rgba(0, 0, 0, 0.0"],
           .tp-admin [style*="background: rgb(238, 240, 243)"], .tp-admin [style*="background: rgb(236, 238, 241)"], .tp-admin [style*="background: rgb(248, 250, 252)"],
           .tp-admin [style*="background: rgb(241, 245, 249)"], .tp-admin [style*="background: rgb(245, 245, 245)"], .tp-admin [style*="background: rgb(240, 240, 240)"],
-          .tp-admin [style*="background: rgb(247, 248, 250)"], .tp-admin [style*="background: rgb(242, 243, 245)"], .tp-admin [style*="background: rgb(229, 231, 235)"] { background: rgba(255,255,255,.06) !important; }
+          .tp-admin [style*="background: rgb(247, 248, 250)"], .tp-admin [style*="background: rgb(242, 243, 245)"], .tp-admin [style*="background: rgb(229, 231, 235)"],
+          .tp-admin [style*="background: rgb(246, 247, 249)"] { background: rgba(255,255,255,.06) !important; }
           .tp-admin [style*="color: rgb(153, 27, 27)"], .tp-admin [style*="color: rgb(127, 29, 29)"] { color: #fca5a5 !important; }
           .tp-admin [style*="background: rgb(232, 240, 254)"], .tp-admin [style*="background: rgb(232, 246, 254)"] { background: rgba(96,165,250,.18) !important; }
           .tp-admin [style*="background: rgb(254, 242, 242)"], .tp-admin [style*="background: rgb(255, 241, 240)"] { background: rgba(248,113,113,.16) !important; }
