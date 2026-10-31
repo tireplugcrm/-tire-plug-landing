@@ -393,11 +393,9 @@ function JobCard({ o, col, staff, techName, busy, act, searchTires }) {
   );
 }
 
-// Search our shelf (the website's inventory) and pick the tire this job takes.
-function TirePicker({ f, set, searchTires }) {
-  const [q, setQ] = useState(f.tire_size || "");
+// Shelf matches for what's typed (a short pause after typing), while the search is open.
+function useShelf(q, open, searchTires) {
   const [results, setResults] = useState(null);
-  const [open, setOpen] = useState(!f.tire_brand);
   const timer = useRef(null);
   useEffect(() => {
     if (!open) return undefined;
@@ -407,6 +405,70 @@ function TirePicker({ f, set, searchTires }) {
     return () => clearTimeout(timer.current);
     // eslint-disable-next-line
   }, [q, open]);
+  return results;
+}
+
+// The shelf matches as a list to tap.
+function ShelfResults({ results, onPick }) {
+  if (!results) return null;
+  return (
+    <div style={{ border: `1px solid ${T.border}`, borderRadius: 6, maxHeight: 260, overflowY: "auto", background: T.surface }}>
+      {results.length === 0 && <div style={{ ...ui.muted, padding: 10 }}>Nothing on the shelf matches. You can still type the size.</div>}
+      {results.map((t) => (
+        <button key={`${t.brand}|${t.model}|${t.size}`} type="button" onClick={() => onPick(t)} className="tp-nav-item"
+          style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "6px 10px", border: "none", borderBottom: `1px solid ${T.border}`, background: "transparent", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+          <img src={t.img} alt="" style={{ width: 40, height: 40, objectFit: "contain", flexShrink: 0 }} />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontWeight: 600, fontSize: 13.5, color: T.text }}>{t.brand} {t.model}</span>
+            <span style={{ display: "block", fontSize: 12.5, color: T.textMuted }}>{t.size}{t.category ? ` · ${t.category}` : ""}</span>
+          </span>
+          <span style={ui.pill(t.level === "in" ? T.green : T.amber)}>{t.level === "in" ? "In stock" : "Low"}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// A staggered set's rear tire: the same model as the front unless another one is picked off the shelf.
+function RearPicker({ ro, setRo, front, searchTires }) {
+  const [q, setQ] = useState(ro.rear_size || "");
+  const [open, setOpen] = useState(false);
+  const results = useShelf(q, open, searchTires);
+  const name = [ro.rear_brand, ro.rear_model].filter(Boolean).join(" ");
+  const small = { ...ui.btn, height: 30, padding: "0 10px", fontSize: 12.5 };
+  const pick = (t) => { setRo({ rear_brand: t.brand, rear_model: t.model, rear_img: t.imgGeneric ? "" : t.img, rear_size: t.size }); setOpen(false); };
+  if (!open) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, flexWrap: "wrap" }}>
+        {ro.rear_img && <img src={ro.rear_img} alt="" style={{ width: 36, height: 36, objectFit: "contain" }} />}
+        <span style={{ color: T.textMuted }}>Rear tire: <b style={{ color: T.text }}>{name || `same as front${front ? ` (${front})` : ""}`}</b></span>
+        <button type="button" style={small} onClick={() => { setQ(ro.rear_size || ""); setOpen(true); }}><Icon name="search" size={16} />{name ? "Change rear tire" : "Pick a different rear tire"}</button>
+        {name && <button type="button" style={small} onClick={() => setRo({ rear_brand: "", rear_model: "", rear_img: "" })}>Same as front</button>}
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: "grid", gap: 6 }}>
+      <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ position: "relative", flex: 1 }}>
+          <Icon name="search" size={18} style={{ position: "absolute", left: 10, top: 10, color: T.textFaint }} />
+          <input autoFocus style={{ ...ui.input, marginBottom: 0, paddingLeft: 34 }} placeholder="Rear tire off our shelf: size or brand (255/40R18)" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Rear tire search" />
+        </div>
+        <button type="button" style={{ ...small, height: 38 }} onClick={() => setOpen(false)}>Cancel</button>
+      </div>
+      <ShelfResults results={results} onPick={pick} />
+    </div>
+  );
+}
+
+// "2554019" typed fast -> "255/40R19"; anything else just uppercased.
+const sizeText = (v) => { const m = v.trim().match(/^(\d{3})(\d{2})(\d{2})$/); return m ? `${m[1]}/${m[2]}R${m[3]}` : v.toUpperCase(); };
+
+// Search our shelf (the website's inventory) and pick the tire this job takes.
+function TirePicker({ f, set, searchTires }) {
+  const [q, setQ] = useState(f.tire_size || "");
+  const [open, setOpen] = useState(!f.tire_brand);
+  const results = useShelf(q, open, searchTires);
   // A shelf tire is a new tire: the job becomes "New tires", never "Used tires".
   const pick = (t) => {
     const job_types = f.job_types.filter((k) => k !== "used");
@@ -455,22 +517,7 @@ function TirePicker({ f, set, searchTires }) {
           <input style={{ ...inp, paddingLeft: 34 }} placeholder="Tire off our shelf: size or brand (225/45R17, falken 18)" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
-      {results && (
-        <div style={{ border: `1px solid ${T.border}`, borderRadius: 6, maxHeight: 260, overflowY: "auto", background: T.surface }}>
-          {results.length === 0 && <div style={{ ...ui.muted, padding: 10 }}>Nothing on the shelf matches. You can still type the size below.</div>}
-          {results.map((t) => (
-            <button key={`${t.brand}|${t.model}|${t.size}`} type="button" onClick={() => pick(t)} className="tp-nav-item"
-              style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "6px 10px", border: "none", borderBottom: `1px solid ${T.border}`, background: "transparent", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
-              <img src={t.img} alt="" style={{ width: 40, height: 40, objectFit: "contain", flexShrink: 0 }} />
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: "block", fontWeight: 600, fontSize: 13.5, color: T.text }}>{t.brand} {t.model}</span>
-                <span style={{ display: "block", fontSize: 12.5, color: T.textMuted }}>{t.size}{t.category ? ` · ${t.category}` : ""}</span>
-              </span>
-              <span style={ui.pill(t.level === "in" ? T.green : T.amber)}>{t.level === "in" ? "In stock" : "Low"}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      <ShelfResults results={results} onPick={pick} />
       <input style={inp} placeholder="Or just the tire size (not on the shelf)" value={f.tire_size} onChange={(e) => set({ tire_size: e.target.value.toUpperCase() })} />
     </div>
   );
@@ -537,7 +584,7 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
   const [f, setF] = useState(initial);
   const [fields, setFields] = useState(false);
   const set = (k, v) => setF((x) => (typeof k === "object" ? { ...x, ...k } : { ...x, [k]: v }));
-  const setRo = (k, v) => setF((x) => ({ ...x, ro: { ...x.ro, [k]: v } }));
+  const setRo = (k, v) => setF((x) => ({ ...x, ro: { ...x.ro, ...(typeof k === "object" ? k : { [k]: v }) } }));
   // Used tires don't come off the website shelf: choosing them drops the shelf tire (the size stays).
   const toggleType = (k) => {
     const on = !f.job_types.includes(k);
@@ -643,10 +690,11 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
                 <select style={{ ...inp, width: 96 }} value={String(a.n)} onChange={(e) => a.setN(Number(e.target.value))} aria-label={`${a.axle} tires`}>
                   {[0, 1, 2, 3, 4].map((n) => <option key={n} value={n}>{n} tire{n === 1 ? "" : "s"}</option>)}
                 </select>
-                <input style={{ ...inp, width: 150 }} placeholder={a.axle === "Rear" ? "Rear size (255/40R18)" : "Front size"} value={a.size} onChange={(e) => a.setSize(e.target.value.toUpperCase())} aria-label={`${a.axle} size`} />
+                <input style={{ ...inp, width: 150 }} placeholder={a.axle === "Rear" ? "Rear size (255/40R18)" : "Front size"} value={a.size} onChange={(e) => a.setSize(sizeText(e.target.value))} aria-label={`${a.axle} size`} />
                 each <Price value={a.price} onChange={a.setPrice} label={`${a.axle} price each`} />
               </div>
             ))}
+            <RearPicker ro={f.ro} setRo={setRo} front={[f.tire_brand, f.tire_model].filter(Boolean).join(" ")} searchTires={searchTires} />
             <div style={{ fontSize: 13.5, color: T.textMuted, fontVariantNumeric: "tabular-nums" }}>
               {frontQty + rearQty} tires = <b style={{ color: T.text }}>{roMoney(totals.parts)}</b>{!f.ro.rear_size ? " · type the rear size" : ""}
             </div>
