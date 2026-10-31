@@ -4,8 +4,8 @@
  *   { action: "list" }
  *   { action: "create", order }              -> add a job (status waiting)
  *   { action: "update", id, patch }          -> edit job fields (tech, bay, job types, parts, promised time…)
- *   order/patch.ro = the rest of the Tekmetric repair order (email, plate, VIN, mileage, concern,
- *   tire price, labor, fees) — needs lib/workorders-schema-v3.sql; until then jobs save without it.
+ *   order/patch.ro = the rest of the Tekmetric repair order (plate, VIN, mileage, concern,
+ *   tire price, labor, source, techs, wheels, rotation) — needs lib/workorders-schema-v3.sql; until then jobs save without it.
  *   { action: "setStatus", id, status, hold_reason } -> waiting | in_bay | on_hold | done (stamps times, logs it)
  *   { action: "assign", id, assigned_staff_id }
  *   { action: "archive", id }                -> picked up, off the board
@@ -23,7 +23,7 @@ import { loadBoard, setJobStatus } from "../../../lib/shop-floor-db.js";
 const text = (v, max = 200) => (v == null || v === "" ? null : String(v).trim().slice(0, max) || null);
 // Before lib/workorders-schema-v3.sql runs there's no "ro" column: save the job without it and say so.
 const noRoColumn = (error) => /'ro' column|column "?ro"? /i.test(error?.message || "");
-const RO_WARNING = "Saved, but the Tekmetric details (email, VIN, prices…) weren't: run lib/workorders-schema-v3.sql in Supabase.";
+const RO_WARNING = "Saved, but the techs, wheels and Tekmetric details (VIN, prices…) weren't: run lib/workorders-schema-v3.sql in Supabase.";
 async function withRo(row, write) {
   let r = await write(row);
   if (r.error && "ro" in row && noRoColumn(r.error)) {

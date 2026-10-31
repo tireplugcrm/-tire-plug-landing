@@ -6,9 +6,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import {
-  COLUMNS, JOB_TYPES, HOLD_REASONS, boardTimer, fmtMins, sortJobs, floorStats, bayLabel, tireLine, tireName,
+  COLUMNS, JOB_TYPES, HOLD_REASONS, boardTimer, fmtMins, sortJobs, floorStats, tireLine, tireName,
   apptStatus, apptTime, tvBoard, TV_UNDO_MINS,
 } from "../lib/shop-floor.js";
+import TireDiagram from "../components/TireDiagram.js";
 import { demoSeed, board as demoBoard } from "../lib/shop-floor-demo.js";
 import { enableSound, soundReady, play, say } from "../lib/shop-sounds.js";
 import { checkInLine, completeLine } from "../lib/shop-lines.js";
@@ -291,6 +292,9 @@ function Card({ o, color, now, live, confirming, busy, onComplete, onUndo }) {
           {name && <div className="tv-tire-name">{name}</div>}
           {tireLine(o) && <div className="tv-tires">{tireLine(o)}</div>}
         </div>
+        {(o.wheels?.length > 0 || o.rotation) && (
+          <div className="tv-wheels"><TireDiagram wheels={o.wheels} rotation={o.rotation} size="100%" colors={{ body: "#2b3a4c", bodyLine: "#3d4f66", tire: "#64748b", on: C.tire, arrow: C.blue }} /></div>
+        )}
         {canUndo && (
           <button className="tv-undo-btn" disabled={busy} onClick={onUndo}><Icon name="undo" size="1.4vw" />Undo</button>
         )}
@@ -299,7 +303,6 @@ function Card({ o, color, now, live, confirming, busy, onComplete, onUndo }) {
         {types.map((t) => <span key={t.k} className="tv-type"><Icon name={t.icon} size="1.1vw" />{t.l}</span>)}
         {o.customer && o.vehicle && <span>{o.customer}</span>}
         <span style={{ color: o.tech ? C.text : C.slow }}><Icon name="person" size="1.1vw" />{o.tech || "No tech"}</span>
-        {o.bay && <span><Icon name="garage" size="1.1vw" />{bayLabel(o.bay)}</span>}
         {o.promised_at && o.status !== "done" && <span style={{ color: level === "late" ? C.late : undefined }}><Icon name="alarm" size="1.1vw" />{time(o.promised_at)}</span>}
       </div>
       {o.status === "on_hold" && <div className="tv-hold">{HOLD[o.hold_reason] || "On hold"}</div>}
@@ -316,16 +319,16 @@ function Card({ o, color, now, live, confirming, busy, onComplete, onUndo }) {
 // Who is free and who is on what, so work goes to the next free tech.
 function TechStrip({ staff, orders }) {
   if (!staff.length) return null;
-  const mine = (id) => orders.filter((o) => o.assigned_staff_id === id && o.status !== "done");
+  const mine = (name) => orders.filter((o) => (o.techs || []).includes(name) && o.status !== "done");
   return (
     <footer className="tv-techs">
       {staff.map((t) => {
-        const jobs = mine(t.id);
+        const jobs = mine(t.name);
         return (
           <div key={t.id} className="tv-tech">
             <span className="dot" style={{ background: jobs.length ? C.blue : C.green }} />
             <b>{t.name.split(/\s+/)[0]}</b>
-            <span>{jobs.length ? jobs.map((j) => `${j.vehicle || "job"}${j.bay ? ` (${bayLabel(j.bay)})` : ""}`).join(", ") : "Available"}</span>
+            <span>{jobs.length ? jobs.map((j) => j.vehicle || "job").join(", ") : "Available"}</span>
           </div>
         );
       })}
@@ -385,6 +388,8 @@ const CSS = `
   .tv-card.compact .tv-tire-name { font-size: .9vw; }
   .tv-card.compact .tv-tires { font-size: 1vw; }
   .tv-more, .tv-empty { text-align: center; color: ${C.faint}; font-size: 1.3vw; padding: 1vh; }
+  .tv-wheels { width: 5.4vw; height: 12vh; flex-shrink: 0; display: flex; justify-content: center; }
+  .tv-wheels svg { height: 100%; width: auto; }
   .tv-techs { display: flex; gap: 1vw; padding: 1vh 1vw 1.4vh; overflow: hidden; }
   .tv-tech { flex: 1; min-width: 0; display: flex; align-items: center; gap: .6vw; background: ${C.panel}; border-radius: .6vw; padding: 1vh .9vw; font-size: 1.1vw; }
   .tv-tech b { font-size: 1.25vw; }
