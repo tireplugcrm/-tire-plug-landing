@@ -107,7 +107,7 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
         <Stat icon="directions_car" label="Cars today" value={hm.carsToday} chip={hm.bookedToday ? `+${hm.bookedToday} booked` : null} chipColor={BLUE} spark={hm.carsWeek} sparkColor="#6ee7b7" />
         <Stat icon="forum" label="Leads waiting" value={d.unanswered.length} chip={oldest ? `Oldest ${ago(oldest.created_at)}` : "All answered"} chipColor={oldest ? (overdue.length ? RED : AMBER) : GREEN} spark={hm.bookingsWeek} sparkColor="#fcd34d" />
         <Stat icon="tire_repair" label="Tires on the shelf" value={hm.tiresOnShelf.toLocaleString()} chip={hm.tiresLow ? `${hm.tiresLow} low` : null} chipColor={AMBER} />
-        <Stat icon="event_available" label="Booked online today" value={hm.bookedToday} chip={tiresToOrder.length ? `${tiresToOrder.length} tires to order` : callToConfirm.length ? `${callToConfirm.length} to confirm` : null} chipColor={AMBER} spark={hm.bookingsWeek} sparkColor="#93c5fd" />
+        <Stat icon="event_available" label="Booked online today" value={hm.bookedToday} chip={tiresToOrder.length ? `${tiresToOrder.length} tire order${tiresToOrder.length === 1 ? "" : "s"} to place` : callToConfirm.length ? `${callToConfirm.length} to confirm` : null} chipColor={AMBER} spark={hm.bookingsWeek} sparkColor="#93c5fd" />
       </div>
 
       <div className="fd-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.55fr) minmax(0,1fr)", gap: 16, marginTop: 16 }}>

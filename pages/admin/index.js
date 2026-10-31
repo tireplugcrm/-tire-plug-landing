@@ -192,7 +192,8 @@ export default function AdminHub() {
   const unreadReplies = data.replies.filter((r) => !r.read).length;
   const liveLeads = data.leads.filter((l) => l.status !== "dead");
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
-  const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
+  // Same rule as the Front Desk's "Needs a reply" list (/api/admin/front-desk): canceled bookings don't count.
+  const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && l.appt_status !== "canceled" && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
   const navCounts = { frontdesk: unansweredCount, crm: data.leads.filter((l) => (!l.channel || l.channel === "web") && crmStage(l) === "new").length, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview,
   // Email, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
