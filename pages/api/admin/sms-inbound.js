@@ -17,6 +17,7 @@ import { digits10 } from "../../../lib/phone.js";
 import { cancelFollowups } from "../../../lib/followups.js";
 import { ghlRecentInbound } from "../../../lib/sms.js";
 import { isStopText, recordSmsStop } from "../../../lib/consent.js";
+import { answerFromText } from "../../../lib/agent.js";
 
 // Only replies from the last day count, so the first nudge doesn't import old history.
 const FRESH_MS = 24 * 3600 * 1000;
@@ -52,6 +53,9 @@ async function saveInbound({ phone, body, sid, at }) {
 
   // STOP (and friends): no more marketing texts to this number.
   if (isStopText(body)) await recordSmsStop(phone, body);
+
+  // The owner answering Jarvis ("YES 4821").
+  await answerFromText(phone, body);
 
   // Customer replied — stamp the reply (pulls them out of the cold path) + cancel nudges.
   if (leadId) {
