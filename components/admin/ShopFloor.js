@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { T, Icon, ui } from "./ui.js";
 import {
   COLUMNS, JOB_TYPES, HOLD_REASONS, REMOVE_REASONS, tireLine, tireName, apptStatus, apptTime,
-  boardTimer, fmtMins, sortJobs, floorStats, EMPTY_RO, roSheet, roText, roMoney,
+  boardTimer, fmtMins, sortJobs, floorStats, EMPTY_RO, roSheet, roFields, roMoney,
   TECHS, SOURCES, ROTATIONS, jobTechs, jobWheels, jobRotation,
 } from "../../lib/shop-floor.js";
 import TireDiagram from "../TireDiagram.js";
@@ -32,13 +32,50 @@ async function copyText(text) {
     const ok = document.execCommand("copy"); t.remove(); return ok;
   }
 }
-function CopyRo({ o, techName, style, label = "Copy for Tekmetric" }) {
+// Tekmetric's boxes take one value each: copy one field at a time.
+function CopyIcon({ value, style }) {
   const [done, setDone] = useState(false);
-  useEffect(() => { if (!done) return undefined; const t = setTimeout(() => setDone(false), 2000); return () => clearTimeout(t); }, [done]);
+  useEffect(() => { if (!done) return undefined; const t = setTimeout(() => setDone(false), 1500); return () => clearTimeout(t); }, [done]);
   return (
-    <button type="button" onClick={async () => setDone(await copyText(roText(o, techName)))} style={style} title="Copies customer, vehicle, concern, jobs and totals, in Tekmetric's order">
-      <Icon name={done ? "check" : "content_copy"} size={18} />{label && (done ? "Copied" : label)}
+    <button type="button" disabled={!value} onClick={async () => setDone(await copyText(String(value)))} title={value ? `Copy "${value}"` : "Nothing to copy"} aria-label="Copy"
+      style={{ position: "absolute", right: 4, top: 5, width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 4, background: "transparent", color: done ? T.green : value ? T.blue : T.borderStrong, cursor: value ? "pointer" : "default", padding: 0, ...style }}>
+      <Icon name={done ? "check" : "content_copy"} size={17} />
     </button>
+  );
+}
+// A form input with its copy button inside the right edge.
+function Copyable({ value, children, style }) {
+  return <div style={{ position: "relative", minWidth: 0, ...style }}>{children}<CopyIcon value={value} /></div>;
+}
+const withCopy = { paddingRight: 34 };
+
+// Every RO value in Tekmetric's order, one row each. Tap a row to copy it; copied rows stay ticked.
+function TekmetricFields({ o, techName }) {
+  const [copied, setCopied] = useState({});
+  const sections = roFields(o, techName);
+  const copy = async (key, v) => { if (await copyText(v)) setCopied((c) => ({ ...c, [key]: true })); };
+  if (!sections.length) return <div style={{ ...ui.muted, marginTop: 8 }}>Nothing to copy yet.</div>;
+  return (
+    <div style={{ marginTop: 10, border: `1px solid ${T.border}`, borderRadius: 6, background: T.surface, overflow: "hidden" }}>
+      <div style={{ padding: "6px 10px", fontSize: 12.5, color: T.textMuted, background: "#f8fafc", borderBottom: `1px solid ${T.border}` }}>Tap a value, then paste it into the same box in Tekmetric.</div>
+      {sections.map((sec) => (
+        <div key={sec.title}>
+          <div style={{ padding: "6px 10px 2px", fontSize: 11.5, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.3 }}>{sec.title}</div>
+          {sec.rows.map((r) => {
+            const key = `${sec.title}|${r.l}|${r.v}`;
+            const done = copied[key];
+            return (
+              <button key={key} type="button" onClick={() => copy(key, r.v)} className="tp-nav-item"
+                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "5px 10px", border: "none", background: "transparent", cursor: "pointer", textAlign: "left", fontFamily: "inherit", fontSize: 13.5 }}>
+                <span style={{ width: 96, flexShrink: 0, color: T.textMuted, fontSize: 12.5 }}>{r.l}</span>
+                <span style={{ flex: 1, minWidth: 0, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.v}</span>
+                <Icon name={done ? "check_circle" : "content_copy"} size={17} style={{ color: done ? T.green : T.blue, flexShrink: 0 }} />
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -277,6 +314,7 @@ function ApptCard({ a, busy, onCheckIn }) {
 function JobCard({ o, col, staff, techName, busy, act, searchTires }) {
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [fields, setFields] = useState(false);
   const { mins, level } = boardTimer(o);
   const types = JOB_TYPES.filter((j) => (o.job_types || []).includes(j.k));
   const hold = HOLD_REASONS.find((h) => h.k === o.hold_reason);
@@ -345,11 +383,12 @@ function JobCard({ o, col, staff, techName, busy, act, searchTires }) {
             <button disabled={busy} onClick={() => act({ action: "setStatus", id: o.id, status: "waiting" })} style={small} title="Move back to checked in"><Icon name="undo" size={18} /></button>
           </>
         )}
-        <CopyRo o={o} techName={techName} style={small} label="" />
+        <button onClick={() => setFields((v) => !v)} aria-pressed={fields} style={{ ...small, ...(fields ? { background: T.blueSoft, color: T.blue, borderColor: T.blue } : {}) }} title="Copy into Tekmetric, one field at a time"><Icon name="content_copy" size={18} /></button>
         <button onClick={() => setEditing(true)} style={small} title="Edit job"><Icon name="edit" size={18} /></button>
         <button onClick={() => setRemoving(true)} style={{ ...small, color: T.red }} title="Remove from board"><Icon name="delete" size={18} /></button>
       </div>
       )}
+      {fields && <TekmetricFields o={o} techName={techName} />}
     </div>
   );
 }
@@ -447,12 +486,13 @@ function Section({ icon, title, children, action }) {
     </div>
   );
 }
-function Price({ value, onChange, label, width = 110 }) {
+function Price({ value, onChange, label, width = 130 }) {
   return (
     <div style={{ position: "relative", width, flexShrink: 0 }}>
       <span style={{ position: "absolute", left: 10, top: 10, color: T.textFaint, fontSize: 14 }}>$</span>
-      <input style={{ ...ui.input, marginBottom: 0, paddingLeft: 22, textAlign: "right", fontVariantNumeric: "tabular-nums" }} inputMode="decimal" placeholder="0.00" aria-label={label}
+      <input style={{ ...ui.input, marginBottom: 0, paddingLeft: 22, ...withCopy, textAlign: "right", fontVariantNumeric: "tabular-nums" }} inputMode="decimal" placeholder="0.00" aria-label={label}
         value={value} onChange={(e) => onChange(e.target.value.replace(/[^\d.]/g, ""))} />
+      <CopyIcon value={value && !Number.isNaN(Number(value)) ? Number(value).toFixed(2) : ""} />
     </div>
   );
 }
@@ -461,13 +501,13 @@ function Lines({ lines, onChange, jobs, placeholder }) {
   const inp = { ...ui.input, marginBottom: 0 };
   const edit = (i, patch) => onChange(lines.map((l, n) => (n === i ? { ...l, ...patch } : l)));
   return lines.map((l, i) => (
-    <div key={i} style={{ display: "flex", gap: 6 }}>
+    <div key={i} style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
       {jobs && jobs.length > 1 && (
         <select style={{ ...inp, width: 150, flexShrink: 0 }} value={l.job || jobs[0]} onChange={(e) => edit(i, { job: e.target.value, ...(l.desc === LABOR_DESC[l.job || jobs[0]] ? { desc: LABOR_DESC[e.target.value] } : {}) })} aria-label="Job">
           {jobs.map((k) => <option key={k} value={k}>{JOB_TYPES.find((j) => j.k === k)?.l}</option>)}
         </select>
       )}
-      <input style={{ ...inp, flex: 1, minWidth: 0 }} placeholder={placeholder} value={l.desc} onChange={(e) => edit(i, { desc: e.target.value })} />
+      <Copyable value={l.desc} style={{ flex: 1, minWidth: 160 }}><input style={{ ...inp, ...withCopy }} placeholder={placeholder} value={l.desc} onChange={(e) => edit(i, { desc: e.target.value })} /></Copyable>
       <Price value={l.price} onChange={(v) => edit(i, { price: v })} label="Price" />
       <button type="button" onClick={() => onChange(lines.filter((_, n) => n !== i))} style={{ ...ui.btn, height: 38, padding: "0 8px", color: T.textMuted }} title="Remove line"><Icon name="close" size={18} /></button>
     </div>
@@ -494,6 +534,7 @@ function Choice({ options, value, onChange }) {
 // totals, how the customer reached us. Shop-floor details (techs, promise time) come last.
 function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, searchTires }) {
   const [f, setF] = useState(initial);
+  const [fields, setFields] = useState(false);
   const set = (k, v) => setF((x) => (typeof k === "object" ? { ...x, ...k } : { ...x, [k]: v }));
   const setRo = (k, v) => setF((x) => ({ ...x, ro: { ...x.ro, [k]: v } }));
   // Used tires don't come off the website shelf: choosing them drops the shelf tire (the size stays).
@@ -539,20 +580,20 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
     <div style={{ display: "grid", gap: 14 }}>
       <Section icon="person" title="Customer">
         <div style={grid}>
-          <input style={inp} placeholder="Customer name" value={f.customer_name} onChange={(e) => set("customer_name", e.target.value)} />
-          <input style={inp} placeholder="Phone (not shown on TVs)" inputMode="tel" value={f.phone} onChange={(e) => set("phone", e.target.value)} />
+          <Copyable value={f.customer_name}><input style={{ ...inp, ...withCopy }} placeholder="Customer name" value={f.customer_name} onChange={(e) => set("customer_name", e.target.value)} /></Copyable>
+          <Copyable value={f.phone.replace(/\D/g, "")}><input style={{ ...inp, ...withCopy }} placeholder="Phone (not shown on TVs)" inputMode="tel" value={f.phone} onChange={(e) => set("phone", e.target.value)} /></Copyable>
         </div>
       </Section>
       <Section icon="directions_car" title="Vehicle">
         <div style={grid}>
-          <input style={inp} placeholder="Year make model (2019 Toyota Camry)" value={f.vehicle} onChange={(e) => set("vehicle", e.target.value)} />
-          <input style={inp} placeholder="License plate" value={f.ro.plate} onChange={(e) => setRo("plate", e.target.value.toUpperCase())} />
-          <input style={inp} placeholder="VIN" maxLength={17} value={f.ro.vin} onChange={(e) => setRo("vin", e.target.value.toUpperCase())} />
-          <input style={inp} placeholder="Mileage in" inputMode="numeric" value={f.ro.mileage} onChange={(e) => setRo("mileage", e.target.value.replace(/\D/g, ""))} />
+          <Copyable value={f.vehicle}><input style={{ ...inp, ...withCopy }} placeholder="Year make model (2019 Toyota Camry)" value={f.vehicle} onChange={(e) => set("vehicle", e.target.value)} /></Copyable>
+          <Copyable value={f.ro.plate}><input style={{ ...inp, ...withCopy }} placeholder="License plate" value={f.ro.plate} onChange={(e) => setRo("plate", e.target.value.toUpperCase())} /></Copyable>
+          <Copyable value={f.ro.vin}><input style={{ ...inp, ...withCopy }} placeholder="VIN" maxLength={17} value={f.ro.vin} onChange={(e) => setRo("vin", e.target.value.toUpperCase())} /></Copyable>
+          <Copyable value={f.ro.mileage}><input style={{ ...inp, ...withCopy }} placeholder="Mileage in" inputMode="numeric" value={f.ro.mileage} onChange={(e) => setRo("mileage", e.target.value.replace(/\D/g, ""))} /></Copyable>
         </div>
       </Section>
       <Section icon="report" title="Concern">
-        <input style={inp} placeholder="What the customer says (front tires worn, pulls right…)" value={f.ro.concern} onChange={(e) => setRo("concern", e.target.value)} />
+        <Copyable value={f.ro.concern}><input style={{ ...inp, ...withCopy }} placeholder="What the customer says (front tires worn, pulls right…)" value={f.ro.concern} onChange={(e) => setRo("concern", e.target.value)} /></Copyable>
       </Section>
       <Section icon="build" title="Jobs" action={<button type="button" onClick={addLabor} style={small}><Icon name="add" size={16} />Labor</button>}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -623,10 +664,11 @@ function JobForm({ initial, submitLabel, onSubmit, onCancel, busy, compact, sear
       </Section>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <button disabled={!ok || busy} onClick={submit} style={{ ...ui.primary, opacity: ok ? 1 : 0.5 }}>{submitLabel}</button>
-        <CopyRo o={f} style={ui.btn} />
+        <button type="button" onClick={() => setFields((v) => !v)} aria-pressed={fields} style={{ ...ui.btn, ...(fields ? { background: T.blueSoft, color: T.blue, borderColor: T.blue } : {}) }}><Icon name="content_copy" size={18} />Tekmetric fields</button>
         <button onClick={onCancel} style={ui.btn}>Cancel</button>
         {!hasTech && <span style={{ fontSize: 13, color: T.amber }}>Pick a tech to check in</span>}
       </div>
+      {fields && <TekmetricFields o={f} />}
     </div>
   );
 }
