@@ -10,6 +10,8 @@
  *                                                     with the AI read and a 1-hour photo link
  * POST { action: "entered", ids, note? }              mark uploads entered in Tekmetric
  * POST { action: "stock", csv, confirmShrink? }       Tekmetric inventory CSV -> website stock + prices
+ * POST { action: "health" }                           stock freshness, pricing checks, leads, check-in texts, agent errors
+ * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
  */
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { agentKeyOk, ask, approval, notify, log } from "../../lib/agent.js";
@@ -20,6 +22,29 @@ import { linesFromCsv } from "../../lib/stock-csv.mjs";
 
 export const maxDuration = 60;
 export const config = { api: { bodyParser: { sizeLimit: "10mb" } } };
+
+// What the background jobs left behind, for the nightly watchdog to judge. Read-only.
+async function health() {
+  const day = new Date(Date.now() - 864e5).toISOString();
+  const keys = ["stock_synced_at", "stock_source", "stock_prices_live", "pricing_autopilot", "pricing_dirty_pages", "pricing_mismatch", "pricing_alerted", "pricing_report_day"];
+  const [settings, leads, invoiceDays, commissionDays, errors, open] = await Promise.all([
+    supabaseAdmin.from("app_settings").select("key, value, updated_at").in("key", keys),
+    supabaseAdmin.from("leads").select("id", { count: "exact", head: true }).gte("created_at", day),
+    supabaseAdmin.from("invoice_days").select("*").order("day", { ascending: false }).limit(3),
+    supabaseAdmin.from("commission_days").select("*").order("day", { ascending: false }).limit(3),
+    supabaseAdmin.from("agent_log").select("at, agent, message").gte("at", day).ilike("message", "error%").order("at", { ascending: false }).limit(20),
+    supabaseAdmin.from("agent_approvals").select("code, agent, question, asked_at").eq("status", "open"),
+  ]);
+  return {
+    now: new Date().toISOString(),
+    settings: Object.fromEntries((settings.data || []).map((s) => [s.key, { value: s.value, updated_at: s.updated_at }])),
+    leads_last_24h: leads.count ?? null,
+    invoice_days: invoiceDays.data || [],
+    commission_days: commissionDays.data || [],
+    agent_errors_24h: errors.data || [],
+    open_approvals: open.data || [],
+  };
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -68,6 +93,13 @@ export default async function handler(req, res) {
       const pages = await P.drainPages(ctx, (path) => res.revalidate(path), { budgetMs: 20000 });
       await log(agent, "synced website stock from a Tekmetric export", { lines: lines.length });
       return res.status(200).json({ ok: true, stock, pages });
+    }
+    if (b.action === "health") return res.status(200).json({ ok: true, ...(await health()) });
+    if (b.action === "reprice") {
+      const ctx = pricingContext();
+      const report = await P.autopilot(ctx, (path) => res.revalidate(path), { budgetMs: 45000, force: true });
+      await log(agent, "ran the pricing autopilot", report);
+      return res.status(200).json({ ok: true, report });
     }
     return res.status(400).json({ error: "Unknown action" });
   } catch (e) {
