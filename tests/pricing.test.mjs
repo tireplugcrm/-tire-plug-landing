@@ -27,6 +27,9 @@ test("cost + markup, floor, and source order", () => {
   assert.deepEqual(pick(computePrice({ ...base, cost: 74.3 })), { price: 95, source: "markup", profit: 20.7 });
   assert.equal(computePrice({ ...base, cost: 50, settings: { markup: 5, minProfit: 10 } }).price, 60); // floor
   assert.equal(computePrice({ ...base, cost: 50, catalogPrice: 99 }).source, "catalog");
+  // Cost went up past the catalog price: cost + $20 wins (RBP 235/75R15, cost $94.82 vs catalog $94).
+  assert.deepEqual(pick(computePrice({ ...base, cost: 94.82, catalogPrice: 94 })), { price: 115, source: "markup", profit: 20.18 });
+  assert.equal(computePrice({ ...base, cost: 90, catalogPrice: 109.75 }).price, 110);
   assert.equal(computePrice({ ...base, cost: 50, catalogPrice: 99, override: { price: 80 } }).price, 80);
   assert.equal(computePrice({ ...base, cost: 50, override: { price: 80, hidden: true } }).price, null);
   const none = computePrice({ ...base, cost: null });
@@ -133,7 +136,7 @@ test("draft -> preview -> publish -> undo", async () => {
   assert.equal(pv.drafts.length, 2);
   assert.equal(await priceOf(ctx, "lexani", "245/40R20"), 97, "drafts don't touch the website");
   const byTire = Object.fromEntries(pv.effects.map((e) => [e.tire.split(" ")[0], e.to]));
-  assert.deepEqual(byTire, { Lexani: 109, Hankook: 125, Venom: 275 });
+  assert.deepEqual(byTire, { Lexani: 109, Hankook: 125, Venom: 275, RBP: 127 }); // RBP: cost + $25 passes its $125 catalog price
   const pub = await P.publishDrafts(ctx, { who: "owner" });
   assert.equal(await priceOf(ctx, "lexani", "245/40R20"), 109);
   assert.equal(await priceOf(ctx, "hankook", "225/65R17"), 125);

@@ -10,7 +10,8 @@
  *                                                     with the AI read and a 1-hour photo link
  * POST { action: "entered", ids, note? }              mark uploads entered in Tekmetric
  * POST { action: "stock", csv, confirmShrink? }       Tekmetric inventory CSV -> website stock + prices
- * POST { action: "health" }                           stock freshness, pricing checks, leads, check-in texts, agent errors
+ * POST { action: "health" }                           stock freshness, pricing checks, leads, check-in texts, agent errors,
+ *                                                     shelf tires priced under cost + $20 (under_margin)
  * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
  */
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
@@ -19,6 +20,7 @@ import { INVOICE_BUCKET } from "../../lib/invoices.js";
 import { pricingContext } from "../../lib/pricing-context.js";
 import * as P from "../../lib/pricing.js";
 import { linesFromCsv } from "../../lib/stock-csv.mjs";
+import { isCommercialSize } from "../../lib/pricing-engine.js";
 
 export const maxDuration = 60;
 export const config = { api: { bodyParser: { sizeLimit: "10mb" } } };
@@ -27,14 +29,25 @@ export const config = { api: { bodyParser: { sizeLimit: "10mb" } } };
 async function health() {
   const day = new Date(Date.now() - 864e5).toISOString();
   const keys = ["stock_synced_at", "stock_source", "stock_prices_live", "pricing_autopilot", "pricing_dirty_pages", "pricing_mismatch", "pricing_alerted", "pricing_report_day"];
-  const [settings, leads, invoiceDays, commissionDays, errors, open] = await Promise.all([
+  const [settings, leads, invoiceDays, commissionDays, errors, open, prices, stock] = await Promise.all([
     supabaseAdmin.from("app_settings").select("key, value, updated_at").in("key", keys),
     supabaseAdmin.from("leads").select("id", { count: "exact", head: true }).gte("created_at", day),
     supabaseAdmin.from("invoice_days").select("*").order("day", { ascending: false }).limit(3),
     supabaseAdmin.from("commission_days").select("*").order("day", { ascending: false }).limit(3),
     supabaseAdmin.from("agent_log").select("at, agent, message").gte("at", day).ilike("message", "error%").order("at", { ascending: false }).limit(20),
     supabaseAdmin.from("agent_approvals").select("code, agent, question, asked_at").eq("status", "open"),
+    supabaseAdmin.from("site_prices").select("id, price, source"),
+    supabaseAdmin.from("tire_stock").select("id, brand, model, size_key, cost").eq("active", true),
   ]);
+  // The money rule: every shelf tire sells for at least cost + $20 (commercial sizes cost + $35).
+  // Owner and catalog prices don't follow cost on their own, so they can fall under it.
+  const priceOf = new Map((prices.data || []).map((p) => [p.id, p]));
+  const under_margin = (stock.data || []).flatMap((t) => {
+    const p = priceOf.get(t.id);
+    if (!p || p.price == null || !(t.cost > 0)) return [];
+    const need = Number(t.cost) + (isCommercialSize(t.size_key) ? 35 : 20);
+    return Number(p.price) < need - 0.005 ? [{ tire: `${t.brand} ${t.model} ${t.size_key}`, source: p.source, price: Number(p.price), cost: Number(t.cost), short_by: Math.round((need - p.price) * 100) / 100 }] : [];
+  });
   return {
     now: new Date().toISOString(),
     settings: Object.fromEntries((settings.data || []).map((s) => [s.key, { value: s.value, updated_at: s.updated_at }])),
@@ -43,6 +56,7 @@ async function health() {
     commission_days: commissionDays.data || [],
     agent_errors_24h: errors.data || [],
     open_approvals: open.data || [],
+    under_margin,
   };
 }
 
