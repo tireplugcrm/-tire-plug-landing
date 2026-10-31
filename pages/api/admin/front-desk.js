@@ -23,6 +23,37 @@ import { smsConfigured } from "../../../lib/sms.js";
 import { findShelfTire } from "../../../lib/shelf-search.js";
 
 export const maxDuration = 60;
+
+// Numbers for the top of the home screen (components/admin/FrontDesk.js): cars checked in today
+// (Shop Floor work orders) and by hour, the last 7 days, tires on the shelf, online bookings, and
+// the next cars. Counts only; no costs.
+const laDay = (s) => new Date(s).toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+const laHour = (s) => Number(new Date(s).toLocaleString("en-US", { timeZone: "America/Los_Angeles", hour: "numeric", hourCycle: "h23" }));
+function homeStats({ today, orders, stock, booked, appts }) {
+  const days = Array.from({ length: 7 }, (_, i) => laDay(Date.now() - (6 - i) * 864e5));
+  const perDay = (list, field) => days.map((d) => list.filter((x) => x[field] && laDay(x[field]) === d).length);
+  const todays = orders.filter((o) => laDay(o.created_at) === today);
+  const bookedToday = appts.filter((a) => laDay(a.appointment_at) === today && ["confirmed", "checked_in"].includes(a.appt_status));
+  const hours = Array.from({ length: 11 }, (_, i) => 8 + i); // 8 AM - 6 PM
+  const byHour = hours.map((h) => ({
+    h,
+    cars: todays.filter((o) => laHour(o.created_at) === h).length,
+    booked: bookedToday.filter((a) => a.appt_status === "confirmed" && laHour(a.appointment_at) === h).length,
+  }));
+  const next = [
+    ...todays.filter((o) => !o.archived && o.status !== "done").map((o) => ({ kind: "car", at: o.created_at, name: o.customer_name, vehicle: o.vehicle, what: [o.tire_qty && o.tire_size ? `${o.tire_qty} × ${o.tire_size}` : o.tire_size, o.service].filter(Boolean).join(" · "), status: o.status, bay: o.bay, waiter: o.waiter })),
+    ...bookedToday.filter((a) => a.appt_status === "confirmed" && new Date(a.appointment_at).getTime() > Date.now() - 30 * 60000).map((a) => ({ kind: "appt", at: a.appointment_at, name: a.name, vehicle: a.vehicle, what: [a.service, a.tire_size].filter(Boolean).join(" · "), status: "booked", lead_id: a.id })),
+  ].sort((a, b) => (a.kind === b.kind ? new Date(a.at) - new Date(b.at) : a.kind === "car" ? -1 : 1)).slice(0, 6);
+  return {
+    carsToday: todays.length,
+    carsWeek: perDay(orders, "created_at"),
+    bookedToday: bookedToday.length,
+    bookingsWeek: perDay(booked, "appt_booked_at"),
+    tiresOnShelf: stock.reduce((s, t) => s + (Number(t.available) || 0), 0),
+    tiresLow: stock.filter((t) => t.level === "low").length,
+    byHour, nowHour: laHour(Date.now()), next,
+  };
+}
 const LEAD_COLS = "id,created_at,name,phone,email,vehicle,tire_size,tire_type,service,service_timing,lead_priority,status,channel,source,appointment_at,appt_status,appt_booked_at,first_response_at,tires_ordered_at,tires_arrived_at,work_order_id,raw";
 
 export default async function handler(req, res) {
@@ -40,12 +71,16 @@ export default async function handler(req, res) {
       }
       const today = laParts().ymd;
       const dayStart = laInstant(today, 0), weekEnd = new Date(dayStart.getTime() + 8 * 864e5);
-      const [unanswered, appts, events, capacity, run] = await Promise.all([
+      const weekAgo = new Date(dayStart.getTime() - 6 * 864e5).toISOString();
+      const [unanswered, appts, events, capacity, run, orders, stock, booked] = await Promise.all([
         supabaseAdmin.from("leads").select(LEAD_COLS).eq("status", "new").is("first_response_at", null).or("appt_status.is.null,appt_status.neq.canceled").gte("created_at", new Date(Date.now() - 14 * 864e5).toISOString()).order("created_at", { ascending: true }),
         supabaseAdmin.from("leads").select(LEAD_COLS).not("appointment_at", "is", null).gte("appointment_at", new Date(dayStart.getTime() - 864e5).toISOString()).lt("appointment_at", weekEnd.toISOString()).order("appointment_at"),
         supabaseAdmin.from("front_desk_events").select("*").order("created_at", { ascending: false }).limit(60),
         getCapacity(),
         supabaseAdmin.from("app_settings").select("value").eq("key", "front_desk_last_run").maybeSingle(),
+        supabaseAdmin.from("work_orders").select("id,created_at,customer_name,vehicle,service,status,bay,tire_size,tire_qty,waiter,archived").gte("created_at", weekAgo).order("created_at"),
+        supabaseAdmin.from("tire_stock").select("available,level").eq("active", true),
+        supabaseAdmin.from("leads").select("appt_booked_at").gte("appt_booked_at", weekAgo),
       ]);
       if (unanswered.error) return res.status(500).json({ error: `${unanswered.error.message}. Run lib/frontdesk-schema.sql in Supabase first.` });
       const contactable = (l) => !!(l.email || (l.phone && l.raw?.smsConsent === true));
@@ -58,6 +93,7 @@ export default async function handler(req, res) {
         capacity,
         lastRun: run.data?.value || null,
         alerts: { emails: OWNER_EMAILS, phones: OWNER_PHONES, emailOn: !!process.env.RESEND_API_KEY, smsOn: smsConfigured() },
+        home: homeStats({ today, orders: orders.data || [], stock: stock.data || [], booked: booked.data || [], appts: (appts.data || []).map(slim) }),
       });
     }
 

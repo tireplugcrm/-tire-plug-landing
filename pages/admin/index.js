@@ -168,14 +168,14 @@ export default function AdminHub() {
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
             <Logo size={88} />
           </div>
-          <h1 style={{ color: "#1a1a1a", textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
+          <h1 style={{ color: T.text, textAlign: "center", fontWeight: 900, textTransform: "uppercase", letterSpacing: "-0.02em", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
             Tire Plug <span style={{ color: "#FF1F1F" }}>Admin</span>
           </h1>
           <button onClick={signInGoogle} style={googleBtn}>
             <span style={{ fontWeight: 900, color: "#4285F4" }}>G</span> Sign in with Google
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "1.25rem 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.1)" }} /><span style={{ color: "rgba(0,0,0,0.4)", fontSize: "0.7rem" }}>OR</span><div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.1)" }} />
+            <div style={{ flex: 1, height: 1, background: T.border }} /><span style={{ color: T.textFaint, fontSize: "0.7rem" }}>OR</span><div style={{ flex: 1, height: 1, background: T.border }} />
           </div>
           <input type="password" placeholder="Owner password" value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -197,20 +197,24 @@ export default function AdminHub() {
   // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview,
   // Email, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
   // Work Log, Hiring, Training) still exist and their data is untouched; add them back here to show them.
-  const NAV_GROUPS = [
-    { items: [
-      { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 },
-      { id: "shopfloor", icon: "garage", label: "Shop Floor" },
-      { id: "crm", icon: "view_kanban", label: "CRM" },
-      { id: "texts", icon: "sms", label: "Texts" },
-    ] },
-    { title: "Manage", items: [
-      { id: "customers", icon: "groups", label: "Customers" },
-      { id: "pricing", icon: "inventory_2", label: "Inventory & Pricing" },
-      { id: "invoices", icon: "receipt_long", label: "Invoices" },
-      { id: "businesses", icon: "storefront", label: "Businesses" },
-    ] },
+  // Glass layout: the main screens as pills across the top, the rest as round icons down the left.
+  const TOP_NAV = [
+    { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 },
+    { id: "crm", icon: "view_kanban", label: "CRM" },
+    { id: "texts", icon: "sms", label: "Texts" },
+    { id: "customers", icon: "groups", label: "Customers" },
+    { id: "pricing", icon: "inventory_2", label: "Inventory" },
+    { id: "invoices", icon: "receipt_long", label: "Invoices" },
   ];
+  const RAIL_NAV = [
+    { id: "frontdesk", icon: "home", label: "Front Desk" },
+    { id: "shopfloor", icon: "garage", label: "Shop Floor" },
+    { id: "schedule", icon: "event", label: "Schedule" },
+    { id: "pricing", icon: "tire_repair", label: "Inventory and pricing" },
+    { id: "businesses", icon: "storefront", label: "Businesses" },
+    { id: "reviews", icon: "star", label: "Reviews" },
+  ];
+  const go = (id) => { setTab(id); window.scrollTo(0, 0); };
 
   const selectedLead = data.leads.find((l) => l.id === selectedLeadId) || null;
   // Open a lead's drawer from anywhere (e.g. Front Desk); reload first if it arrived after the last load.
@@ -222,43 +226,35 @@ export default function AdminHub() {
 
   return (
     <Shell title="Tire Plug Admin">
-      <header style={{ position: "sticky", top: 0, zIndex: 50, height: 56, background: T.topbar, display: "flex", alignItems: "center", gap: 12, padding: "0 16px 0 8px" }}>
-        <button onClick={toggleNav} title="Menu" aria-label="Toggle menu" style={topBtn}><Icon name="menu" size={24} /></button>
-        <Logo size={34} />
-        <span style={{ color: "#fff", fontWeight: 600, fontSize: 16, letterSpacing: "-0.01em" }}>The Tire Plug</span>
-        <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginLeft: 2 }}>Admin</span>
-        <div style={{ flex: 1 }} />
-        <button onClick={() => loadWith(authObj())} title="Refresh" aria-label="Refresh" style={topBtn}><Icon name="refresh" /></button>
-        <div title={data.me?.email || "Owner"} style={{ width: 32, height: 32, borderRadius: "50%", background: "#3b4a5a", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600 }}>
-          {(data.me?.name || "Owner").split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+      <div className="tp-top">
+        <div className="tp-corner tp-left"><button className="tp-circ tp-glass" title="Front Desk" aria-label="Front Desk" onClick={() => go("frontdesk")}><Logo size={30} /></button></div>
+        <nav className="tp-pills tp-glass" aria-label="Main">
+          {TOP_NAV.map((it) => {
+            const cnt = navCounts[it.id];
+            return (
+              <button key={it.id} title={it.label} className={`tp-pill${tab === it.id ? " on" : ""}`} onClick={() => go(it.id)}>
+                <Icon name={it.icon} size={19} /><span className="tp-label">{it.label}</span>
+                {cnt ? <span className={`tp-badge${it.alert ? " alert" : ""}`}>{cnt}</span> : null}
+              </button>
+            );
+          })}
+        </nav>
+        <div className="tp-corner tp-right">
+          <button className="tp-circ tp-glass tp-hide-sm" onClick={() => loadWith(authObj())} title="Refresh" aria-label="Refresh"><Icon name="refresh" /></button>
+          <button className="tp-circ" onClick={signOut} title={`${data.me?.email || "Owner"} · Sign out`} aria-label="Sign out" style={{ background: T.red, border: "none", color: "#fff", fontWeight: 600, fontSize: 14 }}>
+            {(data.me?.name || "Owner").split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+          </button>
         </div>
-        <button onClick={signOut} style={{ ...topBtn, width: "auto", padding: "0 10px", fontSize: 13, fontWeight: 500 }}>Sign out</button>
-      </header>
+      </div>
+      <nav className="tp-rail tp-glass" aria-label="More">
+        {RAIL_NAV.map((it) => <button key={it.id} title={it.label} aria-label={it.label} className={tab === it.id ? "on" : ""} onClick={() => go(it.id)}><Icon name={it.icon} size={20} /></button>)}
+        <button title="Sign out" aria-label="Sign out" onClick={signOut} style={{ marginTop: 6 }}><Icon name="logout" size={20} /></button>
+      </nav>
 
-      <div style={{ display: "flex", minHeight: "calc(100vh - 56px)" }}>
-        {navOpen && <div className="tp-scrim" onClick={() => setNavOpen(false)} />}
-        <aside className={`tp-side${navCollapsed ? " collapsed" : ""}${navOpen ? " open" : ""}`} style={{ width: 232, flexShrink: 0, background: T.surface, borderRight: `1px solid ${T.border}`, padding: "12px 10px", position: "sticky", top: 56, height: "calc(100vh - 56px)", overflowY: "auto" }}>
-          {NAV_GROUPS.map((grp, gi) => (
-            <div key={grp.title || `g${gi}`} className="tp-group" style={{ marginBottom: 6 }}>
-              {grp.title && <div className="tp-caps" style={{ color: T.textFaint, fontSize: 11, fontWeight: 600, padding: "12px 10px 4px" }}>{grp.title}</div>}
-              {grp.items.map((it) => {
-                const active = tab === it.id;
-                const cnt = navCounts[it.id];
-                return (
-                  <button key={it.id} title={it.label} className={active ? "" : "tp-nav-item"} onClick={() => { setTab(it.id); setNavOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", height: 38, textAlign: "left", background: active ? T.blueSoft : "transparent", color: active ? T.blue : "#374151", fontWeight: active ? 600 : 500, border: "none", padding: "0 10px", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: 14 }}>
-                    <Icon name={it.icon} size={20} style={{ color: active ? T.blue : T.textMuted }} />
-                    <span className="tp-label" style={{ flex: 1 }}>{it.label}</span>
-                    {cnt ? <span className="tp-count" style={{ minWidth: 20, height: 20, padding: "0 6px", display: "inline-flex", alignItems: "center", justifyContent: "center", background: it.alert ? T.red : "#eef0f3", color: it.alert ? "#fff" : T.textMuted, fontSize: 11, fontWeight: 600, borderRadius: 10 }}>{cnt}</span> : null}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
-        </aside>
+      <div>
+        <main className="tp-main">
 
-        <main style={{ flex: 1, minWidth: 0, padding: "20px 28px 64px" }}>
-
-        {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} />}
+        {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} me={data.me} onNav={go} />}
         {tab === "texts" && <TextsTab auth={auth} onOpenLead={openLead} />}
         {tab === "crm" && <CrmBoard leads={data.leads} unreadByLead={data.unreadByLead} onOpen={openLead} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
@@ -2640,7 +2636,7 @@ function Shell({ children, title }) {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0&display=block" />
       </Head>
-      <div className="tp-admin" style={{ background: T.page, minHeight: "100vh", color: T.text }}>
+      <div className="tp-admin" style={{ minHeight: "100vh", color: T.text }}>
         {children}
         <style dangerouslySetInnerHTML={{ __html: ADMIN_CSS }} />
       </div>
@@ -2653,7 +2649,73 @@ const ADMIN_CSS = `
           .tp-admin, .tp-admin button, .tp-admin input, .tp-admin select, .tp-admin textarea {
             font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif !important;
           }
-          .tp-admin { font-size: 14px; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; }
+          .tp-admin { font-size: 14px; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01"; position: relative; isolation: isolate; }
+          /* Glass theme: the shop photo stays put behind everything, darkened so white text reads. */
+          .tp-admin::before { content: ""; position: fixed; inset: 0; z-index: -1;
+            background: linear-gradient(180deg, rgba(10,14,20,.72), rgba(10,14,20,.55) 45%, rgba(10,14,20,.78)), url(/images/lift-bay.webp) center / cover no-repeat, #0b0e13; }
+          /* Frost anything painted with T.surface (panels, side nav, cards). */
+          .tp-admin [style*="background: rgba(255, 255, 255, 0.08)"], .tp-admin [style*="background-color: rgba(255, 255, 255, 0.08)"] {
+            -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
+          .tp-admin header[style*="position: sticky"] { -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); border-bottom: 1px solid rgba(255,255,255,.12); }
+          /* Screens that type their colors in directly (older tabs): light panels become glass, dark text becomes light. */
+          .tp-admin [style*="background: rgb(255, 255, 255)"], .tp-admin [style*="background-color: rgb(255, 255, 255)"],
+          .tp-admin [style*="background: white"], .tp-admin [style*="background-color: white"] {
+            background: rgba(255,255,255,.08) !important; -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
+          .tp-admin [style*="background: rgb(244, 245, 247)"], .tp-admin [style*="background: rgb(241, 242, 244)"], .tp-admin [style*="background: rgb(243, 244, 246)"],
+          .tp-admin [style*="background: rgb(249, 250, 251)"], .tp-admin [style*="background: rgb(248, 249, 250)"], .tp-admin [style*="background: rgb(250, 250, 250)"],
+          .tp-admin [style*="background: rgb(246, 245, 242)"], .tp-admin [style*="background: rgba(0, 0, 0, 0.0"],
+          .tp-admin [style*="background: rgb(238, 240, 243)"], .tp-admin [style*="background: rgb(236, 238, 241)"], .tp-admin [style*="background: rgb(248, 250, 252)"],
+          .tp-admin [style*="background: rgb(241, 245, 249)"], .tp-admin [style*="background: rgb(245, 245, 245)"], .tp-admin [style*="background: rgb(240, 240, 240)"],
+          .tp-admin [style*="background: rgb(247, 248, 250)"], .tp-admin [style*="background: rgb(242, 243, 245)"], .tp-admin [style*="background: rgb(229, 231, 235)"] { background: rgba(255,255,255,.06) !important; }
+          .tp-admin [style*="color: rgb(153, 27, 27)"], .tp-admin [style*="color: rgb(127, 29, 29)"] { color: #fca5a5 !important; }
+          .tp-admin [style*="background: rgb(232, 240, 254)"], .tp-admin [style*="background: rgb(232, 246, 254)"] { background: rgba(96,165,250,.18) !important; }
+          .tp-admin [style*="background: rgb(254, 242, 242)"], .tp-admin [style*="background: rgb(255, 241, 240)"] { background: rgba(248,113,113,.16) !important; }
+          .tp-admin [style*="background: rgb(255, 242, 226)"], .tp-admin [style*="background: rgb(255, 247, 237)"], .tp-admin [style*="background: rgb(254, 243, 199)"], .tp-admin [style*="background: rgb(255, 251, 235)"] { background: rgba(251,191,36,.16) !important; }
+          .tp-admin [style*="background: rgb(236, 253, 245)"], .tp-admin [style*="background: rgb(240, 253, 244)"] { background: rgba(52,211,153,.16) !important; }
+          .tp-admin [style*="color: rgb(26, 26, 26)"], .tp-admin [style*="color: rgb(17, 17, 17)"], .tp-admin [style*="color: rgb(31, 41, 55)"],
+          .tp-admin [style*="color: rgb(55, 65, 81)"], .tp-admin [style*="color: rgb(0, 0, 0)"], .tp-admin [style*="color: rgb(21, 21, 21)"], .tp-admin [style*="color: black"] { color: #f8fafc !important; }
+          .tp-admin [style*="color: rgba(0, 0, 0, 0.4"], .tp-admin [style*="color: rgba(0, 0, 0, 0.5"], .tp-admin [style*="color: rgba(0, 0, 0, 0.6"],
+          .tp-admin [style*="color: rgba(0, 0, 0, 0.7"], .tp-admin [style*="color: rgba(0, 0, 0, 0.8"], .tp-admin [style*="color: rgb(102, 102, 102)"],
+          .tp-admin [style*="color: rgb(153, 153, 153)"], .tp-admin [style*="color: rgb(107, 114, 128)"], .tp-admin [style*="color: rgb(138, 148, 166)"] { color: rgba(255,255,255,.66) !important; }
+          .tp-admin [style*="color: rgb(21, 128, 61)"], .tp-admin [style*="color: rgb(26, 127, 75)"] { color: #6ee7b7 !important; }
+          .tp-admin [style*="color: rgb(185, 28, 28)"], .tp-admin [style*="color: rgb(221, 51, 51)"], .tp-admin [style*="color: rgb(255, 31, 31)"] { color: #fca5a5 !important; }
+          .tp-admin [style*="color: rgb(26, 102, 214)"], .tp-admin [style*="color: rgb(37, 99, 235)"] { color: #93c5fd !important; }
+          .tp-admin [style*="color: rgb(180, 83, 9)"], .tp-admin [style*="color: rgb(217, 119, 6)"] { color: #fcd34d !important; }
+          .tp-admin [style*="border: 1px solid rgba(0, 0, 0"], .tp-admin [style*="border: 1px solid rgb(229, 231, 235)"], .tp-admin [style*="border: 1px solid rgb(209, 213, 219)"] { border-color: rgba(255,255,255,.16) !important; }
+          .tp-admin [style*="border-bottom: 1px solid rgba(0, 0, 0"], .tp-admin [style*="border-top: 1px solid rgba(0, 0, 0"],
+          .tp-admin [style*="border-bottom: 1px solid rgb(2"], .tp-admin [style*="border-top: 1px solid rgb(2"] { border-color: rgba(255,255,255,.10) !important; }
+          .tp-admin input:not([type=checkbox]):not([type=radio]):not([type=range]), .tp-admin select, .tp-admin textarea {
+            background: rgba(255,255,255,.07) !important; color: #f8fafc !important; border-color: rgba(255,255,255,.22) !important; }
+          .tp-admin input::placeholder, .tp-admin textarea::placeholder { color: rgba(255,255,255,.42); }
+          .tp-admin select option { background: #1b222c; color: #f8fafc; }
+          .tp-admin table th { color: rgba(255,255,255,.6); }
+          /* Glass layout: pill menu across the top, round icon rail on the left, both floating over the page. */
+          .tp-admin .tp-glass { background: rgba(255,255,255,.10); -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid rgba(255,255,255,.18); box-shadow: 0 8px 32px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15); }
+          .tp-admin .tp-top { position: fixed; top: 16px; left: 0; right: 0; z-index: 60; display: flex; justify-content: center; pointer-events: none; }
+          .tp-admin .tp-top > * { pointer-events: auto; }
+          .tp-admin .tp-corner { position: absolute; top: 0; display: flex; gap: 10px; }
+          .tp-admin .tp-left { left: 24px; } .tp-admin .tp-right { right: 24px; }
+          .tp-admin .tp-circ { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; padding: 0; }
+          .tp-admin .tp-pills { display: flex; gap: 4px; padding: 5px; border-radius: 999px; max-width: calc(100vw - 280px); overflow-x: auto; scrollbar-width: none; }
+          .tp-admin .tp-pill { display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 15px; border-radius: 999px; border: none; background: transparent;
+            color: rgba(255,255,255,.82); font-size: 13.5px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+          .tp-admin .tp-pill.on { background: rgba(255,255,255,.94); color: #111; font-weight: 600; }
+          .tp-admin .tp-badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: rgba(255,255,255,.22); color: #fff; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+          .tp-admin .tp-badge.alert { background: #ef4444; }
+          .tp-admin .tp-rail { position: fixed; left: 24px; top: 92px; z-index: 60; width: 56px; padding: 8px 0; border-radius: 999px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+          .tp-admin .tp-rail button { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: rgba(255,255,255,.78); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+          .tp-admin .tp-rail button.on { background: #fff; color: #111; }
+          .tp-admin .tp-rail button:not(.on):hover, .tp-admin .tp-pill:not(.on):hover, .tp-admin .tp-circ.tp-glass:hover { background: rgba(255,255,255,.14); filter: none; }
+          .tp-admin .tp-main { padding: 84px 28px 64px 104px; min-width: 0; }
+          @media (max-width: 1180px) { .tp-admin .tp-pill .tp-label { display: none; } .tp-admin .tp-pill { padding: 0 12px; } }
+          @media (max-width: 760px) {
+            .tp-admin .tp-rail, .tp-admin .tp-left, .tp-admin .tp-hide-sm { display: none; }
+            .tp-admin .tp-top { justify-content: flex-start; padding-left: 12px; } .tp-admin .tp-right { right: 12px; }
+            .tp-admin .tp-pills { max-width: calc(100vw - 80px); }
+            .tp-admin .tp-main { padding: 76px 14px 64px; }
+          }
+          .tp-admin ::-webkit-scrollbar { width: 10px; height: 10px; } .tp-admin ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 9px; }
           .tp-admin [style*="font-weight:900"], .tp-admin [style*="font-weight: 900"] { font-weight: 700 !important; }
           .tp-admin [style*="font-weight:800"], .tp-admin [style*="font-weight: 800"] { font-weight: 600 !important; }
           .tp-admin [style*="text-transform:uppercase"], .tp-admin [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: normal !important; }
@@ -2662,7 +2724,7 @@ const ADMIN_CSS = `
             border-color: ${T.blue} !important; box-shadow: 0 0 0 3px ${T.blueRing} !important; outline: none;
           }
           .tp-admin button { transition: background-color .12s ease, border-color .12s ease, filter .12s ease; }
-          .tp-admin button:not(:disabled):hover { filter: brightness(0.96); }
+          .tp-admin button:not(:disabled):hover { filter: brightness(1.15); }
           .tp-admin button:disabled { cursor: not-allowed; }
           .tp-admin .tp-nav-item:hover { background: ${T.hover} !important; }
           .tp-admin .material-symbols-outlined { display: inline-flex; align-items: center; justify-content: center; user-select: none; font-variation-settings: "opsz" 20; }
@@ -2682,9 +2744,9 @@ const ADMIN_CSS = `
             .tp-admin .tp-side { position: fixed !important; left: 0; top: 56px !important; z-index: 60; width: 260px !important; transform: translateX(-100%); transition: transform .18s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.18); }
             .tp-admin .tp-side.open { transform: none; }
             .tp-admin .tp-scrim { position: fixed; inset: 56px 0 0 0; background: rgba(17,24,39,0.35); z-index: 55; }
-            .tp-admin main { padding: 16px !important; }
+            .tp-admin main:not(.tp-main) { padding: 16px !important; }
           }
-          .adminRow:hover { border-color: ${T.borderStrong} !important; background: #fafbfc !important; }
+          .adminRow:hover { border-color: ${T.borderStrong} !important; background: ${T.hover} !important; }
         `;
 
 /* styles */
