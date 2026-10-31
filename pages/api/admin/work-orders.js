@@ -4,6 +4,8 @@
  *   { action: "list" }
  *   { action: "create", order }              -> add a job (status waiting)
  *   { action: "update", id, patch }          -> edit job fields (tech, bay, job types, parts, promised time…)
+ *   order/patch.ro = the rest of the Tekmetric repair order (email, plate, VIN, mileage, concern,
+ *   tire price, labor, fees) — needs lib/workorders-schema-v3.sql; until then jobs save without it.
  *   { action: "setStatus", id, status, hold_reason } -> waiting | in_bay | on_hold | done (stamps times, logs it)
  *   { action: "assign", id, assigned_staff_id }
  *   { action: "archive", id }                -> picked up, off the board
@@ -15,10 +17,22 @@
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
-import { JOB_TYPE_KEYS, PARTS_KEYS, REMOVE_KEYS, fixTireTypes } from "../../../lib/shop-floor.js";
+import { JOB_TYPE_KEYS, PARTS_KEYS, REMOVE_KEYS, fixTireTypes, cleanRo } from "../../../lib/shop-floor.js";
 import { loadBoard, setJobStatus } from "../../../lib/shop-floor-db.js";
 
 const text = (v, max = 200) => (v == null || v === "" ? null : String(v).trim().slice(0, max) || null);
+// Before lib/workorders-schema-v3.sql runs there's no "ro" column: save the job without it and say so.
+const noRoColumn = (error) => /'ro' column|column "?ro"? /i.test(error?.message || "");
+const RO_WARNING = "Saved, but the Tekmetric details (email, VIN, prices…) weren't: run lib/workorders-schema-v3.sql in Supabase.";
+async function withRo(row, write) {
+  let r = await write(row);
+  if (r.error && "ro" in row && noRoColumn(r.error)) {
+    const { ro, ...rest } = row;
+    r = await write(rest);
+    if (!r.error) r.warning = RO_WARNING;
+  }
+  return r;
+}
 const when = (v) => (v && !Number.isNaN(new Date(v).getTime()) ? new Date(v).toISOString() : null);
 
 // Only the fields the board may set, cleaned.
@@ -42,6 +56,7 @@ function clean(o) {
   if ("promised_at" in o) out.promised_at = when(o.promised_at);
   if ("rush" in o) out.rush = !!o.rush;
   if ("waiter" in o) out.waiter = !!o.waiter;
+  if ("ro" in o) out.ro = cleanRo(o.ro);
   // A shelf tire is a new tire: never "used tires" with a shelf tire on it.
   return "job_types" in out && "tire_brand" in out ? fixTireTypes(out) : out;
 }
@@ -59,6 +74,7 @@ export default async function handler(req, res) {
   const log = (from_status, to_status, note) =>
     supabaseAdmin.from("work_order_events").insert({ work_order_id: id, from_status, to_status, note: note || null, by_name: by });
 
+  let warning;
   try {
     if (action === "tvLink") {
       if (!auth.user?.isOwner) return res.status(403).json({ error: "Only the owner can get the TV link." });
@@ -75,14 +91,16 @@ export default async function handler(req, res) {
     } else if (action === "create") {
       const o = clean(req.body.order || {});
       if (!o.customer_name && !o.vehicle) return res.status(400).json({ error: "Add a customer name or vehicle." });
-      const { data: row, error } = await supabaseAdmin.from("work_orders")
-        .insert({ location: "Olympic", ...o, status: "waiting", updated_at: now }).select("id").single();
+      const { data: row, error, warning: w } = await withRo({ location: "Olympic", ...o, status: "waiting", updated_at: now },
+        (r) => supabaseAdmin.from("work_orders").insert(r).select("id").single());
       if (error) return fail(error);
+      warning = w;
       await supabaseAdmin.from("work_order_events").insert({ work_order_id: row.id, from_status: null, to_status: "waiting", by_name: by });
     } else if (action === "update" || action === "assign") {
       const patch = clean(action === "assign" ? { assigned_staff_id: req.body.assigned_staff_id } : req.body.patch || {});
-      const { error } = await supabaseAdmin.from("work_orders").update({ ...patch, updated_at: now }).eq("id", id);
+      const { error, warning: w } = await withRo({ ...patch, updated_at: now }, (r) => supabaseAdmin.from("work_orders").update(r).eq("id", id));
       if (error) return fail(error);
+      warning = w;
     } else if (action === "setStatus") {
       const r = await setJobStatus(id, req.body.status, { holdReason: req.body.hold_reason, by });
       if (r.error) return res.status(400).json({ error: r.error });
@@ -105,7 +123,7 @@ export default async function handler(req, res) {
       if (done?.length) await supabaseAdmin.from("work_order_events").insert(done.map((d) => ({ work_order_id: d.id, from_status: "done", to_status: "picked_up", note: "cleared all completed", by_name: by })));
     }
 
-    return res.status(200).json(await loadBoard());
+    return res.status(200).json({ ...(await loadBoard()), ...(warning ? { warning } : {}) });
   } catch (e) {
     return res.status(500).json({ error: "Server error." });
   }
