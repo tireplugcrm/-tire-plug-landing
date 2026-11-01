@@ -109,6 +109,18 @@ export default async function handler(req, res) {
       await log(agent, "synced website stock from a Tekmetric export", { lines: lines.length });
       return res.status(200).json({ ok: true, stock, pages });
     }
+    if (b.action === "call-status") {
+      const sid = process.env.TWILIO_ACCOUNT_SID, token = process.env.TWILIO_AUTH_TOKEN;
+      const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Calls/${encodeURIComponent(b.sid)}.json`, {
+        headers: { Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}` },
+      });
+      const c = await r.json();
+      const notes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Calls/${encodeURIComponent(b.sid)}/Notifications.json`, {
+        headers: { Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}` },
+      }).then((x) => x.json()).catch(() => null);
+      return res.status(200).json({ ok: r.ok, status: c.status, duration: c.duration, to: c.to, from: c.from, answered_by: c.answered_by,
+        error: c.message || null, notifications: (notes?.notifications || []).map((n) => ({ code: n.error_code, text: n.message_text })) });
+    }
     if (b.action === "health") return res.status(200).json({ ok: true, ...(await health()) });
     if (b.action === "reprice") {
       const ctx = pricingContext();
