@@ -17,6 +17,7 @@ const SETTINGS = { stability: 0.5, similarity_boost: 0.8, speed: 1.05 };
 const LINES = {
   yes: "Got it, approved. I'll take care of it. Bye.",
   no: "Got it, I'll leave it. Bye.",
+  again: "Sorry, I didn't catch that. Press 1 or say yes to approve. Press 2 or say no.",
   none: "I didn't catch that. I'll text you the question too. Bye.",
   info: "That's all. Bye.",
 };
@@ -63,6 +64,9 @@ export default async function handler(req, res) {
     const heard = `${q.Digits || ""} ${q.SpeechResult || ""}`.trim().toLowerCase();
     const status = /^1\b|\b(yes|yeah|yep|approve|approved|okay|ok|sure|do it|go ahead)\b/.test(heard) ? "yes"
       : /^2\b|\b(no|nope|don't|do not|leave it|pass)\b/.test(heard) ? "no" : null;
+    console.log(`agent-voice: heard "${heard}" -> ${status || "unclear"} (try ${Number(q.try) || 1})`);
+    // Unclear (often just "Hello?" on picking up): ask again, twice at most, before giving up.
+    if (!status && Number(q.try || 1) < 3) return twiml(res, gather(a, t, Number(q.try || 1) + 1, play(a, t, "again")));
     if (!status) return twiml(res, play(a, t, "none"));
     if (a.status === "open") {
       await supabaseAdmin.from("agent_approvals")
@@ -72,9 +76,13 @@ export default async function handler(req, res) {
     return twiml(res, play(a, t, status));
   }
 
-  if (a.status === "info") return twiml(res, `${play(a, t)}${play(a, t, "info")}`);
-  const action = `${SITE}/api/agent-voice?id=${a.id}&amp;t=${t}&amp;step=answer`;
-  return twiml(res,
-    `<Gather input="dtmf speech" numDigits="1" timeout="7" speechTimeout="auto" hints="yes, no, approve" action="${action}" method="POST">${play(a, t)}</Gather>` +
-    play(a, t, "none"));
+  if (a.status === "info") return twiml(res, `<Pause length="1"/>${play(a, t)}${play(a, t, "info")}`);
+  // A beat of silence first, so "Hello?" on picking up isn't taken as the answer.
+  return twiml(res, `<Pause length="1"/>${gather(a, t, 1, play(a, t))}`);
+}
+
+function gather(a, t, attempt, prompt) {
+  const action = `${SITE}/api/agent-voice?id=${a.id}&amp;t=${t}&amp;step=answer&amp;try=${attempt}`;
+  return `<Gather input="dtmf speech" numDigits="1" timeout="7" speechTimeout="auto" hints="yes, no, approve" action="${action}" method="POST">${prompt}</Gather>` +
+    play(a, t, "none");
 }
