@@ -5160,7 +5160,13 @@
       "source": "https://www.prinxtire.com/product/bus/2020/1111/11.html"
     },
     "Prinx|AR602|225/70R19.5": {
+      "loadIndex": "125/123",
+      "speed": "L",
+      "loadRange": "F",
+      "ply": "12",
       "overallDiameter": 31.9,
+      "loadLbs": 3640,
+      "maxPsi": 95,
       "treadDepth32": 15,
       "source": "https://www.prinxtire.com/product/bus/2020/1111/11.html"
     }
