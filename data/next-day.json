@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-30T23:07:34.112Z",
+  "updatedAt": "2026-11-02T22:14:59.685Z",
   "source": "Tire Outlet",
   "priceCheckedAt": "2026-10-16",
   "tires": [
@@ -3986,10 +3986,19 @@
     {
       "brand": "Prinx",
       "model": "AR602",
+      "key": "225/70R19.5",
+      "rim": 19.5,
+      "lt": false,
+      "price": 145,
+      "from": "Tire Network"
+    },
+    {
+      "brand": "Prinx",
+      "model": "AR602",
       "key": "245/70R19.5",
       "rim": 19.5,
       "lt": false,
-      "price": 203,
+      "price": 165,
       "specs": {
         "loadIndex": "136/134",
         "speed": "N"
