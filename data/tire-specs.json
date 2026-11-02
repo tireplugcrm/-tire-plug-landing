@@ -5148,6 +5148,21 @@
       "warranty": 65000,
       "treadDepth32": 10,
       "source": "https://www.kumhotireusa.com/tires/crugen-hp71"
+    },
+    "Prinx|AR602|245/70R19.5": {
+      "loadIndex": "136/134",
+      "loadRange": "H",
+      "ply": "16",
+      "overallDiameter": 33,
+      "loadLbs": 4940,
+      "maxPsi": 120,
+      "treadDepth32": 16,
+      "source": "https://www.prinxtire.com/product/bus/2020/1111/11.html"
+    },
+    "Prinx|AR602|225/70R19.5": {
+      "overallDiameter": 31.9,
+      "treadDepth32": 15,
+      "source": "https://www.prinxtire.com/product/bus/2020/1111/11.html"
     }
   }
 }

@@ -38,6 +38,10 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
   const bookHref = `/book?${new URLSearchParams({ size, tire: [t.brand, t.model].filter(Boolean).join(' ') })}`;
   const fit = [size, s.loadIndex ? `${s.loadIndex}${s.speed || ''}` : '', s.loadRange === 'XL' ? 'XL' : ''].filter(Boolean).join(' ');
   const chips = [
+    // truck tires are bought by ply and load, so those lead
+    s.ply && `${s.ply}-ply${s.loadRange ? ` · Load range ${s.loadRange}` : ''}`,
+    commercial && s.treadDepth32 && `${s.treadDepth32}/32" tread`,
+    commercial && s.loadLbs && `${Number(s.loadLbs).toLocaleString()} lbs max`,
     s.warranty && `${Math.round(s.warranty / 1000)}K-mile warranty`,
     s.utqg && `UTQG ${s.utqg}`,
     t.lt && 'LT',
