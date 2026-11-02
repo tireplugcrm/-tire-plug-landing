@@ -2389,6 +2389,169 @@
       "img": "/images/rbp/repulsor-mt.png",
       "aliases": [],
       "source": "https://rbptires.com/tire/repulsor-mt/"
+    },
+    "Prinx|AR602": {
+      "category": "Regional All-Position Truck Tire",
+      "about": "Prinx's regional all-position tire for box trucks, step vans and buses, built for even wear and long mileage.",
+      "features": [
+        "Closed shoulder design prevents irregular wear",
+        "Optimized belt for stability and lower rolling resistance",
+        "Siping for grip and heat dispersion",
+        "Grooves designed for water evacuation"
+      ],
+      "img": "/images/tires/prinx-ar602.webp",
+      "aliases": [],
+      "source": "https://www.prinxtire.com/product/bus/2020/1111/11.html"
+    },
+    "Prinx|DR601": {
+      "category": "Regional Drive Truck Tire",
+      "about": "A regional drive-axle tire built for wear and mileage.",
+      "features": [
+        "Special compounds for wear and mileage",
+        "High void ratio for traction",
+        "Belt design for a better footprint",
+        "Open blocks tied together to resist irregular wear"
+      ],
+      "img": "/images/tires/prinx-dr601.webp",
+      "aliases": [],
+      "source": "https://www.prinxtire.com/product/bus/2020/1111/14.html"
+    },
+    "Prinx|AM210": {
+      "category": "Mixed-Service All-Position Truck Tire",
+      "about": "An all-position tire for dump, mixer, refuse and regional trucks that run on and off road.",
+      "features": [
+        "Cut- and chip-resistant compound",
+        "Three deep zigzag grooves clear water and mud",
+        "Built for mixed on/off-road service"
+      ],
+      "img": "/images/tires/prinx-am210.webp",
+      "aliases": [],
+      "source": "https://www.prinxtire.com/product/bus/2020/1111/9.html"
+    },
+    "Prinx|AM210-A": {
+      "category": "Mixed-Service All-Position Truck Tire",
+      "about": "A version of Prinx's AM210 mixed-service all-position tire.",
+      "features": [
+        "Cut- and chip-resistant compound",
+        "Zigzag grooves for on/off-road traction"
+      ],
+      "img": "/images/tires/prinx-am210.webp",
+      "aliases": [
+        "AM210A"
+      ],
+      "source": "https://simpletire.com/brands/prinx-tires/am210"
+    },
+    "Prinx|DH106": {
+      "category": "Regional Drive Truck & Bus Tire",
+      "about": "A drive-axle tire for trucks and buses in regional service.",
+      "features": [
+        "Closed shoulder design",
+        "Lower rolling resistance for fuel economy"
+      ],
+      "img": "/images/tires/prinx-dh106.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/prinx-tires/dh106"
+    },
+    "Prinx|TH107": {
+      "category": "Regional & Long-Haul Trailer Tire",
+      "about": "A trailer-position tire for regional and long-haul service.",
+      "features": [
+        "Trailer-axle design",
+        "Regional and long-haul duty"
+      ],
+      "img": "/images/tires/prinx-th107.webp",
+      "aliases": [],
+      "source": "https://www.prinxtire.com/product/bus/2020/1111/15.html"
+    },
+    "Prinx|PSL1": {
+      "category": "Long-Haul Steer Tire",
+      "about": "A SmartWay-certified steer tire for line-haul trucks with low rolling resistance.",
+      "features": [
+        "Decoupling groove with all-season rib tread",
+        "Stone ejectors push debris out",
+        "SmartWay certified, low rolling resistance"
+      ],
+      "img": "/images/tires/prinx-psl1.webp",
+      "aliases": [
+        "PSL1 ET",
+        "PSL1-ET"
+      ],
+      "source": "https://simpletire.com/brands/prinx-tires/psl1-et"
+    },
+    "Kumho|KRS12E": {
+      "category": "Regional Steer Truck Tire",
+      "about": "A rugged regional steer tire built for cut resistance and durability.",
+      "features": [
+        "Zigzag groove for traction and braking",
+        "Even contact pressure and stiff shoulder blocks",
+        "Groove base resists cracking and stone drilling",
+        "Cut- and chip-resistant compound"
+      ],
+      "img": "/images/tires/kumho-krs12e.webp",
+      "aliases": [],
+      "source": "https://kumhotireusa.com/tires/krs12e"
+    },
+    "Kumho|KMA01": {
+      "category": "On/Off-Road All-Position Truck Tire",
+      "about": "An on/off-road all-position tire with cut resistance and long wear, mostly used on steer and trailer.",
+      "features": [
+        "Four-rib design",
+        "Cut- and chip-resistant compound",
+        "Strong bead and belt package, good for retreading",
+        "Groove protectors resist stone drilling"
+      ],
+      "img": "/images/tires/kumho-kma01.webp",
+      "aliases": [],
+      "source": "https://kumhotireusa.com/tires/kma01"
+    },
+    "Kumho|KLS12E": {
+      "category": "Line-Haul Steer Truck Tire",
+      "about": "A SmartWay-certified line-haul steer tire tuned for high mileage and low rolling resistance.",
+      "features": [
+        "Decoupling groove resists cracking and tearing",
+        "Stiff shoulder blocks for even wear",
+        "Staggered tread resists stone drilling and sheds heat",
+        "SmartWay certified"
+      ],
+      "img": "/images/tires/kumho-kls12e.webp",
+      "aliases": [],
+      "source": "https://kumhotireusa.com/tires/kls12e-smartway-certified"
+    },
+    "Kumho|KMA31": {
+      "category": "Mixed-Service Truck Tire",
+      "about": "A durable tire for mixed on/off-road service.",
+      "features": [
+        "Closed shoulders with aggressive blocks",
+        "Three zigzag ribs for on- and off-road traction",
+        "Retreadable casing"
+      ],
+      "img": "/images/tires/kumho-kma31.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/kumho-tires/kma31"
+    },
+    "GT Radial|GSR139": {
+      "category": "All-Position Commercial Tire",
+      "about": "A solid-shoulder all-position tire for city routes and light mixed service, with a retreadable casing.",
+      "features": [
+        "Solid shoulder for stable handling",
+        "Three-rib design resists stone retention",
+        "Diagonal sipes for grip"
+      ],
+      "img": "/images/tires/gt-radial-gsr139.webp",
+      "aliases": [],
+      "source": "https://www.gtradialcommercial.com/tire_product/gsr139/"
+    },
+    "Amulet|AD515": {
+      "category": "Regional Drive Truck Tire",
+      "about": "A regional drive-axle tire with angled blocks for traction in dry and wet conditions.",
+      "features": [
+        "Angled tread blocks and wide grooves",
+        "Tough compound resists chunking",
+        "Stone ejectors protect the casing"
+      ],
+      "img": "/images/tires/amulet-ad515.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/amulet-tires/ad515"
     }
   }
 }
