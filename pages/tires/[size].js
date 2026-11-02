@@ -13,7 +13,7 @@ import { PHONE } from "../../lib/shop";
 // One page per tire size, e.g. /tires/265-70r17: what's on our shelf in that size (from Tekmetric),
 // then every tire we can order in it, cheapest first.
 // Listed and stocked sizes are prebuilt; any other valid size renders on demand with a "text us" fallback.
-// Commercial sizes (245/70R19.5, 11R22.5) are ordered by text or call, not booked online.
+// Commercial sizes (245/70R19.5, 11R22.5) are carry-out only (no install), ordered by text or call, not booked online.
 const rimOf = (key) => Number(key.match(/R([\d.]+)$/)[1]);
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 
@@ -64,7 +64,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
       : `${display} Tires in Los Angeles | The Tire Plug`;
   const allBrands = [...new Set([...stock, ...nextDay, ...tires].map((t) => t.brand))].slice(0, 5).join(", ");
   const description = commercial
-    ? `${display} commercial truck tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock today` : ""} at The Tire Plug, 2331 E Olympic Blvd. Text or call ${PHONE.display} to order. ${savings}.`
+    ? `${display} commercial truck tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock today` : ""} at The Tire Plug, 2331 E Olympic Blvd. Carry-out only. Text or call ${PHONE.display} to order. ${savings}.`
     : hasLowest || inStock
     ? `Cheap ${display} tires in Los Angeles${hasLowest ? ` from ${money(lowest)} per tire` : ""}${inStock ? `, ${stock.length} ${stock.length === 1 ? "option" : "options"} in stock to install today` : ""} at The Tire Plug, 2331 E Olympic Blvd. ${allBrands}. Install & balance from $${INSTALL_FROM} per wheel. Financing with Snap Finance. Open 7 days.`
     : `Need ${display} tires in Los Angeles? Text The Tire Plug your size and we'll find the best price. 2331 E Olympic Blvd · (562) 500-4625.`;
@@ -143,7 +143,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
         <div className="wrap">
           {commercial ? (
             <div className="install">
-              <b>Commercial tires: text or call to order</b>
+              <b>Commercial tires: carry-out only, text or call to order</b>
               <span>{savings}. <a href="/commercial-tires">All commercial tires →</a></span>
             </div>
           ) : (
@@ -171,7 +171,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
             <section className="stock nextday">
               <h2>Next-day order</h2>
               <p className="nd-sub">{commercial
-                ? "Order today, here tomorrow. Commercial mounting is quoted with your order."
+                ? "Order today, pick up tomorrow. Carry-out only, no installation."
                 : <>Order today, installed tomorrow or any day after. Install &amp; balance from ${INSTALL_FROM} per wheel.</>}</p>
               <ul className="list">
                 {nextDay.map((t) => (
@@ -240,7 +240,7 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
             </section>
           )}
 
-          <p className="fine">Prices are per tire, product only, and subject to availability. {commercial ? `Commercial mounting is quoted with your order. ${savings}.` : `Install and balance start at $${INSTALL_FROM} per wheel.`} Tax not included. LT = light-truck construction. In-stock tires are updated daily and can sell out; text us to hold a set.</p>
+          <p className="fine">Prices are per tire, product only, and subject to availability. {commercial ? `Carry-out only: we don't install commercial tires at this time. ${savings}.` : `Install and balance start at $${INSTALL_FROM} per wheel.`} Tax not included. LT = light-truck construction. In-stock tires are updated daily and can sell out; text us to hold a set.</p>
         </div>
       </main>
 

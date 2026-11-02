@@ -9,7 +9,7 @@ import { COMMERCIAL_ACCOUNT_SAVINGS } from "../lib/pricing-engine";
 import { PHONE, ADDRESS, OPENING_HOURS } from "../lib/shop";
 
 // /commercial-tires: every commercial tire on our shelf (19.5", 22.5"...), grouped by size, from the
-// same stock and prices as /tires/<size>. Ordered by text or call, not booked online; resale-license
+// same stock and prices as /tires/<size>. Carry-out only (we don't install them). Ordered by text or call, not booked online; resale-license
 // and commercial accounts get $10 off per tire. Rebuilt hourly, so it follows the stock on its own.
 const URL = "https://tireplugla.com/commercial-tires";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
@@ -35,7 +35,7 @@ export default function CommercialTires({ sizes, count, nextCount = 0, from }) {
   const title = from != null
     ? `Commercial Truck Tires in Los Angeles from ${money(from)} | The Tire Plug`
     : "Commercial Truck Tires in Los Angeles | The Tire Plug";
-  const description = `Commercial truck tires in Los Angeles at The Tire Plug, 2331 E Olympic Blvd: 19.5" and 22.5" sizes in stock${from != null ? ` from ${money(from)} per tire` : ""}. Text or call ${PHONE.display} to order. ${SAVINGS}.`;
+  const description = `Commercial truck tires in Los Angeles at The Tire Plug, 2331 E Olympic Blvd: 19.5" and 22.5" sizes in stock${from != null ? ` from ${money(from)} per tire` : ""}. Carry-out only. Text or call ${PHONE.display} to order. ${SAVINGS}.`;
   const smsNextDay = (t) => `${PHONE.sms}?&body=${encodeURIComponent(`Hi Tire Plug! I'd like to order the ${t.brand} ${t.model} in ${t.key} (${money(t.price)} each) for next day. How many can you get?`)}`;
   const smsTire = (t) => `${PHONE.sms}?&body=${encodeURIComponent(t.price != null
     ? `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model || ""} in ${t.key} (${money(t.price)} each). How many can I get?`.replace(/\s+/g, " ")
@@ -87,7 +87,7 @@ export default function CommercialTires({ sizes, count, nextCount = 0, from }) {
             <h1>Commercial truck tires, <span>in stock in Los Angeles.</span></h1>
             <p className="lead">
               {count > 0 && <><b>{count} commercial {count === 1 ? "tire" : "tires"} in stock</b>{nextCount > 0 && <> and <b>{nextCount} more next day</b></>}{from != null && <>, from <b>{money(from)}</b> each</>}. </>}
-              17.5", 19.5", 22.5" and 24.5" sizes for box trucks, step vans, buses and semis. Text or call to order.
+              17.5", 19.5", 22.5" and 24.5" sizes for box trucks, step vans, buses and semis. <b>Carry-out only</b>: pick them up at the shop, no installation. Text or call to order.
             </p>
             <div className="ctas top">
               <a className="btn red" href={smsAsk}>Text us · {PHONE.display}</a>
@@ -140,7 +140,7 @@ export default function CommercialTires({ sizes, count, nextCount = 0, from }) {
             </div>
           )}
 
-          <p className="fine">Prices are per tire, product only, and subject to availability. Commercial mounting is quoted with your order. {SAVINGS}. Tax not included. Stock updates through the day and can sell out; text us to hold tires.</p>
+          <p className="fine">Prices are per tire, product only, and subject to availability. Carry-out only: we don't install commercial tires at this time. {SAVINGS}. Tax not included. Stock updates through the day and can sell out; text us to hold tires.</p>
         </div>
       </main>
       <Footer />

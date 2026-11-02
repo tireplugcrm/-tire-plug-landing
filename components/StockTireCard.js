@@ -30,7 +30,7 @@ const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
 
 // `cta` / `ready` let the next-day section reuse the card ("Text to order", "Installed tomorrow").
 // A tire with `price` shows it, with the set-of-4 total. `commercial` tires (19.5", 22.5") are
-// ordered by text or call, so there's no booking button, plus the commercial-account savings line.
+// carry-out only and ordered by text or call, so there's no booking button, plus the commercial-account savings line.
 export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to reserve', ready = 'Ready to install today', commercial = false }) {
   const s = t.specs || {};
   const rows = specRows(s);
@@ -78,6 +78,7 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
         {commercial ? (
           <>
             <div className="stc-pnote">Save ${COMMERCIAL_ACCOUNT_SAVINGS} per tire with a resale license &amp; commercial account</div>
+            <div className="stc-ready">Carry-out only · no installation</div>
             <div className="stc-ctas">
               <a className="stc-btn red stc-text" href={smsHref}>Text to order</a>
               <a className="stc-btn ghost" href={PHONE.tel}>Call</a>
