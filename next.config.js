@@ -8,6 +8,8 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/manchester", destination: "/olympic", permanent: true },
+      // the short address said in the fleet video ad
+      { source: "/commercial", destination: "/commercial-tires", permanent: false },
     ];
   },
 };
