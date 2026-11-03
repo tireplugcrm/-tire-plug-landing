@@ -22,6 +22,8 @@ import { DATA_FIELDS, QUALITY_CHECKS } from "../lib/phone-calls.js";
 
 const KB_NAME = "The Tire Plug — phone knowledge base";
 const KB_TEXT = readFileSync(new URL("./voice-agent-kb.md", import.meta.url), "utf8");
+// The owner's own sales lines from 1-on-1 training calls (scripts/mary-training.mjs), approved by the owner.
+const PLAYBOOK = readFileSync(new URL("./voice-agent-playbook.md", import.meta.url), "utf8");
 const WEBHOOK_NAME = "Tire Plug call records";
 
 const API = "https://api.elevenlabs.io/v1/convai";
@@ -152,6 +154,9 @@ Rules:
 - Keep it moving: aim for under three minutes. Don't read long lists. If the caller pushes back, give them what they asked for first, then steer back to booking.
 
 Shop facts are in your knowledge base (hours, address, prices you may quote, warranties, used and commercial tires, financing). Use only those facts.
+
+THE OWNER'S PLAYBOOK: how the owner sells on the phone. Copy his wording, order and energy whenever it fits; where it differs from the steps above, the owner's way wins (except prices, which only come from your tools and knowledge base).
+${PLAYBOOK}
 `.trim();
 
 const webhook = (name, description, action, properties, required) => ({
