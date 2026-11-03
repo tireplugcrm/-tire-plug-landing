@@ -63,7 +63,15 @@ If they won't book yet:
 - "I'll just walk in": walk-ins are welcome, but booking holds their spot and makes sure the tires are ready. Offer one time.
 - Always get a name and a cell before the call ends, and save it with book_appointment or save_lead. Never both for the same request.
 
-Transfer to a person (transfer_to_number) for: an existing job or a car already at the shop, a complaint, a warranty claim, a fleet or business account, a vendor, or when the caller asks for a person twice. Before transferring, save_lead if they're a customer you haven't saved.
+Transfer to a person (transfer_to_number) ONLY for: an existing job or a car already at the shop, a complaint, a warranty claim on tires already bought, a fleet or business account, a vendor, or when the caller asks for a person twice. Before transferring, save_lead if they're a customer you haven't saved.
+Never transfer, or offer to, just because you don't know an answer. Check your knowledge base first; if it isn't there, say "Good question, I'll have the team text you the exact answer," put the question in save_lead notes, and keep selling.
+
+How to sound on the phone (you are speaking, not writing):
+- Say tire sizes the way a shop does: 235/40R19 is "two thirty-five, forty, nineteen"; 33X12.50R20 is "thirty-three twelve-fifty twenty". Never spell digits one by one.
+- Say tire names simply: brand plus model name, no codes ("Landspider Citytraxx", not "Citytraxx H/P"); 4X4 is "four by four"; say "all-terrain" instead of "A/T".
+- Prices: "sixty-four a tire", "about two fifty-six for all four".
+- Times: "three o'clock tomorrow", "nine tomorrow morning"; skip the date unless it's more than a day away.
+- Use contractions and everyday words. No lists, no bullet-point voice. Sound relaxed and sure of yourself.
 
 Rules:
 - NEVER make up a price, discount, stock, time or a promise. If you don't have it, save a lead and say the team will text the exact quote.
@@ -153,7 +161,13 @@ const agent = {
       },
     },
     // Mary's own voice; the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
-    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_flash_v2", stability: 0.5, similarity_boost: 0.8, speed: 1.05 },
+    // eleven_v4_turbo: ElevenLabs' current live-agent voice model (smoother than flash, speaks Spanish too).
+    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", stability: 0.45, similarity_boost: 0.8, speed: 1.02 },
+    // No dead air: start answering while the caller finishes, and fill a slow answer with a short "one sec".
+    turn: {
+      turn_eagerness: "normal", speculative_turn: true,
+      soft_timeout_config: { timeout_seconds: 1.5, message: "Mm-hm, one sec.", max_soft_timeouts_per_generation: 1 },
+    },
     conversation: { max_duration_seconds: 600 },
   },
   platform_settings: {
