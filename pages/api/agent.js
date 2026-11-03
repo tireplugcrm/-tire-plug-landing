@@ -17,6 +17,8 @@
  * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
  * POST { action: "outreach-plan" }                    business cold email due today (lib/outreach.js): cap left, the owner-approved
  *                                                     templates, intros and follow-ups due in priority order, phone-only counts
+ * POST { action: "vendor-load", vendor, eta_days, rows: [{ size, brand, model, load_speed?, qty, cost }] }
+ *                                                     load one distributor's catalog for the phone AI (replaces its rows)
  * POST { action: "phone-calls", since? }             Mary's calls (default last 24 h) with quality checks and transcripts
  * POST { action: "quote-queue" }                   phone AI callers waiting on an exact quote (brakes, special-order tires)
  * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
@@ -37,6 +39,7 @@ import { sendSms } from "../../lib/sms.js";
 import { digits10 } from "../../lib/phone.js";
 import { logEvent } from "../../lib/front-desk.js";
 import { elevenCredits } from "../../lib/elevenlabs-credits.js";
+import { loadVendor, vendorStatus } from "../../lib/vendor-tires.js";
 
 // Outreach order: the businesses that fit truck and work-vehicle tires first.
 const OUTREACH_ORDER = ["Delivery & trucking", "Contractors & trades", "Auto-adjacent", "Rideshare & limo"];
@@ -134,6 +137,7 @@ async function health() {
     open_approvals: open.data || [],
     under_margin,
     elevenlabs_credits: await elevenCredits(),
+    vendor_catalogs: await vendorStatus(),
   };
 }
 
@@ -224,6 +228,13 @@ export default async function handler(req, res) {
       const r = await sendOutreach({ ids: b.ids, step, subject: tpl.subject, message: tpl.message, button: tpl.button, signer: t.signer || {}, createdBy: `jarvis:${agent}` });
       await log(agent, `outreach step ${step}: sent ${r.body.sent ?? 0}${r.body.error ? ` (${r.body.error})` : ""}`, { ids: r.body.sentIds || [] });
       return res.status(r.status).json({ ok: r.status === 200, ...r.body });
+    }
+    // Nightly distributor catalog load (Jarvis vendor sync): replaces that vendor's rows in vendor_tires.
+    if (b.action === "vendor-load") {
+      if (!b.vendor || !Array.isArray(b.rows)) return res.status(400).json({ error: "vendor and rows are required" });
+      const r = await loadVendor(String(b.vendor).slice(0, 40), b.rows, b.eta_days);
+      await log(agent, `vendor-load ${b.vendor}: ${r.ok ? `${r.loaded} tires` : `error ${r.error}`}`);
+      return res.status(r.ok ? 200 : 400).json(r);
     }
     if (b.action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
     // Mary's calls since a time (default 24 h), for the coach: outcome, failed quality checks, transcript.
