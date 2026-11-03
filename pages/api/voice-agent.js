@@ -7,7 +7,8 @@
  *   POST ?action=book  { name, phone, at, ... }-> books it through /api/submit-booking (same checks, owner
  *                                                alert and confirmation text as the website)
  *   POST ?action=lead  { name, phone, ... }    -> not ready to book: a lead in Admin for the sales reps
- *   POST ?action=text  { phone, size? }       -> texts the caller the size page (or booking page) link
+ *   POST ?action=text  { phone, size?, tire?, price?, quantity?, alignment?, tesla? }
+ *                                              -> texts the out-the-door breakdown for the chosen tire, or the size/booking link
  * The agent itself is created by scripts/voice-agent-setup.mjs.
  * Header x-voice-key must equal VOICE_AGENT_KEY (set in Vercel and on each ElevenLabs tool).
  * Answers are short plain sentences the agent can read out; never cost or the real count above 4.
@@ -126,18 +127,39 @@ async function lead(b) {
   return { ok: true, say: "Saved. Tell them someone from the shop will follow up, and they can call back anytime." };
 }
 
-async function text(phone, size) {
+// With a chosen tire and price, the text is the out-the-door breakdown (plus the alignment if added);
+// otherwise it's the size page or booking link.
+const ALIGN = { regular: 75, tesla: 90 };
+function breakdown(b, key) {
+  const qty = Number(b.quantity) || 4, price = Number(b.price);
+  const tires = price * qty, install = INSTALL * qty, tax = TAX * tires, fee = CA_FEE * qty;
+  const otd = tires + install + tax + fee; // to the cent here; spoken prices round to the dollar
+  const align = b.alignment ? (/kumho/i.test(b.tire) && qty === 4 ? 49 : (b.tesla ? ALIGN.tesla : ALIGN.regular) - (qty === 4 ? 10 : 0)) : 0;
+  const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
+  return [
+    `The Tire Plug: your quote for ${qty}x ${b.tire} ${key}`,
+    `Tires: ${qty} x ${d(price)} = ${d(tires)}`,
+    `Mount & balance: ${d(install)}`,
+    `Tax (10% on tires): ${d(tax)}`,
+    `CA tire fee: ${d(fee)}`,
+    `Out the door: ${d(otd)}`,
+    ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(otd + align)}`] : []),
+    `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
+  ].join("\n");
+}
+
+async function text(phone, size, b = {}) {
   const to = toE164(phone);
   if (!to) return { ok: false, say: "That phone number doesn't look right. Ask for the 10-digit cell number." };
   const key = size ? parseSize(size) : null;
   const url = key ? `${SITE}/tires/${sizeToSlug(key)}` : `${SITE}/book`;
-  const body = key
-    ? `The Tire Plug: here are the ${key} tires we talked about, with prices. Pick one to book: ${url}`
+  const body = key && b.tire && Number(b.price) > 0 ? breakdown(b, key)
+    : key ? `The Tire Plug: here are the ${key} tires we talked about, with prices. Pick one to book: ${url}`
     : `The Tire Plug: book your appointment here: ${url}`;
   const r = await sendSms({ to, body });
   console.log(`voice-agent: text to ...${to.slice(-4)} ${r.ok ? "sent" : `failed: ${r.error}`}`);
   return r.ok
-    ? { ok: true, say: "Sent. Tell the caller the link is on its way by text." }
+    ? { ok: true, say: b.tire ? "Sent. Tell the caller the price breakdown is on its way by text." : "Sent. Tell the caller the link is on its way by text." }
     : { ok: false, say: "The text didn't go through. Give them the website instead: tireplugla.com." };
 }
 
@@ -153,7 +175,7 @@ export default async function handler(req, res) {
     if (action === "times") return res.status(200).json(await times(body.next_day === true));
     if (action === "book") return res.status(200).json(await book(body));
     if (action === "lead") return res.status(200).json(await lead(body));
-    if (action === "text") return res.status(200).json(await text(phone, size));
+    if (action === "text") return res.status(200).json(await text(phone, size, body));
     return res.status(400).json({ ok: false, error: "unknown action" });
   } catch (err) {
     console.error("voice-agent:", err);
