@@ -37,7 +37,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 - Brake pads start at about $150 an axle (front or rear), before tax. All four wheels usually run about $300. Example: a 2012 Toyota Camry is about $155 front, $151 rear, about $306 for all four with standard pads.
 - To spot an electric parking brake, ask: "Does your car have a parking brake button instead of a lever or pedal?" A button means electric: add $75 for the rear brakes.
 - The exact price depends on the car's parts, so take year, make and model (a VIN or license plate works too) and the team confirms it, or book the visit.
-- Rotors aren't included in the pad price. If the brakes grind or the rotors are worn, the tech checks it free and gives the price at the visit.
+- Rotors aren't included in the pad price. Rotors are priced the same way: the rotor's parts price plus $40 each, usually about $95 a rotor, so about $190 more per axle. Example: 2012 Camry front pads and rotors together are about $348. Grinding usually means the rotors need replacing; the tech confirms it free at the visit.
 
 ## Services without a set price (Mary doesn't quote these)
 - Wheel alignment: same-day service; price is quoted by the shop. Exception: buy a set of 4 Kumho tires and add a 4-wheel alignment for $49, same visit.
