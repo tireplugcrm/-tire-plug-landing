@@ -46,9 +46,11 @@ const money = (n) => `$${Math.round(n)}`;
 // the tires + California tire fee $2 a tire. e.g. $125 tires: 500 + 100 + 50 + 8 = $658.
 export const INSTALL = 25, TAX = 0.1, CA_FEE = 2;
 export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty + CA_FEE * qty);
-const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd_4)} out the door for 4` : ", price by text"}`;
+// Out the door for the quantity the caller wants (2 tires is common), not always 4.
+const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}`;
 
-async function tires(size) {
+async function tires(size, quantity) {
+  const qty = Math.min(Math.max(Math.round(Number(quantity)) || 4, 1), 8);
   const key = parseSize(size);
   if (!key) return { ok: false, say: "I didn't get a full tire size. Ask for the three numbers on the sidewall, like 225 65 17." };
   // 24-inch rims and up: the shop doesn't mount them.
@@ -59,16 +61,16 @@ async function tires(size) {
   // feature lines (data/tire-models.json, e.g. "65,000-mile treadwear warranty (H/V-rated sizes)").
   const warranty = (t) => (t.specs?.warranty ? `${Number(t.specs.warranty).toLocaleString("en-US")}-mile treadwear warranty`
     : (t.features || []).filter((f) => /warranty/i.test(f)).join("; ") || null);
-  const pick = (t, availability) => ({ brand: t.brand, model: t.model, price: t.price ?? null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t), availability });
+  const pick = (t, availability) => ({ brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t), availability });
   const inStock = shelf.slice(0, 4).map((t) => ({ ...pick(t, "in_stock"), count: t.count ?? null, low: t.level === "low" }));
   // Every next-day brand, so a caller asking for one by name (Falken, Lexani...) gets its price.
   const order = nextDay.slice(0, 8).map((t) => pick(t, "next_day"));
   const parts = [];
-  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map(line).join("; ")}.`);
-  if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map(line).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
+  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => line(t, qty)).join("; ")}.`);
+  if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Brands like Toyo or Michelin can be special ordered: save a lead so the team pulls the price and texts it.`);
-  parts.push(`Out the door for 4 includes $${INSTALL} a wheel mount and balance, 10% tax on the tires and the $${CA_FEE} a tire California fee. Each tire's treadwear warranty is in its "warranty" field.${big}`);
-  return { ok: true, size: key, in_stock: inStock, next_day: order, say: parts.join(" ") };
+  parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance, 10% tax on the tires and the $${CA_FEE} a tire California fee. Each tire's treadwear warranty is in its "warranty" field.${big}`);
+  return { ok: true, size: key, quantity: qty, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
 
 // The first few open times on the next days we have room ("at" is what book needs).
@@ -220,7 +222,7 @@ export default async function handler(req, res) {
   const { size, phone } = body;
   const action = req.query.action || body.action; // each ElevenLabs tool posts to its own ?action=
   try {
-    if (action === "tires") return res.status(200).json(await tires(size));
+    if (action === "tires") return res.status(200).json(await tires(size, body.quantity));
     if (action === "times") return res.status(200).json(await times(body.next_day === true));
     if (action === "book") return res.status(200).json(await book(body));
     if (action === "lead") return res.status(200).json(await lead(body));
