@@ -223,6 +223,11 @@ export default async function handler(req, res) {
     if (action === "book") return res.status(200).json(await book(body));
     if (action === "lead") return res.status(200).json(await lead(body));
     if (action === "text") return res.status(200).json(await text(phone, size, body));
+    // Shows the brake tech what a real alert looks like (labeled SAMPLE; no lead or booking is made).
+    if (action === "brake_alert_sample") {
+      await alertBrakeTech("booking (SAMPLE, not a real customer)", { name: "Sample caller", vehicle: "2022 Honda Civic", brakes: "all", rotors: true, epb: true }, " Booked Tue, Nov 4, 9:00 AM. From now on Mary texts you like this for every brake booking or brake lead.");
+      return res.status(200).json({ ok: true });
+    }
     return res.status(400).json({ ok: false, error: "unknown action" });
   } catch (err) {
     console.error("voice-agent:", err);
