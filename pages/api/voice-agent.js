@@ -2,7 +2,7 @@
  * Tools for the phone AI (an ElevenLabs agent answering the shop line; the T-Mobile shop cell forwards
  * every call to its Twilio number). Every call is run as a sale: quote, then book or save a lead.
  * ElevenLabs calls these mid-call as webhook tools:
- *   POST ?action=tires { size }               -> what we have in that size, our price, next-day options
+ *   POST ?action=tires { size }               -> what we have in that size, our price and out-the-door for 4, next-day options
  *   POST ?action=times { next_day? }          -> the next open appointment times (with the "at" to book)
  *   POST ?action=book  { name, phone, at, ... }-> books it through /api/submit-booking (same checks, owner
  *                                                alert and confirmation text as the website)
@@ -38,19 +38,29 @@ function parseSize(s) {
 }
 
 const money = (n) => `$${Math.round(n)}`;
-const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire` : ", price by text"}`;
+
+// Out-the-door for a set of 4 (owner, Nov 2026): tires + $25 a wheel mount and balance + 10% tax on
+// the tires + California tire fee $2 a tire. e.g. $125 tires: 500 + 100 + 50 + 8 = $658.
+export const INSTALL = 25, TAX = 0.1, CA_FEE = 2;
+export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty + CA_FEE * qty);
+const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd_4)} out the door for 4` : ", price by text"}`;
 
 async function tires(size) {
   const key = parseSize(size);
   if (!key) return { ok: false, say: "I didn't get a full tire size. Ask for the three numbers on the sidewall, like 225 65 17." };
+  // 24-inch rims and up: the shop doesn't mount them.
+  const rim = Number((key.match(/R(\d{2})/) || [])[1]);
+  const big = rim >= 24 ? " We don't mount 24-inch wheels and up, so these are carry-out only (no install)." : "";
   const [shelf, nextDay] = await Promise.all([stockForSize(key), nextDayForSize(key)]);
-  const inStock = shelf.slice(0, 4).map((t) => ({ brand: t.brand, model: t.model, price: t.price ?? null, count: t.count ?? null, low: t.level === "low", availability: "in_stock" }));
-  const order = nextDay.slice(0, 3).map((t) => ({ brand: t.brand, model: t.model, price: t.price, availability: "next_day" }));
+  const withOtd = (t) => ({ ...t, otd_4: t.price != null ? outTheDoor(t.price) : null });
+  const inStock = shelf.slice(0, 4).map((t) => withOtd({ brand: t.brand, model: t.model, price: t.price ?? null, count: t.count ?? null, low: t.level === "low", availability: "in_stock" }));
+  // Every next-day brand, so a caller asking for one by name (Falken, Lexani...) gets its price.
+  const order = nextDay.slice(0, 8).map((t) => withOtd({ brand: t.brand, model: t.model, price: t.price, availability: "next_day" }));
   const parts = [];
   if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map(line).join("; ")}.`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map(line).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
-  if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have someone text a quote.`);
-  parts.push("Prices are per tire; mount and balance is extra, from $25 a wheel.");
+  if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Brands like Toyo or Michelin can be special ordered: save a lead so the team pulls the price and texts it.`);
+  parts.push(`Out the door for 4 includes $${INSTALL} a wheel mount and balance, 10% tax on the tires and the $${CA_FEE} a tire California fee.${big}`);
   return { ok: true, size: key, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
 
