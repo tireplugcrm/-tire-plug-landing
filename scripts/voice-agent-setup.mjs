@@ -153,4 +153,4 @@ const phoneId = existing?.phone_number_id || (await call("POST", "/phone-numbers
   sid: env("TWILIO_ACCOUNT_SID"), token: env("TWILIO_AUTH_TOKEN"),
 })).phone_number_id;
 await call("PATCH", `/phone-numbers/${phoneId}`, { agent_id: agentId });
-console.log(`${number} now answers with the agent. Forward Nextiva 562-500-4625 to it.`);
+console.log(`${number} now answers with the agent. Forward the shop cell to it: dial **21*1${number.slice(2)}#`);
