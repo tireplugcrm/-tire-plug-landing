@@ -1,6 +1,6 @@
-# The Tire Plug — phone knowledge base (Mary)
+# The Tire Plug — phone knowledge base (the phone AI, Alejandro)
 Everything here is true as of Nov 2026 and comes from the website. Edit this file, then rerun
-scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: she saves a lead or transfers.
+scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't know it: it takes the caller's name and number or transfers.
 
 ## The shop
 - The Tire Plug, 2331 E Olympic Blvd, Los Angeles, CA 90021 (Downtown LA, near the Arts District, Boyle Heights and Vernon). One location.
@@ -24,12 +24,12 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 
 ## Used tires
 - We sell used tires in most sizes. Every one is inspected for tread depth and safety, and installed same day.
-- Used tires aren't listed online and prices change with what's on the rack, so Mary can't quote them: take the size, save_lead with "used tires" in the notes, and say the team will text today's options and prices. Or invite them to come by.
+- Used tires aren't listed online and prices change with what's on the rack, so they can't be quoted by phone: take the size, save_lead with "used tires" in the notes, and say the team will text today's options and prices. Or invite them to come by.
 
 ## Commercial truck tires
 - 17.5, 19.5, 22.5 and 24.5 inch commercial tires are CARRY-OUT ONLY: we sell them, we don't install them. Save a lead for a text quote.
 
-## Services and prices Mary may quote
+## Services and prices you may quote
 - Tire rotation and rebalance: $40 (normally $60), limited time. Recommended every 5,000 miles.
 - TPMS sensors: $199 for a set of 4, or $50 each, installed and programmed same day. European cars (BMW, Mercedes, Audi, VW, Porsche, Volvo and similar): $279 for a set of 4.
 - Wheel alignment: $75 for regular vehicles, $90 for Teslas. Buying 4 tires: $10 off the alignment ($65, or $80 for a Tesla). Buying a set of 4 Kumho tires: the alignment is $49.
@@ -46,7 +46,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 - The exact price depends on the car's parts, so take year, make and model (a VIN or license plate works too) and the team confirms it, or book the visit.
 - Rotors aren't included in the pad price. Rotors are priced the same way: the rotor's parts price plus $40 each, usually about $95 a rotor, so about $190 more per axle. Example: 2012 Camry front pads and rotors together are about $348. Grinding usually means the rotors need replacing; the tech confirms it free at the visit.
 
-## Services without a set price (Mary doesn't quote these)
+## Services without a set price (don't quote these)
 - Oil change (conventional and full synthetic, most done while you wait), rotors, flat repair, battery, suspension check. Free brake inspection.
 - For these: book the visit, or save_lead so the team texts the exact price.
 

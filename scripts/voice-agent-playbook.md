@@ -1,6 +1,6 @@
 # The owner's playbook (from 1-on-1 training calls)
 Lines and moves the owner used on training calls (scripts/mary-training.mjs) or gave directly, added only after the
-owner approves them. Mary uses these as her model: same wording, same order, same energy. Prices still come only from
+owner approves them. The phone AI uses these as its model: same wording, same order, same energy. Prices still come only from
 her tools and knowledge base.
 
 ## Owner's coaching, Nov 3 (from the 2:33 PM call)

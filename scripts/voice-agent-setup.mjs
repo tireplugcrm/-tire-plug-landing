@@ -11,7 +11,8 @@
 //   VOICE_TRANSFER_PHONE    where "talk to a person" rings: a Nextiva number that is NOT forwarded
 //   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, VOICE_AGENT_PHONE (the Twilio number Nextiva forwards to)
 // Optional: VOICE_AGENT_ID to update an existing agent instead of creating one;
-//           VOICE_AGENT_VOICE_ID for Mary's voice (ODMxRBOeGYbfuFnam7BX, "Promotional Voice Girl #2").
+//           VOICE_AGENT_VOICE_ID for the phone AI's voice (v4vkFe99H7b6vm0lnBFd, "Alejandro's Clone": the owner's own voice;
+//           before Nov 3 it was Mary, ODMxRBOeGYbfuFnam7BX).
 // Rerun after editing the prompt below or scripts/voice-agent-kb.md (the knowledge base: every shop
 // fact Mary may use); it updates the agent in place once VOICE_AGENT_ID is set.
 // It also sets what ElevenLabs pulls out of each call and grades it on (lib/phone-calls.js) and the
@@ -45,8 +46,9 @@ async function call(method, path, body) {
 }
 
 const PROMPT = `
-You are Mary. You answer every call to The Tire Plug, a tire shop in Los Angeles, and you are its best salesperson.
-If asked, you're Mary from the front desk. Talk like a friendly, confident LA shop salesperson: short sentences, one question at a time, no corporate talk, never pushy. If the caller speaks Spanish, do the whole call in Spanish.
+You are Alejandro. You answer every call to The Tire Plug, a tire shop in Los Angeles, and you are its best salesperson.
+The shop's owner is also named Alejandro, and you speak in his voice; you are his phone assistant, not him.
+If a caller asks for Alejandro meaning the owner ("is Alejandro there?", "I need to talk to Alejandro", "the owner"), don't pretend to be him: "You've got Alejandro's assistant, I can help you right now, or get you to him." If they want him in person, transfer when the shop is open, or take a message (save_lead) when it's closed. Talk like a friendly, confident LA shop salesperson: short sentences, one question at a time, no corporate talk, never pushy. If the caller speaks Spanish, do the whole call in Spanish.
 Your job on every call: help them, then get them booked. A call that ends without a booked time or a saved lead is a lost sale.
 LEAD THE SALE. You're the expert and you sound sure: give the price, say what they get, then close. Don't hedge, don't keep offering options, don't hand them off. The close you use, in your own words:
   "I can book you in for later today and let my team know you're coming, or I can book you for later this week. Which works better?"
@@ -111,7 +113,7 @@ How to sound on the phone (you are speaking, not writing):
 - Don't explain how you work or what you're doing behind the scenes; just do it.
 - Never say shop-internal words to a caller: "lead", "save a lead", "tool", "system", "inventory", "check_tires". Say "I'll have the team text you the exact price" and ask for their name and number.
 - No dead ends: if a size isn't available, offer to find it ("I can get that ordered for you; who am I speaking with so I can text you the price?") and get the name and number before they hang up.
-- If a caller sincerely asks whether you're a real person, a robot or an AI, be honest in one easy line and keep helping: "I'm Mary, the shop's AI assistant, I can get you priced and booked in a minute, or grab someone for you." Never claim to be human.
+- If a caller sincerely asks whether you're a real person, a robot or an AI, be honest in one easy line and keep helping: "I'm Alejandro's AI assistant here at the shop, I can get you priced and booked in a minute, or grab someone for you." Never claim to be human.
 - Say tire sizes the way a shop does: 235/40R19 is "two thirty-five, forty, nineteen"; 33X12.50R20 is "thirty-three twelve-fifty twenty". Never spell digits one by one.
 - Say tire names simply: brand plus model name, never letter-by-letter codes ("Falken Ziex", not "Ziex Z E nine six zero A/S"; "Landspider Citytraxx", not "Citytraxx H/P"); 4X4 is "four by four"; say "all-terrain" instead of "A/T".
 - Prices: "sixty-four a tire", "about two fifty-six for all four".
@@ -248,16 +250,16 @@ const agent = {
   conversation_config: {
     agent: {
       // Shop-style pickup: a scripted "Hello, this is Mary from..." made callers ask for a "representative" right away.
-      first_message: "Tire Plug, this is Mary, how can I help you?",
+      first_message: "Tire Plug, this is Alejandro, how can I help you?",
       language: "en",
       prompt: {
         prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.3, tools,
         knowledge_base: [{ type: "text", name: kbName, id: kb.id, usage_mode: "prompt" }],
-        // Mary answers 24/7; with the shop's timezone she always knows the current LA time and day.
+        // The phone AI answers 24/7; with the shop's timezone she always knows the current LA time and day.
         timezone: "America/Los_Angeles",
       },
     },
-    // Mary's own voice; the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
+    // The owner's cloned voice (VOICE_AGENT_VOICE_ID); the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
     // eleven_v4_turbo: ElevenLabs' current live-agent voice model (smoother than flash, speaks Spanish too).
     tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", expressive_mode: true, stability: 0.4, similarity_boost: 0.8, speed: 1.02 },
     // No dead air: start answering while the caller finishes, and fill a slow answer with a short "one sec".

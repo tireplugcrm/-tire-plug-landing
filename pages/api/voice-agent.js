@@ -197,7 +197,7 @@ async function alertBrakeTech(kind, b, extra = "") {
     const to = toE164(data?.value);
     if (!to) return;
     const e = brakeEstimate(b);
-    const body = `🛑 Brake ${kind} from Mary (phone AI): ${b.name || "caller"} ${b.phone ? toE164(b.phone).slice(2).replace(/(\d{3})(\d{3})/, "$1-$2-") : ""}. ${b.vehicle || "vehicle not given"}. ${e.lines.map(([l]) => l.replace(/ \(.*/, "")).join(", ")}${b.epb ? " (electric parking brake)" : ""}. Quoted about $${e.total} before tax.${extra}${b.notes ? ` Notes: ${b.notes}` : ""}`;
+    const body = `🛑 Brake ${kind} from the phone AI: ${b.name || "caller"} ${b.phone ? toE164(b.phone).slice(2).replace(/(\d{3})(\d{3})/, "$1-$2-") : ""}. ${b.vehicle || "vehicle not given"}. ${e.lines.map(([l]) => l.replace(/ \(.*/, "")).join(", ")}${b.epb ? " (electric parking brake)" : ""}. Quoted about $${e.total} before tax.${extra}${b.notes ? ` Notes: ${b.notes}` : ""}`;
     const r = await sendSms({ to, body });
     console.log(`voice-agent: brake alert ${kind} ${r.ok ? "sent" : `failed: ${r.error}`}`);
   } catch (err) {
