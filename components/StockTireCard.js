@@ -81,7 +81,7 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
         {t.priceNote && <div className="stc-pnote">{t.priceNote}</div>}
         {commercial ? (
           <>
-            <div className="stc-pnote">Save ${COMMERCIAL_ACCOUNT_SAVINGS} per tire with a resale license &amp; commercial account</div>
+            <div className="stc-pnote">Businesses: ${COMMERCIAL_ACCOUNT_SAVINGS} off every tire with a business license #</div>
             <div className="stc-ready">Carry-out only · no installation</div>
             <div className="stc-ctas">
               <a className="stc-btn red stc-text" href={smsHref}>Text to order</a>

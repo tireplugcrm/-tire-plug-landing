@@ -17,10 +17,12 @@ export async function getStaticProps() {
 
 const URL = "https://tireplugla.com/fleet";
 const TITLE = "Fleet & Business Tire Accounts in Downtown LA | The Tire Plug";
-const DESCRIPTION = "Tire prices for business vehicles: work trucks, vans, SUVs and rideshare cars. Priority same-day service, one point of contact, quotes by text. 2331 E Olympic Blvd, Los Angeles.";
+const DESCRIPTION = "Tire prices for business vehicles: work trucks, vans, SUVs and rideshare cars. $10 off every tire with a business license number, priority same-day service, one point of contact, quotes by text. 2331 E Olympic Blvd, Los Angeles.";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
 const WHEN = { today: "In stock", nextday: "Next day", order: "Order" };
+import { COMMERCIAL_ACCOUNT_SAVINGS } from "../lib/pricing-engine";
 const PERKS = [
+  [`$${COMMERCIAL_ACCOUNT_SAVINGS} off every tire`, `Give us your business license number when you order and every tire is $${COMMERCIAL_ACCOUNT_SAVINGS} off the listed price.`],
   ["Priority same-day service", "We put business vehicles first, so your vans and trucks can get back on the road the same day whenever possible."],
   ["One point of contact", "One person at the shop handles your account and keeps track of your vehicles. Call or text anytime we are open."],
   ["Quotes by text", "Budget, mid-range and premium options for each vehicle, sent by text so you can approve them from the road."],

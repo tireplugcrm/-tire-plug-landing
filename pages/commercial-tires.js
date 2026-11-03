@@ -13,7 +13,7 @@ import { PHONE, ADDRESS, OPENING_HOURS } from "../lib/shop";
 // and commercial accounts get $10 off per tire. Rebuilt hourly, so it follows the stock on its own.
 const URL = "https://tireplugla.com/commercial-tires";
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
-const SAVINGS = `Save $${COMMERCIAL_ACCOUNT_SAVINGS} per tire with a resale license & commercial account`;
+const SAVINGS = `Businesses save $${COMMERCIAL_ACCOUNT_SAVINGS} on every tire with a business license number`;
 
 export async function getStaticProps() {
   const stock = await commercialStock();
@@ -40,7 +40,7 @@ export default function CommercialTires({ sizes, count, nextCount = 0, from }) {
   const smsTire = (t) => `${PHONE.sms}?&body=${encodeURIComponent(t.price != null
     ? `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model || ""} in ${t.key} (${money(t.price)} each). How many can I get?`.replace(/\s+/g, " ")
     : `Hi Tire Plug! I'd like to order the ${t.brand} ${t.model || ""} in ${t.key}. What's the price?`.replace(/\s+/g, " "))}`;
-  const smsAccount = `${PHONE.sms}?&body=${encodeURIComponent("Hi Tire Plug! I'd like to set up a commercial account for truck tires. I have a resale license.")}`;
+  const smsAccount = `${PHONE.sms}?&body=${encodeURIComponent("Hi Tire Plug! I'd like to set up a commercial account for truck tires. I have a business license number.")}`;
   const smsAsk = `${PHONE.sms}?&body=${encodeURIComponent("Hi Tire Plug! I'm looking for commercial truck tires. My size is: ")}`;
   const schema = [
     {

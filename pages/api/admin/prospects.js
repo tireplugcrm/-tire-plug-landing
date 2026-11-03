@@ -11,6 +11,7 @@
  *   { action: "preview", message, signer }               -> { html }
  *   { action: "test", subject, message, signer, to? }    -> one copy to you
  *   { action: "send", ids, step, subject, message, signer } -> { sent, skipped }
+ *   preview/test/send also take button: "fleet" (default, /fleet) or "commercial" (/commercial-tires)
  *
  * Guardrails (keep the domain out of spam folders and inside CAN-SPAM):
  *   - a daily cap (OUTREACH_DAILY_LIMIT, default 40) across all outreach sends, ramped up over the
@@ -32,7 +33,8 @@ const DAILY_LIMIT = Number(process.env.OUTREACH_DAILY_LIMIT) || 40;
 const FOLLOWUP_DAYS = 4;
 const DONE = new Set(["replied", "customer", "not_interested", "unsubscribed", "bounced", "needs_email", "no_email"]);
 const WHY = "This is an advertisement from The Tire Plug. You're getting it because your business is listed publicly near our shop in Los Angeles. We email a business at most twice, and if you unsubscribe you won't hear from us again.";
-const CATALOG = { label: "See fleet tire prices", path: "/fleet" };
+// The button under the letter: the fleet catalog, or the commercial (truck) tire page.
+const CTAS = { fleet: { label: "See fleet tire prices", path: "/fleet" }, commercial: { label: "See truck tire prices", path: "/commercial-tires" } };
 // Tire photos beside the logo: a car, a van and a pickup tire we sell (email-safe copies).
 const HEADER_TIRES = [
   { img: "/images/email/tires/landspider-citytraxx-g-p.jpg", alt: "Landspider Citytraxx G/P" },
@@ -109,10 +111,11 @@ const startOfTodayLA = () => {
   return new Date(now.getTime() - (la.getHours() * 3600 + la.getMinutes() * 60 + la.getSeconds()) * 1000);
 };
 
-function letter({ message, signer, to, name, business }) {
+function letter({ message, signer, to, name, business, button }) {
   const unsubUrl = unsubPageUrl(to);
   const body = personalize(message, { name, business });
-  const cta = { label: CATALOG.label, href: `${SITE}${CATALOG.path}` };
+  const c = CTAS[button] || CTAS.fleet;
+  const cta = { label: c.label, href: `${SITE}${c.path}` };
   return { html: renderLetter({ message: body, signer, unsubUrl, why: WHY, cta, tires: HEADER_TIRES }), text: textVersion(`${body}\n\n${cta.label}: ${cta.href}`, unsubUrl, WHY) };
 }
 
@@ -203,7 +206,7 @@ Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's emai
     }
 
     if (b.action === "preview") {
-      return res.status(200).json({ html: letter({ message: b.message, signer, to: "preview@example.com", name: "Maria", business: "Sunset Landscaping" }).html });
+      return res.status(200).json({ html: letter({ message: b.message, signer, to: "preview@example.com", name: "Maria", business: "Sunset Landscaping", button: b.button }).html });
     }
 
     if (!b.subject || !b.message) return res.status(400).json({ error: "Write a subject and message first." });
@@ -213,7 +216,7 @@ Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's emai
     if (b.action === "test") {
       const to = (b.to || (auth.user.email !== "owner" ? auth.user.email : REPLY_TO)).trim();
       const subject = `[TEST] ${personalize(b.subject, { name: "Maria", business: "Sunset Landscaping" })}`;
-      const out = await sendOne({ to, from: OUTREACH_FROM, subject, ...letter({ message: b.message, signer, to, name: "Maria", business: "Sunset Landscaping" }) });
+      const out = await sendOne({ to, from: OUTREACH_FROM, subject, ...letter({ message: b.message, signer, to, name: "Maria", business: "Sunset Landscaping", button: b.button }) });
       if (!out.sent) return res.status(502).json({ error: out.error || "Test send failed." });
       return res.status(200).json({ ok: true, to });
     }
@@ -243,7 +246,7 @@ Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's emai
       const msgs = batch.map((p) => ({
         to: p.email, from: OUTREACH_FROM,
         subject: personalize(b.subject, { name: p.contact_name, business: p.business_name }),
-        ...letter({ message: b.message, signer, to: p.email, name: p.contact_name, business: p.business_name }),
+        ...letter({ message: b.message, signer, to: p.email, name: p.contact_name, business: p.business_name, button: b.button }),
         tags: { campaign: camp?.id, kind: "outreach" },
       }));
       const out = await sendBatch(msgs);

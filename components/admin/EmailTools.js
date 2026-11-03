@@ -279,6 +279,7 @@ export function BusinessesTab({ auth }) {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [signer, setSigner] = useState({ name: "", title: "Fleet & Commercial Accounts" });
+  const [button, setButton] = useState("fleet"); // email button: fleet catalog or truck tire page
   const [drafting, setDrafting] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -310,7 +311,7 @@ export function BusinessesTab({ auth }) {
   }
   async function send() {
     setBusy(true); setResult(null);
-    const r = await api({ action: "send", ids: [...sel], step, subject, message, signer });
+    const r = await api({ action: "send", ids: [...sel], step, subject, message, signer, button });
     setResult(r); setBusy(false); setConfirm(false);
     if (!r.error) { setSel(new Set()); load(); }
   }
@@ -411,7 +412,13 @@ export function BusinessesTab({ auth }) {
               <input value={signer.name} onChange={(e) => setSigner({ ...signer, name: e.target.value })} placeholder="Your name (signature)" style={inp} />
               <input value={signer.title} onChange={(e) => setSigner({ ...signer, title: e.target.value })} placeholder="Title" style={inp} />
             </div>
-            <TestSend onSend={(to) => api({ action: "test", to, subject, message, signer })} />
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, margin: "0 0 0.6rem" }}>Button
+              <select value={button} onChange={(e) => setButton(e.target.value)} style={{ ...inp, marginBottom: 0, width: "auto" }}>
+                <option value="fleet">See fleet tire prices (/fleet)</option>
+                <option value="commercial">See truck tire prices (/commercial-tires)</option>
+              </select>
+            </label>
+            <TestSend onSend={(to) => api({ action: "test", to, subject, message, signer, button })} />
           </div>
 
           <div style={card}>
@@ -428,7 +435,7 @@ export function BusinessesTab({ auth }) {
             {result && <p style={msgStyle(result)}>{result.error ? `${result.error}` : `Sent ${result.sent}${result.skipped ? ` · ${result.skipped} skipped (not eligible or over today's limit)` : ""}. Replies land in the Replies tab and mark the business “Replied”.`}</p>}
           </div>
 
-          <Preview load={() => api({ action: "preview", message, signer })} deps={[message, signer.name, signer.title]} height={720} />
+          <Preview load={() => api({ action: "preview", message, signer, button })} deps={[message, signer.name, signer.title, button]} height={720} />
         </div>
       </div>
     </div>
