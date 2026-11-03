@@ -99,9 +99,9 @@ const S = [
   ["text-me", `You want prices for ${SIZE_STOCKED} texted to you because you're driving. Your cell is the number you're calling from. Your name is Ivy.`,
     ["The agent used text_link to text the caller (with the size) and kept the call short.", "The agent saved a lead or offered one appointment time before ending."]],
   ["road-trip", `You're leaving on a road trip tomorrow and need 4 tires ${SIZE_STOCKED} today. Your name is Marcus.`,
-    ["The agent treated it as urgent: led with in-stock tires and offered the earliest same-day or next-morning time.", "The agent booked the appointment."]],
+    ["The agent treated it as urgent: led with in-stock tires and offered the earliest time check_times returned (if nothing was open today, saying walk-ins are welcome today is right).", "The call ended with a booked appointment, a saved lead, or the caller clearly planning to walk in today."]],
   ["brakes", "Your brakes squeak on a 2012 Toyota Camry and you want a price for front brakes. Push twice for a phone price. If you get a starting price or a free inspection offer, book for tomorrow. Your name is Alex, cell 323-555-0170.",
-    ["The agent asked about the problem and vehicle, and did not just repeat that it can't give a price: it gave a starting price from its knowledge base if it had one, or offered the free inspection / a texted estimate.", "The call ended with a booked appointment or a saved lead with the vehicle and problem."]],
+    ["The agent asked about the problem and vehicle, never invented a brake price, and did not just repeat that it can't give a price: it offered the free inspection and/or a texted estimate.", "The call ended with a booked appointment or a saved lead with the vehicle and problem."]],
   ["kumho-alignment", "You want 4 Kumho tires for a 2017 Honda Civic LX (215/55R16) and ask if there's any deal with an alignment. Your name is Jess.",
     ["The agent quoted only check_tires prices. If no Kumho tire came back from check_tires, the agent did not offer the $49 alignment as if it applied (explaining that the deal is only with a Kumho set is fine).", "The agent offered or booked an appointment."]],
 ];
