@@ -10,7 +10,8 @@
 //   VOICE_AGENT_KEY         same value as in Vercel (guards /api/voice-agent)
 //   VOICE_TRANSFER_PHONE    where "talk to a person" rings: a Nextiva number that is NOT forwarded
 //   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, VOICE_AGENT_PHONE (the Twilio number Nextiva forwards to)
-// Optional: VOICE_AGENT_ID to update an existing agent instead of creating one.
+// Optional: VOICE_AGENT_ID to update an existing agent instead of creating one;
+//           VOICE_AGENT_VOICE_ID for Mary's voice (ODMxRBOeGYbfuFnam7BX, "Promotional Voice Girl #2").
 // Rerun after editing the prompt below; it updates the agent in place once VOICE_AGENT_ID is set.
 import { ADDRESS, HOURS_TEXT, PHONE } from "../lib/shop.js";
 
@@ -126,7 +127,8 @@ const agent = {
       language: "en",
       prompt: { prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.3, tools },
     },
-    tts: { voice_id: env("ELEVENLABS_VOICE_ID"), model_id: "eleven_flash_v2", stability: 0.5, similarity_boost: 0.8, speed: 1.05 },
+    // Mary's own voice; the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
+    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_flash_v2", stability: 0.5, similarity_boost: 0.8, speed: 1.05 },
     conversation: { max_duration_seconds: 600 },
   },
 };
