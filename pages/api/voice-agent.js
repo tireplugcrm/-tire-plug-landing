@@ -52,15 +52,19 @@ async function tires(size) {
   const rim = Number((key.match(/R(\d{2})/) || [])[1]);
   const big = rim >= 24 ? " We don't mount 24-inch wheels and up, so these are carry-out only (no install)." : "";
   const [shelf, nextDay] = await Promise.all([stockForSize(key), nextDayForSize(key)]);
-  const withOtd = (t) => ({ ...t, otd_4: t.price != null ? outTheDoor(t.price) : null });
-  const inStock = shelf.slice(0, 4).map((t) => withOtd({ brand: t.brand, model: t.model, price: t.price ?? null, count: t.count ?? null, low: t.level === "low", availability: "in_stock" }));
+  // Treadwear warranty: the exact size's spec sheet (miles) when we have it, else the model's
+  // feature lines (data/tire-models.json, e.g. "65,000-mile treadwear warranty (H/V-rated sizes)").
+  const warranty = (t) => (t.specs?.warranty ? `${Number(t.specs.warranty).toLocaleString("en-US")}-mile treadwear warranty`
+    : (t.features || []).filter((f) => /warranty/i.test(f)).join("; ") || null);
+  const pick = (t, availability) => ({ brand: t.brand, model: t.model, price: t.price ?? null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t), availability });
+  const inStock = shelf.slice(0, 4).map((t) => ({ ...pick(t, "in_stock"), count: t.count ?? null, low: t.level === "low" }));
   // Every next-day brand, so a caller asking for one by name (Falken, Lexani...) gets its price.
-  const order = nextDay.slice(0, 8).map((t) => withOtd({ brand: t.brand, model: t.model, price: t.price, availability: "next_day" }));
+  const order = nextDay.slice(0, 8).map((t) => pick(t, "next_day"));
   const parts = [];
   if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map(line).join("; ")}.`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map(line).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Brands like Toyo or Michelin can be special ordered: save a lead so the team pulls the price and texts it.`);
-  parts.push(`Out the door for 4 includes $${INSTALL} a wheel mount and balance, 10% tax on the tires and the $${CA_FEE} a tire California fee.${big}`);
+  parts.push(`Out the door for 4 includes $${INSTALL} a wheel mount and balance, 10% tax on the tires and the $${CA_FEE} a tire California fee. Each tire's treadwear warranty is in its "warranty" field.${big}`);
   return { ok: true, size: key, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
 

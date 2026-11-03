@@ -58,6 +58,8 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 - Every tire has the manufacturer's warranty: it covers defects in how the tire was made, not normal wear or road damage.
 - Free flat repairs for the first year (365 days) on repairable punctures.
 - If a tire can't be repaired (sidewall damage, a big cut, a blowout), the free repair and the manufacturer's warranty don't cover it. The Road Hazard Warranty does: an optional one-time add-on at purchase that replaces the tire. The shop confirms its price at the visit.
+- Each tire's treadwear (mileage) warranty comes from check_tires (its "warranty" field), for example Falken Ziex ZE960 A/S: 65,000 miles on H/V-rated sizes.
+- Falken tires come with a 2-year road hazard warranty from Falken, on top of the treadwear warranty. It's a selling point: say it when quoting Falken.
 - RBP Repulsor A/T: 2-year road hazard (or until 3/32" tread), next-day exchange, 50,000-mile treadwear warranty.
 - Kumho: up to 75,000-mile treadwear warranty (depends on the tire), road hazard replacement in the first 12 months, 30-day satisfaction guarantee.
 
