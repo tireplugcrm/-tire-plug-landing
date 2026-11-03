@@ -9,6 +9,8 @@
  *   POST ?action=lead  { name, phone, ... }    -> not ready to book: a lead in Admin for the sales reps
  *   POST ?action=text  { phone, size?, tire?, price?, quantity?, alignment?, tesla? }
  *                                              -> texts the out-the-door breakdown for the chosen tire, or the size/booking link
+ *                      { phone, brakes, rotors?, epb?, vehicle? } -> texts the brake estimate breakdown
+ * Brake bookings and leads (book/lead with brakes in service/notes/brakes) also text the brake tech.
  * The agent itself is created by scripts/voice-agent-setup.mjs.
  * Header x-voice-key must equal VOICE_AGENT_KEY (set in Vercel and on each ElevenLabs tool).
  * Answers are short plain sentences the agent can read out; never cost or the real count above 4.
@@ -104,6 +106,7 @@ async function book(b) {
   });
   const data = await r.json().catch(() => ({}));
   console.log(`voice-agent: book ${b.at} -> ${r.status} ${data.code || ""}`);
+  if (data.success && isBrakes(b)) await alertBrakeTech("booking", b, ` Booked ${data.appointment?.when}.`);
   if (data.success) return { ok: true, when: data.appointment?.when, say: `Booked for ${data.appointment?.when}.${b.sms_ok ? " A confirmation text is on its way." : ""} Address is 2331 East Olympic Boulevard.` };
   if (data.code === "slot_taken") return { ok: false, say: `${data.error} Call check_times again and offer new times.` };
   return { ok: false, say: "The booking didn't save. Save a lead instead so the team calls them to lock in the time." };
@@ -124,6 +127,7 @@ async function lead(b) {
   }).select("*").single();
   if (error) throw error;
   await onNewLead(data);
+  if (isBrakes(b)) await alertBrakeTech("lead (not booked yet)", b, " Call them back with the exact price.");
   return { ok: true, say: "Saved. Tell them someone from the shop will follow up, and they can call back anytime." };
 }
 
@@ -148,18 +152,61 @@ function breakdown(b, key) {
   ].join("\n");
 }
 
+// Brake estimate (owner's pricing: parts + $60 a wheel, +$75 electric parking brake, rotors parts +
+// $40 each), using the knowledge base's starting figures until parts are looked up for the exact car.
+// brakes: "front" | "rear" | "all"; rotors, epb: booleans. Before tax (brakes never quote with tax).
+export const BRAKE = { padsPerAxle: 150, epb: 75, rotorEach: 95 };
+function brakeEstimate(b) {
+  const which = /all|both|four|4/i.test(b.brakes || "") ? "all" : /rear|back/i.test(b.brakes || "") ? "rear" : "front";
+  const axles = which === "all" ? 2 : 1;
+  const lines = [];
+  if (which !== "rear") lines.push(["Front pads (Duralast, lifetime warranty)", BRAKE.padsPerAxle]);
+  if (which !== "front") lines.push(["Rear pads (Duralast, lifetime warranty)", BRAKE.padsPerAxle]);
+  if (b.epb && which !== "front") lines.push(["Electric parking brake", BRAKE.epb]);
+  if (b.rotors) lines.push([`Rotors (${2 * axles} x $${BRAKE.rotorEach})`, BRAKE.rotorEach * 2 * axles]);
+  return { which, lines, total: lines.reduce((a, [, n]) => a + n, 0) };
+}
+function brakeText(b) {
+  const e = brakeEstimate(b);
+  return [
+    `The Tire Plug: brake estimate${b.vehicle ? ` for your ${b.vehicle}` : ""}`,
+    ...e.lines.map(([l, n]) => `${l}: $${n}`),
+    `Estimated total: $${e.total} (before tax)`,
+    `Exact price is confirmed for your car before any work starts.`,
+    `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
+  ].join("\n");
+}
+const isBrakes = (b) => /brake|rotor/i.test(`${b.service || ""} ${b.notes || ""} ${b.brakes || ""}`);
+
+// Brake bookings and brake leads also text the brake tech (app_settings 'brake_alert_phone', kept out
+// of this public repo), so he can confirm parts and the exact price.
+async function alertBrakeTech(kind, b, extra = "") {
+  try {
+    const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", "brake_alert_phone").maybeSingle();
+    const to = toE164(data?.value);
+    if (!to) return;
+    const e = brakeEstimate(b);
+    const body = `🛑 Brake ${kind} from Mary (phone AI): ${b.name || "caller"} ${b.phone ? toE164(b.phone).slice(2).replace(/(\d{3})(\d{3})/, "$1-$2-") : ""}. ${b.vehicle || "vehicle not given"}. ${e.lines.map(([l]) => l.replace(/ \(.*/, "")).join(", ")}${b.epb ? " (electric parking brake)" : ""}. Quoted about $${e.total} before tax.${extra}${b.notes ? ` Notes: ${b.notes}` : ""}`;
+    const r = await sendSms({ to, body });
+    console.log(`voice-agent: brake alert ${kind} ${r.ok ? "sent" : `failed: ${r.error}`}`);
+  } catch (err) {
+    console.error("voice-agent: brake alert", err);
+  }
+}
+
 async function text(phone, size, b = {}) {
   const to = toE164(phone);
   if (!to) return { ok: false, say: "That phone number doesn't look right. Ask for the 10-digit cell number." };
   const key = size ? parseSize(size) : null;
   const url = key ? `${SITE}/tires/${sizeToSlug(key)}` : `${SITE}/book`;
-  const body = key && b.tire && Number(b.price) > 0 ? breakdown(b, key)
+  const body = b.brakes ? brakeText(b)
+    : key && b.tire && Number(b.price) > 0 ? breakdown(b, key)
     : key ? `The Tire Plug: here are the ${key} tires we talked about, with prices. Pick one to book: ${url}`
     : `The Tire Plug: book your appointment here: ${url}`;
   const r = await sendSms({ to, body });
   console.log(`voice-agent: text to ...${to.slice(-4)} ${r.ok ? "sent" : `failed: ${r.error}`}`);
   return r.ok
-    ? { ok: true, say: b.tire ? "Sent. Tell the caller the price breakdown is on its way by text." : "Sent. Tell the caller the link is on its way by text." }
+    ? { ok: true, say: b.tire || b.brakes ? "Sent. Tell the caller the price breakdown is on its way by text." : "Sent. Tell the caller the link is on its way by text." }
     : { ok: false, say: "The text didn't go through. Give them the website instead: tireplugla.com." };
 }
 

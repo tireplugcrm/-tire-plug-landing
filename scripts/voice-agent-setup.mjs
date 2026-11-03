@@ -69,6 +69,7 @@ Service calls (brakes, oil change, alignment, flat repair, battery, suspension),
 1. Find the problem with one question at a time: what's going on (squeaking, grinding, shaking, a light on), and the year, make and model (a VIN or license plate works too). For brakes, also which ones (front, rear or all four), and for rear brakes ask the parking-brake button question from the knowledge base.
 2. Price: only if the knowledge base lists a price for that exact service, say it. Brake pads have one: "pads start at about one fifty an axle, plus seventy-five if it has an electric parking brake; the exact price depends on your car's parts" (and the Camry example if it's a Camry). Rotors too: "about ninety-five a rotor more, so about one ninety an axle on top of the pads" if they grind or the rotors are worn. Oil changes, regular alignments, flat repair, batteries and suspension have NO price, so never say any number for them, not even "around" or "starting at". Instead, without stonewalling: say the price depends on the car and the tech gives it when they come in, then close.
    When they ask for a total, give ONE clear number for what they asked ("about seven fifty-five for all four with pads and rotors"), say what they get (brands and warranty from the knowledge base: Duralast pads with a lifetime warranty), then close. Don't repeat the price caveats every turn; say "estimate" once.
+   For every brake quote, send the breakdown: call text_link with brakes (front, rear or all), rotors, epb and vehicle (say "I'll text you the breakdown"), then close.
 3. Close the same way as tires, with the today-or-this-week close (book_appointment with service like "Brakes - pads and rotors, all four, 2020 Accord, electric parking brake"). Only if they won't book after two tries: save_lead with the vehicle, job and your estimate.
 
 If they won't book yet:
@@ -141,7 +142,10 @@ const tools = [
       price: { type: "number", description: "Price per tire from check_tires" },
       quantity: { type: "number", description: "How many tires, usually 4" },
       alignment: { type: "boolean", description: "true if they added the alignment" },
-      tesla: { type: "boolean", description: "true if the car is a Tesla" } }, ["phone"]),
+      tesla: { type: "boolean", description: "true if the car is a Tesla" },
+      brakes: { type: "string", description: "Brake job: front, rear or all" },
+      rotors: { type: "boolean", description: "true if rotors are included" },
+      epb: { type: "boolean", description: "true if the car has an electric parking brake" } }, ["phone"]),
   webhook("check_times", "Get the next open appointment times. Each time has an 'at' value to pass to book_appointment.", "times",
     { next_day: { type: "boolean", description: "true if the chosen tire is a next-day tire (no same-day install)" } }, []),
   webhook("book_appointment", "Book the caller's appointment. Use only a time 'at' from check_times.", "book",
@@ -156,6 +160,9 @@ const tools = [
       service: { type: "string", description: "For a service visit: what service, e.g. Oil change, Alignment" },
       vehicle: { type: "string", description: "Year make model if known" },
       sms_ok: { type: "boolean", description: "true only if the caller said OK to a confirmation text" },
+      brakes: { type: "string", description: "Brake job: front, rear or all" },
+      rotors: { type: "boolean", description: "true if rotors are included" },
+      epb: { type: "boolean", description: "true if the car has an electric parking brake" },
       notes: { type: "string", description: "Add-ons they want, anything the shop should know" } }, ["name", "phone", "at"]),
   webhook("save_lead", "Save a caller who isn't booking yet, so the sales team follows up. Include what you quoted.", "lead",
     { name: { type: "string", description: "Caller's name" },
@@ -166,6 +173,9 @@ const tools = [
       service: { type: "string", description: "What they need if not tires" },
       timing: { type: "string", description: "How soon: today, tomorrow, this week, just pricing" },
       sms_ok: { type: "boolean", description: "true if they said OK to texts" },
+      brakes: { type: "string", description: "Brake job: front, rear or all" },
+      rotors: { type: "boolean", description: "true if rotors are included" },
+      epb: { type: "boolean", description: "true if the car has an electric parking brake" },
       notes: { type: "string", description: "What you quoted, objections, anything useful for the follow-up" } }, ["phone"]),
   { type: "system", name: "end_call", description: "Hang up when the caller is done.", params: { system_tool_type: "end_call" } },
   { type: "system", name: "transfer_to_number", description: "Connect the caller to a person at the shop.",
