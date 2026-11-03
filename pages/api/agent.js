@@ -16,7 +16,8 @@
  * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
  * POST { action: "outreach-plan" }                    business cold email due today (lib/outreach.js): cap left, the owner-approved
  *                                                     templates, intros and follow-ups due in priority order, phone-only counts
- * POST { action: "quote-queue" }                     phone AI callers waiting on an exact quote (brakes, special-order tires)
+ * POST { action: "phone-calls", since? }             Mary's calls (default last 24 h) with quality checks and transcripts
+ * POST { action: "quote-queue" }                   phone AI callers waiting on an exact quote (brakes, special-order tires)
  * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
  *                                                     text the customer the exact quote; copies to the owner (and the brake tech)
  * POST { action: "outreach-send", step, ids }         send the APPROVED template for that step (1 intro, 2 follow-up) to those
@@ -221,6 +222,14 @@ export default async function handler(req, res) {
       return res.status(r.status).json({ ok: r.status === 200, ...r.body });
     }
     if (action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
+    // Mary's calls since a time (default 24 h), for the coach: outcome, failed quality checks, transcript.
+    if (action === "phone-calls") {
+      const since = b.since || new Date(Date.now() - 864e5).toISOString();
+      const { data } = await supabaseAdmin.from("phone_calls")
+        .select("id, started_at, duration_secs, intent, vehicle, tire_size, quoted, booked, lead_saved, transferred, transfer_reason, alignment_offered, alignment_accepted, objection, lost_reason, quality_score, quality, summary, transcript")
+        .gte("started_at", since).order("started_at").limit(60);
+      return res.status(200).json({ calls: data || [] });
+    }
     if (action === "quote-send") {
       const r = await quoteSend(b, agent);
       return res.status(r.ok ? 200 : 400).json(r);
