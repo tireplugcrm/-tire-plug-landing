@@ -59,7 +59,9 @@ async function tires(size) {
 async function times(nextDayOnly) {
   const days = (await openSlots()).filter((d, i) => !(nextDayOnly && d.label.startsWith("Today"))).slice(0, 3);
   if (!days.length) return { ok: false, say: "No open times online. Save a lead so the team calls them to schedule." };
-  const out = days.map((d) => ({ day: d.label, times: d.slots.slice(0, 4).map((s) => ({ label: s.label, at: s.at })) }));
+  // Four times spread over the day (earliest first), so the caller hears a morning and an afternoon.
+  const spread = (s) => (s.length <= 4 ? s : [0, 1, 2, 3].map((i) => s[Math.round((i * (s.length - 1)) / 3)]));
+  const out = days.map((d) => ({ day: d.label, times: spread(d.slots).map((s) => ({ label: s.label, at: s.at })) }));
   return { ok: true, days: out, say: `Open times: ${out.map((d) => `${d.day}: ${d.times.map((t) => t.label).join(", ")}`).join(". ")}. Offer two choices, not the whole list.` };
 }
 
