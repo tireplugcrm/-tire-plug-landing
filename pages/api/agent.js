@@ -221,16 +221,16 @@ export default async function handler(req, res) {
       await log(agent, `outreach step ${step}: sent ${r.body.sent ?? 0}${r.body.error ? ` (${r.body.error})` : ""}`, { ids: r.body.sentIds || [] });
       return res.status(r.status).json({ ok: r.status === 200, ...r.body });
     }
-    if (action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
+    if (b.action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
     // Mary's calls since a time (default 24 h), for the coach: outcome, failed quality checks, transcript.
-    if (action === "phone-calls") {
+    if (b.action === "phone-calls") {
       const since = b.since || new Date(Date.now() - 864e5).toISOString();
       const { data } = await supabaseAdmin.from("phone_calls")
         .select("id, started_at, duration_secs, intent, vehicle, tire_size, quoted, booked, lead_saved, transferred, transfer_reason, alignment_offered, alignment_accepted, objection, lost_reason, quality_score, quality, summary, transcript")
         .gte("started_at", since).order("started_at").limit(60);
       return res.status(200).json({ calls: data || [] });
     }
-    if (action === "quote-send") {
+    if (b.action === "quote-send") {
       const r = await quoteSend(b, agent);
       return res.status(r.ok ? 200 : 400).json(r);
     }
