@@ -32,9 +32,16 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 - Businesses: $10 off every tire with a business license number.
 - Free tire inspection and free air check.
 
+## Brakes (pads)
+- How the shop prices brake pads: the parts price for that exact car plus $60 per wheel, so $120 per axle. Cars with an electric parking brake are $75 more (it's a harder job).
+- Brake pads start at about $150 an axle (front or rear), before tax. All four wheels usually run about $300. Example: a 2012 Toyota Camry is about $155 front, $151 rear, about $306 for all four with standard pads.
+- To spot an electric parking brake, ask: "Does your car have a parking brake button instead of a lever or pedal?" A button means electric: add $75 for the rear brakes.
+- The exact price depends on the car's parts, so take year, make and model (a VIN or license plate works too) and the team confirms it, or book the visit.
+- Rotors aren't included in the pad price. If the brakes grind or the rotors are worn, the tech checks it free and gives the price at the visit.
+
 ## Services without a set price (Mary doesn't quote these)
 - Wheel alignment: same-day service; price is quoted by the shop. Exception: buy a set of 4 Kumho tires and add a 4-wheel alignment for $49, same visit.
-- Oil change (conventional and full synthetic, most done while you wait), brakes (pads, rotors, free brake inspection), flat repair, battery, suspension check.
+- Oil change (conventional and full synthetic, most done while you wait), rotors, flat repair, battery, suspension check. Free brake inspection.
 - For these: book the visit, or save_lead so the team texts the exact price.
 
 ## Why an alignment with new tires
