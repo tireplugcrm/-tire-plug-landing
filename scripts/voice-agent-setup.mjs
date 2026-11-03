@@ -104,6 +104,10 @@ Transfer to a person (transfer_to_number) ONLY when the shop is open, and only f
 Never transfer, or offer to, just because you don't know an answer. Check your knowledge base first; if it isn't there, say "Good question, I'll have the team text you the exact answer," put the question in save_lead notes, and keep selling.
 
 How to sound on the phone (you are speaking, not writing):
+- Talk like a real front-desk person at a busy LA shop: relaxed, warm, quick. Short acknowledgements ("Gotcha.", "Perfect.", "Okay, cool.", "Mm-hm."), contractions, a little personality, a light laugh when the caller jokes. Vary your wording; never repeat the same sentence twice in a call.
+- Never sound like a phone menu: no "Please hold while I transfer you", "How may I assist you today", "Is there anything else I can help you with". Say it like a person: "Sure, let me grab someone for you, one sec."
+- Don't explain how you work or what you're doing behind the scenes; just do it.
+- If a caller sincerely asks whether you're a real person, a robot or an AI, be honest in one easy line and keep helping: "I'm Mary, the shop's AI assistant, I can get you priced and booked in a minute, or grab someone for you." Never claim to be human.
 - Say tire sizes the way a shop does: 235/40R19 is "two thirty-five, forty, nineteen"; 33X12.50R20 is "thirty-three twelve-fifty twenty". Never spell digits one by one.
 - Say tire names simply: brand plus model name, never letter-by-letter codes ("Falken Ziex", not "Ziex Z E nine six zero A/S"; "Landspider Citytraxx", not "Citytraxx H/P"); 4X4 is "four by four"; say "all-terrain" instead of "A/T".
 - Prices: "sixty-four a tire", "about two fifty-six for all four".
@@ -146,6 +150,7 @@ Shop facts are in your knowledge base (hours, address, prices you may quote, war
 
 const webhook = (name, description, action, properties, required) => ({
   type: "webhook", name, description,
+  tool_call_sound: "typing", tool_call_sound_behavior: "auto", // sounds like someone at the counter typing
   response_timeout_secs: 15,
   api_schema: {
     url: `${SITE}/api/voice-agent?action=${action}`, method: "POST",
@@ -231,7 +236,8 @@ const agent = {
   name: "The Tire Plug phone",
   conversation_config: {
     agent: {
-      first_message: "Hello, this is Mary from The Tire Plug, how can I help you?",
+      // Shop-style pickup: a scripted "Hello, this is Mary from..." made callers ask for a "representative" right away.
+      first_message: "Tire Plug, this is Mary, how can I help you?",
       language: "en",
       prompt: {
         prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.3, tools,
@@ -242,7 +248,7 @@ const agent = {
     },
     // Mary's own voice; the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
     // eleven_v4_turbo: ElevenLabs' current live-agent voice model (smoother than flash, speaks Spanish too).
-    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", stability: 0.45, similarity_boost: 0.8, speed: 1.02 },
+    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", expressive_mode: true, stability: 0.4, similarity_boost: 0.8, speed: 1.02 },
     // No dead air: start answering while the caller finishes, and fill a slow answer with a short "one sec".
     turn: {
       turn_eagerness: "normal", speculative_turn: true,
@@ -252,7 +258,11 @@ const agent = {
       // 3 s: at 1.5 s it fired before almost every answer and sounded hesitant.
       soft_timeout_config: { timeout_seconds: 3, message: "Mmm...", max_soft_timeouts_per_generation: 1 },
     },
-    conversation: { max_duration_seconds: 600 },
+    conversation: {
+      max_duration_seconds: 600,
+      // A quiet front-office sound under her voice; dead studio silence is a giveaway.
+      background_sound: { source_type: "preset", source_id: "office2", volume: 0.12, crossfade_loop: true },
+    },
     // Words the phone transcription kept missing ("Toki" for Toyo, "rotary" for rotors).
     asr: { keywords: ["Toyo", "Michelin", "Bridgestone", "Goodyear", "Firestone", "Pirelli", "Continental", "Falken", "Kumho", "Hankook", "Yokohama", "Nitto", "BFGoodrich", "Lexani", "Landspider", "Groundspeed", "Lionhart", "Evoluxx", "Blackhawk", "RBP", "Duralast", "rotors", "brake pads", "valve stems", "TPMS", "lug nuts", "wheel locks", "alignment", "rotation"] },
   },
