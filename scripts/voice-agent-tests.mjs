@@ -3,11 +3,11 @@
 // Tire and time lookups hit the real site (read-only). book_appointment, save_lead and text_link are
 // mocked, so tests never book, save a lead or text anyone.
 //
-//   node --env-file=.env.local scripts/voice-agent-tests.mjs [--only=<text>] [--repeat=10] [--limit=N] [--out=dir]
+//   node --env-file=.env.local scripts/voice-agent-tests.mjs [--only=a,b] [--failed=results.json] [--repeat=10] [--limit=N] [--out=dir]
 //
 // Creates the tests once (named "TP | ..."), updates them when this file changes, runs them,
 // waits, and writes results.json + results.md to --out (default: the current directory).
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const API = "https://api.elevenlabs.io/v1/convai";
@@ -19,6 +19,9 @@ const REPEAT = Number(arg("repeat", 1));
 const LIMIT = Number(arg("limit", 0));
 const ONLY = arg("only", "");
 const OUT = arg("out", ".");
+const prev = arg("failed", "") ? JSON.parse(readFileSync(arg("failed"), "utf8")) : null;
+const FAILED = prev && new Set(prev.groups.filter((g) => g.fail).map((g) => g.name));
+const SEEN = prev && new Set(prev.groups.map((g) => g.name));
 
 async function call(method, p, body) {
   for (let i = 0; ; i++) {
@@ -32,7 +35,7 @@ async function call(method, p, body) {
 
 // ---- What every call must do, whatever the scenario ----
 const ALWAYS = [
-  "The agent never stated a tire price, stock level, appointment time, discount or promise that didn't come from a tool result or a fact it was given (hours, address, TPMS $199/$60, rotation $40, $20 off first visit, $10 off with a business license, $49 Kumho alignment, install from $25 a wheel). Guessing a factory tire size from the vehicle is allowed.",
+  "The agent never stated a tire price, stock level, appointment time, job duration, discount or promise that didn't come from a tool result or the shop's knowledge base. The knowledge base includes: hours (Mon-Fri 9-7, Sat 9-6, Sun 10-4), address 2331 E Olympic Blvd, TPMS $199 for 4 or $60 each, rotation and rebalance $40, $20 off a first-visit service, $10 off per tire with a business license, $49 alignment with a set of 4 Kumho tires, install from $25 a wheel, prices before tax, manufacturer's warranty, free flat repairs for a year on tires bought there, optional road hazard warranty, Snap Finance, used tires inspected but priced by the shop, commercial 17.5-24.5 inch tires carry-out only. Guessing a factory tire size from the vehicle is allowed. Mentioning that install is extra and adding up tires x price is allowed.",
   "The agent asked at most one question per turn, kept replies short, and never asked for the caller's name again after the caller gave it.",
 ];
 
@@ -97,6 +100,8 @@ const S = [
     ["The agent used text_link to text the caller (with the size) and kept the call short.", "The agent saved a lead or offered one appointment time before ending."]],
   ["road-trip", `You're leaving on a road trip tomorrow and need 4 tires ${SIZE_STOCKED} today. Your name is Marcus.`,
     ["The agent treated it as urgent: led with in-stock tires and offered the earliest same-day or next-morning time.", "The agent booked the appointment."]],
+  ["brakes", "Your brakes squeak on a 2012 Toyota Camry and you want a price for front brakes. Push twice for a phone price. If you get a starting price or a free inspection offer, book for tomorrow. Your name is Alex, cell 323-555-0170.",
+    ["The agent asked about the problem and vehicle, and did not just repeat that it can't give a price: it gave a starting price from its knowledge base if it had one, or offered the free inspection / a texted estimate.", "The call ended with a booked appointment or a saved lead with the vehicle and problem."]],
   ["kumho-alignment", "You want 4 Kumho tires for a 2017 Honda Civic LX (215/55R16) and ask if there's any deal with an alignment. Your name is Jess.",
     ["The agent only mentioned the $49 alignment for a set of 4 Kumho tires if Kumho was actually offered/available, and quoted only check_tires prices.", "The agent offered or booked an appointment."]],
 ];
@@ -112,13 +117,17 @@ const tests = S.flatMap(([id, scenario, checks]) => PERSONAS.map(([pid, style]) 
   name: `TP | ${id} | ${pid}`,
   scenario: `You are calling The Tire Plug, a tire shop in Los Angeles. ${scenario} ${style} End the call when you're done.`,
   checks: [...checks, ...ALWAYS],
-}))).filter((t) => !ONLY || t.name.includes(ONLY)).slice(0, LIMIT || undefined);
+}))).filter((t) => !ONLY || ONLY.split(",").some((o) => t.name.includes(o)))
+  // --failed=<results.json>: rerun only what failed last time (plus tests new since then).
+  .filter((t) => !FAILED || FAILED.has(t.name) || !SEEN.has(t.name))
+  .slice(0, LIMIT || undefined);
 
 // ---- Mocks for the tools with side effects ----
 const toolList = (await call("GET", "/tools")).tools || [];
 const toolId = (name) => toolList.find((t) => t.tool_config?.name === name)?.id;
 const MOCKS = {
-  book_appointment: { ok: true, when: "Tue, Nov 3, 3:00 PM", say: "Booked for Tue, Nov 3, 3:00 PM. A confirmation text is on its way. Address is 2331 East Olympic Boulevard." },
+  // No time in the mock: it can't echo the slot the caller picked, so the agent repeats the one it booked.
+  book_appointment: { ok: true, say: "Booked for the time the caller picked. A confirmation text is on its way if they said OK. Address is 2331 East Olympic Boulevard." },
   save_lead: { ok: true, say: "Saved. Tell them someone from the shop will follow up, and they can call back anytime." },
   text_link: { ok: true, say: "Sent. Tell the caller the link is on its way by text." },
 };

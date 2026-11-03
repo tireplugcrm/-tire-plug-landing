@@ -17,6 +17,7 @@
 // It also sets what ElevenLabs pulls out of each call and grades it on (lib/phone-calls.js) and the
 // post-call webhook that records every call into Admin → Phone (/api/voice-calls).
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { DATA_FIELDS, QUALITY_CHECKS } from "../lib/phone-calls.js";
 
 const KB_NAME = "The Tire Plug — phone knowledge base";
@@ -57,6 +58,12 @@ THE CALL, step by step:
    Used-tire callers: take the size; used tires aren't priced by phone, so save_lead with "used tires" in notes and say the team will text today's options, or book them to come look.
 7. Wrap up. Repeat the day and time, the address (2331 East Olympic Boulevard, Downtown LA), and that a confirmation text is coming if they said OK. Thank them by name, then end_call.
 
+Service calls (brakes, oil change, alignment, flat repair, battery, suspension), the service framework:
+1. Find the problem with one question at a time: what's going on (squeaking, grinding, shaking, a light on), and the year, make and model.
+2. Price: if the knowledge base has a price or "starting at" price for that service, give it ("brake pads start at X an axle; if the rotors are worn it's more, and we check that free when you come in"). If it has no price, never stonewall: say the exact price depends on what the tech finds and that the inspection is free.
+3. Close the same way as tires: offer two times (book_appointment with service like "Brakes - front pads, squeaking"), or save_lead with the vehicle and problem so the team texts a price.
+4. If they push for a phone price twice, don't repeat "I can't": give the starting price if you have one, or offer to have a tech text an estimate today (save_lead with the details), then ask for the time once more.
+
 If they won't book yet:
 - "Too expensive": go to the lower option, or say the price includes no surprises: install is from 25 a wheel and free flat repairs for a year.
 - "Let me think about it" or "just shopping": offer to text them the prices (text_link with the size), then save_lead with what you quoted and their timing so the team can follow up. Still offer one time slot before you let them go.
@@ -76,7 +83,15 @@ How to sound on the phone (you are speaking, not writing):
 Rules:
 - NEVER make up a price, discount, stock, time or a promise. If you don't have it, save a lead and say the team will text the exact quote.
 - Never mention cost, distributors, a system or tools. Say "one sec, let me check."
-- ONE question per turn, never two. Ask for their name only once; once they've said it, remember it and never ask again (use it when booking).
+- Every reply has at most ONE question mark. Never ask two things in one turn, not even "What size? And who am I speaking with?" or "Is that all? Want an alignment?".
+- Answer what the knowledge base covers yourself: discounts (first visit $20 off, $10 a tire for businesses, the $40 rotation), financing (Snap Finance), hours, warranties. When someone asks about discounts, name the real ones; never say there are none.
+- Never give a time estimate for how long a job takes. Say it depends on how busy the shop is and a booked time gets them in fastest.
+- Mention the $49 alignment only when the tire they chose is a Kumho.
+- Never say a time is open before check_times shows it, and when confirming, repeat exactly the time they picked from check_times.
+- Don't add install into a total: "about two sixty for all four, plus install from 25 a wheel."
+- Business or fleet callers: mention $10 off every tire with a business license, save_lead, then transfer if they want an account set up.
+- Wrong number (not looking for a tire shop): say kindly this is The Tire Plug, a tire shop, and end_call. Don't transfer.
+- After text_link, also save_lead so the team can follow up. Ask for their name only once; once they've said it, remember it and never ask again (use it when booking).
 - Prices are before tax. If asked about tax, say "that's before tax" and keep going; don't transfer for it.
 - A total with install is "about", since install is from $25 a wheel.
 - Keep every reply short: one or two sentences, under 25 words, except when reading the quote.
@@ -132,10 +147,13 @@ const tools = [
     params: { system_tool_type: "transfer_to_number", transfers: [{ phone_number: transfer, condition: "The caller wants a person, or you can't help them." }] } },
 ];
 
-// Knowledge base: a fresh copy of voice-agent-kb.md each run (always in the prompt: it's small, and
-// retrieval would add delay); older copies are deleted once the agent points at the new one.
-const oldDocs = ((await call("GET", `/knowledge-base?search=${encodeURIComponent(KB_NAME)}&page_size=50`)).documents || []).filter((x) => x.name === KB_NAME);
-const kb = await call("POST", "/knowledge-base/text", { name: KB_NAME, text: KB_TEXT });
+// Knowledge base: voice-agent-kb.md, always in the prompt (it's small, and retrieval would add delay).
+// The doc name carries a hash of the text, so it's only replaced when the file changes; a call or
+// test running during an update never loses it. Older copies are deleted once the agent moves on.
+const kbName = `${KB_NAME} #${createHash("sha1").update(KB_TEXT).digest("hex").slice(0, 8)}`;
+const docs = ((await call("GET", `/knowledge-base?search=${encodeURIComponent(KB_NAME)}&page_size=100`)).documents || []).filter((x) => x.name.startsWith(KB_NAME));
+const kb = docs.find((x) => x.name === kbName) || await call("POST", "/knowledge-base/text", { name: kbName, text: KB_TEXT });
+const oldDocs = docs.filter((x) => x.id !== kb.id);
 
 // Post-call webhook: every call (transcript, analysis, recording) goes to /api/voice-calls.
 // Created once; ElevenLabs can't show its headers again, so rerunning leaves it as is.
@@ -157,7 +175,7 @@ const agent = {
       language: "en",
       prompt: {
         prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.3, tools,
-        knowledge_base: [{ type: "text", name: KB_NAME, id: kb.id, usage_mode: "prompt" }],
+        knowledge_base: [{ type: "text", name: kbName, id: kb.id, usage_mode: "prompt" }],
       },
     },
     // Mary's own voice; the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
@@ -166,7 +184,8 @@ const agent = {
     // No dead air: start answering while the caller finishes, and fill a slow answer with a short "one sec".
     turn: {
       turn_eagerness: "normal", speculative_turn: true,
-      soft_timeout_config: { timeout_seconds: 1.5, message: "Mm-hm, one sec.", max_soft_timeouts_per_generation: 1 },
+      // "Mmm..." works in English and Spanish (the first try, "Mm-hm, one sec.", came out in English mid-Spanish).
+      soft_timeout_config: { timeout_seconds: 1.5, message: "Mmm...", max_soft_timeouts_per_generation: 1 },
     },
     conversation: { max_duration_seconds: 600 },
   },
