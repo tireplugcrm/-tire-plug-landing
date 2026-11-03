@@ -87,7 +87,8 @@ async function quoteSend(b, agent) {
   await logEvent(l.id, "quote_sent", `Jarvis texted ${l.name || "the customer"} the exact quote: ${d(b.total)}`);
   // Copies: the owner always; brake quotes also go to the brake tech (app_settings brake_alert_phone).
   await notify(agent, `Quote sent to ${l.name || "customer"} (${digits10(l.phone).slice(-4)}): ${b.title}, ${d(b.total)}${b.tax_included ? " out the door" : " before tax"}.`);
-  if (isBrakeLead(l)) {
+  // Test leads (raw.test, made for dry runs) never copy the brake tech.
+  if (isBrakeLead(l) && !l.raw?.test) {
     const { data: s } = await supabaseAdmin.from("app_settings").select("value").eq("key", "brake_alert_phone").maybeSingle();
     if (s?.value) await sendSms({ to: s.value, body: `Jarvis sent this brake quote to ${l.name || "the customer"} (${digits10(l.phone)}):\n${body}` });
   }
