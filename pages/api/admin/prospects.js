@@ -26,31 +26,13 @@ import { requireAdmin } from "../../../lib/adminAuth.js";
 import { SHOP_FACTS } from "../../../lib/shop-facts.js";
 import { findBusinesses, GROUPS, RADIUS_MILES } from "../../../lib/places-prospects.js";
 import { renderLetter, sendBatch, sendOne, suppressedSet, unsubPageUrl, personalize, textVersion, OUTREACH_FROM, REPLY_TO, BRAND, SITE } from "../../../lib/email.js";
+import { dailyLimit, startOfTodayLA, letter, sendOutreach } from "../../../lib/outreach.js";
 
 export const maxDuration = 60;
 const MODEL = process.env.LEADS_AI_MODEL || "claude-sonnet-4-6";
-const DAILY_LIMIT = Number(process.env.OUTREACH_DAILY_LIMIT) || 40;
-const FOLLOWUP_DAYS = 4;
-const DONE = new Set(["replied", "customer", "not_interested", "unsubscribed", "bounced", "needs_email", "no_email"]);
-const WHY = "This is an advertisement from The Tire Plug. You're getting it because your business is listed publicly near our shop in Los Angeles. We email a business at most twice, and if you unsubscribe you won't hear from us again.";
-// The button under the letter: the fleet catalog, or the commercial (truck) tire page.
-const CTAS = { fleet: { label: "See fleet tire prices", path: "/fleet" }, commercial: { label: "See truck tire prices", path: "/commercial-tires" } };
-// Tire photos beside the logo: a car, a van and a pickup tire we sell (email-safe copies).
-const HEADER_TIRES = [
-  { img: "/images/email/tires/landspider-citytraxx-g-p.jpg", alt: "Landspider Citytraxx G/P" },
-  { img: "/images/email/tires/gt-radial-maxmiler-pro.jpg", alt: "GT Radial Maxmiler Pro" },
-  { img: "/images/email/tires/goodyear-wrangler-territory-ht.jpg", alt: "Goodyear Wrangler Territory HT" },
-];
 // A subject pretending to be a reply or forward is deceptive under CAN-SPAM.
 const FAKE_THREAD = /^\s*(re|fwd?|fw)\s*:\s*/i;
 
-// Warm-up: 10/day the first week of outreach, then 20, then 30, then the full limit.
-async function dailyLimit() {
-  const { data } = await supabaseAdmin.from("email_campaigns").select("created_at").eq("kind", "outreach").order("created_at", { ascending: true }).limit(1);
-  const first = data?.[0]?.created_at;
-  const week = first ? Math.floor((Date.now() - new Date(first).getTime()) / (7 * 864e5)) : 0;
-  return Math.min(DAILY_LIMIT, [10, 20, 30][week] ?? DAILY_LIMIT);
-}
 // Dedupe key for Google listings: business name + start of the address.
 const placeKey = (name, address) => `${String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "")}|${String(address || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 24)}`;
 
@@ -103,20 +85,6 @@ async function askClaude(prompt) {
   });
   const data = await res.json();
   return (data.content || []).map((b) => (b.type === "text" ? b.text : "")).join("").trim();
-}
-
-const startOfTodayLA = () => {
-  const now = new Date();
-  const la = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-  return new Date(now.getTime() - (la.getHours() * 3600 + la.getMinutes() * 60 + la.getSeconds()) * 1000);
-};
-
-function letter({ message, signer, to, name, business, button }) {
-  const unsubUrl = unsubPageUrl(to);
-  const body = personalize(message, { name, business });
-  const c = CTAS[button] || CTAS.fleet;
-  const cta = { label: c.label, href: `${SITE}${c.path}` };
-  return { html: renderLetter({ message: body, signer, unsubUrl, why: WHY, cta, tires: HEADER_TIRES }), text: textVersion(`${body}\n\n${cta.label}: ${cta.href}`, unsubUrl, WHY) };
 }
 
 export default async function handler(req, res) {
@@ -222,39 +190,9 @@ Start with 'SUBJECT: <subject>' (short, lowercase-ish, like a real person's emai
     }
 
     if (b.action === "send") {
-      const step = Number(b.step) === 2 ? 2 : 1;
-      const ids = Array.isArray(b.ids) ? b.ids : [];
-      if (!ids.length) return res.status(400).json({ error: "Pick at least one business." });
-
-      const { count } = await supabaseAdmin.from("business_prospects").select("id", { count: "exact", head: true }).gte("last_emailed_at", startOfTodayLA().toISOString());
-      const limit = await dailyLimit();
-      const room = Math.max(0, limit - (count || 0));
-      if (!room) return res.status(429).json({ error: `Daily limit reached (${limit}/day while the sending domain warms up keeps your email out of spam). Send more tomorrow.` });
-
-      const { data: rows } = await supabaseAdmin.from("business_prospects").select("*").in("id", ids);
-      const blocked = await suppressedSet();
-      const cutoff = Date.now() - FOLLOWUP_DAYS * 864e5;
-      const eligible = (rows || []).filter((p) => p.email && !blocked.has(p.email.toLowerCase()) && !DONE.has(p.status)
-        && (step === 1 ? p.touches === 0 : p.touches === 1 && p.last_emailed_at && new Date(p.last_emailed_at).getTime() <= cutoff));
-      const batch = eligible.slice(0, room);
-      if (!batch.length) return res.status(400).json({ error: step === 1 ? "None of those can get an intro (already emailed, replied, or unsubscribed)." : `None of those are ready for a follow-up (needs an intro ${FOLLOWUP_DAYS}+ days ago and no reply).` });
-
-      const { data: camp } = await supabaseAdmin.from("email_campaigns").insert({
-        kind: "outreach", subject: b.subject, body: b.message, audience: `businesses (step ${step})`, status: "sending", send_at: new Date().toISOString(), created_by: auth.user.email,
-      }).select().single();
-
-      const msgs = batch.map((p) => ({
-        to: p.email, from: OUTREACH_FROM,
-        subject: personalize(b.subject, { name: p.contact_name, business: p.business_name }),
-        ...letter({ message: b.message, signer, to: p.email, name: p.contact_name, business: p.business_name, button: b.button }),
-        tags: { campaign: camp?.id, kind: "outreach" },
-      }));
-      const out = await sendBatch(msgs);
-      if (out.sent) {
-        await supabaseAdmin.from("business_prospects").update({ status: "emailed", touches: step, last_emailed_at: new Date().toISOString() }).in("id", batch.map((p) => p.id));
-      }
-      if (camp) await supabaseAdmin.from("email_campaigns").update({ status: out.sent ? "sent" : "failed", recipient_count: batch.length, sent_count: out.sent, error_count: out.failed }).eq("id", camp.id);
-      return res.status(200).json({ sent: out.sent, failed: out.failed, skipped: ids.length - batch.length, error: out.error, remainingToday: room - out.sent });
+      const r = await sendOutreach({ ids: b.ids, step: b.step, subject: b.subject, message: b.message, signer, button: b.button, createdBy: auth.user.email });
+      const { sentIds, ...body } = r.body;
+      return res.status(r.status).json(body);
     }
 
     return res.status(400).json({ error: "Unknown action." });

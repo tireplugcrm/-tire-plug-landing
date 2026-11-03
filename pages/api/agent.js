@@ -14,6 +14,10 @@
  * POST { action: "health" }                           stock freshness, pricing checks, leads, check-in texts, agent errors,
  *                                                     shelf tires priced under cost + $20 (under_margin)
  * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
+ * POST { action: "outreach-plan" }                    business cold email due today (lib/outreach.js): cap left, the owner-approved
+ *                                                     templates, intros and follow-ups due in priority order, phone-only counts
+ * POST { action: "outreach-send", step, ids }         send the APPROVED template for that step (1 intro, 2 follow-up) to those
+ *                                                     businesses; the agent never supplies the wording
  */
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { agentKeyOk, ask, approval, notify, log } from "../../lib/agent.js";
@@ -22,6 +26,18 @@ import { pricingContext } from "../../lib/pricing-context.js";
 import * as P from "../../lib/pricing.js";
 import { linesFromCsv } from "../../lib/stock-csv.mjs";
 import { isCommercialSize } from "../../lib/pricing-engine.js";
+import { dailyLimit, sentToday, eligibleFor, sendOutreach } from "../../lib/outreach.js";
+import { suppressedSet } from "../../lib/email.js";
+
+// Outreach order: the businesses that fit truck and work-vehicle tires first.
+const OUTREACH_ORDER = ["Delivery & trucking", "Contractors & trades", "Auto-adjacent", "Rideshare & limo"];
+const rank = (c) => { const i = OUTREACH_ORDER.indexOf(c); return i < 0 ? OUTREACH_ORDER.length : i; };
+// The owner-approved wording, edited only by a person (app_settings outreach_templates):
+// { signer: {name,title}, intro: {subject,message,button}, followup: {subject,message,button} }
+async function outreachTemplates() {
+  const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", "outreach_templates").maybeSingle();
+  try { return JSON.parse(data?.value || "{}"); } catch { return {}; }
+}
 
 export const maxDuration = 60;
 export const config = { api: { bodyParser: { sizeLimit: "10mb" } } };
@@ -127,6 +143,27 @@ export default async function handler(req, res) {
       const report = await P.autopilot(ctx, (path) => res.revalidate(path), { budgetMs: 45000, force: true });
       await log(agent, "ran the pricing autopilot", report);
       return res.status(200).json({ ok: true, report });
+    }
+    if (b.action === "outreach-plan") {
+      const [limit, sent, blocked, t, { data: rows }] = await Promise.all([dailyLimit(), sentToday(), suppressedSet(), outreachTemplates(),
+        supabaseAdmin.from("business_prospects").select("id,business_name,category,email,phone,status,touches,last_emailed_at").limit(5000)]);
+      const all = rows || [];
+      const slim = (p) => ({ id: p.id, business: p.business_name, category: p.category, email: p.email, last_emailed_at: p.last_emailed_at });
+      const byRank = (a, c) => rank(a.category) - rank(c.category) || String(a.business_name).localeCompare(String(c.business_name));
+      const intros = all.filter((p) => eligibleFor(1, p, blocked)).sort(byRank).map(slim);
+      const followups = all.filter((p) => eligibleFor(2, p, blocked)).sort((a, c) => new Date(a.last_emailed_at) - new Date(c.last_emailed_at)).map(slim);
+      const phoneOnly = {};
+      for (const p of all) if (p.status === "needs_email" && p.phone) phoneOnly[p.category || "Other"] = (phoneOnly[p.category || "Other"] || 0) + 1;
+      return res.status(200).json({ ok: true, limit, sentToday: sent, room: Math.max(0, limit - sent), templates: { intro: !!t.intro, followup: !!t.followup, ...t }, intros, followups, phoneOnly });
+    }
+    if (b.action === "outreach-send") {
+      const step = Number(b.step) === 2 ? 2 : 1;
+      const t = await outreachTemplates();
+      const tpl = step === 1 ? t.intro : t.followup;
+      if (!tpl?.subject || !tpl?.message) return res.status(400).json({ error: `No approved ${step === 1 ? "intro" : "follow-up"} template yet. Ask the owner to approve one in Admin > Businesses.` });
+      const r = await sendOutreach({ ids: b.ids, step, subject: tpl.subject, message: tpl.message, button: tpl.button, signer: t.signer || {}, createdBy: `jarvis:${agent}` });
+      await log(agent, `outreach step ${step}: sent ${r.body.sent ?? 0}${r.body.error ? ` (${r.body.error})` : ""}`, { ids: r.body.sentIds || [] });
+      return res.status(r.status).json({ ok: r.status === 200, ...r.body });
     }
     return res.status(400).json({ error: "Unknown action" });
   } catch (e) {
