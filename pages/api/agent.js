@@ -18,7 +18,7 @@
  * POST { action: "outreach-plan" }                    business cold email due today (lib/outreach.js): cap left, the owner-approved
  *                                                     templates, intros and follow-ups due in priority order, phone-only counts
  * POST { action: "vendor-load", vendor, eta_days, rows: [{ size, brand, model, load_speed?, qty, cost }] }
- *                                                     load one distributor's catalog for the phone AI (replaces its rows)
+ *                                                     load one distributor's catalog for the phone AI (replaces its rows; append: true adds a batch)
  * POST { action: "phone-calls", since? }             Mary's calls (default last 24 h) with quality checks and transcripts
  * POST { action: "quote-queue" }                   phone AI callers waiting on an exact quote (brakes, special-order tires)
  * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
@@ -232,7 +232,7 @@ export default async function handler(req, res) {
     // Nightly distributor catalog load (Jarvis vendor sync): replaces that vendor's rows in vendor_tires.
     if (b.action === "vendor-load") {
       if (!b.vendor || !Array.isArray(b.rows)) return res.status(400).json({ error: "vendor and rows are required" });
-      const r = await loadVendor(String(b.vendor).slice(0, 40), b.rows, b.eta_days);
+      const r = await loadVendor(String(b.vendor).slice(0, 40), b.rows, b.eta_days, b.append === true);
       await log(agent, `vendor-load ${b.vendor}: ${r.ok ? `${r.loaded} tires` : `error ${r.error}`}`);
       return res.status(r.ok ? 200 : 400).json(r);
     }
