@@ -8,6 +8,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 - Phone and texts: 562-500-4625. Website: tireplugla.com. Instagram: @tireplugcali.
 - 5.0 stars on Google, over 10,000 vehicles serviced.
 - Walk-ins welcome; booking a time holds your spot and makes sure your tires are ready.
+- Waiting room with AC while you wait.
 
 ## New tires
 - Prices are per tire. Mount and balance is extra, from $25 a wheel. Prices are before tax.
@@ -35,6 +36,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 ## Brakes (pads)
 - How the shop prices brake pads: the parts price for that exact car plus $60 per wheel, so $120 per axle. Cars with an electric parking brake are $75 more (it's a harder job).
 - Brake pads start at about $150 an axle (front or rear), before tax. All four wheels usually run about $300. Example: a 2012 Toyota Camry is about $155 front, $151 rear, about $306 for all four with standard pads.
+- Brand: we use Duralast brake pads, and Duralast pads come with a lifetime warranty. Rotors are Duralast too and come with a manufacturer's warranty.
 - To spot an electric parking brake, ask: "Does your car have a parking brake button instead of a lever or pedal?" A button means electric: add $75 for the rear brakes.
 - The exact price depends on the car's parts, so take year, make and model (a VIN or license plate works too) and the team confirms it, or book the visit.
 - Rotors aren't included in the pad price. Rotors are priced the same way: the rotor's parts price plus $40 each, usually about $95 a rotor, so about $190 more per axle. Example: 2012 Camry front pads and rotors together are about $348. Grinding usually means the rotors need replacing; the tech confirms it free at the visit.
