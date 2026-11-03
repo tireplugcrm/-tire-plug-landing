@@ -6,6 +6,7 @@ import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import TextsTab from "../../components/admin/TextsTab.js";
 import InvoicesTab from "../../components/admin/InvoicesTab.js";
+import PhoneTab from "../../components/admin/PhoneTab.js";
 import ShopFloor from "../../components/admin/ShopFloor.js";
 import { T, Icon } from "../../components/admin/ui.js";
 import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
@@ -203,6 +204,7 @@ export default function AdminHub() {
     { id: "frontdesk", icon: "concierge", label: "Front Desk", alert: unansweredCount > 0 },
     { id: "crm", icon: "view_kanban", label: "CRM" },
     { id: "texts", icon: "sms", label: "Texts" },
+    { id: "phone", icon: "call", label: "Phone" },
     { id: "customers", icon: "groups", label: "Customers" },
     { id: "pricing", icon: "inventory_2", label: "Inventory" },
     { id: "invoices", icon: "receipt_long", label: "Invoices" },
@@ -279,6 +281,7 @@ export default function AdminHub() {
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         {tab === "pricing" && <PricingTab auth={auth} />}
         {tab === "invoices" && <InvoicesTab auth={auth} />}
+        {tab === "phone" && <PhoneTab auth={auth} />}
         </main>
       </div>
 

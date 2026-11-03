@@ -12,18 +12,16 @@
 //   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, VOICE_AGENT_PHONE (the Twilio number Nextiva forwards to)
 // Optional: VOICE_AGENT_ID to update an existing agent instead of creating one;
 //           VOICE_AGENT_VOICE_ID for Mary's voice (ODMxRBOeGYbfuFnam7BX, "Promotional Voice Girl #2").
-// Rerun after editing the prompt below; it updates the agent in place once VOICE_AGENT_ID is set.
-import { ADDRESS, HOURS_TEXT, PHONE } from "../lib/shop.js";
+// Rerun after editing the prompt below or scripts/voice-agent-kb.md (the knowledge base: every shop
+// fact Mary may use); it updates the agent in place once VOICE_AGENT_ID is set.
+// It also sets what ElevenLabs pulls out of each call and grades it on (lib/phone-calls.js) and the
+// post-call webhook that records every call into Admin → Phone (/api/voice-calls).
+import { readFileSync } from "node:fs";
+import { DATA_FIELDS, QUALITY_CHECKS } from "../lib/phone-calls.js";
 
-// lib/shop-facts.js is written for texts (and won't load in plain node); these are the spoken facts.
-const SHOP_FACTS = `
-Address: ${ADDRESS.oneLine}, in ${ADDRESS.area}. Hours: ${HOURS_TEXT}. Shop phone: ${PHONE.plain}. Website: tireplugla.com.
-Services: new and used tires, flat repair, mount and balance, wheel alignment, TPMS sensors, rotation, brakes, oil change, battery, free tire inspection and air check.
-Mount and balance is extra, from $25 a wheel. TPMS sensors: $199 for a set of 4, or $60 each.
-Every tire has the manufacturer's warranty (defects in how the tire was made, not road damage), plus free flat repairs for the first year on repairable punctures.
-If a flat can't be repaired (sidewall damage, a big cut, a blowout), the free repair and the manufacturer's warranty don't cover it. That's what the Road Hazard Warranty is for: an optional one-time add-on that replaces the tire when road damage can't be repaired. Offer it when they ask; the shop confirms its price at the visit.
-Businesses with a business license get $10 off every tire.
-`.trim();
+const KB_NAME = "The Tire Plug — phone knowledge base";
+const KB_TEXT = readFileSync(new URL("./voice-agent-kb.md", import.meta.url), "utf8");
+const WEBHOOK_NAME = "Tire Plug call records";
 
 const API = "https://api.elevenlabs.io/v1/convai";
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://tireplugla.com").replace(/\/$/, "");
@@ -34,7 +32,7 @@ const key = env("ELEVENLABS_AGENTS_KEY");
 const transfer = E164(env("VOICE_TRANSFER_PHONE"));
 
 async function call(method, path, body) {
-  const r = await fetch(`${API}${path}`, {
+  const r = await fetch(path.startsWith("https://") ? path : `${API}${path}`, {
     method, headers: { "xi-api-key": key, "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -54,7 +52,9 @@ THE CALL, step by step:
 3. Get the size. Ask for the three numbers on the sidewall, like 225 65 17. If they'd rather give the car, that's fine: take year, make and model and work out the factory tire size yourself. If the size depends on the trim or wheel size, ask one short question ("Is that the Sport with 19-inch wheels, or the EX-L?"). Then quote that size and say "we'll double-check the sidewall when you come in." Never refuse to quote because they don't know the size, and don't push a photo: only offer the sidewall-photo text (text_link, no size) if you truly can't tell the size. For a service call (oil, alignment, brakes, TPMS, flat repair), skip to step 5.
 4. Quote. Say "one sec, let me check" and call check_tires. Offer at most three choices as good, better, best: the lowest price, the best value, and a premium pick. Say the price per tire, then the total for four ("so about 260 for all four, plus install from 25 a wheel"). If they're in a rush, lead with what's in stock today. Only use prices check_tires gives you.
 5. Close: always ask for the appointment. Use a choice, not a yes/no: call check_times (next_day true if they picked a next-day tire) and offer two times on the soonest day, a morning and an afternoon, like "I've got 9 or 3 tomorrow, which works better?" If they ask for another time, check it's in the list. When they pick, confirm their cell (their number is {{system__caller_id}}; ask if that's a cell that gets texts, and if they're OK getting a confirmation text). Then call book_appointment with their name, cell, the time's "at", the tire they chose, its price and availability, and sms_ok.
-6. Add-ons, once, after they say yes to a time: new tires go best with an alignment so they wear evenly; ask about TPMS sensors if the car has a tire-pressure light. Prices you may quote are in the shop facts. Note what they want in "notes".
+6. Add-ons, once, after they say yes to a time: new tires go best with an alignment so they wear evenly; ask about TPMS sensors if the car has a tire-pressure light. Prices you may quote are in the knowledge base (Kumho sets get a $49 alignment; other alignments are priced by the shop). Note what they want in "notes".
+   Alignment-only callers: alignments are same-day and priced by the shop, so book the visit (service "Alignment") or save_lead for a text quote.
+   Used-tire callers: take the size; used tires aren't priced by phone, so save_lead with "used tires" in notes and say the team will text today's options, or book them to come look.
 7. Wrap up. Repeat the day and time, the address (2331 East Olympic Boulevard, Downtown LA), and that a confirmation text is coming if they said OK. Thank them by name, then end_call.
 
 If they won't book yet:
@@ -75,8 +75,7 @@ Rules:
 - Only say "one sec, let me check" right before you actually call a tool.
 - Keep it moving: aim for under three minutes. Don't read long lists. If the caller pushes back, give them what they asked for first, then steer back to booking.
 
-Shop facts you can rely on:
-${SHOP_FACTS}
+Shop facts are in your knowledge base (hours, address, prices you may quote, warranties, used and commercial tires, financing). Use only those facts.
 `.trim();
 
 const webhook = (name, description, action, properties, required) => ({
@@ -125,17 +124,42 @@ const tools = [
     params: { system_tool_type: "transfer_to_number", transfers: [{ phone_number: transfer, condition: "The caller wants a person, or you can't help them." }] } },
 ];
 
+// Knowledge base: a fresh copy of voice-agent-kb.md each run (always in the prompt: it's small, and
+// retrieval would add delay); older copies are deleted once the agent points at the new one.
+const oldDocs = ((await call("GET", `/knowledge-base?search=${encodeURIComponent(KB_NAME)}&page_size=50`)).documents || []).filter((x) => x.name === KB_NAME);
+const kb = await call("POST", "/knowledge-base/text", { name: KB_NAME, text: KB_TEXT });
+
+// Post-call webhook: every call (transcript, analysis, recording) goes to /api/voice-calls.
+// Created once; ElevenLabs can't show its headers again, so rerunning leaves it as is.
+const hooks = await call("GET", "https://api.elevenlabs.io/v1/workspace/webhooks");
+let hook = (hooks.webhooks || []).find((w) => w.name === WEBHOOK_NAME);
+if (!hook) {
+  const made = await call("POST", "https://api.elevenlabs.io/v1/workspace/webhooks", {
+    settings: { auth_type: "hmac", name: WEBHOOK_NAME, webhook_url: `${SITE}/api/voice-calls`, request_headers: { "x-voice-key": env("VOICE_AGENT_KEY") } },
+  });
+  hook = { webhook_id: made.webhook_id };
+  console.log(`Created webhook ${hook.webhook_id}`);
+}
+
 const agent = {
   name: "The Tire Plug phone",
   conversation_config: {
     agent: {
       first_message: "Hello, this is Mary from The Tire Plug, how can I help you?",
       language: "en",
-      prompt: { prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.3, tools },
+      prompt: {
+        prompt: PROMPT, llm: "gemini-2.5-flash", temperature: 0.3, tools,
+        knowledge_base: [{ type: "text", name: KB_NAME, id: kb.id, usage_mode: "prompt" }],
+      },
     },
     // Mary's own voice; the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
     tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_flash_v2", stability: 0.5, similarity_boost: 0.8, speed: 1.05 },
     conversation: { max_duration_seconds: 600 },
+  },
+  platform_settings: {
+    data_collection: Object.fromEntries(Object.entries(DATA_FIELDS).map(([id, [type, description]]) => [id, { type, description }])),
+    evaluation: { criteria: Object.entries(QUALITY_CHECKS).map(([id, [name, prompt]]) => ({ id, name, type: "prompt", conversation_goal_prompt: prompt })) },
+    workspace_overrides: { webhooks: { post_call_webhook_id: hook.webhook_id, events: ["transcript", "audio"] } },
   },
 };
 
@@ -147,6 +171,8 @@ if (agentId) {
   agentId = (await call("POST", "/agents/create", agent)).agent_id;
   console.log(`Created agent ${agentId}  (save as VOICE_AGENT_ID)`);
 }
+for (const d of oldDocs) await fetch(`${API}/knowledge-base/${d.id}?force=true`, { method: "DELETE", headers: { "xi-api-key": key } });
+console.log(`Knowledge base ${kb.id} attached (${KB_TEXT.length} chars); ${oldDocs.length} old cop${oldDocs.length === 1 ? "y" : "ies"} removed`);
 
 // The Twilio number: import it once, then point it at the agent.
 // If it's already imported (ElevenLabs > Phone Numbers > Import), Twilio keys aren't needed here.
