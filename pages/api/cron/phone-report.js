@@ -2,7 +2,8 @@
  * Jarvis daily phone report: every evening (Vercel Cron, 03:30 UTC = 7:30 PM LA in winter, 8:30 PM in
  * summer) the owner gets a text with today's phone AI (Mary) numbers from phone_calls (lib/phone-calls.js):
  * calls, bookings, $ booked, leads, alignment adds, quality, why sales were lost, sizes to stock, used-tire asks.
- * No calls today: no text. ?day=YYYY-MM-DD reports another LA day; ?dry=1 returns the text without sending.
+ * Ends with the ElevenLabs credit balance (lib/elevenlabs-credits.js). No calls today: no text,
+ * unless credits are low. ?day=YYYY-MM-DD reports another LA day; ?dry=1 returns the text without sending.
  *
  * Auth: "Authorization: Bearer <CRON_SECRET>" (what Vercel Cron sends).
  */
@@ -10,6 +11,7 @@ import crypto from "node:crypto";
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { report } from "../../../lib/phone-calls.js";
 import { notify } from "../../../lib/agent.js";
+import { elevenCredits, creditsLine } from "../../../lib/elevenlabs-credits.js";
 
 function same(a, b) {
   const x = Buffer.from(String(a)), y = Buffer.from(String(b));
@@ -46,8 +48,15 @@ export default async function handler(req, res) {
   const next = new Date(new Date(`${day}T12:00:00Z`).getTime() + 864e5).toISOString().slice(0, 10);
   const { data, error } = await supabaseAdmin.from("phone_calls").select("*").eq("test", false).gte("started_at", laMidnight(day)).lt("started_at", laMidnight(next));
   if (error) return res.status(500).json({ error: error.message });
-  if (!data?.length) return res.status(200).json({ skipped: "no calls" });
-  const text = reportText(day, report(data));
+  const credits = await elevenCredits();
+  // No calls: no report, unless credits are running low (Mary could stop answering).
+  if (!data?.length) {
+    if (!credits?.low) return res.status(200).json({ skipped: "no calls" });
+    const text = creditsLine(credits);
+    if (!req.query.dry) await notify("phone-report", text);
+    return res.status(200).json({ ok: true, text });
+  }
+  const text = [reportText(day, report(data)), creditsLine(credits)].filter(Boolean).join("\n");
   if (req.query.dry) return res.status(200).json({ text });
   await notify("phone-report", text);
   return res.status(200).json({ ok: true, text });

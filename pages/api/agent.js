@@ -12,7 +12,8 @@
  * POST { action: "entered", ids, note? }              mark uploads entered in Tekmetric
  * POST { action: "stock", csv, confirmShrink? }       Tekmetric inventory CSV -> website stock + prices
  * POST { action: "health" }                           stock freshness, pricing checks, leads, check-in texts, agent errors,
- *                                                     shelf tires priced under cost + $20 (under_margin)
+ *                                                     shelf tires priced under cost + $20 (under_margin),
+ *                                                     ElevenLabs credit balance for Mary (elevenlabs_credits, .low = flag it)
  * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
  * POST { action: "outreach-plan" }                    business cold email due today (lib/outreach.js): cap left, the owner-approved
  *                                                     templates, intros and follow-ups due in priority order, phone-only counts
@@ -35,6 +36,7 @@ import { suppressedSet } from "../../lib/email.js";
 import { sendSms } from "../../lib/sms.js";
 import { digits10 } from "../../lib/phone.js";
 import { logEvent } from "../../lib/front-desk.js";
+import { elevenCredits } from "../../lib/elevenlabs-credits.js";
 
 // Outreach order: the businesses that fit truck and work-vehicle tires first.
 const OUTREACH_ORDER = ["Delivery & trucking", "Contractors & trades", "Auto-adjacent", "Rideshare & limo"];
@@ -131,6 +133,7 @@ async function health() {
     agent_errors_24h: errors.data || [],
     open_approvals: open.data || [],
     under_margin,
+    elevenlabs_credits: await elevenCredits(),
   };
 }
 
