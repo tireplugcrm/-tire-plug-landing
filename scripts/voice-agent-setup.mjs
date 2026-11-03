@@ -104,8 +104,13 @@ if (agentId) {
 }
 
 // The Twilio number: import it once, then point it at the agent.
+// If it's already imported (ElevenLabs > Phone Numbers > Import), Twilio keys aren't needed here.
 const number = E164(env("VOICE_AGENT_PHONE"));
 const existing = (await call("GET", "/phone-numbers")).find?.((p) => p.phone_number === number);
+if (!existing && !process.env.TWILIO_AUTH_TOKEN) {
+  console.log(`${number} isn't in ElevenLabs yet: import it there (Phone Numbers > Import from Twilio), then rerun with VOICE_AGENT_ID=${agentId}.`);
+  process.exit(0);
+}
 const phoneId = existing?.phone_number_id || (await call("POST", "/phone-numbers", {
   provider: "twilio", phone_number: number, label: "Shop line (from Nextiva)",
   sid: env("TWILIO_ACCOUNT_SID"), token: env("TWILIO_AUTH_TOKEN"),
