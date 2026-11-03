@@ -45,6 +45,8 @@ create table if not exists phone_calls (
   created_at timestamptz not null default now()
 );
 create index if not exists phone_calls_started on phone_calls (started_at desc);
+-- Test calls (made while setting Mary up) stay in the table but out of every report.
+alter table phone_calls add column if not exists test boolean not null default false;
 alter table phone_calls enable row level security;
 
 insert into storage.buckets (id, name, public) values ('phone-calls', 'phone-calls', false) on conflict (id) do nothing;

@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   if (!process.env.CRON_SECRET || !same(got, process.env.CRON_SECRET)) return res.status(401).end();
   const day = /^\d{4}-\d{2}-\d{2}$/.test(req.query.day || "") ? req.query.day : laDay();
   const next = new Date(new Date(`${day}T12:00:00Z`).getTime() + 864e5).toISOString().slice(0, 10);
-  const { data, error } = await supabaseAdmin.from("phone_calls").select("*").gte("started_at", laMidnight(day)).lt("started_at", laMidnight(next));
+  const { data, error } = await supabaseAdmin.from("phone_calls").select("*").eq("test", false).gte("started_at", laMidnight(day)).lt("started_at", laMidnight(next));
   if (error) return res.status(500).json({ error: error.message });
   if (!data?.length) return res.status(200).json({ skipped: "no calls" });
   const text = reportText(day, report(data));

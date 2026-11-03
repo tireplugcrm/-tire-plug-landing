@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   if (action === "report") {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(from || "") || !/^\d{4}-\d{2}-\d{2}$/.test(to || "")) return res.status(400).json({ error: "from/to dates" });
-    const { data, error } = await supabaseAdmin.from("phone_calls").select(LIST)
+    const { data, error } = await supabaseAdmin.from("phone_calls").select(LIST).eq("test", false)
       .gte("started_at", laMidnight(from)).lt("started_at", laMidnight(nextDay(to)))
       .order("started_at", { ascending: false }).limit(5000);
     if (error) return res.status(500).json({ error: /phone_calls/.test(error.message) ? "The phone_calls table isn't set up yet (lib/phone-calls-schema.sql)." : error.message });
