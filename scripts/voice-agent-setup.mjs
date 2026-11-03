@@ -108,7 +108,8 @@ Rules:
 - Prices are before tax. If asked about tax, say "that's before tax" and keep going; don't transfer for it.
 - A total with install is "about", since install is from $25 a wheel.
 - Keep every reply short: one or two sentences, under 25 words, except when reading the quote.
-- Only say "one sec, let me check" right before you actually call a tool.
+- Only say "one sec, let me check" right before you actually call a tool, and always say a few words BEFORE check_times or book_appointment ("Let me pull up today's openings", "Booking that now") so the caller never hears silence while it runs.
+- If you don't understand a word the caller said, guess the likely tire term and confirm it in one short question ("Did you mean valve stems?") instead of asking them to explain.
 - Keep it moving: aim for under three minutes. Don't read long lists. If the caller pushes back, give them what they asked for first, then steer back to booking.
 
 Shop facts are in your knowledge base (hours, address, prices you may quote, warranties, used and commercial tires, financing). Use only those facts.
@@ -202,6 +203,8 @@ const agent = {
       soft_timeout_config: { timeout_seconds: 3, message: "Mmm...", max_soft_timeouts_per_generation: 1 },
     },
     conversation: { max_duration_seconds: 600 },
+    // Words the phone transcription kept missing ("Toki" for Toyo, "rotary" for rotors).
+    asr: { keywords: ["Toyo", "Michelin", "Bridgestone", "Goodyear", "Firestone", "Pirelli", "Continental", "Falken", "Kumho", "Hankook", "Yokohama", "Nitto", "BFGoodrich", "Lexani", "Landspider", "Groundspeed", "Lionhart", "Evoluxx", "Blackhawk", "RBP", "Duralast", "rotors", "brake pads", "valve stems", "TPMS", "lug nuts", "wheel locks", "alignment", "rotation"] },
   },
   platform_settings: {
     data_collection: Object.fromEntries(Object.entries(DATA_FIELDS).map(([id, [type, description]]) => [id, { type, description }])),
