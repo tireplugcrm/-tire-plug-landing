@@ -151,7 +151,7 @@ export default function AiWaitlist() {
             <h1>You're <em>in</em>.</h1>
             <p className="lead">Look for the PDF in your email Sunday 11/8 before midnight. Check your spam folder if you don't see it.</p>
             <Countdown />
-            <a className="cta" href="https://instagram.com/theartificialintelligenceplug">Follow @theartificialintelligenceplug</a>
+            <a className="cta" href="https://instagram.com/theartificialinteligenceplug">Follow @theartificialinteligenceplug</a>
           </section>
         )}
 
@@ -159,7 +159,7 @@ export default function AiWaitlist() {
           <section>
             <h2>This one's for business owners.</h2>
             <p className="lead">The PDF is built for people promoting a business. Follow along on Instagram, and when you start one, come back and join.</p>
-            <a className="cta" href="https://instagram.com/theartificialintelligenceplug">Follow @theartificialintelligenceplug</a>
+            <a className="cta" href="https://instagram.com/theartificialinteligenceplug">Follow @theartificialinteligenceplug</a>
             <button className="back" onClick={() => setStep("business")}>← I do have a business</button>
           </section>
         )}
