@@ -101,6 +101,8 @@ async function book(b) {
       serviceTiming: "Booked by phone", appointmentAt: b.at, leadPriority: "HOT",
       smsConsent: b.sms_ok === true, marketingConsent: false, source: "Phone AI",
       notes: b.notes || undefined,
+      // For Jarvis's exact brake quote (pages/api/agent.js quote-queue); stored in the lead's raw.
+      brakes: b.brakes || undefined, rotors: b.rotors ?? undefined, epb: b.epb ?? undefined, vin_or_plate: b.vin_or_plate || undefined,
     }),
     signal: AbortSignal.timeout(20000),
   });

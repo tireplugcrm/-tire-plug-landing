@@ -16,6 +16,9 @@
  * POST { action: "reprice" }                          run the pricing autopilot now (rebuilds stale tire pages)
  * POST { action: "outreach-plan" }                    business cold email due today (lib/outreach.js): cap left, the owner-approved
  *                                                     templates, intros and follow-ups due in priority order, phone-only counts
+ * POST { action: "quote-queue" }                     phone AI callers waiting on an exact quote (brakes, special-order tires)
+ * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
+ *                                                     text the customer the exact quote; copies to the owner (and the brake tech)
  * POST { action: "outreach-send", step, ids }         send the APPROVED template for that step (1 intro, 2 follow-up) to those
  *                                                     businesses; the agent never supplies the wording
  */
@@ -28,6 +31,9 @@ import { linesFromCsv } from "../../lib/stock-csv.mjs";
 import { isCommercialSize } from "../../lib/pricing-engine.js";
 import { dailyLimit, sentToday, eligibleFor, sendOutreach } from "../../lib/outreach.js";
 import { suppressedSet } from "../../lib/email.js";
+import { sendSms } from "../../lib/sms.js";
+import { digits10 } from "../../lib/phone.js";
+import { logEvent } from "../../lib/front-desk.js";
 
 // Outreach order: the businesses that fit truck and work-vehicle tires first.
 const OUTREACH_ORDER = ["Delivery & trucking", "Contractors & trades", "Auto-adjacent", "Rideshare & limo"];
@@ -37,6 +43,55 @@ const rank = (c) => { const i = OUTREACH_ORDER.indexOf(c); return i < 0 ? OUTREA
 async function outreachTemplates() {
   const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", "outreach_templates").maybeSingle();
   try { return JSON.parse(data?.value || "{}"); } catch { return {}; }
+}
+
+// ---- Exact quotes (Jarvis quotes agent) ----
+// Mary (the phone AI) can only estimate brakes and can't price special-order tires (Toyo, Michelin...).
+// Those callers land here; Jarvis looks up the real parts in AutoZone Pro / US AutoForce on the shop PC,
+// applies the owner's pricing and sends the exact quote with quote-send.
+const isBrakeLead = (l) => /brake|rotor/i.test(`${l.service || ""} ${l.raw?.notes || ""} ${l.raw?.brakes || ""}`);
+const isSpecialOrder = (l) => /special order|toyo|michelin/i.test(`${l.service || ""} ${l.raw?.notes || ""}`);
+async function quoteQueue() {
+  const since = new Date(Date.now() - 3 * 864e5).toISOString();
+  const { data } = await supabaseAdmin.from("leads").select("id, created_at, name, phone, vehicle, tire_size, tire_type, service, appointment_at, appt_status, raw")
+    .eq("source", "Phone AI").gte("created_at", since).order("created_at");
+  return (data || [])
+    .filter((l) => !l.raw?.quote_sent_at && l.appt_status !== "canceled" && (isBrakeLead(l) || isSpecialOrder(l)))
+    .map((l) => ({
+      id: l.id, at: l.created_at, kind: isBrakeLead(l) ? "brakes" : "tires", name: l.name, phone: l.phone,
+      vehicle: l.vehicle || l.raw?.vehicle || null, vin_or_plate: l.raw?.vin_or_plate || null,
+      brakes: l.raw?.brakes || null, rotors: l.raw?.rotors ?? null, epb: l.raw?.epb ?? null,
+      tire_size: l.tire_size, tire: l.tire_type, service: l.service, notes: l.raw?.notes || null,
+      appointment_at: l.appointment_at, sms_ok: l.raw?.smsConsent === true,
+    }));
+}
+// b: { id, title, lines: [[label, amount]], total, tax_included, footer? }
+async function quoteSend(b, agent) {
+  const { data: l } = await supabaseAdmin.from("leads").select("*").eq("id", b.id).maybeSingle();
+  if (!l) return { ok: false, error: "Lead not found" };
+  if (l.raw?.quote_sent_at) return { ok: false, error: "Quote already sent" };
+  if (!Array.isArray(b.lines) || !b.lines.length || !(Number(b.total) > 0) || !b.title) return { ok: false, error: "Need title, lines and total" };
+  const d = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
+  const body = [
+    `The Tire Plug: ${b.title}`,
+    ...b.lines.map(([label, amount]) => `${label}: ${d(amount)}`),
+    `${b.tax_included ? "Out the door" : "Total (before tax)"}: ${d(b.total)}`,
+    l.appointment_at ? `See you ${new Date(l.appointment_at).toLocaleString("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.` : "Reply here or call 562-500-4625 to book.",
+    b.footer || "2331 E Olympic Blvd, Los Angeles.",
+  ].join("\n");
+  const sms = await sendSms({ to: l.phone, body });
+  if (!sms.ok) return { ok: false, error: sms.error || "Text failed" };
+  await supabaseAdmin.from("leads").update({ raw: { ...l.raw, quote_sent_at: new Date().toISOString(), quote: { title: b.title, lines: b.lines, total: b.total, tax_included: !!b.tax_included } } }).eq("id", l.id);
+  await supabaseAdmin.from("lead_messages").insert({ lead_id: l.id, direction: "outbound", phone: digits10(l.phone), body, twilio_sid: sms.sid, status: sms.status, read: true });
+  await logEvent(l.id, "quote_sent", `Jarvis texted ${l.name || "the customer"} the exact quote: ${d(b.total)}`);
+  // Copies: the owner always; brake quotes also go to the brake tech (app_settings brake_alert_phone).
+  await notify(agent, `Quote sent to ${l.name || "customer"} (${digits10(l.phone).slice(-4)}): ${b.title}, ${d(b.total)}${b.tax_included ? " out the door" : " before tax"}.`);
+  if (isBrakeLead(l)) {
+    const { data: s } = await supabaseAdmin.from("app_settings").select("value").eq("key", "brake_alert_phone").maybeSingle();
+    if (s?.value) await sendSms({ to: s.value, body: `Jarvis sent this brake quote to ${l.name || "the customer"} (${digits10(l.phone)}):\n${body}` });
+  }
+  await log(agent, `quote sent ${l.id}: ${d(b.total)}`);
+  return { ok: true, sent: body };
 }
 
 export const maxDuration = 60;
@@ -164,6 +219,11 @@ export default async function handler(req, res) {
       const r = await sendOutreach({ ids: b.ids, step, subject: tpl.subject, message: tpl.message, button: tpl.button, signer: t.signer || {}, createdBy: `jarvis:${agent}` });
       await log(agent, `outreach step ${step}: sent ${r.body.sent ?? 0}${r.body.error ? ` (${r.body.error})` : ""}`, { ids: r.body.sentIds || [] });
       return res.status(r.status).json({ ok: r.status === 200, ...r.body });
+    }
+    if (action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
+    if (action === "quote-send") {
+      const r = await quoteSend(b, agent);
+      return res.status(r.ok ? 200 : 400).json(r);
     }
     return res.status(400).json({ error: "Unknown action" });
   } catch (e) {
