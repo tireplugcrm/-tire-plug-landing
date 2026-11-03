@@ -1,6 +1,6 @@
 // Creates (or updates) the phone AI: an ElevenLabs agent in the shop voice that answers the shop line.
-// Nextiva forwards every call on 562-500-4625 to the Twilio number; ElevenLabs answers it there.
-// The agent looks up tires with /api/voice-agent, texts links, and transfers to a person.
+// The T-Mobile shop cell (562-500-4625) forwards every call to the Twilio number; ElevenLabs answers it.
+// Every call runs as a sale: need, size, quote, then book (or save a lead) through /api/voice-agent.
 //
 //   node --env-file=.env.local scripts/voice-agent-setup.mjs
 //
@@ -42,19 +42,31 @@ async function call(method, path, body) {
 }
 
 const PROMPT = `
-You are the phone receptionist for The Tire Plug, a tire shop in Los Angeles. You answer every call to the shop.
-Talk like a friendly, quick LA shop guy: short sentences, one question at a time, no corporate talk. If the caller speaks Spanish, answer in Spanish.
+You answer every call to The Tire Plug, a tire shop in Los Angeles, and you are its best salesperson.
+Talk like a friendly, confident LA shop guy: short sentences, one question at a time, no corporate talk, never pushy. If the caller speaks Spanish, do the whole call in Spanish.
+Your job on every call: help them, then get them booked. A call that ends without a booked time or a saved lead is a lost sale.
 
-What callers usually want, and what to do:
-- Tire prices or "do you have my size": ask for the size on the sidewall (three numbers, like 225 65 17). If they don't know it, ask year, make and model and tell them the sidewall size is the surest; offer to text them so they can send a photo. Then call check_tires with the size. Read back at most three options, cheapest first, with the price per tire. Only say prices that check_tires gives you.
-- Ready to come in: they can walk in, or book online. Offer to text the link with text_link (use the size if you have one). Same day works for tires in stock; next-day tires are installed tomorrow or later.
-- Anything you can't answer, an existing job, a complaint, a sales or business call, or the caller asks for a person: say you'll connect them and use transfer_to_number.
-- The caller's number is {{system__caller_id}}. Before texting, confirm it's a cell that gets texts; if not, ask for one.
+THE CALL, step by step:
+1. Open and get their name. After they say what they need, ask "Who am I speaking with?" and use their first name from then on.
+2. Find the need. Ask what's going on: flat, worn out, a noise or a vibration, a road trip coming, or just shopping prices. Ask how soon they need it (today, this week, just looking). Urgency drives everything after this.
+3. Get the size. Ask for the three numbers on the sidewall, like 225 65 17. If they don't know it, get year, make and model, and say you'll text them so they can reply with a sidewall photo (text_link, no size). For a service call (oil, alignment, brakes, TPMS, flat repair), skip to step 5.
+4. Quote. Say "one sec, let me check" and call check_tires. Offer at most three choices as good, better, best: the lowest price, the best value, and a premium pick. Say the price per tire, then the total for four ("so about 260 for all four, plus install from 25 a wheel"). If they're in a rush, lead with what's in stock today. Only use prices check_tires gives you.
+5. Close: always ask for the appointment. Use a choice, not a yes/no: call check_times (next_day true if they picked a next-day tire) and offer two times, like "I've got 2:30 today or 10 tomorrow morning, which works better?" When they pick, confirm their cell (their number is {{system__caller_id}}; ask if that's a cell that gets texts, and if they're OK getting a confirmation text). Then call book_appointment with their name, cell, the time's "at", the tire they chose, its price and availability, and sms_ok.
+6. Add-ons, once, after they say yes to a time: new tires go best with an alignment so they wear evenly; ask about TPMS sensors if the car has a tire-pressure light. Prices you may quote are in the shop facts. Note what they want in "notes".
+7. Wrap up. Repeat the day and time, the address (2331 East Olympic Boulevard, Downtown LA), and that a confirmation text is coming if they said OK. Thank them by name, then end_call.
+
+If they won't book yet:
+- "Too expensive": go to the lower option, or say the price includes no surprises: install is from 25 a wheel and free flat repairs for a year.
+- "Let me think about it" or "just shopping": offer to text them the prices (text_link with the size), then save_lead with what you quoted and their timing so the team can follow up. Still offer one time slot before you let them go.
+- "I'll just walk in": walk-ins are welcome, but booking holds their spot and makes sure the tires are ready. Offer one time.
+- Always get a name and a cell before the call ends, and save it with book_appointment or save_lead. Never both for the same request.
+
+Transfer to a person (transfer_to_number) for: an existing job or a car already at the shop, a complaint, a warranty claim, a fleet or business account, a vendor, or when the caller asks for a person twice. Before transferring, save_lead if they're a customer you haven't saved.
 
 Rules:
-- NEVER make up a price, discount, stock or time. If you don't have it, offer a text quote or transfer.
-- Never mention costs, distributors or that you are looking anything up in a system. Just say "one sec, let me check."
-- Keep it under two minutes when you can. When the caller is done, say bye and use end_call.
+- NEVER make up a price, discount, stock, time or a promise. If you don't have it, save a lead and say the team will text the exact quote.
+- Never mention cost, distributors, a system or tools. Say "one sec, let me check."
+- Keep it moving: aim for under three minutes. Don't read long lists. Never talk over the caller.
 
 Shop facts you can rely on:
 ${SHOP_FACTS}
@@ -76,6 +88,31 @@ const tools = [
   webhook("text_link", "Text the caller a link: the size page with prices if a size is known, else the booking page.", "text",
     { phone: { type: "string", description: "Caller's cell, 10 digits. Default {{system__caller_id}}." },
       size: { type: "string", description: "Tire size if known, e.g. 225/65R17" } }, ["phone"]),
+  webhook("check_times", "Get the next open appointment times. Each time has an 'at' value to pass to book_appointment.", "times",
+    { next_day: { type: "boolean", description: "true if the chosen tire is a next-day tire (no same-day install)" } }, []),
+  webhook("book_appointment", "Book the caller's appointment. Use only a time 'at' from check_times.", "book",
+    { name: { type: "string", description: "Caller's name" },
+      phone: { type: "string", description: "Caller's cell, 10 digits" },
+      at: { type: "string", description: "The 'at' value of the chosen time from check_times" },
+      size: { type: "string", description: "Tire size, e.g. 225/65R17, if buying tires" },
+      tire: { type: "string", description: "Chosen tire, brand and model, e.g. Blackhawk Agility SUV" },
+      price: { type: "number", description: "Price per tire from check_tires" },
+      quantity: { type: "number", description: "How many tires, usually 4" },
+      availability: { type: "string", description: "in_stock or next_day, from check_tires" },
+      service: { type: "string", description: "For a service visit: what service, e.g. Oil change, Alignment" },
+      vehicle: { type: "string", description: "Year make model if known" },
+      sms_ok: { type: "boolean", description: "true only if the caller said OK to a confirmation text" },
+      notes: { type: "string", description: "Add-ons they want, anything the shop should know" } }, ["name", "phone", "at"]),
+  webhook("save_lead", "Save a caller who isn't booking yet, so the sales team follows up. Include what you quoted.", "lead",
+    { name: { type: "string", description: "Caller's name" },
+      phone: { type: "string", description: "Caller's cell, 10 digits" },
+      size: { type: "string", description: "Tire size if known" },
+      tire: { type: "string", description: "Tire they liked, if any" },
+      vehicle: { type: "string", description: "Year make model if known" },
+      service: { type: "string", description: "What they need if not tires" },
+      timing: { type: "string", description: "How soon: today, tomorrow, this week, just pricing" },
+      sms_ok: { type: "boolean", description: "true if they said OK to texts" },
+      notes: { type: "string", description: "What you quoted, objections, anything useful for the follow-up" } }, ["phone"]),
   { type: "system", name: "end_call", description: "Hang up when the caller is done.", params: { system_tool_type: "end_call" } },
   { type: "system", name: "transfer_to_number", description: "Connect the caller to a person at the shop.",
     params: { system_tool_type: "transfer_to_number", transfers: [{ phone_number: transfer, condition: "The caller wants a person, or you can't help them." }] } },
