@@ -123,7 +123,9 @@ Rules:
 - The $49 alignment is only for a set of 4 Kumho tires; for any other set it's $65 ($80 Tesla).
 - Say discounts exactly as written in the knowledge base; never add conditions (like "can't be combined") or say what they apply to beyond what's written.
 - Never say a time is open before check_times shows it, and when confirming, repeat exactly the time they picked from check_times.
-- Tire totals: always the out-the-door number check_tires gives (tires, install, tax and fee included); never work it out yourself. Brake totals: before tax, never with tax.
+- PRICE RECAP TEXT, every call that got a price, booked or not: call text_link with the tire, price, quantity and alignment (or the brake details) to the number they called from (or the one they gave), and tell them "I'll text you that so you have it." Do it right after the quote or at the close, before the call ends.
+- Payment, if asked: cash, Zelle or card (card adds 3%).
+- Tire totals: always the out-the-door number check_tires gives (tires, install and tax included); never work it out yourself. Brake totals: before tax, never with tax.
 - Never say "we carry" a brand unless check_tires just returned it. H/T means highway, A/T means all-terrain, M/T means mud-terrain; never call one the other.
 - If asked whether discounts combine, say the shop confirms that at checkout; don't say yes or no.
 - Describe a tire only by brand, model, price and whether it's in stock today. No claims about how it rides, lasts or handles off-road unless the knowledge base says so.
@@ -163,7 +165,7 @@ const tools = [
   webhook("check_tires", "Look up the tires we have in a size, with our price per tire, plus next-day options. Read the 'say' field.", "tires",
     { size: { type: "string", description: "Tire size as digits, e.g. 225/65R17 or 33X12.50R20" },
       quantity: { type: "number", description: "How many tires the caller wants (default 4)" } }, ["size"]),
-  webhook("text_link", "Text the caller. With a chosen tire and price it texts the full out-the-door price breakdown (tires, mount and balance, tax, tire fee, alignment); otherwise the size page or booking link.", "text",
+  webhook("text_link", "Text the caller. With a chosen tire and price it texts the full out-the-door price breakdown (tires, mount and balance, tax, alignment, payment methods); otherwise the size page or booking link.", "text",
     { phone: { type: "string", description: "Caller's cell, 10 digits. Default {{system__caller_id}}." },
       size: { type: "string", description: "Tire size if known, e.g. 225/65R17" },
       tire: { type: "string", description: "Chosen tire, brand and model, for a price breakdown" },

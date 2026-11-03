@@ -43,9 +43,10 @@ function parseSize(s) {
 const money = (n) => `$${Math.round(n)}`;
 
 // Out-the-door for a set of 4 (owner, Nov 2026): tires + $25 a wheel mount and balance + 10% tax on
-// the tires + California tire fee $2 a tire. e.g. $125 tires: 500 + 100 + 50 + 8 = $658.
-export const INSTALL = 25, TAX = 0.1, CA_FEE = 2;
-export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty + CA_FEE * qty);
+// the tires (no tire fee in quotes, owner's call 11-03). e.g. $125 tires: 500 + 100 + 50 = $650.
+export const INSTALL = 25, TAX = 0.1;
+export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty);
+export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
 // Out the door for the quantity the caller wants (2 tires is common), not always 4.
 const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}`;
 
@@ -69,7 +70,7 @@ async function tires(size, quantity) {
   if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => line(t, qty)).join("; ")}.`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Brands like Toyo or Michelin can be special ordered: save a lead so the team pulls the price and texts it.`);
-  parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance, 10% tax on the tires and the $${CA_FEE} a tire California fee. Each tire's treadwear warranty is in its "warranty" field.${big}`);
+  parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance and 10% tax on the tires. Each tire's treadwear warranty is in its "warranty" field.${big}`);
   return { ok: true, size: key, quantity: qty, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
 
@@ -140,8 +141,8 @@ async function lead(b) {
 const ALIGN = { regular: 75, tesla: 90 };
 function breakdown(b, key) {
   const qty = Number(b.quantity) || 4, price = Number(b.price);
-  const tires = price * qty, install = INSTALL * qty, tax = TAX * tires, fee = CA_FEE * qty;
-  const otd = tires + install + tax + fee; // to the cent here; spoken prices round to the dollar
+  const tires = price * qty, install = INSTALL * qty, tax = TAX * tires;
+  const otd = tires + install + tax; // to the cent here; spoken prices round to the dollar
   const align = b.alignment ? (/kumho/i.test(b.tire) && qty === 4 ? 49 : (b.tesla ? ALIGN.tesla : ALIGN.regular) - (qty === 4 ? 10 : 0)) : 0;
   const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
   return [
@@ -149,9 +150,9 @@ function breakdown(b, key) {
     `Tires: ${qty} x ${d(price)} = ${d(tires)}`,
     `Mount & balance: ${d(install)}`,
     `Tax (10% on tires): ${d(tax)}`,
-    `CA tire fee: ${d(fee)}`,
     `Out the door: ${d(otd)}`,
     ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(otd + align)}`] : []),
+    PAYMENT,
     `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
   ].join("\n");
 }
@@ -177,6 +178,7 @@ function brakeText(b) {
     ...e.lines.map(([l, n]) => `${l}: $${n}`),
     `Estimated total: $${e.total} (before tax)`,
     `Exact price is confirmed for your car before any work starts.`,
+    PAYMENT,
     `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
   ].join("\n");
 }

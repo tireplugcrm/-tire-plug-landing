@@ -12,7 +12,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 
 ## New tires
 - Prices are per tire. Mount and balance is a flat $25 a wheel for every size up to 23 inches. We don't mount 24-inch wheels and up (those tires are carry-out only).
-- Out-the-door price for 4 tires = the 4 tires + $100 mount and balance + 10% tax on the tire price + California tire fee of $2 a tire ($8). Example: four $125 tires = $500 + $100 + $50 tax + $8 fee = $658 out the door. check_tires gives the out-the-door number for each tire; always quote it.
+- Out-the-door price for 4 tires = the 4 tires + $100 mount and balance + 10% tax on the tire price. Example: four $125 tires = $500 + $100 + $50 tax = $650 out the door. There's no separate tire disposal fee in our quotes. check_tires gives the out-the-door number for each tire; always quote it.
 - Valve stems: $5 for all four, or $2 each (add-on).
 - Special orders: we can get brands like Toyo and Michelin that aren't on our shelf or next-day list. They're priced from a supplier portal, so take the size and save_lead ("special order: Toyo") and say the team will text the price, or book them in.
 - Tires on the shelf can go on the same day. Tires we order in (next-day) are installed tomorrow or later, never the same day.
@@ -64,6 +64,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, Mary doesn't know it: sh
 - Kumho: up to 75,000-mile treadwear warranty (depends on the tire), road hazard replacement in the first 12 months, 30-day satisfaction guarantee.
 
 ## Paying
+- We take cash, Zelle and card. Card payments add a 3% fee.
 - Financing through Snap Finance: pay over time. Don't promise approval or rates; they can ask at the shop.
 - Payment methods aren't listed; if asked, say the shop takes care of payment at the visit and transfer if they need specifics.
 
