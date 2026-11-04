@@ -108,8 +108,8 @@ async function tires(size, quantity, brand) {
   order = order.slice(0, 10);
   const parts = [];
   if (short.length) parts.push(`Not enough on the shelf for ${qty}: ${short.slice(0, 4).map((t) => `${t.brand} ${t.model} (only ${t.count})`).join(", ")}; don't offer these for ${qty} tires.`);
-  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t)}`).join("; ")}.${!want && inStock.length >= 3 ? " Quote these three as good, better, best." : ""}`);
-  if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
+  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t)}`).join("; ")}. QUOTE TWO TIRES MAX (owner, Nov 4: three-tire quotes were losing callers), one short line each, then the close: ${want ? "the brand they asked for first, plus one other" : inStock.length >= 3 ? "the GOOD (budget) and the BEST; bring up the BETTER only if they ask for something in between" : "these"}.`);
+  if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.${inStock.length ? " Don't mention next-day tires unless they ask for cheaper or a brand." : " Quote two of these max, cheapest first."}`);
   // Special order (not on the shelf or next day): a person takes it while the shop is open (owner, Nov 4).
   if (!parts.length) parts.push(shopOpenNow()
     ? `SPECIAL ORDER: we don't have ${key} on the shelf or next day. Say exactly: "It looks like I have to special order these and I don't have them in stock, let me transfer you to someone who can help." Then call transfer_to_number right away. (If you already have their name and number, save_lead first with the size and vehicle.)`
