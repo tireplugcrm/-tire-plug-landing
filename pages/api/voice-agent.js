@@ -226,7 +226,7 @@ async function brakeQuote(b) {
   const car = b.vehicle ? matchCar(await brakeParts().catch(() => []), b.vehicle) : null;
   const sides = which === "all" ? ["front", "rear"] : [which];
   const lines = [];
-  let exact = !!car;
+  let exact = !!car && !car.near; // a nearby model year's parts: a close estimate, not exact
   const brand = car?.pads_brand ? `${car.pads_brand}${car.pads_warranty ? `, ${car.pads_warranty} warranty` : ""}` : "Duralast, lifetime warranty";
   for (const side of sides) {
     const cost = car?.[`${side}_pads`];
