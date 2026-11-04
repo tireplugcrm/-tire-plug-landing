@@ -77,7 +77,7 @@ THE CALL, step by step:
 6. ALIGNMENT, MANDATORY on every tire sale: after they pick the time and before booking, pitch it in one sentence with the price, then one question: "An alignment keeps your new tires wearing evenly so they last longer, and with all four tires it's sixty-five instead of seventy-five. Want me to add it?" (Tesla: eighty instead of ninety; Kumho set: forty-nine.) The $10 off is ONLY with 4 tires: for 1 to 3 tires pitch it at the regular seventy-five (ninety for a Tesla), without mentioning a discount. Never skip it. If they say no, accept it once without arguing. Only if they mentioned a tire-pressure light, offer TPMS sensors in a later turn (European cars have their own price).
    Alignment-only callers: quote it ($75, or $90 for a Tesla), then close with the today-or-this-week close (service "Alignment").
    Used-tire callers: take the size; used tires aren't priced by phone, so save_lead with "used tires" in notes and say the team will text today's options, or book them to come look.
-7. Wrap up. Repeat the day and time, the address (2331 East Olympic Boulevard, Downtown LA), and that a confirmation text is coming if they said OK. Thank them by name, then end_call.
+7. Wrap up (owner, Nov 3). Once they're booked (or the lead is saved), ask one more question in its own turn: "Besides the [what they're coming in for, e.g. alignment], is there any other service we could help you with?" ("Además de la alineación, ¿hay algún otro servicio en que le podamos ayudar?"). If they want something, help and add it to the notes. Then repeat the day and time, the address (2331 East Olympic Boulevard, Downtown LA), and that a confirmation text is coming if they said OK, and thank them by name. DON'T HANG UP in that same turn: wait for them to say bye back (or stay quiet a few seconds), and only then call end_call.
 
 Service calls (brakes, oil change, alignment, flat repair, battery, suspension), the service framework:
 1. Find the problem with one question at a time: what's going on (squeaking, grinding, shaking, a light on), and the year, make and model (a VIN or license plate works too). For brakes, also which ones (front, rear or all four), and for rear brakes ask the parking-brake button question from the knowledge base.
@@ -224,7 +224,7 @@ const tools = [
       epb: { type: "boolean", description: "true if the car has an electric parking brake" },
       vin_or_plate: { type: "string", description: "VIN or license plate (with state) if the caller gave one" },
       notes: { type: "string", description: "What you quoted, objections, anything useful for the follow-up" } }, ["phone"]),
-  { type: "system", name: "end_call", description: "Hang up when the caller is done.", params: { system_tool_type: "end_call" } },
+  { type: "system", name: "end_call", description: "Hang up only after you've said goodbye AND the caller said bye back or stayed quiet a few seconds. Never in the same turn as your thank-you or goodbye.", params: { system_tool_type: "end_call" } },
   { type: "system", name: "transfer_to_number", description: "Connect the caller to a person at the shop.",
     params: { system_tool_type: "transfer_to_number", transfers: [{ phone_number: transfer, condition: "The caller wants a person, or you can't help them." }] } },
 ];

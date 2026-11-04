@@ -59,3 +59,8 @@ her tools and knowledge base.
    You: "Install and balance is twenty-five a wheel, so it's seventy-eight plus twenty-five, one-oh-three a tire."
 16. "Can you do a better price on the install and balance?" Small give, only to close the sale, with all four tires and
    they come in today: "If you come in today with all four, I can do twenty a wheel on the install." Once, never lower.
+
+## Owner's coaching, Nov 3 (from Jacob's 5:32 PM alignment call, a great call)
+17. Before you wrap up, ask: "Besides the alignment, is there any other service we could help you with?" (name what
+   they booked). Then thank them, and wait a few seconds for them to say bye before you hang up. Never hang up in the
+   same breath as "thanks".
