@@ -22,7 +22,7 @@ import { sizeKey, sizeToSlug } from "../../lib/tire-catalog.js";
 import { sendSms } from "../../lib/sms.js";
 import { toE164 } from "../../lib/phone.js";
 import { SITE } from "../../lib/invoices.js";
-import { openSlots } from "../../lib/booking.js";
+import { openSlots, fmtWhen } from "../../lib/booking.js";
 import { onNewLead } from "../../lib/front-desk.js";
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { vendorForSize } from "../../lib/vendor-tires.js";
@@ -134,6 +134,24 @@ async function times(nextDayOnly) {
 // next-day rule, owner alert and confirmation text, and show up in Admin like any booking.
 async function book(b) {
   if (!toE164(b.phone) || !b.name || !b.at) return { ok: false, say: "I need their name, a cell number and a time from check_times before I can book." };
+  // Already booked on this call (they added an oil change after booking): add it to that appointment. Booking again
+  // hit our own slot as "taken" and lost a caller who had just booked (owner's test call, Nov 3).
+  const since = new Date(Date.now() - 60 * 60e3).toISOString();
+  const { data: mine } = await supabaseAdmin.from("leads").select("*").eq("phone", toE164(b.phone)).eq("source", "Phone AI")
+    .eq("appt_status", "confirmed").gte("appt_booked_at", since).order("appt_booked_at", { ascending: false }).limit(1).maybeSingle();
+  if (mine) {
+    const join = (x, y) => [...new Set([x, y].filter(Boolean))].join("; ");
+    const when = fmtWhen(mine.appointment_at);
+    if (Math.abs(new Date(b.at) - new Date(mine.appointment_at)) > 60e3) {
+      return { ok: false, say: `They're already booked for ${when} on this call. Ask if they want to keep ${when} (then just add the service) or move it; don't book a second appointment.` };
+    }
+    await supabaseAdmin.from("leads").update({
+      service: join(mine.service, b.service), vehicle: mine.vehicle || b.vehicle || null,
+      raw: { ...mine.raw, notes: join(mine.raw?.notes, b.notes), added_by_phone: join(mine.raw?.added_by_phone, b.service || b.notes) },
+    }).eq("id", mine.id);
+    if (isBrakes(b) && !isBrakes(mine.raw || {})) await alertBrakeTech("booking", { ...mine.raw, ...b }, ` Booked ${when}.`);
+    return { ok: true, when, say: `Added to their booking for ${when}; their time is the same. Say "Got it, I added it to your appointment" and keep going.` };
+  }
   const key = b.size ? parseSize(b.size) : null;
   const qty = Number(b.quantity) || 4;
   const tire = b.tire ? String(b.tire).trim() : null;
