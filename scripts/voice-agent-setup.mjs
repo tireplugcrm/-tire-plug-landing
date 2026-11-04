@@ -286,8 +286,8 @@ const agent = {
     },
     conversation: {
       max_duration_seconds: 600,
-      // A quiet front-office sound under her voice; dead studio silence is a giveaway.
-      background_sound: { source_type: "preset", source_id: "office2", volume: 0.12, crossfade_loop: true },
+      // A quiet front-office sound under his voice; dead studio silence is a giveaway. 0.05 (was 0.12): owner's ask for a louder voice; ElevenLabs has no voice gain, so the bed goes down instead.
+      background_sound: { source_type: "preset", source_id: "office2", volume: 0.05, crossfade_loop: true },
     },
     // Words the phone transcription kept missing ("Toki" for Toyo, "rotary" for rotors).
     asr: { keywords: ["Toyo", "Michelin", "Bridgestone", "Goodyear", "Firestone", "Pirelli", "Continental", "Falken", "Kumho", "Hankook", "Yokohama", "Nitto", "BFGoodrich", "Lexani", "Landspider", "Groundspeed", "Lionhart", "Evoluxx", "Blackhawk", "RBP", "Duralast", "rotors", "brake pads", "valve stems", "TPMS", "lug nuts", "wheel locks", "alignment", "rotation"] },
