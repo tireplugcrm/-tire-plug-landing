@@ -126,11 +126,13 @@ export default function TireSizePage({ sizeKey, tires, stock, nextDay = [], near
               <p className="lead">
                 {inStock && <><b>{stock.length} {stock.length === 1 ? "option" : "options"} in stock</b> at our shop today. </>}
                 {hasNextDay && <><b>{nextDay.length} more next day</b>: order today, installed tomorrow. </>}
-                {has
-                  ? <>{tires.length} option{tires.length > 1 ? "s" : ""} from <b>{money(from)}</b> per tire. Cheapest first.</>
-                  : inStock
-                    ? stockFrom != null ? <>From <b>{money(stockFrom)}</b> per tire. Cheapest first.</> : <>Text us for today's price.</>
-                    : <>We don't have {display} listed online yet, but we can usually get it fast.</>}
+                {inStock && stockFrom != null
+                  ? <>From <b>{money(stockFrom)}</b> per tire. Cheapest first.</>
+                  : has
+                    ? <>{tires.length} option{tires.length > 1 ? "s" : ""} from <b>{money(from)}</b> per tire. Cheapest first.</>
+                    : inStock
+                      ? <>Text us for today's price.</>
+                      : <>We don't have {display} listed online yet, but we can usually get it fast.</>}
               </p>
             </div>
             <div className="ts-search top">
