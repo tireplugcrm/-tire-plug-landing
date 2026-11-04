@@ -508,7 +508,8 @@
       "aliases": [
         "ZG02"
       ],
-      "source": "https://simpletire.com/brands/arisun-tires/aresta-zg02"
+      "source": "https://simpletire.com/brands/arisun-tires/aresta-zg02",
+      "warranty": 55000
     },
     "Arroyo|Grand Sport A/S": {
       "category": "All-Season Performance (Passenger)",
@@ -763,7 +764,8 @@
         "ZG04",
         "Aresta H/T ZG04"
       ],
-      "source": "https://simpletire.com/brands/arisun-tires/zg04"
+      "source": "https://simpletire.com/brands/arisun-tires/zg04",
+      "warranty": 45000
     },
     "Arisun|Aggressor ZP11": {
       "category": "Passenger All Season Touring",
@@ -793,7 +795,8 @@
       "aliases": [
         "ZP01"
       ],
-      "source": "https://simpletire.com/brands/arisun-tires/aggressor-zp01"
+      "source": "https://simpletire.com/brands/arisun-tires/aggressor-zp01",
+      "warranty": 55000
     },
     "Arisun|Aggressor ZS03": {
       "category": "Ultra High Performance All Season",
@@ -1582,7 +1585,8 @@
         "T131",
         "Temporary spare 131"
       ],
-      "source": "https://www.innovativeautoworx.com/tires/kumho-spare-131-black-sidewall/13570r19-2158963"
+      "source": "https://www.innovativeautoworx.com/tires/kumho-spare-131-black-sidewall/13570r19-2158963",
+      "warranty": "none"
     },
     "Jinyu|A1 Touring AS": {
       "category": "All Season Touring",
@@ -1814,7 +1818,8 @@
         "FK510",
         "AZENI FK510"
       ],
-      "source": "https://green.falkentire.com/azenis/fk510"
+      "source": "https://green.falkentire.com/azenis/fk510",
+      "warranty": "none"
     },
     "Goodyear|Assurance RangeMax": {
       "category": "EV/Hybrid All-Season Touring",
