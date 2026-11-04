@@ -2595,6 +2595,22 @@
       "img": "/images/tires/amulet-ad515.webp",
       "aliases": [],
       "source": "https://simpletire.com/brands/amulet-tires/ad515"
+    },
+    "Royal Black|Touring HP": {
+      "category": "All-season touring",
+      "about": "An all-season touring tire for cars and SUVs, built for responsive handling, wet grip that resists hydroplaning and a quiet ride.",
+      "features": [],
+      "img": "/images/tires/royal-black-touring-hp.webp",
+      "source": "https://www.prioritytire.com/by-brand/royal-black-tires/touring-hp/215-70r14-96t-191201"
+    },
+    "Arroyo|Tamarock A/T": {
+      "category": "All-terrain light truck",
+      "about": "An all-terrain, all-weather tire for SUVs and light trucks, with staggered tread blocks and wide grooves for traction off the pavement.",
+      "features": [
+        "50,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/arroyo-tamarock-a-t.webp",
+      "source": "https://www.prioritytire.com/by-brand/arroyo-tires/tamarock-a-t/285-75r16-126-123r-e-10-ply-11058"
     }
   }
 }
