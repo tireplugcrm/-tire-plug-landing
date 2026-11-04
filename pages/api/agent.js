@@ -19,6 +19,7 @@
  *                                                     templates, intros and follow-ups due in priority order, phone-only counts
  * POST { action: "vendor-load", vendor, eta_days, rows: [{ size, brand, model, load_speed?, qty, cost }] }
  *                                                     load one distributor's catalog for the phone AI (replaces its rows; append: true adds a batch)
+ * POST { action: "vendor-upload-token" }             a 2-hour pass for /api/vendor-upload (portal pages post their catalogs directly)
  * POST { action: "phone-calls", since? }             Mary's calls (default last 24 h) with quality checks and transcripts
  * POST { action: "quote-queue" }                   phone AI callers waiting on an exact quote (brakes, special-order tires)
  * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
@@ -235,6 +236,13 @@ export default async function handler(req, res) {
       const r = await loadVendor(String(b.vendor).slice(0, 40), b.rows, b.eta_days, b.append === true);
       await log(agent, `vendor-load ${b.vendor}: ${r.ok ? `${r.loaded} tires` : `error ${r.error}`}`);
       return res.status(r.ok ? 200 : 400).json(r);
+    }
+    // A 2-hour pass for /api/vendor-upload, so a portal page can post its catalog without holding the Jarvis key.
+    if (b.action === "vendor-upload-token") {
+      const token = (await import("node:crypto")).randomBytes(24).toString("hex");
+      const expires = new Date(Date.now() + 2 * 3600e3).toISOString();
+      await supabaseAdmin.from("app_settings").upsert({ key: "vendor_upload_token", value: JSON.stringify({ token, expires }), updated_at: new Date().toISOString() }, { onConflict: "key" });
+      return res.status(200).json({ token, expires, url: "https://tireplugla.com/api/vendor-upload" });
     }
     if (b.action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
     // Mary's calls since a time (default 24 h), for the coach: outcome, failed quality checks, transcript.
