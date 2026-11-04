@@ -49,7 +49,7 @@ export const INSTALL = 25, TAX = 0.1;
 export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty);
 export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
 // Out the door for the quantity the caller wants (2 tires is common), not always 4.
-const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}`;
+const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}${t.warranty ? ` (${t.warranty.replace(/;.*/, "")})` : ""}`;
 
 async function tires(size, quantity, brand) {
   const qty = Math.min(Math.max(Math.round(Number(quantity)) || 4, 1), 8);
@@ -63,7 +63,13 @@ async function tires(size, quantity, brand) {
   // feature lines (data/tire-models.json, e.g. "65,000-mile treadwear warranty (H/V-rated sizes)").
   const warranty = (t) => (t.specs?.warranty ? `${Number(t.specs.warranty).toLocaleString("en-US")}-mile treadwear warranty`
     : (t.features || []).filter((f) => /warranty/i.test(f)).join("; ") || null);
-  const pick = (t, availability) => ({ brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t), availability });
+  // Warranty for every tire: our spec data first, else the distributor portal's warranty for the same brand + model.
+  const vendorWarranty = new Map(vendors.filter((v) => v.warranty_miles).map((v) => [`${v.brand}|${v.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""), v.warranty_miles]));
+  const miles = (n) => `${Number(n).toLocaleString("en-US")}-mile treadwear warranty`;
+  const pick = (t, availability) => {
+    const vw = t.warranty_miles || vendorWarranty.get(`${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""));
+    return { brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t) || (vw ? miles(vw) : null), availability };
+  };
   // A caller asking for a brand ("Goodyear?") gets that brand's options first, from the shelf AND the order-in list, even if
   // they aren't the cheapest. (Before, only the 4 cheapest shelf tires were checked, so a Goodyear on the shelf was missed.)
   const want = String(brand || "").toLowerCase().replace(/[^a-z]/g, "");
