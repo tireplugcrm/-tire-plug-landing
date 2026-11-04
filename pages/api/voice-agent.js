@@ -79,12 +79,15 @@ async function tires(size, quantity, brand) {
   const isWanted = (t) => want && String(t.brand).toLowerCase().replace(/[^a-z]/g, "").includes(want);
   // No brand asked: good / better / best from the shelf (owner, Nov 3): the cheapest, a middle one and the best (priciest),
   // instead of just the cheapest few. shelf comes cheapest first; unpriced tires sort last and are skipped here.
-  const priced = shelf.filter((t) => t.price != null);
+  // Only tires we have enough of for this caller: count is the shelf count capped at 4 (null = not counted, kept).
+  const enough = shelf.filter((t) => t.count == null || t.count >= qty);
+  const short = shelf.filter((t) => t.count != null && t.count < qty);
+  const priced = enough.filter((t) => t.price != null);
   const tiers = priced.length > 3
     ? [["good", priced[0]], ["better", priced[Math.floor((priced.length - 1) / 2)]], ["best", priced[priced.length - 1]]]
     : priced.map((t, i, a) => [a.length === 1 ? "good" : i === 0 ? "good" : i === a.length - 1 ? "best" : "better", t]);
   const shelfPicks = want
-    ? [...shelf.filter(isWanted), ...shelf.filter((t) => !isWanted(t))].slice(0, 6).map((t) => [isWanted(t) ? "requested" : "", t])
+    ? [...enough.filter(isWanted), ...enough.filter((t) => !isWanted(t))].slice(0, 6).map((t) => [isWanted(t) ? "requested" : "", t])
     : tiers;
   const inStock = shelfPicks.map(([tier, t]) => ({ ...pick(t, "in_stock"), tier: tier || null, count: t.count ?? null, low: t.level === "low" }));
   // Every next-day brand, so a caller asking for one by name (Falken, Lexani...) gets its price.
@@ -96,6 +99,7 @@ async function tires(size, quantity, brand) {
   if (want) order = [...order.filter(isWanted), ...order.filter((t) => !isWanted(t))];
   order = order.slice(0, 10);
   const parts = [];
+  if (short.length) parts.push(`Not enough on the shelf for ${qty}: ${short.slice(0, 4).map((t) => `${t.brand} ${t.model} (only ${t.count})`).join(", ")}; don't offer these for ${qty} tires.`);
   if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t, qty)}`).join("; ")}.${!want && inStock.length >= 3 ? " Quote these three as good, better, best." : ""}`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have the team find it and text the exact price: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
