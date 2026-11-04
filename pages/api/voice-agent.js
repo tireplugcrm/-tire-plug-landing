@@ -251,6 +251,27 @@ function breakdown(b, key) {
   ].join("\n");
 }
 
+// Every tire quoted on the call in one text (Daisy's call, Nov 4: she heard three prices but got a text with one).
+// Prices come from check_tires again, never from the AI. The tire they leaned toward goes first.
+async function optionsText(b, key) {
+  const qty = Number(b.quantity) || 4;
+  const r = await tires(key, qty);
+  const list = [...(r.in_stock || [])].filter((t) => t.price != null);
+  if (!list.length) return null;
+  const flat = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const chosen = flat(b.tire);
+  if (chosen) list.sort((x, y) => (chosen.includes(flat(y.model)) ? 1 : 0) - (chosen.includes(flat(x.model)) ? 1 : 0));
+  const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
+  return [
+    `The Tire Plug: your ${key} options (${qty} tires)`,
+    ...list.slice(0, 3).map((t) => `• ${t.brand} ${t.model}: ${d(t.price)} a tire, ${d(t.price + INSTALL)} installed (${d((t.price + INSTALL) * qty)} for ${qty})${t.warranty ? `, ${t.warranty}` : ""}`),
+    `Installed = tire + $${INSTALL} mount & balance a wheel. Plus tax.`,
+    PAYMENT,
+    `Book: ${SITE}/tires/${sizeToSlug(key)}`,
+    `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
+  ].join("\n");
+}
+
 // Brake quote (owner's pricing: parts + $60 a wheel, +$75 electric parking brake, rotors parts + $40 each).
 // Exact when the car's AutoZone parts are on file (lib/brake-parts.js: the cheapest pads and rotors); otherwise
 // the knowledge base's starting figures, and Jarvis texts the exact price within minutes.
@@ -332,7 +353,8 @@ async function text(phone, size, b = {}) {
   const key = size ? parseSize(size) : null;
   const url = key ? `${SITE}/tires/${sizeToSlug(key)}` : `${SITE}/book`;
   const body = b.brakes ? await brakeText(b)
-    : key && b.tire && Number(b.price) > 0 ? breakdown(b, key)
+    : (key && b.all_options === true && (await optionsText(b, key))) ||
+      key && b.tire && Number(b.price) > 0 ? breakdown(b, key)
     : key ? `The Tire Plug: here are the ${key} tires we talked about, with prices. Pick one to book: ${url}`
     : `The Tire Plug: book your appointment here: ${url}`;
   const r = await sendSms({ to, body });
