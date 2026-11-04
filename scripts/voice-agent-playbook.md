@@ -112,3 +112,6 @@ her tools and knowledge base.
    here, book that time (walk-in). Never push them to a later time.
 37. Install and balance is $20 a wheel for phone callers (the website stays $25). A $78 tire is $98 installed. $20 is the
    lowest; no further install discount.
+38. Special order tires (not on the shelf or next day), shop open: "It looks like I have to special order these and I
+   don't have them in stock, let me transfer you to someone who can help." Then transfer. Shop closed: save the request
+   and the team texts the price first thing.

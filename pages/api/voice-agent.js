@@ -22,7 +22,7 @@ import { sizeKey, sizeToSlug } from "../../lib/tire-catalog.js";
 import { sendSms } from "../../lib/sms.js";
 import { toE164 } from "../../lib/phone.js";
 import { SITE } from "../../lib/invoices.js";
-import { openSlots, fmtWhen, laInstant, laParts } from "../../lib/booking.js";
+import { openSlots, fmtWhen, laInstant, laParts, shopOpenNow } from "../../lib/booking.js";
 import { onNewLead } from "../../lib/front-desk.js";
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { vendorForSize } from "../../lib/vendor-tires.js";
@@ -110,7 +110,10 @@ async function tires(size, quantity, brand) {
   if (short.length) parts.push(`Not enough on the shelf for ${qty}: ${short.slice(0, 4).map((t) => `${t.brand} ${t.model} (only ${t.count})`).join(", ")}; don't offer these for ${qty} tires.`);
   if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t)}`).join("; ")}.${!want && inStock.length >= 3 ? " Quote these three as good, better, best." : ""}`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
-  if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have the team find it and text the exact price: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
+  // Special order (not on the shelf or next day): a person takes it while the shop is open (owner, Nov 4).
+  if (!parts.length) parts.push(shopOpenNow()
+    ? `SPECIAL ORDER: we don't have ${key} on the shelf or next day. Say exactly: "It looks like I have to special order these and I don't have them in stock, let me transfer you to someone who can help." Then call transfer_to_number right away. (If you already have their name and number, save_lead first with the size and vehicle.)`
+    : `We don't have ${key} on the shelf or next day, and the shop is closed. Say we can special order it and the team will text the exact price first thing: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
   parts.push(`Say the price PER TIRE (tire only) and its warranty, like "the Lexani LXUHP-207, fifty thousand mile warranty, is seventy-eight a tire". Don't add install or tax unless they ask. If they ask whether it includes install and balance: it's ${INSTALL} a wheel, so the tire's price plus ${INSTALL} (its "installed" price) a tire. Tax only if they ask: 10% on the tires, added at the shop.${big}`);
   // Shelf counts come from the last Tekmetric sync (by hand, a few times a day), so a tire sold since may still show.
   const hours = syncedAt ? (Date.now() - new Date(syncedAt)) / 36e5 : null;
