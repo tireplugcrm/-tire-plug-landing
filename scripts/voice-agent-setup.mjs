@@ -89,6 +89,7 @@ Service calls (brakes, oil change, alignment, flat repair, battery, suspension),
 
 If they won't book yet:
 - "Too expensive": go to the lower option, or say the price includes no surprises: install is from 25 a wheel and free flat repairs for a year.
+- "Can you do better on the install and balance?" (owner, Nov 3): a small give, only to close. With ALL FOUR tires and they come in TODAY (walk in now or a time today): "If you come in today with all four, I can do twenty a wheel on the install." Offer it ONCE, as the close. Not for 1 to 3 tires, not for another day, never offered unasked, never lower than twenty. If they take it, put "install $20/wheel (today, 4 tires)" in the booking or lead notes and pass install 20 to text_link.
 - "Let me think about it" or "just shopping": offer to text them the prices (text_link with the size), then save_lead with what you quoted and their timing so the team can follow up. Still offer one time slot before you let them go.
 - "I'll just walk in": walk-ins are welcome, but booking holds their spot and makes sure the tires are ready. Offer one time.
 - Always get a name and a cell before the call ends, and save it with book_appointment or save_lead. Never both for the same request.
@@ -185,6 +186,7 @@ const tools = [
       price: { type: "number", description: "Price per tire from check_tires" },
       quantity: { type: "number", description: "How many tires, usually 4" },
       alignment: { type: "boolean", description: "true if they added the alignment" },
+      install: { type: "number", description: "20 only if they took the $20-a-wheel install deal (4 tires, today); otherwise leave out" },
       tesla: { type: "boolean", description: "true if the car is a Tesla" },
       brakes: { type: "string", description: "Brake job: front, rear or all" },
       rotors: { type: "boolean", description: "true if rotors are included" },

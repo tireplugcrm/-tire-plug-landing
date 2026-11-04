@@ -184,13 +184,15 @@ async function lead(b) {
 const ALIGN = { regular: 75, tesla: 90 };
 function breakdown(b, key) {
   const qty = Number(b.quantity) || 4, price = Number(b.price);
-  const tires = price * qty, install = INSTALL * qty, total = tires + install;
+  // $20 a wheel only as the phone close for 4 tires installed today (owner, Nov 3); otherwise $25.
+  const perWheel = Number(b.install) === 20 && qty === 4 ? 20 : INSTALL;
+  const tires = price * qty, install = perWheel * qty, total = tires + install;
   const align = b.alignment ? (/kumho/i.test(b.tire) && qty === 4 ? 49 : (b.tesla ? ALIGN.tesla : ALIGN.regular) - (qty === 4 ? 10 : 0)) : 0;
   const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
   return [
     `The Tire Plug: your quote for ${qty}x ${b.tire} ${key}`,
     `Tire: ${d(price)} each`,
-    `Mount & balance: ${d(INSTALL)} a wheel (${d(price + INSTALL)} a tire installed)`,
+    `Mount & balance: ${d(perWheel)} a wheel (${d(price + perWheel)} a tire installed)${perWheel < INSTALL ? ", today's deal" : ""}`,
     `${qty} tires installed: ${d(total)}`,
     ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(total + align)}`] : []),
     `Plus tax.`,
