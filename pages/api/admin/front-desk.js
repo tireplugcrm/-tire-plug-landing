@@ -13,11 +13,13 @@
  *   "resend"       resend the confirmation
  *   "reschedule"   { at } move the appointment (sends a new confirmation)
  * POST { action: "settings", capacity }  cars per 30-min slot
+ * POST { action: "book", name, phone, email, vehicle, tire_size, service, date, minutes, smsConsent }
+ *   staff books a phone or walk-in customer at any time, even a slot that's already full
  * POST { action: "samples", to? }       the 5 booking-sequence emails to you, marked [Sample]
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
-import { runWatchdog, logEvent, sendConfirmation, sendNoShowFollowup, sendThankYou, sendSampleEmails, sendTiresArrived, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
+import { runWatchdog, logEvent, sendConfirmation, newToken, sendNoShowFollowup, sendThankYou, sendSampleEmails, sendTiresArrived, OWNER_EMAILS, OWNER_PHONES, orderInfo } from "../../../lib/front-desk.js";
 import { getCapacity, isSlotOpen, openSlots, laParts, laInstant, fmtWhen } from "../../../lib/booking.js";
 import { smsConfigured } from "../../../lib/sms.js";
 import { findShelfTire } from "../../../lib/shelf-search.js";
@@ -98,7 +100,7 @@ export default async function handler(req, res) {
     }
 
     if (action === "settings") {
-      const cap = Math.max(1, Math.min(10, Number(req.body.capacity) || 2));
+      const cap = Math.max(1, Math.min(20, Number(req.body.capacity) || 2));
       await supabaseAdmin.from("app_settings").upsert({ key: "booking_capacity", value: String(cap) }, { onConflict: "key" });
       return res.status(200).json({ ok: true, capacity: cap });
     }
@@ -112,6 +114,28 @@ export default async function handler(req, res) {
     }
 
     if (action === "slots") return res.status(200).json({ days: await openSlots({ ignoreLeadId: id }) });
+
+    // Staff booking: no capacity check, the front desk decides how many cars fit. Same lead + confirmation
+    // as an online booking; a text only goes out if the customer said yes to texts.
+    if (action === "book") {
+      const b = req.body, staff = auth.user.name || "Owner";
+      const name = String(b.name || "").trim(), phone = String(b.phone || "").trim();
+      if (!name && !phone) return res.status(400).json({ error: "Enter the customer's name or phone." });
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date || "") || !Number.isFinite(Number(b.minutes))) return res.status(400).json({ error: "Pick a day and time." });
+      const at = laInstant(b.date, Number(b.minutes));
+      const now = new Date().toISOString();
+      const clean = (v) => String(v || "").trim() || null;
+      const { data: lead, error } = await supabaseAdmin.from("leads").insert({
+        name: name || null, phone: phone || null, email: clean(b.email), vehicle: clean(b.vehicle), tire_size: clean(b.tire_size), service: clean(b.service),
+        source: "Front Desk", lead_priority: "WARM", tags: ["Staff Booking"], first_response_at: now,
+        raw: { smsConsent: b.smsConsent === true, bookedBy: staff },
+        appointment_at: at.toISOString(), appt_status: "confirmed", appt_token: newToken(), appt_booked_at: now,
+      }).select("*").single();
+      if (error) throw error;
+      await logEvent(lead.id, "booked", `${staff} booked ${name || phone} for ${fmtWhen(at)}${lead.service ? ` — ${lead.service}` : ""}`);
+      await sendConfirmation(lead);
+      return res.status(200).json({ ok: true, id: lead.id, when: fmtWhen(at) });
+    }
 
     const { data: lead } = await supabaseAdmin.from("leads").select("*").eq("id", id).single();
     if (!lead) return res.status(404).json({ error: "Lead not found." });

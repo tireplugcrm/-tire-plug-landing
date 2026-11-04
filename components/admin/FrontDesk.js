@@ -51,6 +51,7 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState("");
+  const [booking, setBooking] = useState(false);
   const [, tick] = useState(0);
 
   const call = useCallback(async (body) => {
@@ -98,10 +99,13 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
           <span style={{ ...pill(watching ? GREEN : AMBER), height: 26, padding: "0 10px" }} title={d.lastRun ? `Last check ${new Date(d.lastRun).toLocaleTimeString()}` : "Never ran"}>
             {watching ? `Agent watching · ${Math.max(0, Math.round(minsSinceRun))} min ago` : "Agent checks while this screen is open"}
           </span>
+          <button onClick={() => setBooking(true)} style={btn}><Icon name="event" size={18} />Book a customer</button>
           {onNav && <button onClick={() => onNav("shopfloor")} style={btn}><Icon name="add" size={18} />New check-in</button>}
           {onNav && <button onClick={() => onNav("texts")} style={{ ...btn, background: "#fcfcfd", color: "#0b0e13", borderColor: "#fcfcfd", fontWeight: 600 }}><Icon name="sms" size={18} />Reply to leads</button>}
         </div>
       </div>
+
+      {booking && <BookCustomer call={call} today={d.today} onClose={() => setBooking(false)} onBooked={load} />}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,160px),1fr))", gap: 16, marginTop: 18 }}>
         <Stat icon="directions_car" label="Cars today" value={hm.carsToday} chip={hm.bookedToday ? `+${hm.bookedToday} booked` : null} chipColor={BLUE} spark={hm.carsWeek} sparkColor="#6ee7b7" />
@@ -213,7 +217,7 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginTop: 10 }}>
             Cars per 30-min slot
             <select value={d.capacity} onChange={async (e) => { await call({ action: "settings", capacity: e.target.value }); load(); }} style={{ ...btn, padding: "0.25rem 0.4rem" }}>
-              {[1, 2, 3, 4, 5, 6].map((n) => <option key={n}>{n}</option>)}
+              {[...new Set([1, 2, 3, 4, 5, 6, 8, 10, 15, 20, Number(d.capacity)])].sort((x, y) => x - y).map((n) => <option key={n}>{n}</option>)}
             </select>
           </label>
         </div>
@@ -239,6 +243,62 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
 }
 
 // Sends the 5 customer emails of the booking sequence to you, so you can read the wording.
+// Shop hours in minutes from midnight by weekday (Sun 10–4, Mon–Fri 9–7, Sat 9–6), as in lib/booking.js.
+const HOURS = { 0: [600, 960], 1: [540, 1140], 2: [540, 1140], 3: [540, 1140], 4: [540, 1140], 5: [540, 1140], 6: [540, 1080] };
+const slotLabel = (m) => `${Math.floor(m / 60) % 12 || 12}:${String(m % 60).padStart(2, "0")} ${m < 720 ? "AM" : "PM"}`;
+const BOOK_SERVICES = ["New tires", "Used tires", "Flat repair", "Oil change", "Alignment", "Brakes", "Tire rotation"];
+
+// Staff books a phone or walk-in customer at any time. No slot limit: several customers can share a time.
+function BookCustomer({ call, today, onClose, onBooked }) {
+  const [f, setF] = useState({ name: "", phone: "", email: "", vehicle: "", tire_size: "", service: "", date: today, minutes: "", smsConsent: false });
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value });
+  const [open, close] = HOURS[new Date(`${f.date}T12:00:00Z`).getUTCDay()] || HOURS[1];
+  const times = [];
+  for (let m = open; m < close; m += 30) times.push(m);
+  const inp = { ...ui.input, marginBottom: 0 };
+  async function save() {
+    setBusy(true); setMsg(null);
+    const j = await call({ action: "book", ...f, minutes: Number(f.minutes) });
+    setBusy(false);
+    if (j.error) return setMsg({ error: j.error });
+    setMsg({ ok: `Booked ${f.name || f.phone} for ${j.when}.` });
+    setF({ ...f, name: "", phone: "", email: "", vehicle: "", tire_size: "", service: "", smsConsent: false });
+    onBooked();
+  }
+  return (
+    <div style={{ ...card, marginTop: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <b style={{ fontSize: 15 }}>Book a customer</b>
+        <button onClick={onClose} style={{ ...btn, padding: "0.25rem 0.6rem" }}>Close</button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,180px),1fr))", gap: 10 }}>
+        <input placeholder="Name" value={f.name} onChange={set("name")} style={inp} />
+        <input placeholder="Phone" value={f.phone} onChange={set("phone")} style={inp} inputMode="tel" />
+        <input placeholder="Email (optional)" value={f.email} onChange={set("email")} style={inp} />
+        <input placeholder="Vehicle (optional)" value={f.vehicle} onChange={set("vehicle")} style={inp} />
+        <input placeholder="Tire size (optional)" value={f.tire_size} onChange={set("tire_size")} style={inp} />
+        <input placeholder="Service" value={f.service} onChange={set("service")} style={inp} list="fd-services" />
+        <datalist id="fd-services">{BOOK_SERVICES.map((x) => <option key={x} value={x} />)}</datalist>
+        <input type="date" value={f.date} min={today} onChange={(e) => setF({ ...f, date: e.target.value, minutes: "" })} style={inp} />
+        <select value={f.minutes} onChange={set("minutes")} style={inp}>
+          <option value="">Time</option>
+          {times.map((m) => <option key={m} value={m}>{slotLabel(m)}</option>)}
+        </select>
+      </div>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginTop: 10, color: T.textMuted }}>
+        <input type="checkbox" checked={f.smsConsent} onChange={set("smsConsent")} />Customer said yes to a confirmation text
+      </label>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
+        <button disabled={busy || !(f.name || f.phone) || !f.date || f.minutes === ""} onClick={save} style={primary}>{busy ? "Booking…" : "Book"}</button>
+        <span style={{ fontSize: 12.5, color: T.textMuted }}>Any time works, even if other customers are booked then. Confirmation goes by email, and by text if they said yes.</span>
+      </div>
+      {msg && <div style={{ fontSize: 13, marginTop: 8, color: msg.error ? RED : GREEN }}>{msg.error || msg.ok}</div>}
+    </div>
+  );
+}
+
 function SampleEmails({ call, defaultTo }) {
   const [to, setTo] = useState(defaultTo);
   const [r, setR] = useState(null);
