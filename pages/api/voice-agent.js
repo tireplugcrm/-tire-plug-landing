@@ -49,7 +49,7 @@ export const INSTALL = 25, TAX = 0.1;
 export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty);
 export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
 // Out the door for the quantity the caller wants (2 tires is common), not always 4.
-const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}${t.warranty ? ` (${t.warranty.replace(/;.*/, "")})` : ""}`;
+const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}${t.warranty ? ` (${t.warranty.replace(/(;| · ).*/, "")})` : ""}`;
 
 async function tires(size, quantity, brand) {
   const qty = Math.min(Math.max(Math.round(Number(quantity)) || 4, 1), 8);
@@ -58,10 +58,17 @@ async function tires(size, quantity, brand) {
   // 24-inch rims and up: the shop doesn't mount them.
   const rim = Number((key.match(/R(\d{2})/) || [])[1]);
   const big = rim >= 24 ? " We don't mount 24-inch wheels and up, so these are carry-out only (no install)." : "";
-  const [shelf, nextDay, vendors] = await Promise.all([stockForSize(key), nextDayForSize(key), vendorForSize(key, qty)]);
+  const [shelf, nextDay, vendors, syncedAt] = await Promise.all([stockForSize(key), nextDayForSize(key), vendorForSize(key, qty), stockSyncedAt()]);
   // Treadwear warranty: the exact size's spec sheet (miles) when we have it, else the model's
   // feature lines (data/tire-models.json, e.g. "65,000-mile treadwear warranty (H/V-rated sizes)").
-  const warranty = (t) => (t.specs?.warranty ? `${Number(t.specs.warranty).toLocaleString("en-US")}-mile treadwear warranty`
+  // The website's warranty line first (lib/inventory.js warrantyText), so the phone and the tire cards agree; its
+  // generic "Manufacturer's defect warranty" fallback gives way to a distributor's mileage warranty below.
+  const site = (t) => {
+    const w = t.warrantyText;
+    if (!w || /^Manufacturer/.test(w)) return null;
+    return /^[\d,]+ miles$/.test(w) ? `${w.replace(" miles", "-mile")} treadwear warranty` : w;
+  };
+  const warranty = (t) => site(t) || (t.specs?.warranty ? `${Number(t.specs.warranty).toLocaleString("en-US")}-mile treadwear warranty`
     : (t.features || []).filter((f) => /warranty/i.test(f)).join("; ") || null);
   // Warranty for every tire: our spec data first, else the distributor portal's warranty for the same brand + model.
   const vendorWarranty = new Map(vendors.filter((v) => v.warranty_miles).map((v) => [`${v.brand}|${v.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""), v.warranty_miles]));
@@ -71,7 +78,7 @@ async function tires(size, quantity, brand) {
     const vw = t.warranty_miles || vendorWarranty.get(`${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""))
       || vendors.find((v) => v.warranty_miles && flat(v.brand) === flat(t.brand) && flat(t.model).length >= 4
         && (flat(v.model).startsWith(flat(t.model)) || flat(t.model).startsWith(flat(v.model))))?.warranty_miles;
-    return { brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t) || (vw ? miles(vw) : null), availability };
+    return { brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t) || (vw ? miles(vw) : null) || (t.warrantyText ? "manufacturer's defect warranty" : null), availability };
   };
   // A caller asking for a brand ("Goodyear?") gets that brand's options first, from the shelf AND the order-in list, even if
   // they aren't the cheapest. (Before, only the 4 cheapest shelf tires were checked, so a Goodyear on the shelf was missed.)
@@ -104,6 +111,9 @@ async function tires(size, quantity, brand) {
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have the team find it and text the exact price: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
   parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance and 10% tax on the tires. Each tire's treadwear warranty is in its "warranty" field.${big}`);
+  // Shelf counts come from the last Tekmetric sync (by hand, a few times a day), so a tire sold since may still show.
+  const hours = syncedAt ? (Date.now() - new Date(syncedAt)) / 36e5 : null;
+  if (inStock.length && hours != null && hours > 6) parts.push(`Shelf counts were last updated ${Math.round(hours)} hours ago: when they pick an in-stock tire, say the guys will have it pulled and ready for them (we confirm it on the shelf when we text).`);
   if (want) parts.unshift(inStock.some(isWanted) ? `${brand} is IN STOCK today: lead with it.` : order.some(isWanted) ? `${brand} can be ordered in (listed first).` : `No ${brand} available to quote in this size; offer the closest match and to get a ${brand} ordered (don't say "we don't have").`);
   return { ok: true, size: key, quantity: qty, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
@@ -217,6 +227,14 @@ function brakeText(b) {
   ].join("\n");
 }
 const isBrakes = (b) => /brake|rotor/i.test(`${b.service || ""} ${b.notes || ""} ${b.brakes || ""}`);
+
+// When tire_stock last synced from Tekmetric (app_settings 'stock_synced_at', set by the stock load).
+async function stockSyncedAt() {
+  try {
+    const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", "stock_synced_at").maybeSingle();
+    return data?.value || null;
+  } catch { return null; }
+}
 
 // Brake bookings and brake leads also text the brake tech (app_settings 'brake_alert_phone', kept out
 // of this public repo), so he can confirm parts and the exact price.
