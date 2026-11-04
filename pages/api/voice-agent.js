@@ -130,10 +130,11 @@ async function times(nextDayOnly, b = {}) {
   const inMin = Number(b.in_minutes);
   // Coming in now / soon (in_minutes up to 3 hours): any time from the current half hour on, so "can I come now?" gets
   // "yes, come on in" instead of a time an hour out (owner, Nov 4: he kept insisting on 3 PM at 1:45).
-  const soon = inMin > 0 && inMin <= 180 && !nextDayOnly;
-  const all = (await openSlots(soon ? { lead: -15 } : {})).filter((d) => !(nextDayOnly && d.label.startsWith("Today")));
+  // Same for a clock time within the next 3 hours ("today at 3:30" asked at 3:10 got 4:30; Eric's call, Nov 4).
   const m = String(b.want || "").match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}):(\d{2})/);
   const target = inMin > 0 ? Date.now() + inMin * 60e3 : m ? laInstant(m[1], Number(m[2]) * 60 + Number(m[3])).getTime() : null;
+  const soon = !nextDayOnly && target != null && target - Date.now() <= 180 * 60e3;
+  const all = (await openSlots(soon ? { lead: -15 } : {})).filter((d) => !(nextDayOnly && d.label.startsWith("Today")));
   if (target) {
     const slots = all.flatMap((d) => d.slots.map((s) => ({ ...s, day: d.label })));
     // Closest slot, but not more than 15 minutes before the time they said (they can't be early).
@@ -141,7 +142,7 @@ async function times(nextDayOnly, b = {}) {
     if (!best) return { ok: false, say: "No time open near that. Offer the next open day." };
     const sameDay = laParts(new Date(best.at)).ymd === laParts(new Date(target)).ymd;
     return { ok: true, at: best.at, label: best.label, day: best.day, walk_in: soon && sameDay,
-      say: soon && sameDay
+      say: inMin > 0 && soon && sameDay
         ? `Yes, they can come in now. Say "Yeah, come on in, we can take care of you," then book ${best.day} at ${best.label} (at ${best.at}) with walk_in true (ask their name first if you don't have it). Don't offer a later time.`
         : sameDay
         ? `Book ${best.day} at ${best.label} (at ${best.at}). Say it back in one line ("Perfect, I've got you down for ${best.label} ${best.day.startsWith("Today") ? "today" : best.day}") and call book_appointment with this at right away; if you don't have their name yet, ask it first.`
@@ -189,7 +190,7 @@ async function book(b) {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name: b.name, phone: toE164(b.phone), email: "N/A", vehicle: b.vehicle || "N/A", ...tires,
-      serviceTiming: "Booked by phone", appointmentAt: b.at, walkIn: b.walk_in === true, leadPriority: "HOT",
+      serviceTiming: "Booked by phone", appointmentAt: b.at, walkIn: b.walk_in === true || new Date(b.at) - Date.now() <= 180 * 60e3, // any time today within 3 hours skips the 1-hour notice leadPriority: "HOT",
       smsConsent: b.sms_ok === true, marketingConsent: false, source: "Phone AI",
       notes: b.notes || undefined,
       // For Jarvis's exact brake quote (pages/api/agent.js quote-queue); stored in the lead's raw.
