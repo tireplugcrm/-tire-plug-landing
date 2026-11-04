@@ -11,8 +11,8 @@ scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't kno
 - Waiting room with AC while you wait.
 
 ## New tires
-- Prices are per tire. Mount and balance is a flat $25 a wheel for every size up to 23 inches. We don't mount 24-inch wheels and up (those tires are carry-out only).
-- Tire prices are quoted PER TIRE, tire only (check_tires gives it). Mount and balance is $25 a wheel, mentioned only when they ask: a $78 tire is $103 a tire installed. Install deal, only as a close when asked for a better install price: $20 a wheel with all 4 tires, coming in today. Tax (10% on the tires) is added at the shop and mentioned only if asked; never quote a total with tax. There's no separate tire disposal fee.
+- Prices are per tire. Mount and balance is a flat $20 a wheel for phone callers, every size up to 23 inches (the website shows $25). We don't mount 24-inch wheels and up (those tires are carry-out only).
+- Tire prices are quoted PER TIRE, tire only (check_tires gives it). Mount and balance is $20 a wheel on the phone, mentioned only when they ask: a $78 tire is $98 a tire installed. $20 is the lowest; there's no further install discount. Tax (10% on the tires) is added at the shop and mentioned only if asked; never quote a total with tax. There's no separate tire disposal fee.
 - Valve stems: $5 for all four, or $2 each (add-on).
 - Special orders: we can get brands like Toyo and Michelin that aren't on our shelf or next-day list. They're priced from a supplier portal, so take the size and save_lead ("special order: Toyo") and say the team will text the price, or book them in.
 - Tires on the shelf can go on the same day. Tires we order in (next-day) are installed tomorrow or later, never the same day.

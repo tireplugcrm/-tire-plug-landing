@@ -55,7 +55,7 @@ async function backupRecap(row) {
   const body = [
     `Thanks for calling The Tire Plug${row.caller_name ? `, ${row.caller_name}` : ""}! Your quote for ${qty} tires, ${q.size}:`,
     ...opts.map((t) => `${t.brand} ${t.model}: $${t.price} a tire${q.in_stock.length ? "" : " (next-day)"}`),
-    "Mount & balance: $25 a wheel. Plus tax.",
+    "Mount & balance: $20 a wheel (phone price). Plus tax.",
     row.booked ? "See you at your appointment!" : `Book here: ${SITE}/tires/${sizeToSlug(q.size)} or reply to this text.`,
     PAYMENT,
     "2331 E Olympic Blvd, Los Angeles. 562-500-4625",

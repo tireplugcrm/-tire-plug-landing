@@ -1,6 +1,8 @@
 import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
 import { sendWelcomeEmail } from '../../lib/welcome-email.js';
 import { isSlotOpen, openSlots, fmtWhen, laParts } from '../../lib/booking.js';
+// A phone caller coming in now can book a slot from 15 minutes before now (the current half hour), not just 1 hour out.
+const WALK_IN_LEAD = -15;
 import { onNewLead, newToken, manageUrl } from '../../lib/front-desk.js';
 import { sendSms } from '../../lib/sms.js';
 import { digits10 } from '../../lib/phone.js';
@@ -86,7 +88,7 @@ export default async function handler(req, res) {
       if (ordered && laParts(new Date(appointmentAt)).ymd <= laParts().ymd) {
         return res.status(409).json({ success: false, code: 'slot_taken', error: 'These tires come in next day. Please pick a time tomorrow or later.', days: await openSlots() });
       }
-      if (!(await isSlotOpen(appointmentAt))) {
+      if (!(await isSlotOpen(appointmentAt, undefined, req.body?.walkIn === true && req.body?.source === 'Phone AI' ? WALK_IN_LEAD : undefined))) {
         return res.status(409).json({ success: false, code: 'slot_taken', error: 'That time was just taken, pick another.', days: await openSlots() });
       }
       appt = { appointment_at: new Date(appointmentAt).toISOString(), appt_status: 'confirmed', appt_token: newToken(), appt_booked_at: new Date().toISOString() };

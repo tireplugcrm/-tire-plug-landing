@@ -45,10 +45,10 @@ function parseSize(s) {
 
 const money = (n) => `$${Math.round(n)}`;
 
-// Tire quotes are the price per tire, tire only (owner, Nov 3: no tax totals). Mount and balance is $25 a wheel,
-// said only when the caller asks about install: $78 tire + $25 = $103 a tire installed. Tax (10% on the tires) is
+// Tire quotes are the price per tire, tire only (owner, Nov 3: no tax totals). Mount and balance is $20 a wheel for phone callers (owner, Nov 4; the website stays $25),
+// said only when the caller asks about install: $78 tire + $20 = $98 a tire installed. Tax (10% on the tires) is
 // added at the shop and only mentioned if they ask. No tire fee in quotes.
-export const INSTALL = 25, TAX = 0.1;
+export const INSTALL = 20, TAX = 0.1;
 export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
 const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire (${money(t.installed)} installed)` : ", price by text"}${t.warranty ? `, ${t.warranty.replace(/(;| · ).*/, "")}` : ""}`;
 
@@ -124,8 +124,11 @@ async function tires(size, quantity, brand) {
 // With a time the caller asked for ("in 2 hours" = in_minutes 120, or want "2026-11-05T16:30" LA time), it
 // returns the one open slot closest to it, so the agent can say it back and book right away (owner, Nov 3).
 async function times(nextDayOnly, b = {}) {
-  const all = (await openSlots()).filter((d) => !(nextDayOnly && d.label.startsWith("Today")));
   const inMin = Number(b.in_minutes);
+  // Coming in now / soon (in_minutes up to 3 hours): any time from the current half hour on, so "can I come now?" gets
+  // "yes, come on in" instead of a time an hour out (owner, Nov 4: he kept insisting on 3 PM at 1:45).
+  const soon = inMin > 0 && inMin <= 180 && !nextDayOnly;
+  const all = (await openSlots(soon ? { lead: -15 } : {})).filter((d) => !(nextDayOnly && d.label.startsWith("Today")));
   const m = String(b.want || "").match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}):(\d{2})/);
   const target = inMin > 0 ? Date.now() + inMin * 60e3 : m ? laInstant(m[1], Number(m[2]) * 60 + Number(m[3])).getTime() : null;
   if (target) {
@@ -134,8 +137,10 @@ async function times(nextDayOnly, b = {}) {
     const best = slots.filter((s) => new Date(s.at) >= target - 15 * 60e3).sort((x, y) => Math.abs(new Date(x.at) - target) - Math.abs(new Date(y.at) - target))[0];
     if (!best) return { ok: false, say: "No time open near that. Offer the next open day." };
     const sameDay = laParts(new Date(best.at)).ymd === laParts(new Date(target)).ymd;
-    return { ok: true, at: best.at, label: best.label, day: best.day,
-      say: sameDay
+    return { ok: true, at: best.at, label: best.label, day: best.day, walk_in: soon && sameDay,
+      say: soon && sameDay
+        ? `Yes, they can come in now. Say "Yeah, come on in, we can take care of you," then book ${best.day} at ${best.label} (at ${best.at}) with walk_in true (ask their name first if you don't have it). Don't offer a later time.`
+        : sameDay
         ? `Book ${best.day} at ${best.label} (at ${best.at}). Say it back in one line ("Perfect, I've got you down for ${best.label} ${best.day.startsWith("Today") ? "today" : best.day}") and call book_appointment with this at right away; if you don't have their name yet, ask it first.`
         : `That's after our last appointment that day. The closest is ${best.day} at ${best.label} (at ${best.at}); offer it in one line, and book it if they say yes.` };
   }
@@ -181,7 +186,7 @@ async function book(b) {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name: b.name, phone: toE164(b.phone), email: "N/A", vehicle: b.vehicle || "N/A", ...tires,
-      serviceTiming: "Booked by phone", appointmentAt: b.at, leadPriority: "HOT",
+      serviceTiming: "Booked by phone", appointmentAt: b.at, walkIn: b.walk_in === true, leadPriority: "HOT",
       smsConsent: b.sms_ok === true, marketingConsent: false, source: "Phone AI",
       notes: b.notes || undefined,
       // For Jarvis's exact brake quote (pages/api/agent.js quote-queue); stored in the lead's raw.
@@ -234,15 +239,14 @@ async function lead(b) {
 const ALIGN = { regular: 75, tesla: 90 };
 function breakdown(b, key) {
   const qty = Number(b.quantity) || 4, price = Number(b.price);
-  // $20 a wheel only as the phone close for 4 tires installed today (owner, Nov 3); otherwise $25.
-  const perWheel = Number(b.install) === 20 && qty === 4 ? 20 : INSTALL;
+  const perWheel = INSTALL; // phone price, $20 a wheel (owner, Nov 4)
   const tires = price * qty, install = perWheel * qty, total = tires + install;
   const align = b.alignment ? (/kumho/i.test(b.tire) && qty === 4 ? 49 : (b.tesla ? ALIGN.tesla : ALIGN.regular) - (qty === 4 ? 10 : 0)) : 0;
   const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
   return [
     `The Tire Plug: your quote for ${qty}x ${b.tire} ${key}`,
     `Tire: ${d(price)} each`,
-    `Mount & balance: ${d(perWheel)} a wheel (${d(price + perWheel)} a tire installed)${perWheel < INSTALL ? ", today's deal" : ""}`,
+    `Mount & balance: ${d(perWheel)} a wheel (${d(price + perWheel)} a tire installed), phone price`,
     `${qty} tires installed: ${d(total)}`,
     ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(total + align)}`] : []),
     `Plus tax.`,
