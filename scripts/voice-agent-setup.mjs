@@ -175,7 +175,8 @@ const webhook = (name, description, action, properties, required) => ({
 const tools = [
   webhook("check_tires", "Look up the tires we have in a size, with our price per tire, plus next-day options. Read the 'say' field.", "tires",
     { size: { type: "string", description: "Tire size as digits, e.g. 225/65R17 or 33X12.50R20" },
-      quantity: { type: "number", description: "How many tires the caller wants (default 4)" } }, ["size"]),
+      quantity: { type: "number", description: "How many tires the caller wants (default 4)" },
+      brand: { type: "string", description: "Brand the caller asked for, if any (e.g. Continental, Michelin)" } }, ["size"]),
   webhook("text_link", "Text the caller. With a chosen tire and price it texts the full out-the-door price breakdown (tires, mount and balance, tax, alignment, payment methods); otherwise the size page or booking link.", "text",
     { phone: { type: "string", description: "Caller's cell, 10 digits. Default {{system__caller_id}}." },
       size: { type: "string", description: "Tire size if known, e.g. 225/65R17" },

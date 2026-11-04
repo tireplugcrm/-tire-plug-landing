@@ -51,7 +51,7 @@ export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
 // Out the door for the quantity the caller wants (2 tires is common), not always 4.
 const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}`;
 
-async function tires(size, quantity) {
+async function tires(size, quantity, brand) {
   const qty = Math.min(Math.max(Math.round(Number(quantity)) || 4, 1), 8);
   const key = parseSize(size);
   if (!key) return { ok: false, say: "I didn't get a full tire size. Ask for the three numbers on the sidewall, like 225 65 17." };
@@ -70,12 +70,18 @@ async function tires(size, quantity) {
   const nk = (t) => `${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, "");
   const known = new Set([...shelf, ...nextDay].map(nk));
   const fromVendors = vendors.filter((t) => !known.has(nk(t))).map((t) => ({ ...pick(t, "next_day"), eta_days: t.eta_days }));
-  const order = [...nextDay.map((t) => pick(t, "next_day")), ...fromVendors].sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9)).slice(0, 10);
+  let order = [...nextDay.map((t) => pick(t, "next_day")), ...fromVendors].sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9));
+  // A caller asking for a brand ("Continental?") gets that brand's options first, even if they aren't the cheapest.
+  const want = String(brand || "").toLowerCase().replace(/[^a-z]/g, "");
+  const isWanted = (t) => want && t.brand.toLowerCase().replace(/[^a-z]/g, "").includes(want);
+  if (want) order = [...order.filter(isWanted), ...order.filter((t) => !isWanted(t))];
+  order = order.slice(0, 10);
   const parts = [];
   if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => line(t, qty)).join("; ")}.`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have the team find it and text the exact price: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
   parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance and 10% tax on the tires. Each tire's treadwear warranty is in its "warranty" field.${big}`);
+  if (want) parts.unshift(order.some(isWanted) || inStock.some(isWanted) ? `${brand} options are listed first.` : `No ${brand} in this size right now; offer the closest match and to have the team find a ${brand}.`);
   return { ok: true, size: key, quantity: qty, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
 
@@ -229,7 +235,7 @@ export default async function handler(req, res) {
   const { size, phone } = body;
   const action = req.query.action || body.action; // each ElevenLabs tool posts to its own ?action=
   try {
-    if (action === "tires") return res.status(200).json(await tires(size, body.quantity));
+    if (action === "tires") return res.status(200).json(await tires(size, body.quantity, body.brand));
     if (action === "times") return res.status(200).json(await times(body.next_day === true));
     if (action === "book") return res.status(200).json(await book(body));
     if (action === "lead") return res.status(200).json(await lead(body));
