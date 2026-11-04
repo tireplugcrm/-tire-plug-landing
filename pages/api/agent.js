@@ -20,6 +20,9 @@
  * POST { action: "vendor-load", vendor, eta_days, rows: [{ size, brand, model, load_speed?, qty, cost }] }
  *                                                     load one distributor's catalog for the phone AI (replaces its rows; append: true adds a batch)
  * POST { action: "vendor-upload-token" }             a 2-hour pass for /api/vendor-upload (portal pages post their catalogs directly)
+ * POST { action: "brake-parts-save", car: { year, make, model, trim?, front_pads, rear_pads, front_rotor?, rear_rotor?,
+ *        pads_brand, pads_warranty?, rotor_brand? } }  one car's cheapest AutoZone Pro brake parts (costs), so the phone AI
+ *                                                     quotes that car's brakes exactly; { action: "brake-parts" } lists them
  * POST { action: "phone-calls", since? }             Mary's calls (default last 24 h) with quality checks and transcripts
  * POST { action: "quote-queue" }                   phone AI callers waiting on an exact quote (brakes, special-order tires)
  * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
@@ -41,6 +44,7 @@ import { digits10 } from "../../lib/phone.js";
 import { logEvent } from "../../lib/front-desk.js";
 import { elevenCredits } from "../../lib/elevenlabs-credits.js";
 import { loadVendor, vendorStatus } from "../../lib/vendor-tires.js";
+import { brakeParts, saveBrakeParts } from "../../lib/brake-parts.js";
 
 // Outreach order: the businesses that fit truck and work-vehicle tires first.
 const OUTREACH_ORDER = ["Delivery & trucking", "Contractors & trades", "Auto-adjacent", "Rideshare & limo"];
@@ -237,6 +241,15 @@ export default async function handler(req, res) {
       await log(agent, `vendor-load ${b.vendor}: ${r.ok ? `${r.loaded} tires` : `error ${r.error}`}`);
       return res.status(r.ok ? 200 : 400).json(r);
     }
+    // Brake parts per car (lib/brake-parts.js): Jarvis saves each car it prices on AutoZone Pro.
+    if (b.action === "brake-parts-save") {
+      const c = b.car || {};
+      if (!c.year || !c.make || !c.model || (c.front_pads == null && c.rear_pads == null)) return res.status(400).json({ error: "car needs year, make, model and front_pads or rear_pads" });
+      const n = await saveBrakeParts(c);
+      await log(agent, `brake parts saved: ${c.year} ${c.make} ${c.model}${c.trim ? ` ${c.trim}` : ""}`, c);
+      return res.status(200).json({ ok: true, cars: n });
+    }
+    if (b.action === "brake-parts") return res.status(200).json({ cars: await brakeParts() });
     // A 2-hour pass for /api/vendor-upload, so a portal page can post its catalog without holding the Jarvis key.
     if (b.action === "vendor-upload-token") {
       const token = (await import("node:crypto")).randomBytes(24).toString("hex");

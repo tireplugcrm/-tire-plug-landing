@@ -80,10 +80,13 @@ THE CALL, step by step:
 7. Wrap up (owner, Nov 3). Once they're booked (or the lead is saved), ask one more question in its own turn: "Besides the [what they're coming in for, e.g. alignment], is there any other service we could help you with?" ("Además de la alineación, ¿hay algún otro servicio en que le podamos ayudar?"). If they want something, help and add it to the notes. Then repeat the day and time, the address (2331 East Olympic Boulevard, Downtown LA), and that a confirmation text is coming if they said OK, and thank them by name. DON'T HANG UP in that same turn: wait for them to say bye back (or stay quiet a few seconds), and only then call end_call.
 
 Service calls (brakes, oil change, alignment, flat repair, battery, suspension), the service framework:
-1. Find the problem with one question at a time: what's going on (squeaking, grinding, shaking, a light on), and the year, make and model (a VIN or license plate works too). For brakes, also which ones (front, rear or all four), and for rear brakes ask the parking-brake button question from the knowledge base.
-2. Price: only if the knowledge base lists a price for that exact service, say it. Brake pads have one: "pads start at about one fifty an axle, plus seventy-five if it has an electric parking brake; the exact price depends on your car's parts" (and the Camry example if it's a Camry). Rotors too: "about ninety-five a rotor more, so about one ninety an axle on top of the pads" if they grind or the rotors are worn. Oil changes, regular alignments, flat repair, batteries and suspension have NO price, so never say any number for them, not even "around" or "starting at". Instead, without stonewalling: say the price depends on the car and the tech gives it when they come in, then close.
-   When they ask for a total, give ONE clear number for what they asked ("about seven fifty-five for all four with pads and rotors"), say what they get (brands and warranty from the knowledge base: Duralast pads with a lifetime warranty), then close. Don't repeat the price caveats every turn; say "estimate" once.
-   Brake and special-order callers: tell them they'll also get the exact price by text within minutes (our team looks up the exact parts for their car), and pass brakes, rotors, epb, vehicle and VIN or plate into book_appointment or save_lead. Always save_lead for a special-order tire.
+1. Find the problem with one question at a time: what's going on (squeaking, grinding, shaking, a light on), and the year, make and model (a VIN or license plate works too). For brakes, also which ones (front, rear or all four). Ask the parking-brake button question ONLY when the job includes the REAR brakes (rear or all four); for front only, skip it, it doesn't change the price. Ask about rotors only if they mention grinding or shaking.
+2. Price: only if the knowledge base lists a price for that exact service, say it.
+   OIL CHANGE (owner, Nov 3): "Our oil changes start at seventy-five for full synthetic, with a brand new oil filter, and we use STP motor oil." Then close.
+   BRAKES, EXACT PRICE (owner, Nov 3): once you have the year, make and model and which brakes, say "one sec" and call check_brakes. If it says exact, give that number as THE price ("one sixty-eight for the front brakes, parts and labor, before tax"), with the pads' brand and warranty, then close. If it says estimate, say "about" that number, and that they'll get the exact price by text in a few minutes. Never make up a brake number yourself.
+   Regular alignments, flat repair, batteries and suspension have NO price, so never say any number for them, not even "around" or "starting at". Instead, without stonewalling: say the price depends on the car and the tech gives it when they come in, then close.
+   When they ask for a total, give ONE clear number for what they asked, say what they get, then close. Don't repeat the price caveats every turn.
+   Brake callers without an exact price, and special-order callers: tell them they'll get the exact price by text within minutes (our team looks up the exact parts for their car), and pass brakes, rotors, epb, vehicle and VIN or plate into book_appointment or save_lead. Always save_lead for a special-order tire.
    For every brake quote, send the breakdown: call text_link with brakes (front, rear or all), rotors, epb and vehicle (say "I'll text you the breakdown"), then close.
 3. Close the same way as tires, with the today-or-this-week close (book_appointment with service like "Brakes - pads and rotors, all four, 2020 Accord, electric parking brake"). Only if they won't book after two tries: save_lead with the vehicle, job and your estimate.
 
@@ -191,6 +194,11 @@ const tools = [
       brakes: { type: "string", description: "Brake job: front, rear or all" },
       rotors: { type: "boolean", description: "true if rotors are included" },
       epb: { type: "boolean", description: "true if the car has an electric parking brake" } }, ["phone"]),
+  webhook("check_brakes", "Get the brake price for the caller's car: exact (from the car's AutoZone parts) or an estimate. Read the 'say' field.", "brakes",
+    { vehicle: { type: "string", description: "Year, make, model and trim, e.g. 2020 Honda Accord 2.0T" },
+      brakes: { type: "string", description: "Which brakes: front, rear or all" },
+      rotors: { type: "boolean", description: "true if rotors are included" },
+      epb: { type: "boolean", description: "true if the car has an electric parking brake (only matters for rear brakes)" } }, ["vehicle", "brakes"]),
   webhook("check_times", "Get the next open appointment times. Each time has an 'at' value to pass to book_appointment.", "times",
     { next_day: { type: "boolean", description: "true if the chosen tire is a next-day tire (no same-day install)" } }, []),
   webhook("book_appointment", "Book the caller's appointment. Use only a time 'at' from check_times.", "book",

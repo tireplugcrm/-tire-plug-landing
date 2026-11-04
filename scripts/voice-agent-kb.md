@@ -41,13 +41,17 @@ scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't kno
 - How the shop prices brake pads: the parts price for that exact car plus $60 per wheel, so $120 per axle. Cars with an electric parking brake are $75 more (it's a harder job).
 - Brake prices are quoted before tax (no tax total for brakes).
 - Brake pads start at about $150 an axle (front or rear), before tax. All four wheels usually run about $300. Example: a 2012 Toyota Camry is about $155 front, $151 rear, about $306 for all four with standard pads.
-- Brand: we use Duralast brake pads, and Duralast pads come with a lifetime warranty. Rotors are Duralast too and come with a manufacturer's warranty.
+- Brand: we use the best-value pads AutoZone has for the car (usually Duralast, with a lifetime warranty); check_brakes names the brand and warranty for each car. Rotors come with a manufacturer's warranty.
+- Exact brake price: check_brakes has the exact parts price for many cars (AutoZone's cheapest pads and rotors + our labor). Use it whenever you have the year, make and model.
 - To spot an electric parking brake, ask: "Does your car have a parking brake button instead of a lever or pedal?" A button means electric: add $75 for the rear brakes.
 - The exact price depends on the car's parts, so take year, make and model (a VIN or license plate works too) and the team confirms it, or book the visit.
 - Rotors aren't included in the pad price. Rotors are priced the same way: the rotor's parts price plus $40 each, usually about $95 a rotor, so about $190 more per axle. Example: 2012 Camry front pads and rotors together are about $348. Grinding usually means the rotors need replacing; the tech confirms it free at the visit.
 
+## Oil change
+- Oil changes start at $75 for full synthetic, with a brand new oil filter. We use STP motor oil. Most are done while you wait.
+
 ## Services without a set price (don't quote these)
-- Oil change (conventional and full synthetic, most done while you wait), rotors, flat repair, battery, suspension check. Free brake inspection.
+- Flat repair, battery, suspension check. Free brake inspection.
 - For these: book the visit, or save_lead so the team texts the exact price.
 
 ## Why an alignment with new tires
