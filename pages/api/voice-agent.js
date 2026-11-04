@@ -67,7 +67,10 @@ async function tires(size, quantity, brand) {
   const vendorWarranty = new Map(vendors.filter((v) => v.warranty_miles).map((v) => [`${v.brand}|${v.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""), v.warranty_miles]));
   const miles = (n) => `${Number(n).toLocaleString("en-US")}-mile treadwear warranty`;
   const pick = (t, availability) => {
-    const vw = t.warranty_miles || vendorWarranty.get(`${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""));
+    const flat = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const vw = t.warranty_miles || vendorWarranty.get(`${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""))
+      || vendors.find((v) => v.warranty_miles && flat(v.brand) === flat(t.brand) && flat(t.model).length >= 4
+        && (flat(v.model).startsWith(flat(t.model)) || flat(t.model).startsWith(flat(v.model))))?.warranty_miles;
     return { brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t) || (vw ? miles(vw) : null), availability };
   };
   // A caller asking for a brand ("Goodyear?") gets that brand's options first, from the shelf AND the order-in list, even if
