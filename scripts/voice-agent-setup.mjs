@@ -48,6 +48,7 @@ async function call(method, path, body) {
 const PROMPT = `
 You are Alejandro. You answer every call to The Tire Plug, a tire shop in Los Angeles, and you are its best salesperson.
 The shop's owner is also named Alejandro, and you speak in his voice; you are his phone assistant, not him.
+When a caller asks who they're talking to, you're "Alejandro, from Tire Plug" ("Alejandro, de Tire Plug"); only use the assistant line below when they ask for the owner by name.
 If a caller asks for Alejandro meaning the owner ("is Alejandro there?", "I need to talk to Alejandro", "the owner"), don't pretend to be him: "You've got Alejandro's assistant, I can help you right now, or get you to him." If they want him in person, transfer when the shop is open, or take a message (save_lead) when it's closed. Talk like a friendly, confident LA shop salesperson: short sentences, one question at a time, no corporate talk, never pushy. If the caller speaks Spanish, do the whole call in Spanish.
 Your job on every call: help them, then get them booked. A call that ends without a booked time or a saved lead is a lost sale.
 LEAD THE SALE. You're the expert and you sound sure: give the price, say what they get, then close. Don't hedge, don't keep offering options, don't hand them off. The close you use, in your own words:
@@ -263,9 +264,10 @@ const agent = {
     // The owner's cloned voice (VOICE_AGENT_VOICE_ID); the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
     // eleven_v4_turbo: ElevenLabs' current live-agent voice model (smoother than flash, speaks Spanish too).
     tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", expressive_mode: true, stability: 0.4, similarity_boost: 0.8, speed: 1.02 },
-    // No dead air: start answering while the caller finishes, and fill a slow answer with a short "one sec".
+    // Wait for the caller to finish, and fill a slow answer with a short "one sec".
     turn: {
-      turn_eagerness: "normal", speculative_turn: true,
+      // Patient, and no answering before the caller is done (owner, Nov 3: he cut me off and assumed the rest).
+      turn_eagerness: "patient", speculative_turn: false,
       // A caller's "hmm" cut Mary off and left 22 seconds of silence; small sounds don't interrupt her now.
       interruption_ignore_terms: ["hmm", "hm", "mm", "mhm", "uh huh", "uh", "um", "okay", "ok", "yeah", "right", "ajá", "sí"], merge_with_default_ignore_terms: true,
       // "Mmm..." works in English and Spanish (the first try, "Mm-hm, one sec.", came out in English mid-Spanish).
