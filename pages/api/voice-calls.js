@@ -44,7 +44,7 @@ async function fetchRecording(id) {
 }
 
 // Every caller who got a tire price gets a recap text (owner, 11-03), booked or not. Mary sends the full
-// breakdown on the call (text_link); if she didn't, this sends the two best out-the-door prices from
+// breakdown on the call (text_link); if she didn't, this sends the two best per-tire prices from
 // what she quoted. Brake callers get their recap from Mary and the exact quote from Jarvis.
 async function backupRecap(row) {
   if (!row.quoted || row.text_sent || row.data?.recap_sent_at || !row.caller || !row.quotes?.length) return;
@@ -53,8 +53,9 @@ async function backupRecap(row) {
   if (!opts.length) return;
   const qty = q.quantity || 4;
   const body = [
-    `Thanks for calling The Tire Plug${row.caller_name ? `, ${row.caller_name}` : ""}! Your quote for ${qty} tires, ${q.size}, out the door (installed, tax included):`,
-    ...opts.map((t) => `${t.brand} ${t.model}: $${t.otd ?? t.otd_4}${q.in_stock.length ? "" : " (next-day)"}`),
+    `Thanks for calling The Tire Plug${row.caller_name ? `, ${row.caller_name}` : ""}! Your quote for ${qty} tires, ${q.size}:`,
+    ...opts.map((t) => `${t.brand} ${t.model}: $${t.price} a tire${q.in_stock.length ? "" : " (next-day)"}`),
+    "Mount & balance: $25 a wheel. Plus tax.",
     row.booked ? "See you at your appointment!" : `Book here: ${SITE}/tires/${sizeToSlug(q.size)} or reply to this text.`,
     PAYMENT,
     "2331 E Olympic Blvd, Los Angeles. 562-500-4625",

@@ -2,13 +2,13 @@
  * Tools for the phone AI (an ElevenLabs agent answering the shop line; the T-Mobile shop cell forwards
  * every call to its Twilio number). Every call is run as a sale: quote, then book or save a lead.
  * ElevenLabs calls these mid-call as webhook tools:
- *   POST ?action=tires { size }               -> what we have in that size, our price and out-the-door for 4, next-day options
+ *   POST ?action=tires { size }               -> what we have in that size, our price per tire (and installed), next-day options
  *   POST ?action=times { next_day? }          -> the next open appointment times (with the "at" to book)
  *   POST ?action=book  { name, phone, at, ... }-> books it through /api/submit-booking (same checks, owner
  *                                                alert and confirmation text as the website)
  *   POST ?action=lead  { name, phone, ... }    -> not ready to book: a lead in Admin for the sales reps
  *   POST ?action=text  { phone, size?, tire?, price?, quantity?, alignment?, tesla? }
- *                                              -> texts the out-the-door breakdown for the chosen tire, or the size/booking link
+ *                                              -> texts the price breakdown for the chosen tire, or the size/booking link
  *                      { phone, brakes, rotors?, epb?, vehicle? } -> texts the brake estimate breakdown
  * Brake bookings and leads (book/lead with brakes in service/notes/brakes) also text the brake tech.
  * The agent itself is created by scripts/voice-agent-setup.mjs.
@@ -43,13 +43,12 @@ function parseSize(s) {
 
 const money = (n) => `$${Math.round(n)}`;
 
-// Out-the-door for a set of 4 (owner, Nov 2026): tires + $25 a wheel mount and balance + 10% tax on
-// the tires (no tire fee in quotes, owner's call 11-03). e.g. $125 tires: 500 + 100 + 50 = $650.
+// Tire quotes are the price per tire, tire only (owner, Nov 3: no tax totals). Mount and balance is $25 a wheel,
+// said only when the caller asks about install: $78 tire + $25 = $103 a tire installed. Tax (10% on the tires) is
+// added at the shop and only mentioned if they ask. No tire fee in quotes.
 export const INSTALL = 25, TAX = 0.1;
-export const outTheDoor = (price, qty = 4) => Math.round(price * qty + INSTALL * qty + TAX * price * qty);
 export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
-// Out the door for the quantity the caller wants (2 tires is common), not always 4.
-const line = (t, qty) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire, ${money(t.otd)} out the door for ${qty}` : ", price by text"}${t.warranty ? ` (${t.warranty.replace(/(;| · ).*/, "")})` : ""}`;
+const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire (${money(t.installed)} installed)` : ", price by text"}${t.warranty ? `, ${t.warranty.replace(/(;| · ).*/, "")}` : ""}`;
 
 async function tires(size, quantity, brand) {
   const qty = Math.min(Math.max(Math.round(Number(quantity)) || 4, 1), 8);
@@ -78,7 +77,7 @@ async function tires(size, quantity, brand) {
     const vw = t.warranty_miles || vendorWarranty.get(`${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""))
       || vendors.find((v) => v.warranty_miles && flat(v.brand) === flat(t.brand) && flat(t.model).length >= 4
         && (flat(v.model).startsWith(flat(t.model)) || flat(t.model).startsWith(flat(v.model))))?.warranty_miles;
-    return { brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t) || (vw ? miles(vw) : null) || (t.warrantyText ? "manufacturer's defect warranty" : null), availability };
+    return { brand: t.brand, model: t.model, price: t.price ?? null, installed: t.price != null ? t.price + INSTALL : null, warranty: warranty(t) || (vw ? miles(vw) : null) || (t.warrantyText ? "manufacturer's defect warranty" : null), availability };
   };
   // A caller asking for a brand ("Goodyear?") gets that brand's options first, from the shelf AND the order-in list, even if
   // they aren't the cheapest. (Before, only the 4 cheapest shelf tires were checked, so a Goodyear on the shelf was missed.)
@@ -107,10 +106,10 @@ async function tires(size, quantity, brand) {
   order = order.slice(0, 10);
   const parts = [];
   if (short.length) parts.push(`Not enough on the shelf for ${qty}: ${short.slice(0, 4).map((t) => `${t.brand} ${t.model} (only ${t.count})`).join(", ")}; don't offer these for ${qty} tires.`);
-  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t, qty)}`).join("; ")}.${!want && inStock.length >= 3 ? " Quote these three as good, better, best." : ""}`);
-  if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
+  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t)}`).join("; ")}.${!want && inStock.length >= 3 ? " Quote these three as good, better, best." : ""}`);
+  if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have the team find it and text the exact price: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
-  parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance and 10% tax on the tires. Each tire's treadwear warranty is in its "warranty" field.${big}`);
+  parts.push(`Say the price PER TIRE (tire only) and its warranty, like "the Lexani LXUHP-207, fifty thousand mile warranty, is seventy-eight a tire". Don't add install or tax unless they ask. If they ask whether it includes install and balance: it's ${INSTALL} a wheel, so the tire's price plus ${INSTALL} (its "installed" price) a tire. Tax only if they ask: 10% on the tires, added at the shop.${big}`);
   // Shelf counts come from the last Tekmetric sync (by hand, a few times a day), so a tire sold since may still show.
   const hours = syncedAt ? (Date.now() - new Date(syncedAt)) / 36e5 : null;
   if (inStock.length && hours != null && hours > 6) parts.push(`Shelf counts were last updated ${Math.round(hours)} hours ago: when they pick an in-stock tire, say the guys will have it pulled and ready for them (we confirm it on the shelf when we text).`);
@@ -180,22 +179,21 @@ async function lead(b) {
   return { ok: true, say: "Saved. Tell them someone from the shop will follow up, and they can call back anytime." };
 }
 
-// With a chosen tire and price, the text is the out-the-door breakdown (plus the alignment if added);
+// With a chosen tire and price, the text is the price breakdown (plus the alignment if added), before tax;
 // otherwise it's the size page or booking link.
 const ALIGN = { regular: 75, tesla: 90 };
 function breakdown(b, key) {
   const qty = Number(b.quantity) || 4, price = Number(b.price);
-  const tires = price * qty, install = INSTALL * qty, tax = TAX * tires;
-  const otd = tires + install + tax; // to the cent here; spoken prices round to the dollar
+  const tires = price * qty, install = INSTALL * qty, total = tires + install;
   const align = b.alignment ? (/kumho/i.test(b.tire) && qty === 4 ? 49 : (b.tesla ? ALIGN.tesla : ALIGN.regular) - (qty === 4 ? 10 : 0)) : 0;
   const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
   return [
     `The Tire Plug: your quote for ${qty}x ${b.tire} ${key}`,
-    `Tires: ${qty} x ${d(price)} = ${d(tires)}`,
-    `Mount & balance: ${d(install)}`,
-    `Tax (10% on tires): ${d(tax)}`,
-    `Out the door: ${d(otd)}`,
-    ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(otd + align)}`] : []),
+    `Tire: ${d(price)} each`,
+    `Mount & balance: ${d(INSTALL)} a wheel (${d(price + INSTALL)} a tire installed)`,
+    `${qty} tires installed: ${d(total)}`,
+    ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(total + align)}`] : []),
+    `Plus tax.`,
     PAYMENT,
     `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
   ].join("\n");
