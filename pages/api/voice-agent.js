@@ -22,7 +22,7 @@ import { sizeKey, sizeToSlug } from "../../lib/tire-catalog.js";
 import { sendSms } from "../../lib/sms.js";
 import { toE164 } from "../../lib/phone.js";
 import { SITE } from "../../lib/invoices.js";
-import { openSlots, fmtWhen } from "../../lib/booking.js";
+import { openSlots, fmtWhen, laInstant, laParts } from "../../lib/booking.js";
 import { onNewLead } from "../../lib/front-desk.js";
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { vendorForSize } from "../../lib/vendor-tires.js";
@@ -121,8 +121,25 @@ async function tires(size, quantity, brand) {
 
 // The first few open times on the next days we have room ("at" is what book needs).
 // Next-day tires can't go in today, so those calls skip today.
-async function times(nextDayOnly) {
-  const days = (await openSlots()).filter((d, i) => !(nextDayOnly && d.label.startsWith("Today"))).slice(0, 3);
+// With a time the caller asked for ("in 2 hours" = in_minutes 120, or want "2026-11-05T16:30" LA time), it
+// returns the one open slot closest to it, so the agent can say it back and book right away (owner, Nov 3).
+async function times(nextDayOnly, b = {}) {
+  const all = (await openSlots()).filter((d) => !(nextDayOnly && d.label.startsWith("Today")));
+  const inMin = Number(b.in_minutes);
+  const m = String(b.want || "").match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}):(\d{2})/);
+  const target = inMin > 0 ? Date.now() + inMin * 60e3 : m ? laInstant(m[1], Number(m[2]) * 60 + Number(m[3])).getTime() : null;
+  if (target) {
+    const slots = all.flatMap((d) => d.slots.map((s) => ({ ...s, day: d.label })));
+    // Closest slot, but not more than 15 minutes before the time they said (they can't be early).
+    const best = slots.filter((s) => new Date(s.at) >= target - 15 * 60e3).sort((x, y) => Math.abs(new Date(x.at) - target) - Math.abs(new Date(y.at) - target))[0];
+    if (!best) return { ok: false, say: "No time open near that. Offer the next open day." };
+    const sameDay = laParts(new Date(best.at)).ymd === laParts(new Date(target)).ymd;
+    return { ok: true, at: best.at, label: best.label, day: best.day,
+      say: sameDay
+        ? `Book ${best.day} at ${best.label} (at ${best.at}). Say it back in one line ("Perfect, I've got you down for ${best.label} ${best.day.startsWith("Today") ? "today" : best.day}") and call book_appointment with this at right away; if you don't have their name yet, ask it first.`
+        : `That's after our last appointment that day. The closest is ${best.day} at ${best.label} (at ${best.at}); offer it in one line, and book it if they say yes.` };
+  }
+  const days = all.slice(0, 3);
   if (!days.length) return { ok: false, say: "No open times online. Save a lead so the team calls them to schedule." };
   // Four times spread over the day (earliest first), so the caller hears a morning and an afternoon.
   const spread = (s) => (s.length <= 4 ? s : [0, 1, 2, 3].map((i) => s[Math.round((i * (s.length - 1)) / 3)]));
@@ -334,7 +351,7 @@ export default async function handler(req, res) {
   const action = req.query.action || body.action; // each ElevenLabs tool posts to its own ?action=
   try {
     if (action === "tires") return res.status(200).json(await tires(size, body.quantity, body.brand));
-    if (action === "times") return res.status(200).json(await times(body.next_day === true));
+    if (action === "times") return res.status(200).json(await times(body.next_day === true, body));
     if (action === "book") return res.status(200).json(await book(body));
     if (action === "lead") return res.status(200).json(await lead(body));
     if (action === "brakes") return res.status(200).json(await brakes(body));
