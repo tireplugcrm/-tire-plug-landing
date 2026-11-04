@@ -207,7 +207,7 @@ async function book(b) {
 }
 
 // Not ready to book: saved as a lead in Admin (source "Phone AI") with the quote, so a rep follows up.
-async function lead(b) {
+export async function lead(b) {
   if (!toE164(b.phone)) return { ok: false, say: "Ask for a good cell number first." };
   const key = b.size ? parseSize(b.size) : null;
   const timing = /today|asap|now/i.test(b.timing || "") ? "ASAP" : /tomorrow/i.test(b.timing || "") ? "Tomorrow" : /week/i.test(b.timing || "") ? "This Week" : "Just Pricing";

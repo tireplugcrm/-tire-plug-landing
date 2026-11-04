@@ -13,7 +13,7 @@ import { rowFromCall } from "../../lib/phone-calls.js";
 import { sendSms } from "../../lib/sms.js";
 import { sizeToSlug } from "../../lib/tire-catalog.js";
 import { SITE } from "../../lib/invoices.js";
-import { PAYMENT } from "./voice-agent.js";
+import { PAYMENT, lead } from "./voice-agent.js";
 
 export const config = { api: { bodyParser: { sizeLimit: "4.5mb" } } };
 export const maxDuration = 60;
@@ -65,6 +65,25 @@ async function backupRecap(row) {
   if (r.ok) await supabaseAdmin.from("phone_calls").update({ text_sent: true, data: { ...(row.data || {}), recap_sent_at: new Date().toISOString() } }).eq("id", row.id);
 }
 
+// Every sales caller who didn't book becomes a rep lead from their caller ID, even if Mary never got their name or
+// number (owner, Nov 4: "4 booked out of 30 calls"; 23 sales calls left with nothing saved). No marketing consent.
+const SALES = ["new_tires", "used_tires", "alignment_only", "flat_repair", "other_service"];
+async function autoLead(row) {
+  if (row.booked || row.lead_saved || !row.caller || !(row.quoted || SALES.includes(row.intent))) return;
+  try {
+    const q = row.quotes?.[row.quotes.length - 1];
+    const quoted = q ? (q.in_stock.length ? q.in_stock : q.next_day).filter((t) => t.price != null).slice(0, 2).map((t) => `${t.brand} ${t.model} ${t.price}`).join(", ") : "";
+    await lead({
+      phone: row.caller, name: row.caller_name || null, vehicle: row.vehicle || null, size: q?.size || null,
+      service: q ? undefined : (row.intent || "").replace(/_/g, " ") || "Phone call", timing: "just pricing", sms_ok: false,
+      notes: [`Auto-saved after the call (didn't book)`, row.transferred ? "was transferred to a person" : "", quoted && `quoted ${quoted}`, row.lost_reason && `why: ${row.lost_reason}`].filter(Boolean).join("; "),
+    });
+    console.log(`voice-calls: auto lead for ...${row.caller.slice(-4)}`);
+  } catch (err) {
+    console.error("voice-calls: auto lead", err);
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   const key = process.env.VOICE_AGENT_KEY || "";
@@ -83,6 +102,7 @@ export default async function handler(req, res) {
       const { error } = await supabaseAdmin.from("phone_calls").upsert(row, { onConflict: "id" });
       if (error) throw error;
       await backupRecap(row);
+      await autoLead(row);
       await fetchRecording(id);
       console.log(`voice-calls: ${id} ${row.duration_secs}s ${row.intent || "?"} booked=${row.booked} quality=${row.quality_score}`);
       return res.status(200).json({ ok: true });
