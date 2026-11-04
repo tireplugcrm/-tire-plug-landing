@@ -64,24 +64,34 @@ async function tires(size, quantity, brand) {
   const warranty = (t) => (t.specs?.warranty ? `${Number(t.specs.warranty).toLocaleString("en-US")}-mile treadwear warranty`
     : (t.features || []).filter((f) => /warranty/i.test(f)).join("; ") || null);
   const pick = (t, availability) => ({ brand: t.brand, model: t.model, price: t.price ?? null, otd: t.price != null ? outTheDoor(t.price, qty) : null, otd_4: t.price != null ? outTheDoor(t.price) : null, warranty: warranty(t), availability });
-  const inStock = shelf.slice(0, 4).map((t) => ({ ...pick(t, "in_stock"), count: t.count ?? null, low: t.level === "low" }));
+  // A caller asking for a brand ("Goodyear?") gets that brand's options first, from the shelf AND the order-in list, even if
+  // they aren't the cheapest. (Before, only the 4 cheapest shelf tires were checked, so a Goodyear on the shelf was missed.)
+  const want = String(brand || "").toLowerCase().replace(/[^a-z]/g, "");
+  const isWanted = (t) => want && String(t.brand).toLowerCase().replace(/[^a-z]/g, "").includes(want);
+  // No brand asked: good / better / best from the shelf (owner, Nov 3): the cheapest, a middle one and the best (priciest),
+  // instead of just the cheapest few. shelf comes cheapest first; unpriced tires sort last and are skipped here.
+  const priced = shelf.filter((t) => t.price != null);
+  const tiers = priced.length > 3
+    ? [["good", priced[0]], ["better", priced[Math.floor((priced.length - 1) / 2)]], ["best", priced[priced.length - 1]]]
+    : priced.map((t, i, a) => [a.length === 1 ? "good" : i === 0 ? "good" : i === a.length - 1 ? "best" : "better", t]);
+  const shelfPicks = want
+    ? [...shelf.filter(isWanted), ...shelf.filter((t) => !isWanted(t))].slice(0, 6).map((t) => [isWanted(t) ? "requested" : "", t])
+    : tiers;
+  const inStock = shelfPicks.map(([tier, t]) => ({ ...pick(t, "in_stock"), tier: tier || null, count: t.count ?? null, low: t.level === "low" }));
   // Every next-day brand, so a caller asking for one by name (Falken, Lexani...) gets its price.
   // Plus every distributor's catalog (lib/vendor-tires.js) for brands the shelf and next-day list don't have.
   const nk = (t) => `${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, "");
   const known = new Set([...shelf, ...nextDay].map(nk));
   const fromVendors = vendors.filter((t) => !known.has(nk(t))).map((t) => ({ ...pick(t, "next_day"), eta_days: t.eta_days }));
   let order = [...nextDay.map((t) => pick(t, "next_day")), ...fromVendors].sort((a, b) => (a.price ?? 1e9) - (b.price ?? 1e9));
-  // A caller asking for a brand ("Continental?") gets that brand's options first, even if they aren't the cheapest.
-  const want = String(brand || "").toLowerCase().replace(/[^a-z]/g, "");
-  const isWanted = (t) => want && t.brand.toLowerCase().replace(/[^a-z]/g, "").includes(want);
   if (want) order = [...order.filter(isWanted), ...order.filter((t) => !isWanted(t))];
   order = order.slice(0, 10);
   const parts = [];
-  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => line(t, qty)).join("; ")}.`);
+  if (inStock.length) parts.push(`In stock today in ${key}: ${inStock.map((t) => `${t.tier ? `${t.tier.toUpperCase()}: ` : ""}${line(t, qty)}`).join("; ")}.${!want && inStock.length >= 3 ? " Quote these three as good, better, best." : ""}`);
   if (order.length) parts.push(`${inStock.length ? "We can also get" : `Nothing on the shelf in ${key}, but we can get`} next day: ${order.map((t) => line(t, qty)).join("; ")}. Next-day tires are installed tomorrow or later, never same day.`);
   if (!parts.length) parts.push(`We don't have ${key} on the shelf or next day. Offer to have the team find it and text the exact price: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
   parts.push(`Out the door for ${qty} includes ${INSTALL} a wheel mount and balance and 10% tax on the tires. Each tire's treadwear warranty is in its "warranty" field.${big}`);
-  if (want) parts.unshift(order.some(isWanted) || inStock.some(isWanted) ? `${brand} options are listed first.` : `No ${brand} in this size right now; offer the closest match and to have the team find a ${brand}.`);
+  if (want) parts.unshift(inStock.some(isWanted) ? `${brand} is IN STOCK today: lead with it.` : order.some(isWanted) ? `${brand} can be ordered in (listed first).` : `No ${brand} available to quote in this size; offer the closest match and to get a ${brand} ordered (don't say "we don't have").`);
   return { ok: true, size: key, quantity: qty, in_stock: inStock, next_day: order, say: parts.join(" ") };
 }
 
