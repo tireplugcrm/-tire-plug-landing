@@ -10,7 +10,7 @@ const SIDEWALL = {
   RWL: 'Raised white letters', VSB: 'Vertical serrated band',
 };
 
-function specRows(s) {
+function specRows(s, warrantyText) {
   return [
     ['Load / speed', s.loadIndex || s.speed ? `${s.loadIndex || ''}${s.speed || ''}` : null],
     ['Load range', s.loadRange && (s.ply ? `${s.loadRange} (${s.ply}-ply)` : s.loadRange)],
@@ -21,7 +21,7 @@ function specRows(s) {
     ['Max load', s.loadLbs && `${Number(s.loadLbs).toLocaleString()} lbs`],
     ['Max pressure', s.maxPsi && `${s.maxPsi} PSI`],
     ['Weight', s.weightLbs && `${s.weightLbs} lbs`],
-    ['Warranty', s.warranty && `${Number(s.warranty).toLocaleString()} miles`],
+    ['Warranty', warrantyText || (s.warranty && `${Number(s.warranty).toLocaleString()} miles`)],
   ].filter(([, v]) => v);
 }
 
@@ -33,7 +33,9 @@ const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
 // carry-out only and ordered by text or call, so there's no booking button, plus the commercial-account savings line.
 export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to reserve', ready = 'Ready to install today', commercial = false }) {
   const s = t.specs || {};
-  const rows = specRows(s);
+  const rows = specRows(s, t.warrantyText);
+  // the warranty has its own row, so its feature lines aren't repeated in the list
+  const features = t.features.filter((f) => !t.warrantyText || !/warranty/i.test(f) || /hazard/i.test(f));
   // The booking page, with this tire and size filled in.
   const bookHref = `/book?${new URLSearchParams({ size, tire: [t.brand, t.model].filter(Boolean).join(' ') })}`;
   const fit = [size, s.loadIndex ? `${s.loadIndex}${s.speed || ''}` : '', s.loadRange === 'XL' ? 'XL' : ''].filter(Boolean).join(' ');
@@ -98,12 +100,12 @@ export default function StockTireCard({ tire: t, size, smsHref, cta = 'Text to r
             </div>
           </>
         )}
-        {(rows.length > 0 || t.about || t.features.length > 0) && (
+        {(rows.length > 0 || t.about || features.length > 0) && (
           <details className="stc-specs">
             <summary>Specs</summary>
             <dl>{rows.map(([k, v]) => <React.Fragment key={k}><dt>{k}</dt><dd>{v}</dd></React.Fragment>)}</dl>
             {t.about && <p>{t.about}</p>}
-            {t.features.length > 0 && <ul>{t.features.map((f) => <li key={f}>{f}</li>)}</ul>}
+            {features.length > 0 && <ul>{features.map((f) => <li key={f}>{f}</li>)}</ul>}
           </details>
         )}
       </div>

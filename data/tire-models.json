@@ -1,5 +1,9 @@
 {
   "_about": "What each tire model is, shown on /tires/<size> cards. Key: 'Brand|Model'. img is a path under /public (leave null until we have a photo).",
+  "brandWarranty": {
+    "_about": "Mileage warranty for every model of a brand, used when the model has none of its own. Owner, 2026-11-03: Landspider 40,000.",
+    "Landspider": 40000
+  },
   "remap": {
     "Evoluxx|Capricorn UHP|225/65R17": "Capricorn 4X4 HP",
     "Landspider|Citytraxx G/P|225/45R17": "Citytraxx H/P",
@@ -83,7 +87,8 @@
         "RFX PLUS",
         "LX-REX PLUS"
       ],
-      "source": "https://lexanitires.com/en/rfx-plus"
+      "source": "https://lexanitires.com/en/rfx-plus",
+      "warranty": "none"
     },
     "Lexani|Volt-EC": {
       "category": "EV ultra-high performance all-season",
@@ -214,7 +219,8 @@
       ],
       "img": "/images/tires/lionhart-imara-h-t.webp",
       "aliases": [],
-      "source": "https://lionharttires.com/tire/imara-ht/"
+      "source": "https://lionharttires.com/tire/imara-ht/",
+      "warranty": 50000
     },
     "RBP|Guarantor H/T": {
       "category": "Highway all-season",
@@ -390,7 +396,8 @@
       "aliases": [
         "Capricorn U.H.P"
       ],
-      "source": "https://www.prioritytire.com/by-brand/evoluxx-tires/capricorn-uhp/235-40r19-96y-xl-33687"
+      "source": "https://www.prioritytire.com/by-brand/evoluxx-tires/capricorn-uhp/235-40r19-96y-xl-33687",
+      "warranty": 40000
     },
     "Evoluxx|Rotator H/T": {
       "category": "Highway All-Season (SUV/Light Truck)",
@@ -458,7 +465,8 @@
       "aliases": [
         "HH11"
       ],
-      "source": "https://blackhawktireusa.com/en-us/plt/tires/hh11/"
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/hh11/",
+      "warranty": 50000
     },
     "Blackhawk|Agility SUV": {
       "category": "All-season touring CUV/SUV",
@@ -483,7 +491,8 @@
         "HT02",
         "Ridgecrawler"
       ],
-      "source": "https://blackhawktireusa.com/en-us/plt/tires/ht02/"
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/ht02/",
+      "warranty": 60000
     },
     "Arisun|Aresta ZG02": {
       "category": "Truck/SUV Highway All Season",
@@ -553,7 +562,8 @@
       ],
       "img": "/images/tires/goodyear-wrangler-territory-mt.webp",
       "aliases": [],
-      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-mt"
+      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-mt",
+      "warranty": "none"
     },
     "Dunlop|Blue Response A/S": {
       "category": "Premium all-season touring",
@@ -580,7 +590,8 @@
       ],
       "img": "/images/tires/blackhawk-ridgecrawler-r-t.webp",
       "aliases": [],
-      "source": "https://blackhawktireusa.com/en-us/plt/tires/rt/"
+      "source": "https://blackhawktireusa.com/en-us/plt/tires/rt/",
+      "warranty": "60,000 miles (P-metric/XL sizes) · 45,000 miles (LT sizes)"
     },
     "Blackhawk|Ridgecrawler A/T": {
       "category": "All-terrain light truck/SUV",
@@ -924,7 +935,8 @@
       "aliases": [
         "Eagle LS2"
       ],
-      "source": "https://simpletire.com/brands/goodyear-tires/eagle-ls-2"
+      "source": "https://simpletire.com/brands/goodyear-tires/eagle-ls-2",
+      "warranty": "none"
     },
     "Goodyear|Wrangler Territory HT": {
       "category": "Highway all-season (light truck/SUV)",
@@ -940,7 +952,8 @@
       "aliases": [
         "Wrangler Territory H/T"
       ],
-      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-h-t"
+      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-h-t",
+      "warranty": "none"
     },
     "Goodyear|Assurance MaxLife": {
       "category": "All-season passenger",
@@ -965,7 +978,8 @@
       ],
       "img": "/images/tires/goodyear-eagle-touring.webp",
       "aliases": [],
-      "source": "https://simpletire.com/brands/goodyear-tires/eagle-touring"
+      "source": "https://simpletire.com/brands/goodyear-tires/eagle-touring",
+      "warranty": "none"
     },
     "Goodyear|Eagle Sport All-Season": {
       "category": "Ultra-high-performance all-season",
@@ -1021,7 +1035,8 @@
       ],
       "img": "/images/tires/bridgestone-potenza-s005.webp",
       "aliases": [],
-      "source": "https://simpletire.com/brands/bridgestone-tires/potenza-s005"
+      "source": "https://simpletire.com/brands/bridgestone-tires/potenza-s005",
+      "warranty": "none"
     },
     "Bridgestone|Dueler H/L Alenza Plus": {
       "category": "Highway all-season touring (SUV/CUV/light truck)",
@@ -1054,7 +1069,8 @@
       "aliases": [
         "TransForce HT3"
       ],
-      "source": "https://simpletire.com/brands/firestone-tires/transforce-ht3"
+      "source": "https://simpletire.com/brands/firestone-tires/transforce-ht3",
+      "warranty": "none"
     },
     "Firestone|Destination A/T2": {
       "category": "All-terrain (truck/SUV, 3PMSF)",
@@ -1122,7 +1138,8 @@
         "Scorpion (AO) (+)",
         "Scorpion AO Elect"
       ],
-      "source": "https://www.pirelli.com/tyres/en-gb/car/catalogue/product/new-scorpion/255_50-r19"
+      "source": "https://www.pirelli.com/tyres/en-gb/car/catalogue/product/new-scorpion/255_50-r19",
+      "warranty": "none"
     },
     "Pirelli|Scorpion STR": {
       "category": "Highway all-season (SUV/light truck)",
@@ -1155,7 +1172,8 @@
         "Pilot Sport A/S 4",
         "Pilot Sport AS4"
       ],
-      "source": "https://www.lacroixtuning.com/255-40zr19-xl-pilot-sport-all-season-4-27700-mic"
+      "source": "https://www.lacroixtuning.com/255-40zr19-xl-pilot-sport-all-season-4-27700-mic",
+      "warranty": 45000
     },
     "Michelin|Defender LTX M/S2": {
       "category": "Highway all-season (light truck/SUV)",
@@ -1382,7 +1400,8 @@
         "Kinergy 4S2X",
         "H750A"
       ],
-      "source": "https://www.hankooktire.com/us/en/tire/kinergy/4s2-h750a.html"
+      "source": "https://www.hankooktire.com/us/en/tire/kinergy/4s2-h750a.html",
+      "warranty": 60000
     },
     "Hankook|Dynapro MT2 RT05": {
       "category": "Light Truck / Mud-Terrain",
@@ -1401,7 +1420,8 @@
         "Dynapro MT2",
         "RT05"
       ],
-      "source": "https://www.hankooktire.com/us/en/tire/dynapro/mt2-rt05.html"
+      "source": "https://www.hankooktire.com/us/en/tire/dynapro/mt2-rt05.html",
+      "warranty": "none"
     },
     "Hankook|Ventus S1 AS H125": {
       "category": "Passenger Car / UHP All-Season",
@@ -1436,7 +1456,8 @@
         "Ventus S1 evo Z",
         "K129"
       ],
-      "source": "https://www.willystires.ca/tire/4874/hankook%2Dtires%2Dventus%2Ds1%2Devo%2Dz%2Dk129/"
+      "source": "https://www.willystires.ca/tire/4874/hankook%2Dtires%2Dventus%2Ds1%2Devo%2Dz%2Dk129/",
+      "warranty": "none"
     },
     "Kumho|Solus TA11": {
       "category": "Passenger Touring All-Season",
@@ -1631,7 +1652,8 @@
         "Royal Performance",
         "Racing Trac ZR"
       ],
-      "source": "https://www.prioritytire.com/by-brand/royal-black-tires/racing-trac/215-45r17-91w-xl-zr-191183"
+      "source": "https://www.prioritytire.com/by-brand/royal-black-tires/racing-trac/215-45r17-91w-xl-zr-191183",
+      "warranty": "none"
     },
     "Venom Power|Ragnarok GTS": {
       "category": "All-season high-performance (passenger/SUV/light truck)",
@@ -1680,7 +1702,8 @@
         "HPZ 02",
         "Advanta HP Z-02"
       ],
-      "source": "https://www.discountedwheelwarehouse.com/tires/brands/advanta/hpz-02"
+      "source": "https://www.discountedwheelwarehouse.com/tires/brands/advanta/hpz-02",
+      "warranty": 50000
     },
     "Vantage|UHP": {
       "category": "Ultra-high-performance all-season (passenger)",
@@ -1770,7 +1793,8 @@
       "aliases": [
         "Wrangler Territory A/T"
       ],
-      "source": "https://spec.tireweb.com/tires/332459"
+      "source": "https://spec.tireweb.com/tires/332459",
+      "warranty": "none"
     },
     "Falken|Azenis FK510": {
       "category": "Summer Ultra High Performance",
@@ -1836,7 +1860,8 @@
         "Eagle RSA",
         "Eagle RS A"
       ],
-      "source": "https://www.goodyear.com/en-us/tires/eagle-rs-a_67"
+      "source": "https://www.goodyear.com/en-us/tires/eagle-rs-a_67",
+      "warranty": "none"
     },
     "Goodyear|Eagle F1": {
       "category": "Summer Ultra-High Performance",
@@ -1870,7 +1895,8 @@
         "Wrangler ATS",
         "Wrangler A/T S"
       ],
-      "source": "https://www.goodyear.com/en-us/tires/wrangler-ats_352"
+      "source": "https://www.goodyear.com/en-us/tires/wrangler-ats_352",
+      "warranty": "none"
     },
     "Goodyear|Wrangler Fortitude HT": {
       "category": "Highway All-Season (SUV/Light Truck)",
@@ -1921,7 +1947,8 @@
         "Territory RT",
         "Wrangler Territory R/T"
       ],
-      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-rt"
+      "source": "https://simpletire.com/brands/goodyear-tires/wrangler-territory-rt",
+      "warranty": "none"
     },
     "Michelin|Primacy A/S": {
       "category": "All-Season Touring",
@@ -1986,7 +2013,8 @@
         "New P Zero",
         "PZ4"
       ],
-      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/new-p-zero"
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/new-p-zero",
+      "warranty": "none"
     },
     "Pirelli|Scorpion Verde All Season": {
       "category": "All-Season SUV/Crossover Touring",
@@ -2003,7 +2031,8 @@
         "Scorpion Verde AS",
         "Scorpion Verde All-Season"
       ],
-      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/scorpion-verde-all-season"
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/scorpion-verde-all-season",
+      "warranty": 65000
     },
     "GT Radial|Champiro SX2": {
       "category": "Extreme Performance Summer",
@@ -2061,7 +2090,8 @@
       ],
       "img": "/images/tires/falken-aklimate.webp",
       "source": "https://tiresize.com/tires/Falken/Aklimate.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": 65000
     },
     "Falken|Ziex ZE950 A/S": {
       "category": "All-season performance",
@@ -2072,7 +2102,8 @@
       ],
       "img": "/images/tires/falken-ziex-ze950-a-s.webp",
       "source": "https://tiresize.com/tires/Falken/Ziex-ZE950-AS.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": "65,000 miles (H/V-rated sizes) · 45,000 miles (W-rated sizes)"
     },
     "Falken|Wildpeak A/T Trail": {
       "category": "All-terrain (crossover/SUV)",
@@ -2083,7 +2114,8 @@
       ],
       "img": "/images/tires/falken-wildpeak-a-t-trail.webp",
       "source": "https://tiresize.com/tires/Falken/Wildpeak-AT-Trail.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": 65000
     },
     "Falken|Ziex CT60 A/S": {
       "category": "All-season touring (crossover/SUV)",
@@ -2094,7 +2126,8 @@
       ],
       "img": "/images/tires/falken-ziex-ct60-a-s.webp",
       "source": "https://tiresize.com/tires/Falken/Ziex-CT60-AS.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": 65000
     },
     "Falken|Wildpeak R/T01": {
       "category": "Rugged terrain (truck)",
@@ -2105,7 +2138,8 @@
       ],
       "img": "/images/tires/falken-wildpeak-r-t01.webp",
       "source": "https://tiresize.com/tires/Falken/Wildpeak-RT.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": 50000
     },
     "Falken|Wildpeak M/T01": {
       "category": "Mud terrain (truck)",
@@ -2116,7 +2150,8 @@
       ],
       "img": "/images/tires/falken-wildpeak-m-t01.webp",
       "source": "https://tiresize.com/tires/Falken/Wildpeak-MT.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": "none"
     },
     "Falken|Wildpeak A/T3W": {
       "category": "All-terrain (truck/SUV)",
@@ -2127,7 +2162,8 @@
       ],
       "img": "/images/tires/falken-wildpeak-a-t3w.webp",
       "source": "https://tiresize.com/tires/Falken/Wildpeak-AT3W.htm",
-      "aliases": []
+      "aliases": [],
+      "warranty": 55000
     },
     "Lionhart|Kilima A/T": {
       "category": "All-terrain (truck/SUV)",
@@ -2138,7 +2174,8 @@
       ],
       "img": "/images/tires/lionhart-kilima-a-t.webp",
       "source": "https://lionharttires.com/tire/kilima-at/",
-      "aliases": []
+      "aliases": [],
+      "warranty": 50000
     },
     "Lionhart|Lionclaw ATX2": {
       "category": "All-terrain (truck/SUV)",
@@ -2149,7 +2186,8 @@
       ],
       "img": "/images/tires/lionhart-lionclaw-atx2.webp",
       "source": "https://lionharttires.com/tire/lionclaw-atx2/",
-      "aliases": []
+      "aliases": [],
+      "warranty": 40000
     },
     "Goodyear|Eagle Touring ROF SCT (MOE)": {
       "category": "Grand Touring All-Season Run-Flat",
