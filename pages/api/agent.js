@@ -253,6 +253,26 @@ export default async function handler(req, res) {
     }
     // Phone calls since a time that didn't book or save a lead become rep leads (same as the post-call webhook now does).
     // Fill in the tires on a phone booking that saved without them (M Bragassa, Nov 4).
+    // A follow-up for a caller: their latest lead (made if missing) gets the quote in owner notes, plus a reminder at due_at
+    // that texts the owner when it's due (lib/front-desk.js watchdog).
+    if (b.action === "lead-followup") {
+      const ten = String(b.phone || "").replace(/\D/g, "").slice(-10);
+      if (ten.length !== 10 || !b.due_at) return res.status(400).json({ error: "phone and due_at required" });
+      let { data: l } = await supabaseAdmin.from("leads").select("*").eq("phone", `+1${ten}`).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      if (!l) {
+        const ins = await supabaseAdmin.from("leads").insert({ phone: `+1${ten}`, name: b.name || null, service: b.service || "Phone call", source: "Phone", tags: ["Phone"], lead_priority: "HOT", raw: { via: "owner" } }).select("*").single();
+        if (ins.error) throw ins.error;
+        l = ins.data;
+      }
+      const patch = {};
+      if (b.service) patch.service = b.service;
+      if (b.quote) patch.owner_notes = [l.owner_notes, b.quote].filter(Boolean).join("\n");
+      if (b.tire_size) patch.tire_size = b.tire_size;
+      if (Object.keys(patch).length) await supabaseAdmin.from("leads").update(patch).eq("id", l.id);
+      const { error } = await supabaseAdmin.from("reminders").insert({ lead_id: l.id, due_at: new Date(b.due_at).toISOString(), note: b.note || b.quote || null, kind: "followup" });
+      if (error) throw error;
+      return res.status(200).json({ ok: true, lead: { id: l.id, name: l.name, created_at: l.created_at, source: l.source } });
+    }
     // The owner's morning lineup text for a day (YYYY-MM-DD), without sending it.
     if (b.action === "morning-lineup") {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date || "")) return res.status(400).json({ error: "date YYYY-MM-DD" });
