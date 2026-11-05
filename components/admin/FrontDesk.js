@@ -151,7 +151,10 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
     <div className="fd-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 320px", gap: "1.5rem", alignItems: "start" }}>
       <div>
 
-        <h2 style={h2}>Needs a reply</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <h2 style={{ ...h2, marginRight: "auto" }}>Needs a reply</h2>
+          {d.unanswered.length > 1 && <button disabled={busy === "handled_all:"} onClick={() => { if (confirm(`Mark all ${d.unanswered.length} leads as reached out?`)) act("handled_all", "", { ids: d.unanswered.map((l) => l.id) }); }} style={ui.btn}><Icon name="done_all" size={18} />Clear all</button>}
+        </div>
         {!d.unanswered.length && <div style={{ ...card, color: T.textMuted, display: "flex", alignItems: "center", gap: 8 }}><Icon name="check_circle" style={{ color: GREEN }} />Every lead has been answered.</div>}
         <div style={{ display: "grid", gap: "0.5rem" }}>
           {d.unanswered.map((l) => {

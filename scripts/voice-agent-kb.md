@@ -68,7 +68,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't kno
 - Kumho: up to 75,000-mile treadwear warranty (depends on the tire), road hazard replacement in the first 12 months, 30-day satisfaction guarantee.
 
 ## Paying
-- We take cash, Zelle and card. Card payments add a 3% fee.
+- We take cash, Zelle, card and Apple Pay. Card and Apple Pay add a 3% fee.
 - Financing through Snap Finance: pay over time. Don't promise approval or rates; they can ask at the shop.
 - Payment methods aren't listed; if asked, say the shop takes care of payment at the visit and transfer if they need specifics.
 

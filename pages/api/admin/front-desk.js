@@ -113,6 +113,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: sent > 0, sent, to });
     }
 
+    // "Clear all" on Needs a reply: mark every listed lead as reached out (stops the unanswered alerts).
+    if (action === "handled_all") {
+      const ids = (Array.isArray(req.body.ids) ? req.body.ids : []).filter((x) => typeof x === "string").slice(0, 200);
+      if (!ids.length) return res.status(200).json({ ok: true, cleared: 0 });
+      const now = new Date().toISOString();
+      const { data: rows } = await supabaseAdmin.from("leads").update({ first_response_at: now, status: "called" })
+        .in("id", ids).eq("status", "new").is("first_response_at", null).select("id");
+      await logEvent(null, "handled", `${auth.user.name || "Owner"} cleared ${rows?.length || 0} leads from Needs a reply`);
+      return res.status(200).json({ ok: true, cleared: rows?.length || 0 });
+    }
+
     if (action === "slots") return res.status(200).json({ days: await openSlots({ ignoreLeadId: id }) });
 
     // Staff booking: no capacity check, the front desk decides how many cars fit. Same lead + confirmation

@@ -49,7 +49,7 @@ const money = (n) => `$${Math.round(n)}`;
 // said only when the caller asks about install: $78 tire + $20 = $98 a tire installed. Tax (10% on the tires) is
 // added at the shop and only mentioned if they ask. No tire fee in quotes.
 export const INSTALL = 20, TAX = 0.1;
-export const PAYMENT = "We take cash, Zelle and card (card adds 3%).";
+export const PAYMENT = "We take cash, Zelle, card and Apple Pay (card and Apple Pay add 3%).";
 const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire (${money(t.installed)} installed)` : ", price by text"}${t.warranty ? `, ${t.warranty.replace(/(;| · ).*/, "")}` : ""}`;
 
 async function tires(size, quantity, brand) {
