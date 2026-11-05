@@ -41,7 +41,8 @@ import { dailyLimit, sentToday, eligibleFor, sendOutreach } from "../../lib/outr
 import { suppressedSet } from "../../lib/email.js";
 import { sendSms } from "../../lib/sms.js";
 import { digits10 } from "../../lib/phone.js";
-import { logEvent } from "../../lib/front-desk.js";
+import { logEvent, morningLineup } from "../../lib/front-desk.js";
+import { laInstant } from "../../lib/booking.js";
 import { elevenCredits } from "../../lib/elevenlabs-credits.js";
 import { loadVendor, vendorStatus } from "../../lib/vendor-tires.js";
 import { brakeParts, saveBrakeParts } from "../../lib/brake-parts.js";
@@ -252,6 +253,14 @@ export default async function handler(req, res) {
     }
     // Phone calls since a time that didn't book or save a lead become rep leads (same as the post-call webhook now does).
     // Fill in the tires on a phone booking that saved without them (M Bragassa, Nov 4).
+    // The owner's morning lineup text for a day (YYYY-MM-DD), without sending it.
+    if (b.action === "morning-lineup") {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date || "")) return res.status(400).json({ error: "date YYYY-MM-DD" });
+      const { data: day } = await supabaseAdmin.from("leads").select("*").eq("appt_status", "confirmed")
+        .gte("appointment_at", laInstant(b.date, 0).toISOString()).lt("appointment_at", laInstant(b.date, 24 * 60).toISOString())
+        .order("appointment_at", { ascending: true });
+      return res.status(200).json({ text: morningLineup(day || []) });
+    }
     if (b.action === "lead-tires-fix") {
       const { phone, at, size, tire, price, quantity } = b;
       if (!phone || !at || !size) return res.status(400).json({ error: "phone, at and size required" });
