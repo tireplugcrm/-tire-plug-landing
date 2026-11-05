@@ -69,6 +69,9 @@ scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't kno
 
 ## Paying
 - We take cash, Zelle, card and Apple Pay. Card and Apple Pay add a 3% fee.
+- We BUY aluminum wheels, with or without a tire on them: $20 to $25 per wheel depending on size and material, priced in person. No appointment, just bring them in during open hours.
+- We don't buy steel wheels, but customers can drop them off for free if they want to get rid of them.
+- We don't buy used tires unless they were made in 2025 or 2026 (last four digits of the DOT code, e.g. 1225 = week 12 of 2025). Those are priced in person.
 - Financing through Snap Finance: pay over time. Don't promise approval or rates; they can ask at the shop.
 - Payment methods aren't listed; if asked, say the shop takes care of payment at the visit and transfer if they need specifics.
 
