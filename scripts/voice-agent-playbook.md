@@ -110,6 +110,8 @@ her tools and knowledge base.
 ## Owner's coaching, Nov 4 (from the 1:43 PM Spanish test call: "he keeps insisting on 3pm")
 36. Caller wants to come in now while we're open: "Yeah, come on in now, we can take care of you." Ask how long to get
    here, book that time (walk-in). Never push them to a later time.
+39. Book first, then pitch the alignment (Nov 5): time, name, book_appointment, THEN "Want me to add an alignment?" A yes
+   adds it to the same booking. A caller who hangs up mid-pitch is still booked.
 37. Install and balance is $20 a wheel for phone callers (the website stays $25). A $78 tire is $98 installed. $20 is the
    lowest; no further install discount.
 38. Special order tires (not on the shelf or next day), shop open: "It looks like I have to special order these and I

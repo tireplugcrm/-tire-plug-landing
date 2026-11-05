@@ -145,7 +145,7 @@ async function times(nextDayOnly, b = {}) {
       say: inMin > 0 && soon && sameDay
         ? `Yes, they can come in now. Say "Yeah, come on in, we can take care of you," then book ${best.day} at ${best.label} (at ${best.at}) with walk_in true (ask their name first if you don't have it). Don't offer a later time.`
         : sameDay
-        ? `Book ${best.day} at ${best.label} (at ${best.at}). Say it back in one line ("Perfect, I've got you down for ${best.label} ${best.day.startsWith("Today") ? "today" : best.day}") and call book_appointment with this at right away; if you don't have their name yet, ask it first.`
+        ? `Book ${best.day} at ${best.label} (at ${best.at}). Say it back in one line ("Perfect, I've got you down for ${best.label} ${best.day.startsWith("Today") ? "today" : best.day}") and call book_appointment with this at right away (ask their name first if you don't have it). Pitch the alignment only AFTER it's booked.`
         : `That's after our last appointment that day. The closest is ${best.day} at ${best.label} (at ${best.at}); offer it in one line, and book it if they say yes.` };
   }
   const days = all.slice(0, 3);
