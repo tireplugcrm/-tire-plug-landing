@@ -68,8 +68,8 @@ async function backupRecap(row) {
 // Every sales caller who didn't book becomes a rep lead from their caller ID, even if Mary never got their name or
 // number (owner, Nov 4: "4 booked out of 30 calls"; 23 sales calls left with nothing saved). No marketing consent.
 const SALES = ["new_tires", "used_tires", "alignment_only", "flat_repair", "other_service"];
-async function autoLead(row) {
-  if (row.booked || row.lead_saved || !row.caller || !(row.quoted || SALES.includes(row.intent))) return;
+export async function autoLead(row) {
+  if (row.booked || row.lead_saved || !row.caller || !(row.quoted || SALES.includes(row.intent))) return false;
   try {
     const q = row.quotes?.[row.quotes.length - 1];
     const quoted = q ? (q.in_stock.length ? q.in_stock : q.next_day).filter((t) => t.price != null).slice(0, 2).map((t) => `${t.brand} ${t.model} ${t.price}`).join(", ") : "";
@@ -79,8 +79,10 @@ async function autoLead(row) {
       notes: [`Auto-saved after the call (didn't book)`, row.transferred ? "was transferred to a person" : "", quoted && `quoted ${quoted}`, row.lost_reason && `why: ${row.lost_reason}`].filter(Boolean).join("; "),
     });
     console.log(`voice-calls: auto lead for ...${row.caller.slice(-4)}`);
+    return true;
   } catch (err) {
     console.error("voice-calls: auto lead", err);
+    return false;
   }
 }
 

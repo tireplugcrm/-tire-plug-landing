@@ -45,6 +45,7 @@ import { logEvent } from "../../lib/front-desk.js";
 import { elevenCredits } from "../../lib/elevenlabs-credits.js";
 import { loadVendor, vendorStatus } from "../../lib/vendor-tires.js";
 import { brakeParts, saveBrakeParts } from "../../lib/brake-parts.js";
+import { autoLead } from "./voice-calls.js";
 
 // Outreach order: the businesses that fit truck and work-vehicle tires first.
 const OUTREACH_ORDER = ["Delivery & trucking", "Contractors & trades", "Auto-adjacent", "Rideshare & limo"];
@@ -248,6 +249,15 @@ export default async function handler(req, res) {
       const n = await saveBrakeParts(c);
       await log(agent, `brake parts saved: ${c.year} ${c.make} ${c.model}${c.trim ? ` ${c.trim}` : ""}`, c);
       return res.status(200).json({ ok: true, cars: n });
+    }
+    // Phone calls since a time that didn't book or save a lead become rep leads (same as the post-call webhook now does).
+    if (b.action === "phone-leads-backfill") {
+      const since = b.since || new Date(Date.now() - 24 * 36e5).toISOString();
+      const { data: rows, error } = await supabaseAdmin.from("phone_calls").select("*").gte("started_at", since).order("started_at");
+      if (error) throw error;
+      let made = 0;
+      for (const r of rows || []) if (await autoLead(r)) made++;
+      return res.status(200).json({ ok: true, calls: rows?.length || 0, leads: made });
     }
     if (b.action === "brake-parts") return res.status(200).json({ cars: await brakeParts() });
     // A 2-hour pass for /api/vendor-upload, so a portal page can post its catalog without holding the Jarvis key.
