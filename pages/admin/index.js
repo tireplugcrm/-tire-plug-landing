@@ -6,7 +6,7 @@ import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import TextsTab from "../../components/admin/TextsTab.js";
 import InvoicesTab from "../../components/admin/InvoicesTab.js";
-import PhoneTab from "../../components/admin/PhoneTab.js";
+import PhoneTab, { LeadCalls } from "../../components/admin/PhoneTab.js";
 import ShopFloor from "../../components/admin/ShopFloor.js";
 import { T, Icon } from "../../components/admin/ui.js";
 import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
@@ -281,7 +281,7 @@ export default function AdminHub() {
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         {tab === "pricing" && <PricingTab auth={auth} />}
         {tab === "invoices" && <InvoicesTab auth={auth} />}
-        {tab === "phone" && <PhoneTab auth={auth} />}
+        {tab === "phone" && <PhoneTab auth={auth} onOpenLead={setSelectedLeadId} />}
         </main>
       </div>
 
@@ -562,6 +562,7 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
             <ContactFact lead={lead} auth={auth} field="email" onUpdate={onUpdate} />
             <ContactFact lead={lead} auth={auth} field="phone" onUpdate={onUpdate} />
           </div>
+          <LeadCalls lead={lead} auth={auth} />
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "14px 0 0" }}>
             <span style={{ color: T.textMuted, fontSize: 13 }}>Status</span>

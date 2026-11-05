@@ -1,4 +1,5 @@
-// Admin → Phone: what Mary (the phone AI) did on every call, live.
+// Admin → Phone: what Alejandro (the phone AI) did on every call, live. Each call links to the CRM lead or booking it
+// made, and lead cards list that caller's calls (LeadCalls / CallDetail, exported).
 // Numbers from /api/admin/phone (phone_calls, lib/phone-calls.js report). Refreshes every 30 s while open.
 // Click a call for its recording, transcript, quotes and the quality checklist.
 import React, { useEffect, useState } from "react";
@@ -20,7 +21,7 @@ const mins = (s) => (s == null ? "" : `${Math.floor(s / 60)}:${String(s % 60).pa
 const phone = (p) => (p ? `${p.slice(0, 3)}-${p.slice(3, 6)}-${p.slice(6)}` : "Unknown");
 const qColor = (q) => (q == null ? T.textFaint : q >= 85 ? T.green : q >= 65 ? T.amber : T.red);
 
-export default function PhoneTab({ auth }) {
+export default function PhoneTab({ auth, onOpenLead }) {
   const [range, setRange] = useState("7");
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
@@ -48,7 +49,7 @@ export default function PhoneTab({ auth }) {
           {RANGES.map((x) => <button key={x.key} onClick={() => setRange(x.key)} style={range === x.key ? ui.primary : ui.btn}>{x.label}</button>)}
         </div>
       </div>
-      <p style={{ ...ui.muted, margin: "4px 0 16px" }}>Every call Mary answers: what they wanted, what she quoted, whether they booked, and how well she sold. Updates every 30 seconds.</p>
+      <p style={{ ...ui.muted, margin: "4px 0 16px" }}>Every call Alejandro answers: what they wanted, what he quoted, whether they booked, and how well he sold. Updates every 30 seconds.</p>
 
       {err && <div style={{ ...ui.card, color: T.red }}>{err}</div>}
       {!d && !err && <p style={ui.muted}>Loading…</p>}
@@ -104,7 +105,7 @@ export default function PhoneTab({ auth }) {
 
           <h2 style={ui.h2}>Calls</h2>
           <div style={{ display: "grid", gap: 8 }}>
-            {d.calls.map((c) => <CallRow key={c.id} c={c} open={openId === c.id} onToggle={() => setOpenId(openId === c.id ? null : c.id)} call={call} />)}
+            {d.calls.map((c) => <CallRow key={c.id} c={c} open={openId === c.id} onToggle={() => setOpenId(openId === c.id ? null : c.id)} call={call} onOpenLead={onOpenLead} />)}
             {!d.calls.length && <div style={ui.card}><Empty text="No calls in this range yet" /></div>}
           </div>
         </>
@@ -113,9 +114,7 @@ export default function PhoneTab({ auth }) {
   );
 }
 
-function CallRow({ c, open, onToggle, call }) {
-  const [full, setFull] = useState(null);
-  useEffect(() => { if (open && !full) call({ action: "call", id: c.id }).then(setFull).catch((e) => setFull({ error: e.message })); /* eslint-disable-next-line */ }, [open]);
+function CallRow({ c, open, onToggle, call, onOpenLead }) {
   const outcome = c.booked ? ["Booked", T.green] : c.lead_saved ? ["Lead saved", T.amber] : c.transferred ? ["Transferred", T.blue] : ["No sale", T.textFaint];
   return (
     <div style={{ ...ui.card, padding: 0 }}>
@@ -131,9 +130,27 @@ function CallRow({ c, open, onToggle, call }) {
         <span style={ui.pill(outcome[1])}>{outcome[0]}</span>
         <span title="Sales quality" style={{ fontWeight: 600, color: qColor(c.quality_score), minWidth: 34, textAlign: "right" }}>{c.quality_score ?? "—"}</span>
       </button>
-      {open && (
+      {open && <CallDetail id={c.id} call={call} onOpenLead={onOpenLead} />}
+    </div>
+  );
+}
+
+const STATUS = { new: "New", called: "Called", booked: "Booked", dead: "Dead" };
+// One call: its recording, the CRM lead or booking it made, quotes, checklist and transcript. Phone tab and lead cards.
+export function CallDetail({ id, call, onOpenLead, showLead = true }) {
+  const [full, setFull] = useState(null);
+  useEffect(() => { call({ action: "call", id }).then(setFull).catch((e) => setFull({ error: e.message })); /* eslint-disable-next-line */ }, [id]);
+  const l = full?.lead;
+  return (
         <div style={{ borderTop: `1px solid ${T.border}`, padding: "0.9rem 1rem", display: "grid", gap: 12 }}>
           {!full && <p style={ui.muted}>Loading…</p>}
+          {showLead && full?.call && (l ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: T.page, border: `1px solid ${T.border}`, borderRadius: 8, padding: "8px 12px" }}>
+              <Icon name={l.appointment_at ? "event_available" : "person"} size={18} style={{ color: l.appointment_at ? T.green : T.amber }} />
+              <span style={{ fontSize: 13.5 }}><b>{l.appointment_at ? "Booking" : "Lead"}: {l.name || "No name"}</b>{l.appointment_at ? ` · ${when(l.appointment_at)}${l.appt_status === "canceled" ? " (canceled)" : ""}` : ""} <span style={ui.muted}>· {l.service || ""} · {STATUS[l.status] || l.status || "New"}</span></span>
+              {onOpenLead && <button onClick={() => onOpenLead(l.id)} style={{ ...ui.btn, marginLeft: "auto" }}><Icon name="open_in_new" size={16} />Open in CRM</button>}
+            </div>
+          ) : <p style={{ ...ui.muted, fontSize: 13 }}>No CRM lead or booking from this call.</p>)}
           {full?.error && <p style={{ color: T.red }}>{full.error}</p>}
           {full?.call && (
             <>
@@ -167,14 +184,43 @@ function CallRow({ c, open, onToggle, call }) {
                 <summary style={{ cursor: "pointer", ...ui.muted }}>Transcript</summary>
                 <div style={{ display: "grid", gap: 4, marginTop: 8, fontSize: 13 }}>
                   {(full.call.transcript || []).filter((x) => x.text || x.tools?.length).map((x, i) => (
-                    <div key={i}><span style={{ color: x.role === "agent" ? T.blue : T.text, fontWeight: 600 }}>{x.role === "agent" ? "Mary" : "Caller"}</span> <span style={ui.muted}>{mins(x.at)}</span> {x.text}{x.tools?.length ? <span style={{ color: T.textFaint }}> [{x.tools.join(", ")}]</span> : null}</div>
+                    <div key={i}><span style={{ color: x.role === "agent" ? T.blue : T.text, fontWeight: 600 }}>{x.role === "agent" ? "Alejandro" : "Caller"}</span> <span style={ui.muted}>{mins(x.at)}</span> {x.text}{x.tools?.length ? <span style={{ color: T.textFaint }}> [{x.tools.join(", ")}]</span> : null}</div>
                   ))}
                 </div>
               </details>
             </>
           )}
         </div>
-      )}
+  );
+}
+
+// Lead card section: every call from this lead's number; click one for its recording and transcript.
+export function LeadCalls({ lead, auth }) {
+  const [calls, setCalls] = useState(null);
+  const [openId, setOpenId] = useState(null);
+  async function call(body) {
+    const res = await fetch("/api/admin/phone", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  }
+  useEffect(() => { setCalls(null); setOpenId(null); if (lead.phone) call({ action: "lead-calls", phone: lead.phone }).then((j) => setCalls(j.calls)).catch(() => setCalls([])); /* eslint-disable-next-line */ }, [lead.id]);
+  if (!calls?.length) return null;
+  return (
+    <div style={{ marginTop: 14 }}>
+      <div style={{ color: T.textMuted, fontSize: 13, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}><Icon name="call" size={16} />Calls with Alejandro ({calls.length})</div>
+      <div style={{ display: "grid", gap: 6 }}>
+        {calls.map((c) => (
+          <div key={c.id} style={{ border: `1px solid ${T.border}`, borderRadius: 8, overflow: "hidden" }}>
+            <button onClick={() => setOpenId(openId === c.id ? null : c.id)} style={{ all: "unset", cursor: "pointer", display: "flex", gap: 10, alignItems: "center", padding: "8px 12px", width: "100%", boxSizing: "border-box", fontSize: 13.5 }}>
+              <Icon name={openId === c.id ? "expand_less" : "play_circle"} size={18} style={{ color: T.blue }} />
+              <span>{when(c.started_at)} · {mins(c.duration_secs)}</span>
+              <span style={{ ...ui.muted, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.booked ? `Booked ${c.booking?.when || ""}` : c.transferred ? "Transferred" : c.summary || ""}</span>
+            </button>
+            {openId === c.id && <CallDetail id={c.id} call={call} showLead={false} />}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -49,9 +49,12 @@ async function fetchRecording(id) {
 async function backupRecap(row) {
   if (!row.quoted || row.text_sent || row.data?.recap_sent_at || !row.caller || !row.quotes?.length) return;
   const q = row.quotes[row.quotes.length - 1];
-  const opts = (q.in_stock.length ? q.in_stock : q.next_day).filter((t) => t.price != null).slice(0, 2);
+  const all = [...q.in_stock, ...q.next_day].filter((t) => t.price != null);
+  const flat = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const chosen = row.booking?.tire && all.find((t) => flat(row.booking.tire).includes(flat(t.model)));
+  const opts = chosen ? [chosen] : (q.in_stock.length ? q.in_stock : q.next_day).filter((t) => t.price != null).slice(0, 2);
   if (!opts.length) return;
-  const qty = q.quantity || 4;
+  const qty = row.booking?.quantity || q.quantity || 4;
   const body = [
     `Thanks for calling The Tire Plug${row.caller_name ? `, ${row.caller_name}` : ""}! Your quote for ${qty} tires, ${q.size}:`,
     ...opts.map((t) => `${t.brand} ${t.model}: $${t.price} a tire${q.in_stock.length ? "" : " (next-day)"}`),
