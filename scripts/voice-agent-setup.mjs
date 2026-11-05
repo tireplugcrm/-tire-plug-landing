@@ -219,7 +219,7 @@ const tools = [
       phone: { type: "string", description: "Caller's cell, 10 digits" },
       at: { type: "string", description: "The 'at' value of the chosen time from check_times" },
       walk_in: { type: "boolean", description: "true when check_times returned walk_in true (they're coming in now)" },
-      size: { type: "string", description: "Tire size, e.g. 225/65R17, if buying tires" },
+      size: { type: "string", description: "REQUIRED for any tire booking: the tire size you quoted, e.g. 225/65R17" },
       tire: { type: "string", description: "Chosen tire, brand and model, e.g. Blackhawk Agility SUV" },
       price: { type: "number", description: "Price per tire from check_tires" },
       quantity: { type: "number", description: "How many tires, usually 4" },

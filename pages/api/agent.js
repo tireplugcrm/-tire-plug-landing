@@ -251,6 +251,22 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, cars: n });
     }
     // Phone calls since a time that didn't book or save a lead become rep leads (same as the post-call webhook now does).
+    // Fill in the tires on a phone booking that saved without them (M Bragassa, Nov 4).
+    if (b.action === "lead-tires-fix") {
+      const { phone, at, size, tire, price, quantity } = b;
+      if (!phone || !at || !size) return res.status(400).json({ error: "phone, at and size required" });
+      const { data: l } = await supabaseAdmin.from("leads").select("*").eq("phone", phone).eq("appointment_at", new Date(at).toISOString()).maybeSingle();
+      if (!l) return res.status(404).json({ error: "no booking for that phone and time" });
+      const qty = Number(quantity) || 4;
+      const extra = String(l.service || "").replace(/^Service (by phone);?s*/, "");
+      const { error } = await supabaseAdmin.from("leads").update({
+        tire_size: size, tire_type: tire || l.tire_type,
+        service: (tire ? `New Tires: ${tire} ${size} x${qty}` : `New Tires: ${size}`) + (extra ? `; ${extra}` : ""),
+        raw: { ...(l.raw || {}), tireSize: size, tireType: tire || l.raw?.tireType, quantity: qty, price: Number(price) || l.raw?.price, availability: b.availability || l.raw?.availability || "in_stock" },
+      }).eq("id", l.id);
+      if (error) throw error;
+      return res.status(200).json({ ok: true, id: l.id, name: l.name });
+    }
     if (b.action === "phone-leads-backfill") {
       const since = b.since || new Date(Date.now() - 24 * 36e5).toISOString();
       const { data: rows, error } = await supabaseAdmin.from("phone_calls").select("*").gte("started_at", since).order("started_at");

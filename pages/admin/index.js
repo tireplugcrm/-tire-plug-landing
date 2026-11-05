@@ -518,7 +518,10 @@ function LeadDrawer({ lead, auth, reminders, onClose, onUpdate, onReminder }) {
     ["Service", lead.service], ["Vehicle", lead.vehicle],
     ["Tire size", lead.tire_size && !/N\/A/i.test(lead.tire_size) ? lead.tire_size : null],
     ["Tire type", lead.tire_type && !/N\/A/i.test(lead.tire_type) ? lead.tire_type : null],
-    ["When", lead.service_timing],
+    // A booked appointment shows its day and time (phone bookings said only "Booked by phone"; owner, Nov 4).
+    ["Appointment", lead.appointment_at && lead.appt_status !== "canceled" ? new Date(lead.appointment_at).toLocaleString("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : null],
+    ["Price", lead.raw?.price ? `$${lead.raw.price}/tire${lead.raw.quantity ? ` · $${lead.raw.price * lead.raw.quantity} for ${lead.raw.quantity}` : ""}` : null],
+    ["When", lead.appointment_at ? null : lead.service_timing],
   ].filter(([, v]) => v);
   const openReminders = (reminders || []).filter((r) => !r.done).length;
   const TABS = [

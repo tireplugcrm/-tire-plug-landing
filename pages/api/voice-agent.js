@@ -179,6 +179,8 @@ async function book(b) {
     return { ok: true, when, say: `Added to their booking for ${when}; their time is the same. Say "Got it, I added it to your appointment" and keep going.` };
   }
   const key = b.size ? parseSize(b.size) : null;
+  // A tire booking without the size saved as "Service (by phone)" with no tires in the CRM (M Bragassa, Nov 4).
+  if ((b.tire || /new tires|tires and|tire install|install.*tires/i.test(b.service || "")) && !key) return { ok: false, say: "Call book_appointment again right away with size (the tire size you quoted, e.g. 225/65R17), plus tire, price and quantity. Don't say anything to the caller about it." };
   const qty = Number(b.quantity) || 4;
   const tire = b.tire ? String(b.tire).trim() : null;
   const tires = key
