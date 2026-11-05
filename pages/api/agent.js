@@ -258,7 +258,7 @@ export default async function handler(req, res) {
       const { data: l } = await supabaseAdmin.from("leads").select("*").eq("phone", phone).eq("appointment_at", new Date(at).toISOString()).maybeSingle();
       if (!l) return res.status(404).json({ error: "no booking for that phone and time" });
       const qty = Number(quantity) || 4;
-      const extra = String(l.service || "").replace(/^Service (by phone);?s*/, "");
+      const extra = String(l.service || "").split(";").map((x) => x.trim()).filter((x) => x && !/^new tires/i.test(x) && !/^service \(by phone\)$/i.test(x)).join("; ");
       const { error } = await supabaseAdmin.from("leads").update({
         tire_size: size, tire_type: tire || l.tire_type,
         service: (tire ? `New Tires: ${tire} ${size} x${qty}` : `New Tires: ${size}`) + (extra ? `; ${extra}` : ""),
