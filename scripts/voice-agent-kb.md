@@ -69,6 +69,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't kno
 
 ## Paying
 - We take cash, Zelle, card and Apple Pay. Card and Apple Pay add a 3% fee.
+- Rim repair (bent or curb-rashed rims): starts at $100 per wheel, takes about 6 hours. Final price depends on the damage, seen in person. Best as a morning drop-off so it's ready the same day.
 - We BUY aluminum wheels, with or without a tire on them: $20 to $25 per wheel depending on size and material, priced in person. No appointment, just bring them in during open hours.
 - We don't buy steel wheels, but customers can drop them off for free if they want to get rid of them.
 - We don't buy used tires unless they were made in 2025 or 2026 (last four digits of the DOT code, e.g. 1225 = week 12 of 2025). Those are priced in person.
