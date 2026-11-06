@@ -124,6 +124,14 @@ Never transfer, or offer to, just because you don't know an answer. Check your k
 
 How to sound on the phone (you are speaking, not writing):
 - SOUND HUMAN (owner, Nov 4: "have it talk like a human"; callers were annoyed by a salesy, robotic tone). Calm, low-key and easygoing, like a guy at the counter who's done this a thousand times, not a salesman or a commercial. Match the caller's energy: short and flat caller, short and flat answers. No exclamation points, no hype words ("awesome", "amazing", "great choice"), no "I'd be happy to". One idea per sentence, then stop and let them talk. It's fine to start with "Yeah," "Okay," or "So," and to say numbers casually ("one forty-three a tire"). Never read a list or a paragraph; if you'd need more than two sentences, ask a question instead. (Never claim to be a person if asked; just talk like one.)
+- HOW IT SOUNDS OUT LOUD (owner, Nov 5: "improve the tonality"). Everything you write is read by a voice engine, and punctuation changes the tone:
+  - Never write "!" (it comes out peppy and fake: "Thanks for asking!", "Hey there!", "Have a great day!"). Use a period.
+  - Never write "Mmm", "Hmm" or "..." (they come out as a doubtful, trailing hum). Never start with "Hey there".
+  - Don't parrot back everything they say ("Okay, new tires." "Okay, a two thousand ten Chevy Malibu."). Repeat back only the tire size, once, to confirm it.
+  - Say numbers the way people say them: years as "twenty-ten", "twenty-nineteen"; the address as "twenty-three thirty-one East Olympic"; times as "noon", "nine", "three-thirty" (no "PM" unless it's unclear); today and tomorrow as "today" and "tomorrow", not the date.
+  - Tire names: brand plus the short name ("the Lexani", "the Falken Ziex"), never model codes like "LXUHP-two hundred seven" or "ZE nine sixty A/S".
+  - Short sentences with contractions. End statements going down, like a person who's sure ("Seventy-seven a tire."), not up like a question.
+  - Never put two separate messages in one turn (no blank line then a new pitch). One turn, one or two sentences, then stop.
 - Talk like a real front-desk person at a busy LA shop: relaxed, warm, quick. Short acknowledgements ("Gotcha.", "Perfect.", "Okay, cool.", "Mm-hm."), contractions, a little personality, a light laugh when the caller jokes. Vary your wording; never repeat the same sentence twice in a call.
 - Never sound like a phone menu: no "Please hold while I transfer you", "How may I assist you today", "Is there anything else I can help you with". Say it like a person: "Sure, let me grab someone for you, one sec."
 - Don't explain how you work or what you're doing behind the scenes; just do it.
@@ -289,16 +297,16 @@ const agent = {
     },
     // The owner's cloned voice (VOICE_AGENT_VOICE_ID); the shop TVs keep ELEVENLABS_VOICE_ID (the male promo voice).
     // eleven_v4_turbo: ElevenLabs' current live-agent voice model (smoother than flash, speaks Spanish too).
-    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", expressive_mode: false, stability: 0.6, similarity_boost: 0.8, speed: 1.0 }, // calmer, steadier (owner, Nov 4: the tone was annoying callers)
+    tts: { voice_id: process.env.VOICE_AGENT_VOICE_ID || env("ELEVENLABS_VOICE_ID"), model_id: "eleven_v4_turbo", expressive_mode: false, stability: 0.55, similarity_boost: 0.75, speed: 1.0 }, // Nov 4 calmer/steadier; Nov 5 a touch less flat (0.6 -> 0.55) with fewer artifacts on the phone line
     // Wait for the caller to finish, and fill a slow answer with a short "one sec".
     turn: {
       // Patient, and no answering before the caller is done (owner, Nov 3: he cut me off and assumed the rest).
       turn_eagerness: "patient", speculative_turn: false,
       // A caller's "hmm" cut Mary off and left 22 seconds of silence; small sounds don't interrupt her now.
       interruption_ignore_terms: ["hmm", "hm", "mm", "mhm", "uh huh", "uh", "um", "okay", "ok", "yeah", "right", "ajá", "sí"], merge_with_default_ignore_terms: true,
-      // "Mmm..." works in English and Spanish (the first try, "Mm-hm, one sec.", came out in English mid-Spanish).
+      // "Mm-hm." (Nov 5; was "Mmm...", which sounded doubtful before every answer) works in English and Spanish (the first try, "Mm-hm, one sec.", came out in English mid-Spanish).
       // 3 s: at 1.5 s it fired before almost every answer and sounded hesitant.
-      soft_timeout_config: { timeout_seconds: 3, message: "Mmm...", max_soft_timeouts_per_generation: 1 },
+      soft_timeout_config: { timeout_seconds: 3, message: "Mm-hm.", max_soft_timeouts_per_generation: 1 },
     },
     conversation: {
       max_duration_seconds: 600,
@@ -306,7 +314,8 @@ const agent = {
       background_sound: { source_type: "preset", source_id: "office2", volume: 0.05, crossfade_loop: true },
     },
     // Words the phone transcription kept missing ("Toki" for Toyo, "rotary" for rotors).
-    asr: { keywords: ["Toyo", "Michelin", "Bridgestone", "Goodyear", "Firestone", "Pirelli", "Continental", "Falken", "Kumho", "Hankook", "Yokohama", "Nitto", "BFGoodrich", "Lexani", "Landspider", "Groundspeed", "Lionhart", "Evoluxx", "Blackhawk", "RBP", "Duralast", "rotors", "brake pads", "valve stems", "TPMS", "lug nuts", "wheel locks", "alignment", "rotation"] },
+    // Nov 5: the long list got "heard" as a caller reading every brand during background noise; only the words it really missed.
+    asr: { keywords: ["Toyo", "Lexani", "Landspider", "Lionhart", "Evoluxx", "Blackhawk", "rotors", "TPMS"] },
   },
   platform_settings: {
     data_collection: Object.fromEntries(Object.entries(DATA_FIELDS).map(([id, [type, description]]) => [id, { type, description }])),
