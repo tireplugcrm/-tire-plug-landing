@@ -45,12 +45,12 @@ function parseSize(s) {
 
 const money = (n) => `$${Math.round(n)}`;
 
-// Tire quotes are the price per tire, tire only (owner, Nov 3: no tax totals). Mount and balance is $20 a wheel for phone callers (owner, Nov 4; the website stays $25),
-// said only when the caller asks about install: $78 tire + $20 = $98 a tire installed. Tax (10% on the tires) is
-// added at the shop and only mentioned if they ask. No tire fee in quotes.
-export const INSTALL = 20, TAX = 0.1;
+// Owner's practice call, Nov 5: quote the tire AND the installed price up front, installed at the regular $25 a wheel
+// ($65 tire -> "ninety installed"). If they hesitate, the close is dropping install to $20 a wheel ("five off each").
+// $20 is the floor. Tax (10% on the tires) is added at the shop and only mentioned if they ask. No tire fee in quotes.
+export const INSTALL = 20, INSTALL_QUOTE = 25, TAX = 0.1;
 export const PAYMENT = "We take cash, Zelle, card and Apple Pay (card and Apple Pay add 3%).";
-const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire (${money(t.installed)} installed)` : ", price by text"}${t.warranty ? `, ${t.warranty.replace(/(;| · ).*/, "")}` : ""}`;
+const line = (t) => `${t.brand} ${t.model}${t.price != null ? `, ${money(t.price)} a tire (${money(t.installed)} installed, ${money(t.installed - 5)} with the phone deal)` : ", price by text"}${t.warranty ? `, ${t.warranty.replace(/(;| · ).*/, "")}` : ""}`;
 
 async function tires(size, quantity, brand) {
   const qty = Math.min(Math.max(Math.round(Number(quantity)) || 4, 1), 8);
@@ -79,7 +79,7 @@ async function tires(size, quantity, brand) {
     const vw = t.warranty_miles || vendorWarranty.get(`${t.brand}|${t.model}`.toLowerCase().replace(/[^a-z0-9|]/g, ""))
       || vendors.find((v) => v.warranty_miles && flat(v.brand) === flat(t.brand) && flat(t.model).length >= 4
         && (flat(v.model).startsWith(flat(t.model)) || flat(t.model).startsWith(flat(v.model))))?.warranty_miles;
-    return { brand: t.brand, model: t.model, price: t.price ?? null, installed: t.price != null ? t.price + INSTALL : null, warranty: warranty(t) || (vw ? miles(vw) : null) || (t.warrantyText ? "manufacturer's defect warranty" : null), availability };
+    return { brand: t.brand, model: t.model, price: t.price ?? null, installed: t.price != null ? t.price + INSTALL_QUOTE : null, warranty: warranty(t) || (vw ? miles(vw) : null) || (t.warrantyText ? "manufacturer's defect warranty" : null), availability };
   };
   // A caller asking for a brand ("Goodyear?") gets that brand's options first, from the shelf AND the order-in list, even if
   // they aren't the cheapest. (Before, only the 4 cheapest shelf tires were checked, so a Goodyear on the shelf was missed.)
@@ -114,7 +114,7 @@ async function tires(size, quantity, brand) {
   if (!parts.length) parts.push(shopOpenNow()
     ? `SPECIAL ORDER: we don't have ${key} on the shelf or next day. Say exactly: "It looks like I have to special order these and I don't have them in stock, let me transfer you to someone who can help." Then call transfer_to_number right away. (If you already have their name and number, save_lead first with the size and vehicle.)`
     : `We don't have ${key} on the shelf or next day, and the shop is closed. Say we can special order it and the team will text the exact price first thing: ask for their name and best number, then call save_lead (never say "lead" to the caller).`);
-  parts.push(`Say the price PER TIRE (tire only) and its warranty, like "the Lexani LXUHP-207, fifty thousand mile warranty, is seventy-eight a tire". Don't add install or tax unless they ask. If they ask whether it includes install and balance: it's ${INSTALL} a wheel, so the tire's price plus ${INSTALL} (its "installed" price) a tire. Tax only if they ask: 10% on the tires, added at the shop.${big}`);
+  parts.push(`Say each tire's price AND its installed price in one breath, like "the Lexani, fifty thousand mile warranty, is seventy-eight a tire, a hundred and three installed" (installed = tire + ${INSTALL_QUOTE} mount and balance). Don't offer the phone deal yet: only if they hesitate ("let me think", "talk to my wife", "call back", "too much"), drop install to ${INSTALL} a wheel, which is five off each tire (the "with the phone deal" price). Tax only if they ask: 10% on the tires, added at the shop.${big}`);
   // Shelf counts come from the last Tekmetric sync (by hand, a few times a day), so a tire sold since may still show.
   const hours = syncedAt ? (Date.now() - new Date(syncedAt)) / 36e5 : null;
   if (inStock.length && hours != null && hours > 6) parts.push(`Shelf counts were last updated ${Math.round(hours)} hours ago: when they pick an in-stock tire, say the guys will have it pulled and ready for them (we confirm it on the shelf when we text).`);
@@ -194,7 +194,7 @@ async function book(b) {
       name: b.name, phone: toE164(b.phone), email: "N/A", vehicle: b.vehicle || "N/A", ...tires,
       serviceTiming: "Booked by phone", appointmentAt: b.at, walkIn: b.walk_in === true || new Date(b.at) - Date.now() <= 180 * 60e3, // any time today within 3 hours skips the 1-hour notice leadPriority: "HOT",
       smsConsent: b.sms_ok === true, marketingConsent: false, source: "Phone AI",
-      notes: b.notes || undefined,
+      notes: [b.notes, key ? `Install: ${b.install_deal ? "$20/wheel (phone deal)" : "$25/wheel"}` : null].filter(Boolean).join("; ") || undefined,
       // For Jarvis's exact brake quote (pages/api/agent.js quote-queue); stored in the lead's raw.
       brakes: b.brakes || undefined, rotors: b.rotors ?? undefined, epb: b.epb ?? undefined, vin_or_plate: b.vin_or_plate || undefined,
     }),
@@ -245,14 +245,14 @@ export async function lead(b) {
 const ALIGN = { regular: 75, tesla: 90 };
 function breakdown(b, key) {
   const qty = Number(b.quantity) || 4, price = Number(b.price);
-  const perWheel = INSTALL; // phone price, $20 a wheel (owner, Nov 4)
+  const perWheel = b.install_deal ? INSTALL : INSTALL_QUOTE; // $25, or $20 if they got the phone deal (owner, Nov 5)
   const tires = price * qty, install = perWheel * qty, total = tires + install;
   const align = b.alignment ? (/kumho/i.test(b.tire) && qty === 4 ? 49 : (b.tesla ? ALIGN.tesla : ALIGN.regular) - (qty === 4 ? 10 : 0)) : 0;
   const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
   return [
     `The Tire Plug: your quote for ${qty}x ${b.tire} ${key}`,
     `Tire: ${d(price)} each`,
-    `Mount & balance: ${d(perWheel)} a wheel (${d(price + perWheel)} a tire installed), phone price`,
+    `Mount & balance: ${d(perWheel)} a wheel (${d(price + perWheel)} a tire installed)${b.install_deal ? ", phone deal" : ""}`,
     `${qty} tires installed: ${d(total)}`,
     ...(align ? [`Alignment: ${d(align)}`, `Total: ${d(total + align)}`] : []),
     `Plus tax.`,
@@ -274,8 +274,8 @@ async function optionsText(b, key) {
   const d = (n) => `$${n.toFixed(2).replace(/\.00$/, "")}`;
   return [
     `The Tire Plug: your ${key} options (${qty} tires)`,
-    ...list.slice(0, 3).map((t) => `• ${t.brand} ${t.model}: ${d(t.price)} a tire, ${d(t.price + INSTALL)} installed (${d((t.price + INSTALL) * qty)} for ${qty})${t.warranty ? `, ${t.warranty}` : ""}`),
-    `Installed = tire + $${INSTALL} mount & balance a wheel. Plus tax.`,
+    ...list.slice(0, 3).map((t) => `• ${t.brand} ${t.model}: ${d(t.price)} a tire, ${d(t.price + INSTALL_QUOTE)} installed (${d((t.price + INSTALL_QUOTE) * qty)} for ${qty})${t.warranty ? `, ${t.warranty}` : ""}`),
+    `Installed = tire + ${INSTALL_QUOTE} mount & balance a wheel. Plus tax.`,
     PAYMENT,
     `Book: ${SITE}/tires/${sizeToSlug(key)}`,
     `2331 E Olympic Blvd, Los Angeles. Questions? Call 562-500-4625.`,
