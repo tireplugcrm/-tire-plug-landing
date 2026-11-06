@@ -120,6 +120,10 @@ her tools and knowledge base.
    - Then ask "What did you think about the price?"
    - Hesitation: drop install to $20 ("five off each"), once. Replaces item 37's flat $20.
    - Close with "today or tomorrow?"; after booking, "I'm Alejandro, ask for me."
+41. "Cheaper somewhere else" (practice call #3, Nov 5: lost after an alignment giveaway): ask what tire they were quoted,
+   offer our cheaper in-stock tire if there is one, then the phone deal plus value (free flat repairs a year, about
+   30 minutes, first visit $20 off). Never discount the alignment or offer it during a price objection. Still no:
+   text the quote and save the lead, no "maybe we're not the shop for you".
 38. Special order tires (not on the shelf or next day), shop open: "It looks like I have to special order these and I
    don't have them in stock, let me transfer you to someone who can help." Then transfer. Shop closed: save the request
    and the team texts the price first thing.
