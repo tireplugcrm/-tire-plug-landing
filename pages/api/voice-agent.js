@@ -22,8 +22,8 @@ import { sizeKey, sizeToSlug } from "../../lib/tire-catalog.js";
 import { sendSms } from "../../lib/sms.js";
 import { toE164 } from "../../lib/phone.js";
 import { SITE } from "../../lib/invoices.js";
-import { openSlots, fmtWhen, laInstant, laParts, shopOpenNow } from "../../lib/booking.js";
-import { onNewLead } from "../../lib/front-desk.js";
+import { openSlots, fmtWhen, laInstant, laParts, shopOpenNow, isSlotOpen } from "../../lib/booking.js";
+import { onNewLead, logEvent, sendConfirmation } from "../../lib/front-desk.js";
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { vendorForSize } from "../../lib/vendor-tires.js";
 import { brakeParts, matchCar, BRAKE_PRICING } from "../../lib/brake-parts.js";
@@ -211,6 +211,44 @@ async function book(b) {
   return { ok: false, say: "The booking didn't save. Save a lead instead so the team calls them to lock in the time." };
 }
 
+// Existing customers (Nov 6: callers asking for "a representative" about "my existing order" or "appointment
+// modification"). Looks up the caller's own upcoming appointment by phone; move and cancel only work on a booking
+// found for that same phone. Front Desk sees every change in its event log.
+async function myBooking(b) {
+  const phone = toE164(b.phone);
+  if (!phone) return { ok: false, say: "Ask for the cell number the appointment is under." };
+  const { data: rows } = await supabaseAdmin.from("leads").select("*").eq("phone", phone).not("appointment_at", "is", null)
+    .neq("appt_status", "canceled").gte("appointment_at", new Date(Date.now() - 12 * 3600e3).toISOString()).order("appointment_at").limit(3);
+  const appt = (rows || [])[0];
+  if (!appt) return { ok: true, found: false, say: "No upcoming appointment under this number. Ask if it could be under a different number (then call my_booking again with that number). If not, help them book a new one, or transfer if it's about a job already done." };
+  const when = fmtWhen(appt.appointment_at);
+  const qty = Number(appt.raw?.quantity) || null;
+  const tires = appt.tire_size && appt.tire_size !== "N/A" ? `${qty ? qty + " " : ""}${appt.tire_type && !/^(N\/A|Find options)$/i.test(appt.tire_type) ? appt.tire_type + " " : ""}${appt.tire_size}` : null;
+  const src = appt.raw?.availability;
+  const tireStatus = !tires ? "" : appt.tires_arrived_at ? " Their tires are here at the shop." : src === "in_stock" ? " Their tires are in stock." : appt.tires_ordered_at ? " Their tires are ordered, not here yet; the shop texts them when they arrive." : " Their tires still need to be ordered; tell them the shop will confirm when they're in.";
+  const action = b.action_type || "find";
+  if (action === "find") {
+    return { ok: true, found: true, when, name: appt.name, service: appt.service, tires,
+      say: `${appt.name || "They"} ${appt.appt_status === "checked_in" ? "are checked in today" : "are booked for " + when}: ${appt.service || "service"}.${tireStatus} Tell them in one sentence, then ask what they'd like to do. To move it, call check_times for the new time, then my_booking with action_type "move" and that "at". To cancel, confirm once, then my_booking with action_type "cancel".` };
+  }
+  if (appt.appt_status === "checked_in") return { ok: false, say: "They're already checked in today; transfer them to the shop for changes." };
+  if (action === "cancel") {
+    await supabaseAdmin.from("leads").update({ appt_status: "canceled" }).eq("id", appt.id);
+    await logEvent(appt.id, "canceled", `Alejandro (phone AI) canceled ${appt.name || "customer"}'s ${when} appointment at their request`);
+    return { ok: true, say: `Canceled their ${when} appointment. Say so, then offer once to book a new time ("Want me to find you another day?").` };
+  }
+  if (action === "move") {
+    if (!b.at) return { ok: false, say: "Call check_times for the new day and time first, then call my_booking again with action_type move and that at." };
+    if (!(await isSlotOpen(b.at, appt.id))) return { ok: false, say: "That time just filled. Call check_times again and offer the closest open times." };
+    const now = new Date().toISOString();
+    const { data: updated } = await supabaseAdmin.from("leads").update({ appointment_at: new Date(b.at).toISOString(), appt_status: "confirmed", appt_booked_at: now }).eq("id", appt.id).select().single();
+    await logEvent(appt.id, "rescheduled", `Alejandro (phone AI) moved ${appt.name || "customer"} from ${when} to ${fmtWhen(b.at)}`);
+    await sendConfirmation(updated, { rescheduled: true }).catch((e) => console.error("voice-agent: reschedule confirmation", e));
+    return { ok: true, when: fmtWhen(b.at), say: `Moved to ${fmtWhen(b.at)}. Tell them it's done${updated?.raw?.smsConsent ? " and a new confirmation text is on its way" : ""}.${src && src !== "in_stock" && tires ? " Their tires are an order, so remind them the new time needs the tires to be here." : ""}` };
+  }
+  return { ok: false, say: "Unknown action_type; use find, move or cancel." };
+}
+
 // Not ready to book: saved as a lead in Admin (source "Phone AI") with the quote, so a rep follows up.
 export async function lead(b) {
   if (!toE164(b.phone)) return { ok: false, say: "Ask for a good cell number first." };
@@ -389,6 +427,7 @@ export default async function handler(req, res) {
     if (action === "times") return res.status(200).json(await times(body.next_day === true, body));
     if (action === "book") return res.status(200).json(await book(body));
     if (action === "lead") return res.status(200).json(await lead(body));
+    if (action === "my_booking") return res.status(200).json(await myBooking(body));
     if (action === "brakes") return res.status(200).json(await brakes(body));
     if (action === "text") return res.status(200).json(await text(phone, size, body));
     // Shows the brake tech what a real alert looks like (labeled SAMPLE; no lead or booking is made).

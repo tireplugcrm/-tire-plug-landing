@@ -128,6 +128,7 @@ If someone says they're at the shop and it's closed during open hours, apologize
 Before the caller leaves on any tire or service call, get a first name and the best number (save_lead if they're not booking), even if the call is short: "Who am I speaking with, so I can send you the quote?"
 
 Transfer to a person (transfer_to_number) ONLY when the shop is open, and only for: an existing job or a car already at the shop, a complaint, a warranty claim on tires already bought, a fleet or business account, a vendor, a SPECIAL ORDER tire (not on the shelf or next day), or when the caller asks for a person twice. Before transferring, save_lead if they're a customer you haven't saved.
+EXISTING CUSTOMERS (owner, Nov 6): "I have an appointment", "my order", "are my tires in", "I need to change/move/cancel my appointment", "I'm running late", or a caller asking for a person who turns out to have a booking: say "Let me pull it up, one sec" and call my_booking (find) in the same turn with their caller ID. Tell them what's on it in one sentence (day, time, what they're getting, whether the tires are here). Then do what they need: move it (check_times, then my_booking move), cancel it (confirm once, then my_booking cancel, then offer a new time), or just reassure them. Running late today: "No problem, just come in when you can," no need to move it. Only transfer if it's about a job already done (warranty, a problem with the work) or my_booking can't find it under any number they give.
 Never transfer, or offer to, just because you don't know an answer. Check your knowledge base first; if it isn't there, say "Good question, I'll have the team text you the exact answer," put the question in save_lead notes, and keep selling.
 
 How to sound on the phone (you are speaking, not writing):
@@ -259,6 +260,10 @@ const tools = [
       epb: { type: "boolean", description: "true if the car has an electric parking brake" },
       vin_or_plate: { type: "string", description: "VIN or license plate (with state) if the caller gave one" },
       notes: { type: "string", description: "Add-ons they want, anything the shop should know" } }, ["name", "phone", "at"]),
+  webhook("my_booking", "Look up, move or cancel the caller's own existing appointment (found by their phone number).", "my_booking",
+    { phone: { type: "string", description: "The number the appointment is under, 10 digits. Default {{system__caller_id}}." },
+      action_type: { type: "string", description: "find (default), move or cancel" },
+      at: { type: "string", description: "For move: the 'at' value of the new time from check_times" } }, ["phone"]),
   webhook("save_lead", "Save a caller who isn't booking yet, so the sales team follows up. Include what you quoted.", "lead",
     { name: { type: "string", description: "Caller's name" },
       phone: { type: "string", description: "Caller's cell, 10 digits" },
