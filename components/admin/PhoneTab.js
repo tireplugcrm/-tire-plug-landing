@@ -105,7 +105,7 @@ export default function PhoneTab({ auth, onOpenLead }) {
 
           <h2 style={ui.h2}>Calls</h2>
           <div style={{ display: "grid", gap: 8 }}>
-            {d.calls.map((c) => <CallRow key={c.id} c={c} open={openId === c.id} onToggle={() => setOpenId(openId === c.id ? null : c.id)} call={call} onOpenLead={onOpenLead} />)}
+            {d.calls.map((c) => <CallRow key={c.id} c={c} open={openId === c.id} onToggle={() => setOpenId(openId === c.id ? null : c.id)} call={call} onOpenLead={onOpenLead} onMarked={(x) => setD((o) => ({ ...o, calls: o.calls.map((y) => (y.id === x.id ? { ...y, ...x } : y)) }))} />)}
             {!d.calls.length && <div style={ui.card}><Empty text="No calls in this range yet" /></div>}
           </div>
         </>
@@ -114,7 +114,7 @@ export default function PhoneTab({ auth, onOpenLead }) {
   );
 }
 
-function CallRow({ c, open, onToggle, call, onOpenLead }) {
+function CallRow({ c, open, onToggle, call, onOpenLead, onMarked }) {
   const outcome = c.booked ? ["Booked", T.green] : c.lead_saved ? ["Lead saved", T.amber] : c.transferred ? ["Transferred", T.blue] : ["No sale", T.textFaint];
   return (
     <div style={{ ...ui.card, padding: 0 }}>
@@ -124,21 +124,29 @@ function CallRow({ c, open, onToggle, call, onOpenLead }) {
           <span style={{ fontWeight: 600 }}>{c.caller_name || phone(c.caller)}</span>
           <span style={{ ...ui.muted, marginLeft: 8 }}>{[INTENT[c.intent] || c.intent, c.vehicle, c.tire_size].filter(Boolean).join(" · ")}</span>
           <span style={{ ...ui.muted, display: "block", fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {c.booked ? `${c.booking?.when || ""}${c.booking?.tire ? ` · ${c.booking.quantity || 4}× ${c.booking.tire} @ $${c.booking.price}` : ""}` : c.lost_reason || c.summary || ""}
+            {c.booked ? `${c.booking?.when || (c.booking?.marked_by ? `Marked booked by ${c.booking.marked_by}` : "")}${c.booking?.tire ? ` · ${c.booking.quantity || 4}× ${c.booking.tire} @ $${c.booking.price}` : ""}` : c.lost_reason || c.summary || ""}
           </span>
         </span>
         <span style={ui.pill(outcome[1])}>{outcome[0]}</span>
         <span title="Sales quality" style={{ fontWeight: 600, color: qColor(c.quality_score), minWidth: 34, textAlign: "right" }}>{c.quality_score ?? "—"}</span>
       </button>
-      {open && <CallDetail id={c.id} call={call} onOpenLead={onOpenLead} />}
+      {open && <CallDetail id={c.id} call={call} onOpenLead={onOpenLead} onMarked={onMarked} />}
     </div>
   );
 }
 
 const STATUS = { new: "New", called: "Called", booked: "Booked", dead: "Dead" };
 // One call: its recording, the CRM lead or booking it made, quotes, checklist and transcript. Phone tab and lead cards.
-export function CallDetail({ id, call, onOpenLead, showLead = true }) {
+export function CallDetail({ id, call, onOpenLead, onMarked, showLead = true }) {
   const [full, setFull] = useState(null);
+  const [marking, setMarking] = useState(false);
+  // Staff override: the call ended in a sale even though the AI didn't book it (e.g. transferred, then booked by a person).
+  async function mark(booked) {
+    setMarking(true);
+    try { const j = await call({ action: "mark", id, booked }); setFull((f) => ({ ...f, call: { ...f.call, ...j.call } })); onMarked?.(j.call); }
+    catch (e) { alert(e.message); }
+    setMarking(false);
+  }
   useEffect(() => { call({ action: "call", id }).then(setFull).catch((e) => setFull({ error: e.message })); /* eslint-disable-next-line */ }, [id]);
   const l = full?.lead;
   return (
@@ -164,6 +172,10 @@ export function CallDetail({ id, call, onOpenLead, showLead = true }) {
                 {full.call.objection && full.call.objection !== "none" && <span style={ui.pill(T.red)}>Objection: {full.call.objection}</span>}
                 {full.call.text_sent && <span style={ui.pill(T.textMuted)}>Text sent</span>}
                 {full.call.transferred && <span style={ui.pill(T.blue)}>Transferred{full.call.transfer_reason ? `: ${full.call.transfer_reason}` : ""}</span>}
+                {full.call.booking?.marked_by && <span style={ui.pill(T.green)}>Marked booked by {full.call.booking.marked_by}</span>}
+                {!full.call.booked
+                  ? <button disabled={marking} onClick={() => mark(true)} style={{ ...ui.btn, marginLeft: "auto" }}><Icon name="check_circle" size={16} />Mark booked</button>
+                  : full.call.booking?.marked_by && <button disabled={marking} onClick={() => mark(false)} style={{ ...ui.btn, marginLeft: "auto" }}><Icon name="undo" size={16} />Undo</button>}
               </div>
               {(full.call.quotes || []).map((q, i) => (
                 <div key={i} style={{ fontSize: 13 }}>

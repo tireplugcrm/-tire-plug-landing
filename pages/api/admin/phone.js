@@ -66,5 +66,16 @@ export default async function handler(req, res) {
     return res.status(200).json({ calls: data || [] });
   }
 
+  if (action === "mark") {
+    const { data: call } = await supabaseAdmin.from("phone_calls").select("id,booked,booking,lost_reason").eq("id", id).maybeSingle();
+    if (!call) return res.status(404).json({ error: "Call not found" });
+    const staff = auth.user?.name || "Owner";
+    const booked = req.body?.booked === true;
+    const booking = booked ? { ...(call.booking || {}), marked_by: staff, marked_at: new Date().toISOString() } : call.booking?.marked_by ? null : call.booking;
+    const { data, error } = await supabaseAdmin.from("phone_calls").update({ booked, booking, lost_reason: booked ? null : call.lost_reason }).eq("id", id).select(LIST).single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ call: data });
+  }
+
   return res.status(400).json({ error: "Unknown action" });
 }
