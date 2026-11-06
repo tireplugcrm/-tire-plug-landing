@@ -317,7 +317,7 @@ export default async function handler(req, res) {
     if (b.action === "phone-calls") {
       const since = b.since || new Date(Date.now() - 864e5).toISOString();
       const { data } = await supabaseAdmin.from("phone_calls")
-        .select("id, started_at, duration_secs, intent, vehicle, tire_size, quoted, booked, lead_saved, transferred, transfer_reason, alignment_offered, alignment_accepted, objection, lost_reason, quality_score, quality, summary, transcript")
+        .select("id, started_at, duration_secs, caller, booking, intent, vehicle, tire_size, quoted, booked, lead_saved, transferred, transfer_reason, alignment_offered, alignment_accepted, objection, lost_reason, quality_score, quality, summary, transcript")
         .eq("test", false).gte("started_at", since).order("started_at").limit(60);
       return res.status(200).json({ calls: data || [] });
     }
