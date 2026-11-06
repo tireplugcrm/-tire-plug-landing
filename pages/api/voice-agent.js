@@ -229,7 +229,7 @@ async function myBooking(b) {
   const action = b.action_type || "find";
   if (action === "find") {
     return { ok: true, found: true, when, name: appt.name, service: appt.service, tires,
-      say: `${appt.name || "They"} ${appt.appt_status === "checked_in" ? "are checked in today" : "are booked for " + when}: ${appt.service || "service"}.${tireStatus} Tell them in one sentence, then ask what they'd like to do. To move it, call check_times for the new time, then my_booking with action_type "move" and that "at". To cancel, confirm once, then my_booking with action_type "cancel".` };
+      say: `${appt.name || "They"} ${appt.appt_status === "checked_in" ? "are checked in today" : new Date(appt.appointment_at) < Date.now() ? "had an appointment at " + when + " that already passed (ask if they're still coming in today or want to move it)" : "are booked for " + when}: ${appt.service || "service"}.${tireStatus} Tell them in one sentence, then ask what they'd like to do. To move it, call check_times for the new time, then my_booking with action_type "move" and that "at". To cancel, confirm once, then my_booking with action_type "cancel".` };
   }
   if (appt.appt_status === "checked_in") return { ok: false, say: "They're already checked in today; transfer them to the shop for changes." };
   if (action === "cancel") {
