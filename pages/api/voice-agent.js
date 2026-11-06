@@ -192,7 +192,8 @@ async function book(b) {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       name: b.name, phone: toE164(b.phone), email: "N/A", vehicle: b.vehicle || "N/A", ...tires,
-      serviceTiming: "Booked by phone", appointmentAt: b.at, walkIn: b.walk_in === true || new Date(b.at) - Date.now() <= 180 * 60e3, // any time today within 3 hours skips the 1-hour notice leadPriority: "HOT",
+      serviceTiming: "Booked by phone", appointmentAt: b.at, // any time today within 3 hours skips the 1-hour notice
+      walkIn: b.walk_in === true || new Date(b.at) - Date.now() <= 180 * 60e3, leadPriority: "HOT",
       smsConsent: b.sms_ok === true, marketingConsent: false, source: "Phone AI",
       notes: [b.notes, key ? `Install: ${b.install_deal ? "$20/wheel (phone deal)" : "$25/wheel"}` : null].filter(Boolean).join("; ") || undefined,
       // For Jarvis's exact brake quote (pages/api/agent.js quote-queue); stored in the lead's raw.
@@ -204,6 +205,8 @@ async function book(b) {
   console.log(`voice-agent: book ${b.at} -> ${r.status} ${data.code || ""}`);
   if (data.success && isBrakes(b)) await alertBrakeTech("booking", b, ` Booked ${data.appointment?.when}.`);
   if (data.success) return { ok: true, when: data.appointment?.when, say: `Booked for ${data.appointment?.when}.${b.sms_ok ? " A confirmation text is on its way." : ""} Address is 2331 East Olympic Boulevard.` };
+  // A caller coming in now never gets stuck in a check/book loop (Jasmine, Nov 6: four tries at 1 PM): tell them to come in.
+  if (data.code === "slot_taken" && new Date(b.at) - Date.now() <= 180 * 60e3) return { ok: false, say: "Don't try booking again. Tell them: \"No problem, just come on in, walk-ins are welcome, we'll take care of you.\" Then call save_lead with their name and number so the team expects them." };
   if (data.code === "slot_taken") return { ok: false, say: `${data.error} Call check_times again and offer new times.` };
   return { ok: false, say: "The booking didn't save. Save a lead instead so the team calls them to lock in the time." };
 }
