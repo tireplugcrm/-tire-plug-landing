@@ -1,7 +1,8 @@
 /**
  * Lexi's Commission Tracker clock (lib/commission.js). Supabase pg_cron job "commission-tick" calls
- * it at both summer and winter UTC hours; it only acts in the right LA hour, Mon–Sat:
- *   12 PM  text Lexi to report her ROs so far
+ * it at both summer and winter UTC hours, and the 5-minute front-desk watchdog calls commissionTick()
+ * too (pg_cron has no 9 AM run); it only acts in the right LA hour, Mon–Sat:
+ *    9 AM  text Lexi to report every RO as she sells it (owner, Nov 7; was 12 PM)
  *    5 PM  text Lexi to report the rest of the day
  *    7 PM  re-try Tekmetric matches, email the recap (today / this week / this month), then text
  *          Lexi that it's in her inbox. ?force=recap&test=1 marks the email as a test;
@@ -32,7 +33,7 @@ async function text(slot) {
     : slot === "emailed"
     ? "Hi Lexi! We just emailed you today's commission report from The Tire Plug. Check your inbox (and spam). Questions? Call or text us at (562) 250-3737."
     : slot === "midday"
-    ? `Hi Lexi! Midday check-in from The Tire Plug: report the ROs you've sold so far (${today.count} in today): ${link}`
+    ? `Good morning Lexi! From The Tire Plug: report every RO you sell today as you go${today.count ? ` (${today.count} in so far)` : ""}: ${link}`
     : `Hi Lexi! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
   const results = [];
   for (const phone of to) results.push({ phone, ...(await sendSms({ to: phone, body })) });
@@ -93,23 +94,27 @@ async function authorized(req) {
 export default async function handler(req, res) {
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
   if (!(await authorized(req))) return res.status(401).json({ error: "Unauthorized" });
+  return res.json(await commissionTick(req.query));
+}
 
-  const force = ["welcome", "emailed", "midday", "eod", "recap"].includes(req.query.force) ? req.query.force : null;
+// Shared by the pg_cron route above, the front-desk watchdog (every 5 min) and Jarvis (force a text now).
+export async function commissionTick(q = {}) {
+  const force = ["welcome", "emailed", "midday", "eod", "recap"].includes(q.force) ? q.force : null;
   const { hour, weekday } = shopClock();
-  const slot = force || (weekday === 0 ? null : hour === 12 ? "midday" : hour === 17 ? "eod" : hour === 19 ? "recap" : null);
-  if (!slot) return res.json({ skipped: `Nothing due at ${hour}:00 LA.` });
+  const slot = force || (weekday === 0 ? null : hour === 9 ? "midday" : hour === 17 ? "eod" : hour === 19 ? "recap" : null);
+  if (!slot) return { skipped: `Nothing due at ${hour}:00 LA.` };
 
   const day = shopDay(0);
   const col = { welcome: "midday_texted_at", emailed: "recap_sent_at", midday: "midday_texted_at", eod: "eod_texted_at", recap: "recap_sent_at" }[slot];
   const { data: stamp } = await supabaseAdmin.from("commission_days").select("*").eq("day", day).maybeSingle();
-  if (stamp?.[col] && !force) return res.json({ skipped: "Already done today." });
+  if (stamp?.[col] && !force) return { skipped: "Already done today." };
 
   let out;
   if (slot === "recap") {
     // After the email goes out, text Lexi that it's in her inbox.
-    out = await recap({ test: req.query.test === "1" });
-    if (out.sent && req.query.notext !== "1") out.text = await text("emailed");
+    out = await recap({ test: q.test === "1" });
+    if (out.sent && q.notext !== "1") out.text = await text("emailed");
   } else out = await text(slot);
   if (!force && out.sent) await supabaseAdmin.from("commission_days").upsert({ day, [col]: new Date().toISOString() });
-  return res.json({ slot, ...out });
+  return { slot, ...out };
 }

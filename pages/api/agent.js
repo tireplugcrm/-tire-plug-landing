@@ -166,6 +166,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, status: a.status, answer: a.answer, answered_at: a.answered_at });
     }
     if (b.action === "notify") return res.status(200).json(await notify(agent, String(b.text || "").slice(0, 600), { call: !!b.call }));
+    if (b.action === "commission-text") {
+      const { commissionTick } = await import("./cron/commission.js");
+      return res.status(200).json({ ok: true, ...(await commissionTick({ force: ["midday", "eod", "welcome"].includes(b.slot) ? b.slot : "midday" })) });
+    }
     if (b.action === "log") { await log(agent, String(b.message || "").slice(0, 2000), b.data || null); return res.status(200).json({ ok: true }); }
 
     if (b.action === "invoices") {
