@@ -168,14 +168,14 @@ export default async function handler(req, res) {
     if (b.action === "notify") return res.status(200).json(await notify(agent, String(b.text || "").slice(0, 600), { call: !!b.call }));
     if (b.action === "commission-text") {
       const { commissionTick } = await import("./cron/commission.js");
-      return res.status(200).json({ ok: true, ...(await commissionTick({ force: ["midday", "eod", "welcome"].includes(b.slot) ? b.slot : "midday", rep: b.rep || undefined })) });
+      return res.status(200).json({ ok: true, ...(await commissionTick({ force: ["midday", "eod", "welcome", "recap"].includes(b.slot) ? b.slot : "midday", rep: b.rep || undefined, test: b.test ? "1" : undefined, notext: b.slot === "recap" ? "1" : undefined })) });
     }
     if (b.action === "commission-rep-add") {
       const { addRep } = await import("../../lib/commission.js");
       const { toE164 } = await import("../../lib/phone.js");
       const phone = toE164(b.phone);
       if (!b.name || !phone) return res.status(400).json({ error: "name and phone are required" });
-      const r = await addRep(String(b.name).trim().slice(0, 30), phone);
+      const r = await addRep(String(b.name).trim().slice(0, 30), phone, b.email ? String(b.email).trim().slice(0, 120) : null);
       return res.status(200).json({ ok: true, name: r.name });
     }
     if (b.action === "log") { await log(agent, String(b.message || "").slice(0, 2000), b.data || null); return res.status(200).json({ ok: true }); }

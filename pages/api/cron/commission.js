@@ -46,12 +46,15 @@ async function textBody(slot, r) {
     : `Hi ${Lexi}! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
 }
 
-async function recap({ test = false } = {}) {
+// One recap email per rep. Lexi's goes to commission_email_to; other reps' go to their email_to
+// (Junior: the owner, Nov 7). Same rate for everyone (commission_rate, % of labor).
+async function recap({ test = false, rep = { name: "Lexi" } } = {}) {
   const day = shopDay(0);
-  const { data: open } = await supabaseAdmin.from("commission_reports").select("*").eq("rep", "Lexi").neq("status", "matched").gte("day", `${day.slice(0, 7)}-01`);
+  const who = rep.name;
+  const { data: open } = await supabaseAdmin.from("commission_reports").select("*").eq("rep", who).neq("status", "matched").gte("day", `${day.slice(0, 7)}-01`);
   for (const row of open || []) await matchReport(row);
 
-  const t = await totals(day);
+  const t = await totals(day, who);
   const pct = await rate();
   const d = new Date(`${day}T12:00:00Z`);
   const lastOfMonth = new Date(d.getTime() + 864e5).getUTCDate() === 1;
@@ -77,15 +80,15 @@ async function recap({ test = false } = {}) {
   ].filter(Boolean).join("\n\n");
 
   const html = renderNotice({
-    headline: `Lexi's ${kind} Commission Recap`,
+    headline: `${who}'s ${kind} Commission Recap`,
     message,
     details: roRows.length ? roRows : [["Today", "No ROs reported"]],
     preheader: `${amt(t.today)} today · ${amt(t.week)} this week · ${amt(t.month)} this month`,
   });
-  const to = list(await setting("commission_email_to"));
+  const to = list(who === "Lexi" ? await setting("commission_email_to") : rep.email_to);
   let sent = 0;
-  for (const addr of to) sent += (await sendOne({ to: addr, subject: `${test ? "Test: " : ""}Lexi's ${kind} Commission Recap · ${amt(t.today)} today`, html, text: message, transactional: true })).sent;
-  return { sent, kind, today: t.today, week: t.week, month: t.month };
+  for (const addr of to) sent += (await sendOne({ to: addr, subject: `${test ? "Test: " : ""}${who}'s ${kind} Commission Recap · ${amt(t.today)} today`, html, text: message, transactional: true })).sent;
+  return { rep: who, sent, kind, today: t.today, week: t.week, month: t.month };
 }
 
 const same = (a, b) => !!a && !!b && a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -118,8 +121,13 @@ export async function commissionTick(q = {}) {
   let out;
   if (slot === "recap") {
     // After the email goes out, text Lexi that it's in her inbox.
-    out = await recap({ test: q.test === "1" });
-    if (out.sent && q.notext !== "1") out.text = await text("emailed");
+    const all = await reps();
+    const pick = q.rep ? all.filter((r) => r.name.toLowerCase() === String(q.rep).toLowerCase()) : all;
+    const each = [];
+    for (const r of pick) each.push(await recap({ test: q.test === "1", rep: r }));
+    out = { sent: each.reduce((s, x) => s + x.sent, 0), reps: each };
+    // "We just emailed you" goes to Lexi only (she gets the email; the other reps' recaps go to the owner).
+    if (each.some((x) => x.rep === "Lexi" && x.sent) && q.notext !== "1") out.text = await text("emailed", "Lexi");
   } else out = await text(slot, q.rep || null);
   if (!force && !q.rep && out.sent) await supabaseAdmin.from("commission_days").upsert({ day, [col]: new Date().toISOString() });
   return { slot, ...out };
