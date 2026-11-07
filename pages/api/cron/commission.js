@@ -33,7 +33,7 @@ async function text(slot) {
     : slot === "emailed"
     ? "Hi Lexi! We just emailed you today's commission report from The Tire Plug. Check your inbox (and spam). Questions? Call or text us at (562) 250-3737."
     : slot === "midday"
-    ? `Good morning Lexi! From The Tire Plug: report every RO you sell today as you go${today.count ? ` (${today.count} in so far)` : ""}: ${link}`
+    ? `${shopClock().hour < 12 ? "Good morning" : "Hi"} Lexi! From The Tire Plug: report every RO you sell today as you go${today.count ? ` (${today.count} in so far)` : ""}: ${link}`
     : `Hi Lexi! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
   const results = [];
   for (const phone of to) results.push({ phone, ...(await sendSms({ to: phone, body })) });
