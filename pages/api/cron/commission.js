@@ -18,31 +18,37 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { sendSms } from "../../../lib/sms.js";
 import { renderNotice, sendOne } from "../../../lib/email.js";
 import { shopClock } from "../../../lib/invoices.js";
-import { matchReport, rate, reportLink, setting, shopDay, totals } from "../../../lib/commission.js";
+import { matchReport, rate, reportLink, reps, setting, shopDay, totals } from "../../../lib/commission.js";
 
 const $ = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 const list = (s) => String(s || "").split(/[,\n]/).map((x) => x.trim()).filter(Boolean);
 
-async function text(slot) {
-  const to = list(await setting("commission_text_to"));
-  if (!to.length) return { skipped: "No phone set (app_settings commission_text_to)." };
-  const { today } = await totals();
-  const link = await reportLink();
-  const body = slot === "welcome"
-    ? `Hi Lexi! This is your commission tracker from The Tire Plug. Every time you sell an RO, open this link, tap Start, and enter the RO # and the name on the RO. Save it to your home screen: ${link}`
-    : slot === "emailed"
-    ? "Hi Lexi! We just emailed you today's commission report from The Tire Plug. Check your inbox (and spam). Questions? Call or text us at (562) 250-3737."
-    : slot === "midday"
-    ? `${shopClock().hour < 12 ? "Good morning" : "Hi"} Lexi! From The Tire Plug: report every RO you sell today as you go${today.count ? ` (${today.count} in so far)` : ""}: ${link}`
-    : `Hi Lexi! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
+// Texts every rep (or only onlyRep). The recap email and "emailed" text stay Lexi's.
+async function text(slot, onlyRep = null) {
   const results = [];
-  for (const phone of to) results.push({ phone, ...(await sendSms({ to: phone, body })) });
+  for (const r of await reps()) {
+    if (onlyRep ? r.name.toLowerCase() !== onlyRep.toLowerCase() : slot === "emailed" && r.name !== "Lexi") continue;
+    for (const phone of list(r.text_to)) results.push({ phone, ...(await sendSms({ to: phone, body: await textBody(slot, r) })) });
+  }
+  if (!results.length) return { skipped: "No rep phone set." };
   return { sent: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).map((r) => `${r.phone}: ${r.error}`) };
+}
+async function textBody(slot, r) {
+  const { today } = await totals(shopDay(0), r.name);
+  const link = await reportLink(r);
+  const Lexi = r.name;
+  return slot === "welcome"
+    ? `Hi ${Lexi}! This is your commission tracker from The Tire Plug. Every time you sell an RO, open this link, tap Start, and enter the RO # and the name on the RO. Save it to your home screen: ${link}`
+    : slot === "emailed"
+    ? `Hi ${Lexi}! We just emailed you today's commission report from The Tire Plug. Check your inbox (and spam). Questions? Call or text us at (562) 250-3737.`
+    : slot === "midday"
+    ? `${shopClock().hour < 12 ? "Good morning" : "Hi"} ${Lexi}! From The Tire Plug: report every RO you sell today as you go${today.count ? ` (${today.count} in so far)` : ""}: ${link}`
+    : `Hi ${Lexi}! End of day: make sure every RO you sold today is in (${today.count} so far) so it counts toward your commission: ${link}`;
 }
 
 async function recap({ test = false } = {}) {
   const day = shopDay(0);
-  const { data: open } = await supabaseAdmin.from("commission_reports").select("*").neq("status", "matched").gte("day", `${day.slice(0, 7)}-01`);
+  const { data: open } = await supabaseAdmin.from("commission_reports").select("*").eq("rep", "Lexi").neq("status", "matched").gte("day", `${day.slice(0, 7)}-01`);
   for (const row of open || []) await matchReport(row);
 
   const t = await totals(day);
@@ -114,7 +120,7 @@ export async function commissionTick(q = {}) {
     // After the email goes out, text Lexi that it's in her inbox.
     out = await recap({ test: q.test === "1" });
     if (out.sent && q.notext !== "1") out.text = await text("emailed");
-  } else out = await text(slot);
-  if (!force && out.sent) await supabaseAdmin.from("commission_days").upsert({ day, [col]: new Date().toISOString() });
+  } else out = await text(slot, q.rep || null);
+  if (!force && !q.rep && out.sent) await supabaseAdmin.from("commission_days").upsert({ day, [col]: new Date().toISOString() });
   return { slot, ...out };
 }

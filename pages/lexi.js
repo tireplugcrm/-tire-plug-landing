@@ -14,6 +14,7 @@ export default function Lexi() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [reported, setReported] = useState([]);
+  const [who, setWho] = useState("");
 
   async function call(body, key = k) {
     const res = await fetch("/api/lexi", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ k: key, ...body }) });
@@ -22,7 +23,7 @@ export default function Lexi() {
     return j;
   }
   async function load(key = k) {
-    try { setReported((await call({ action: "state" }, key)).reported); setErr(""); } catch (e) { setErr(e.message); }
+    try { const s = await call({ action: "state" }, key); setReported(s.reported); setWho(s.name || ""); setErr(""); } catch (e) { setErr(e.message); }
   }
   useEffect(() => {
     const key = new URLSearchParams(window.location.search).get("k") || "";
@@ -46,9 +47,9 @@ export default function Lexi() {
 
   return (
     <main style={{ minHeight: "100vh", background: "#f4f4f5", fontFamily: "system-ui, -apple-system, sans-serif", padding: "32px 16px" }}>
-      <Head><title>Lexi&apos;s Commission Tracker</title><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex" /></Head>
+      <Head><title>{`${who ? who + "'s " : ""}Commission Tracker`}</title><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex" /></Head>
       <div style={{ maxWidth: 460, margin: "0 auto" }}>
-        <h1 style={{ textAlign: "center", fontSize: 30, fontWeight: 900, margin: "0 0 28px", color: "#111" }}>Lexi&apos;s Commission Tracker</h1>
+        <h1 style={{ textAlign: "center", fontSize: 30, fontWeight: 900, margin: "0 0 28px", color: "#111" }}>{who ? `${who}'s ` : ""}Commission Tracker</h1>
 
         {step === "start" && (
           <button type="button" onClick={() => setStep("form")} disabled={!k} style={{ ...big, fontSize: 44, padding: "70px 0", boxShadow: "0 10px 30px rgba(22,163,74,.35)" }}>Start</button>
