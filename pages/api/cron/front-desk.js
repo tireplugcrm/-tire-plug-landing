@@ -25,8 +25,9 @@ async function authorized(req) {
 export default async function handler(req, res) {
   if (!(await authorized(req))) return res.status(401).json({ error: "Unauthorized" });
   try {
-    // Lexi's 9 AM / 5 PM / 7 PM commission messages ride on this 5-minute run; commission_days stamps stop repeats.
-    const commission = await commissionTick().catch((e) => ({ error: e.message }));
+    // Lexi's 9 AM commission text rides on this 5-minute run (pg_cron's commission-tick has no 9 AM hour;
+    // it still sends 5 PM and 7 PM, so only "midday" here to avoid two senders racing). Stamped once a day.
+    const commission = await commissionTick({ only: "midday" }).catch((e) => ({ error: e.message }));
     return res.status(200).json({ ok: true, ...(await runWatchdog()), commission });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Server error" });

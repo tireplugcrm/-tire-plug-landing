@@ -102,7 +102,7 @@ export async function commissionTick(q = {}) {
   const force = ["welcome", "emailed", "midday", "eod", "recap"].includes(q.force) ? q.force : null;
   const { hour, weekday } = shopClock();
   const slot = force || (weekday === 0 ? null : hour === 9 ? "midday" : hour === 17 ? "eod" : hour === 19 ? "recap" : null);
-  if (!slot) return { skipped: `Nothing due at ${hour}:00 LA.` };
+  if (!slot || (q.only && slot !== q.only)) return { skipped: `Nothing due at ${hour}:00 LA.` };
 
   const day = shopDay(0);
   const col = { welcome: "midday_texted_at", emailed: "recap_sent_at", midday: "midday_texted_at", eod: "eod_texted_at", recap: "recap_sent_at" }[slot];
