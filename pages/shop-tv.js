@@ -1,6 +1,6 @@
 // Shop TV display: the live Shop Floor board for the TVs mounted around the shop.
 // Open /shop-tv?key=... (the link comes from Admin → Shop Floor → TV display) in the TV's browser,
-// full screen, and click it once so it can play sounds. It refreshes every 5 seconds, keeps the
+// full screen, and click it once so it can play sounds. It refreshes every 20 seconds while the shop is open (5 min when closed), keeps the
 // screen awake, and chimes when a car is checked in or completed. Techs can tap Complete on a car
 // right at the TV (tap twice to confirm, Undo for a few minutes). /shop-tv?demo=1 shows sample cars.
 import React, { useState, useEffect, useRef } from "react";
@@ -19,7 +19,11 @@ const C = {
   text: "#f3f6fa", muted: "#94a3b8", faint: "#5b6b7f",
   ok: "#94a3b8", slow: "#f59e0b", late: "#ef4444", rush: "#ef4444", green: "#22c55e", blue: "#3b82f6", tire: "#fbbf24",
 };
-const POLL_MS = 5000;
+const POLL_OPEN_MS = 20000;
+const POLL_CLOSED_MS = 5 * 60000;
+// Shop open roughly 7 AM to 8 PM Los Angeles time.
+const shopOpen = () => { const h = Number(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles", hour: "numeric", hour12: false })); return h >= 7 && h < 20; };
+const pollMs = () => (shopOpen() ? POLL_OPEN_MS : POLL_CLOSED_MS);
 const TYPE = Object.fromEntries(JOB_TYPES.map((j) => [j.k, j]));
 const HOLD = Object.fromEntries(HOLD_REASONS.map((h) => [h.k, h.l]));
 const COL_COLOR = { checked_in: C.blue, done: C.green };
@@ -67,9 +71,15 @@ export default function ShopTv() {
       } catch { /* keep showing the last board; the offline banner appears after a minute */ }
     }
     loadRef.current = load;
-    load();
-    const t = setInterval(load, demo ? 1000 : POLL_MS);
-    return () => { stop = true; clearInterval(t); };
+    // Each refresh is a server call, and the TVs run 24/7: refresh every 20 s while the shop is open,
+    // every 5 min when it's closed, and not at all while the screen/tab is hidden.
+    let t = null;
+    const next = () => { if (!stop) t = setTimeout(tick, demo ? 1000 : pollMs()); };
+    async function tick() { if (!document.hidden) await load(); next(); }
+    const onVisible = () => { if (!document.hidden && !stop) { clearTimeout(t); tick(); } };
+    document.addEventListener("visibilitychange", onVisible);
+    tick();
+    return () => { stop = true; clearTimeout(t); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
 
   // A tech's tap on the TV. Complete needs a second tap within 4 seconds (no accidental pickups).
@@ -134,7 +144,7 @@ export default function ShopTv() {
     return () => { document.removeEventListener("visibilitychange", onVis); try { lock?.release(); } catch {} };
   }, []);
 
-  const stale = lastOk && now - lastOk > 60000;
+  const stale = lastOk && now - lastOk > Math.max(60000, 3 * pollMs());
   const orders = board?.orders || [];
   const appts = board?.appointments || [];
   const showAppts = board ? board.showAppointments !== false : true;
