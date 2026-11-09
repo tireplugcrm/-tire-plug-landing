@@ -1503,7 +1503,9 @@
       "img": "/images/tires/kumho-solus-ta51a.webp",
       "aliases": [
         "Solus TA51A",
-        "TA51A"
+        "TA51A",
+        "Solus TA51",
+        "TA51"
       ],
       "source": "https://www.kumhotireusa.com/tires/solus-ta51a"
     },
@@ -2179,7 +2181,10 @@
       ],
       "img": "/images/tires/lionhart-kilima-a-t.webp",
       "source": "https://lionharttires.com/tire/kilima-at/",
-      "aliases": [],
+      "aliases": [
+        "Kilima AT 33x12.50R20",
+        "Kilima AT"
+      ],
       "warranty": 50000
     },
     "Lionhart|Lionclaw ATX2": {
@@ -2611,6 +2616,82 @@
       ],
       "img": "/images/tires/arroyo-tamarock-a-t.webp",
       "source": "https://www.prioritytire.com/by-brand/arroyo-tires/tamarock-a-t/285-75r16-126-123r-e-10-ply-11058"
+    },
+    "American Roadstar|Sport AS": {
+      "category": "Ultra-high-performance all-season",
+      "about": "An all-season performance tire for sedans, coupes and sports cars, with sharp steering and grip in dry and wet weather.",
+      "features": [],
+      "img": "/images/tires/american-roadstar-sport-as.webp",
+      "aliases": [
+        "Sport A/S",
+        "SPORT A/S"
+      ],
+      "source": "https://simpletire.com/brands/american-roadstar-tires/sport-as"
+    },
+    "Toyo|Open Country A/T III": {
+      "category": "All-terrain light truck",
+      "about": "An all-terrain tire for trucks and SUVs that rides quietly on the highway and grips on dirt, gravel and light snow.",
+      "features": [
+        "3PMSF severe-snow rated"
+      ],
+      "img": "/images/tires/toyo-open-country-a-t-iii.webp",
+      "aliases": [
+        "Open Country AT III",
+        "Open Country A/T 3",
+        "OPAT3"
+      ],
+      "source": "https://simpletire.com/brands/toyo-tires/open-country-a-t-iii"
+    },
+    "GT Radial|Adventuro HT": {
+      "category": "Highway terrain SUV / light truck",
+      "about": "A highway tire for SUVs and pickups, built for a quiet, comfortable ride and long tread life on paved roads.",
+      "features": [],
+      "img": "/images/tires/gt-radial-adventuro-ht.webp",
+      "aliases": [
+        "Adventuro H/T"
+      ],
+      "source": "https://simpletire.com/brands/gt-radial-tires/adventuro-ht"
+    },
+    "BFGoodrich|All-Terrain T/A KO2": {
+      "category": "All-terrain light truck",
+      "about": "A tough all-terrain tire for trucks and SUVs, with sidewalls built to resist cuts on rocks and trails and steady grip on the street.",
+      "features": [
+        "3PMSF severe-snow rated",
+        "50,000-mile treadwear warranty"
+      ],
+      "img": "/images/tires/bfgoodrich-all-terrain-t-a-ko2.webp",
+      "aliases": [
+        "All Terrain T/A KO2",
+        "All-Terrain KO2",
+        "KO2"
+      ],
+      "source": "https://simpletire.com/brands/bfgoodrich-tires/all-terrain-t-a-ko2"
+    },
+    "Pirelli|P Zero": {
+      "category": "Max-performance summer",
+      "about": "A summer performance tire found on many luxury and sports cars, with precise steering and strong grip on dry and wet roads. Not for snow or freezing temperatures.",
+      "features": [],
+      "img": "/images/tires/pirelli-p-zero.webp",
+      "warranty": "none",
+      "source": "https://simpletire.com/brands/pirelli-tires/p-zero"
+    },
+    "Pirelli|P Zero All Season Run Flat": {
+      "category": "Ultra-high-performance all-season",
+      "about": "The run-flat version of the P Zero All Season: an ultra-high-performance all-season tire that can keep going for a short distance after a puncture, for cars that come without a spare.",
+      "features": [
+        "Inner blocks with winter siping for snow traction",
+        "Variable-size tread elements to reduce cabin noise",
+        "Circumferential grooves to expel water",
+        "Asymmetrical tread design",
+        "Not 3PMSF rated"
+      ],
+      "img": "/images/tires/pirelli-p-zero-all-season.webp",
+      "aliases": [
+        "PZero All Season Run Flat",
+        "P Zero AS Run Flat",
+        "P Zero All Season RFT"
+      ],
+      "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/p-zero-all-season/235_45-r18"
     }
   }
 }
