@@ -1,5 +1,6 @@
 /**
- * Staff to-do lists for the admin ("Belen's to-do"). Owner/Google gated.
+ * Staff to-do lists: the admin "Belen's to-do" tab (admin login: read, tick, edit) and the
+ * phone page /belen (her 4-digit code, lib/staff-code.js: read and tick only).
  *
  * The list's words live in Supabase (app_settings key `todo_<who>`), not in this public repo,
  * so vendor names and shop notes stay private. Ticks are shared: everyone signed in to the
@@ -15,6 +16,7 @@
  */
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
+import { checkStaffCode } from "../../../lib/staff-code.js";
 
 const WHO = /^[a-z]{2,20}$/;
 
@@ -35,12 +37,19 @@ async function store(who, v, user) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  const auth = await requireAdmin(req);
-  if (!auth.ok) return res.status(401).json({ error: "Unauthorized" });
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
-
   const { action, who = "belen" } = req.body || {};
   if (!WHO.test(who)) return res.status(400).json({ error: "Bad list name." });
+
+  // Admin login, or the person's own 4-digit code (that one can only read and tick).
+  let auth = (req.body?.password || req.body?.accessToken || req.headers.authorization) ? await requireAdmin(req) : { ok: false };
+  if (!auth.ok) {
+    if (req.body?.code == null) return res.status(401).json({ error: "Unauthorized" });
+    const c = await checkStaffCode(who, String(req.body.code));
+    if (!c.ok) return res.status(401).json({ error: c.error });
+    if (!["get", "tick"].includes(action)) return res.status(403).json({ error: "Only the owner can change the list." });
+    auth = { ok: true, user: { name: who.charAt(0).toUpperCase() + who.slice(1) } };
+  }
 
   try {
     const cur = await load(who);

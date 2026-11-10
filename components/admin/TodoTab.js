@@ -30,14 +30,16 @@ function Rich({ text }) {
     /^\*\*[^*]+\*\*$/.test(p) ? <strong key={i} style={{ color: T.text, fontWeight: 600 }}>{p.slice(2, -2)}</strong> : <React.Fragment key={i}>{p}</React.Fragment>);
 }
 
-export default function TodoTab({ auth, who = "belen", name = "Belen" }) {
+// `call` (optional) replaces the admin fetch, e.g. the /belen page posting her code instead;
+// `canEdit` false hides Edit and New day.
+export default function TodoTab({ auth, who = "belen", name = "Belen", call: callProp, canEdit = true }) {
   const [list, setList] = useState(null);
   const [err, setErr] = useState("");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const call = async (body) => {
+  const call = callProp || async function adminCall(body) {
     const res = await fetch("/api/admin/todo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, who, ...body }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.error || "Request failed");
@@ -66,8 +68,8 @@ export default function TodoTab({ auth, who = "belen", name = "Belen" }) {
         <h1 style={ui.h1}>{doc.title || `${name}'s to-do`}</h1>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {!editing && tasks.length > 0 && <span style={ui.pill(doneCount === tasks.length ? T.green : T.amber)}>{doneCount} of {tasks.length} done</span>}
-          {!editing && doneCount > 0 && <button style={ui.btn} disabled={busy} onClick={() => window.confirm("Untick every box to start a new day?") && run({ action: "reset" })}><Icon name="restart_alt" size={17} />New day</button>}
-          {!editing
+          {canEdit && !editing && doneCount > 0 && <button style={ui.btn} disabled={busy} onClick={() => window.confirm("Untick every box to start a new day?") && run({ action: "reset" })}><Icon name="restart_alt" size={17} />New day</button>}
+          {!canEdit ? null : !editing
             ? <button style={ui.btn} onClick={() => { setDraft(list.text); setEditing(true); }}><Icon name="edit" size={17} />Edit</button>
             : <>
                 <button style={ui.btn} disabled={busy} onClick={() => setEditing(false)}>Cancel</button>
@@ -84,7 +86,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen" }) {
             style={{ ...ui.input, height: "auto", padding: "0.6rem 0.75rem", fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: 13, lineHeight: 1.55, resize: "vertical" }} />
         </div>
       ) : doc.sections.length === 0 ? (
-        <div style={{ ...ui.card, ...ui.muted }}>Nothing on the list yet. Tap Edit to write it.</div>
+        <div style={{ ...ui.card, ...ui.muted }}>{canEdit ? "Nothing on the list yet. Tap Edit to write it." : "Nothing on the list yet."}</div>
       ) : doc.sections.map((s, si) => (
         <div key={si} style={{ ...ui.card, marginBottom: 10 }}>
           {s.heading && <div style={{ color: T.text, fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}><Rich text={s.heading} /></div>}

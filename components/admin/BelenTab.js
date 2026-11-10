@@ -1,0 +1,34 @@
+// Admin "Belen" tab: her to-do list (edit it here, she ticks it on /belen) and her field-rep
+// tracker (log profit per paid job, edit accounts, mark the bonus paid). Same data as /belen.
+import React, { useState } from "react";
+import BelenBonus from "../BelenBonus.js";
+import TodoTab from "./TodoTab.js";
+import { T, ui } from "./ui.js";
+
+export default function BelenTab({ auth }) {
+  const [view, setView] = useState("todo");
+  const call = async (body) => {
+    const res = await fetch("/api/belen", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, ...body }) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || "Request failed");
+    return j;
+  };
+  const seg = (id, lbl) => (
+    <button key={id} role="tab" aria-selected={view === id} onClick={() => setView(id)}
+      style={{ ...ui.btn, background: view === id ? T.blue : T.surface, borderColor: view === id ? T.blue : T.borderStrong, color: "#fff" }}>{lbl}</button>
+  );
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+        <div role="tablist" style={{ display: "flex", gap: 6 }}>{seg("todo", "To-do")}{seg("bonus", "Accounts & bonus")}</div>
+        <a href="/belen" target="_blank" rel="noopener noreferrer" style={ui.btn}>Belen&apos;s page (code)</a>
+      </div>
+      {view === "todo" ? <TodoTab auth={auth} who="belen" name="Belen" /> : (
+        <>
+          <h1 style={{ ...ui.h1, marginBottom: 10 }}>Belen · field rep</h1>
+          <BelenBonus call={call} canEdit />
+        </>
+      )}
+    </div>
+  );
+}
