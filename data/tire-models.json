@@ -1426,6 +1426,25 @@
       "source": "https://www.hankooktire.com/us/en/tire/dynapro/mt2-rt05.html",
       "warranty": "none"
     },
+    "Hankook|Dynapro AT2 Xtreme RF12": {
+      "category": "SUV / Light Truck All-Terrain",
+      "about": "A rugged all-terrain tire for trucks and SUVs, built to grip on dirt, gravel and light snow while staying quiet and comfortable on the highway.",
+      "features": [
+        "3PMSF severe snow rated",
+        "Raised white letters",
+        "Aggressive all-terrain tread",
+        "Stone ejectors",
+        "Reinforced sidewalls",
+        "Smooth, quiet highway ride"
+      ],
+      "img": "/images/tires/hankook-dynapro-at2-xtreme-rf12.webp",
+      "aliases": [
+        "Dynapro AT2 Xtreme",
+        "AT2 Xtreme",
+        "RF12"
+      ],
+      "source": "https://www.hankooktire.com/us/en/tire/dynapro/at2-xtreme-rf12.html"
+    },
     "Hankook|Ventus S1 AS H125": {
       "category": "Passenger Car / UHP All-Season",
       "about": "An ultra-high-performance all-season tire tuned for sporty handling with usable snow traction year-round.",
