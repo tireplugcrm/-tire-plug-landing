@@ -23,7 +23,7 @@ const clean = (v, n = 120) => (v == null ? null : String(v).trim().slice(0, n) |
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const b = req.body || {};
-  if (b.demo) return res.json(demoState(b.month));
+  if (b.demo) return res.json({ ...demoState(b.month), kinds: KINDS });
   if (!supabaseAdmin) return res.status(500).json({ error: "Database not configured." });
 
   const auth = (b.password || b.accessToken || req.headers.authorization) ? await requireAdmin(req) : { ok: false };

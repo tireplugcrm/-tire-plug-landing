@@ -35,7 +35,7 @@ export default function BelenBonus({ call, canEdit = false }) {
   return (
     <div style={{ color: T.text, fontFamily: "inherit" }}>
       <div style={{ color: T.textMuted, fontSize: 13.5, marginBottom: 14 }}>
-        {$0(p.hourly)}/hour as always, plus a monthly bonus on the profit from your business accounts · paid the first payday of the next month.
+        {$(p.hourly).replace(/\.00$/, "")}/hour as always, plus a monthly bonus on the profit from your business accounts · paid the first payday of the next month.
       </div>
 
       {/* Month switcher */}
