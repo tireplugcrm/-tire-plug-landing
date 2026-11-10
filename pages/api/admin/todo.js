@@ -20,6 +20,7 @@ import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { checkStaffCode } from "../../../lib/staff-code.js";
 import { shopDay } from "../../../lib/invoices.js";
+import { logActivity } from "../../../lib/staff-activity.js";
 
 const WHO = /^[a-z]{2,20}$/;
 
@@ -87,7 +88,7 @@ export default async function handler(req, res) {
     if (!c.ok) return res.status(401).json({ error: c.error });
     // Staff codes read and tick; the owner's own page (/alex, who = "alex") can also edit.
     if (who !== "alex" && !["get", "tick"].includes(action)) return res.status(403).json({ error: "Only the owner can change the list." });
-    auth = { ok: true, user: { name: who.charAt(0).toUpperCase() + who.slice(1) } };
+    auth = { ok: true, viaCode: true, user: { name: who.charAt(0).toUpperCase() + who.slice(1) } };
   }
 
   try {
@@ -102,6 +103,7 @@ export default async function handler(req, res) {
       if (!item) return res.status(400).json({ error: "Missing item." });
       const done = new Set(cur.done);
       if (req.body.checked) done.add(item); else done.delete(item);
+      if (auth.viaCode) await logActivity(who, req.body.checked ? "tick" : "untick", item);
       return res.status(200).json(await store(who, list, { text: cur.text, done: [...done], added: cur.added }, auth.user));
     }
     if (action === "reset") return res.status(200).json(await store(who, list, { text: cur.text, done: [], added: cur.added }, auth.user));

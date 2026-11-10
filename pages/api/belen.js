@@ -10,11 +10,14 @@
  * POST { admin, action: "addProfit", account_id, day, kind, ref, profit, note }      -> month
  * POST { admin, action: "removeProfit", id, month }                                  -> month
  * POST { admin, action: "paid", month, amount } / "unpaid"                           -> month
+ * POST { code, action: "ping", event: "open" | "tab", detail }                       -> ok (activity log)
+ * POST { admin, action: "activity" }                                                 -> { events } (last 14 days)
  * POST { demo: true, action: "state", month }                                        -> made-up month (previews)
  */
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../lib/adminAuth.js";
 import { checkStaffCode } from "../../lib/staff-code.js";
+import { logActivity, recentActivity } from "../../lib/staff-activity.js";
 import { REP, KINDS, SECTORS, SECTOR_OF, demoState, monthState } from "../../lib/belen-bonus.js";
 
 const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
@@ -31,7 +34,7 @@ export default async function handler(req, res) {
   if (!admin) {
     const c = await checkStaffCode("belen", String(b.code || ""));
     if (!c.ok) return res.status(401).json({ error: c.error });
-    if (!["state", "addAccount"].includes(b.action)) return res.status(403).json({ error: "Only the owner can change this." });
+    if (!["state", "addAccount", "ping"].includes(b.action)) return res.status(403).json({ error: "Only the owner can change this." });
   }
 
   const month = String(b.month || (isDay(b.day) ? b.day.slice(0, 7) : "")).slice(0, 7);
@@ -43,6 +46,18 @@ export default async function handler(req, res) {
 
   if (b.action === "state") return done();
 
+  // Her page reports when she opens it and which tab she looks at (only her code counts, not the owner).
+  if (b.action === "ping") {
+    if (!admin && ["open", "tab"].includes(b.event)) await logActivity("belen", b.event, b.detail);
+    return res.json({ ok: true });
+  }
+
+  // Owner: her last 14 days on the page.
+  if (b.action === "activity") {
+    if (!admin) return res.status(403).json({ error: "Owner only." });
+    try { return res.json({ events: await recentActivity("belen", 14) }); } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
   if (b.action === "addAccount") {
     const name = clean(b.name, 80);
     if (!name) return res.status(400).json({ error: "Enter the business name." });
@@ -52,6 +67,7 @@ export default async function handler(req, res) {
       signed_on: admin && isDay(b.signed_on) ? b.signed_on : undefined, created_by: admin ? (auth.user?.name || "Owner") : REP,
     });
     if (error) return fail(error);
+    if (!admin) await logActivity("belen", "add_account", name);
     return done();
   }
 

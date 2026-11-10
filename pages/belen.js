@@ -31,7 +31,7 @@ export default function Belen() {
     const dm = new URLSearchParams(window.location.search).get("demo"); if (dm) { setDemo(dm); setOk(true); setView("bonus"); return; }
     let saved = "";
     try { saved = sessionStorage.getItem(SS) || ""; } catch { /* private mode */ }
-    if (saved) post({ code: saved, action: "state" }).then(() => { setCode(saved); setOk(true); }).catch(() => { try { sessionStorage.removeItem(SS); } catch { /* */ } });
+    if (saved) post({ code: saved, action: "state" }).then(() => { setCode(saved); setOk(true); post({ code: saved, action: "ping", event: "open" }).catch(() => {}); }).catch(() => { try { sessionStorage.removeItem(SS); } catch { /* */ } });
   }, []);
 
   async function press(k) {
@@ -45,6 +45,7 @@ export default function Belen() {
       await post({ code: next, action: "state" });
       try { sessionStorage.setItem(SS, next); } catch { /* */ }
       setOk(true);
+      post({ code: next, action: "ping", event: "open" }).catch(() => {});
     } catch (e) {
       setErr(e.message); setShake(true);
       setTimeout(() => { setShake(false); setCode(""); }, 450);
@@ -105,7 +106,7 @@ export default function Belen() {
           </div>
           <div role="tablist" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, padding: 4, borderRadius: 999, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.14)", marginBottom: 16 }}>
             {[["today", "Today"], ["know", "Good to know"], ["bonus", "My bonus"]].map(([id, lbl]) => (
-              <button key={id} role="tab" aria-selected={view === id} onClick={() => setView(id)} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
+              <button key={id} role="tab" aria-selected={view === id} onClick={() => { setView(id); if (!demo && id !== view) post({ code, action: "ping", event: "tab", detail: id }).catch(() => {}); }} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
             ))}
           </div>
           {view === "know"
