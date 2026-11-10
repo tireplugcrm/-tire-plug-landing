@@ -13,9 +13,11 @@ const todayKey = () => dayKey(new Date().toISOString());
 function weekStart(offset) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + offset * 7); return d; }
 function nextHalfHour() { const d = new Date(Date.now() + 60 * 60000); d.setMinutes(d.getMinutes() < 30 ? 30 : 60, 0, 0); const p = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 
-// showAppts: whether customer tire appointments are listed (the admin shows them; /alex hides them,
-// the owner's call 2026-11-10: his own page is for his meetings and personal life).
-export default function AlexCalendar({ call, showAppts = true }) {
+// showAppts: whether customer service appointments start out listed (the admin shows them; /alex starts
+// with them hidden, the owner's call 2026-11-10). A switch flips it; the choice is remembered on the phone.
+export default function AlexCalendar({ call, showAppts: apptsDefault = true }) {
+  const [showAppts, setShowAppts] = useState(() => { try { const v = localStorage.getItem("alex_appts"); return v == null ? apptsDefault : v === "1"; } catch { return apptsDefault; } });
+  const toggleAppts = () => { const v = !showAppts; setShowAppts(v); try { localStorage.setItem("alex_appts", v ? "1" : "0"); } catch { /* */ } };
   const [week, setWeek] = useState(0);
   const [s, setS] = useState(null);
   const [err, setErr] = useState("");
@@ -54,6 +56,7 @@ export default function AlexCalendar({ call, showAppts = true }) {
         {s.feeds && cal !== "personal" && <a href={s.feeds.business} style={ui.btn}><Icon name="calendar_add_on" size={18} />iPhone: Business</a>}
         {s.feeds && cal !== "business" && <a href={s.feeds.personal} style={ui.btn}><Icon name="calendar_add_on" size={18} />iPhone: Personal</a>}
         <button style={ui.btn} onClick={() => setPeople(!people)}><Icon name="contacts" size={18} />People</button>
+        {cal !== "personal" && <button style={{ ...ui.btn, ...(showAppts ? { background: T.blueSoft, borderColor: T.blue } : null) }} aria-pressed={showAppts} onClick={toggleAppts}><Icon name="tire_repair" size={18} />{showAppts ? "Hide" : "Show"} service appointments</button>}
       </div>
       {msg && <div style={{ ...ui.card, marginBottom: 10, color: T.green, fontSize: 14 }}>{msg}</div>}
       {form && <MeetingForm key={cal} defaultCal={cal === "personal" ? "personal" : "business"} people={s.people} busy={busy} onSave={async (m) => {
@@ -82,10 +85,11 @@ export default function AlexCalendar({ call, showAppts = true }) {
                 <div style={{ flex: 1, minWidth: 0, fontSize: 14 }}>
                   <div style={{ fontWeight: 600 }}>{cal === "all" && e.kind === "meeting" ? <span style={{ ...ui.pill(e.calendar === "personal" ? PERSONAL : T.blue), height: 18, fontSize: 11, marginRight: 6 }}>{e.calendar === "personal" ? "Personal" : "Business"}</span> : null}{e.title}{e.with_name ? <span style={{ color: T.textMuted, fontWeight: 400 }}> · with {e.with_name}</span> : null}</div>
                   <div style={{ color: T.textMuted, fontSize: 12.5 }}>
-                    {e.kind === "appt" ? [e.vehicle, "customer appointment"].filter(Boolean).join(" · ") : [`${e.minutes} min`, e.place, e.notes].filter(Boolean).join(" · ")}
+                    {e.kind === "appt" ? [e.vehicle, "customer appointment"].filter(Boolean).join(" · ") : [`${e.minutes} min`, e.place, e.notes, `🔔 ${(e.alarms || [15]).map((n) => (n === 0 ? "at start" : n % 60 === 0 ? `${n / 60}h` : `${n}m`)).join(", ")}`].filter(Boolean).join(" · ")}
                     {e.kind === "meeting" && e.with_name ? (e.texted_at ? " · texted ✓" : e.text_error ? ` · not texted (${e.text_error})` : " · not texted") : ""}
                   </div>
                 </div>
+                {e.maps && <a href={e.maps} target="_blank" rel="noopener noreferrer" aria-label="Directions" title="Google Maps directions" style={{ ...ui.btn, width: 30, height: 30, padding: 0, marginRight: 4 }}><Icon name="directions" size={16} /></a>}
                 {e.kind === "meeting" && <button aria-label="Remove" style={{ ...ui.btn, width: 30, height: 30, padding: 0 }} disabled={busy} onClick={() => window.confirm(`Remove "${e.title}"? No text goes out.`) && run({ action: "removeMeeting", id: e.id })}><Icon name="close" size={16} /></button>}
               </div>
             ))}
@@ -98,7 +102,7 @@ export default function AlexCalendar({ call, showAppts = true }) {
 }
 
 function MeetingForm({ people, busy, onSave, defaultCal }) {
-  const [m, setM] = useState({ calendar: defaultCal, title: "", with_name: "", local: nextHalfHour(), minutes: 30, place: "", notes: "", text: true });
+  const [m, setM] = useState({ alarms: [15], calendar: defaultCal, title: "", with_name: "", local: nextHalfHour(), minutes: 30, place: "", notes: "", text: true });
   const person = people.find((p) => p.name === m.with_name);
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSave(m); }} style={{ ...ui.card, marginBottom: 10, display: "grid", gap: 8 }}>
@@ -118,7 +122,10 @@ function MeetingForm({ people, busy, onSave, defaultCal }) {
           {[15, 30, 45, 60, 90, 120].map((n) => <option key={n} value={n} style={{ color: "#111" }}>{n} min</option>)}
         </select>
       </div>
-      <input placeholder="Where (blank = the shop)" value={m.place} onChange={(e) => setM({ ...m, place: e.target.value })} style={inp} />
+      <select value={m.alarms.join(",")} onChange={(e) => setM({ ...m, alarms: e.target.value.split(",").map(Number) })} style={inp}>
+        {[["15", "Alert 15 min before"], ["30", "Alert 30 min before"], ["60,15", "Alert 1 hr and 15 min before"], ["60,30,0", "Leave-early alerts: 1 hr, 30 min, and at start"], ["1440,60", "Alert 1 day and 1 hr before"]].map(([v, l]) => <option key={v} value={v} style={{ color: "#111" }}>{l}</option>)}
+      </select>
+      <input placeholder="Where (blank = the shop; an address gets a Directions button)" value={m.place} onChange={(e) => setM({ ...m, place: e.target.value })} style={inp} />
       <input placeholder="Notes (go in the text too)" value={m.notes} onChange={(e) => setM({ ...m, notes: e.target.value })} style={inp} />
       {m.with_name && (
         <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: person?.phone ? T.text : T.textFaint }}>
