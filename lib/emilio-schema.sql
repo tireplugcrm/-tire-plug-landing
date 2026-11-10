@@ -29,6 +29,8 @@ alter table rep_payouts enable row level security;
 -- emilio_lock: wrong-code counter, so the 4 digits can't be guessed.
 insert into app_settings (key, value, updated_at) values ('emilio_code', '', now()) on conflict (key) do nothing;
 insert into app_settings (key, value, updated_at) values ('emilio_hourly', '22', now()) on conflict (key) do nothing;
+-- emilio_usual: his usual hours by weekday (6 = Sat 10-7 less 30 min lunch, 0 = Sun 10-4, no lunch).
+insert into app_settings (key, value, updated_at) values ('emilio_usual', '{"6": 8.5, "0": 6}', now()) on conflict (key) do nothing;
 insert into app_settings (key, value, updated_at) values ('emilio_start', '2026-11-07', now()) on conflict (key) do nothing;
 insert into app_settings (key, value, updated_at) values ('emilio_tech_id', '', now()) on conflict (key) do nothing;
 insert into app_settings (key, value, updated_at) values ('emilio_lock', '{}', now()) on conflict (key) do nothing;

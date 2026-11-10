@@ -74,7 +74,7 @@ export default function EmilioPay({ call, canEdit = false, initialMonth }) {
         <Row k={`Hours · ${hrs(s.toDate.hours)} × ${$0(s.hourly)}/hr`} v={$(s.toDate.base)} />
         <Row k={`Commission · ${pctLabel} of ${$0(s.toDate.labor)} labor`} v={$(s.toDate.commission)} />
         <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 6 }}><Row k={<strong>Total so far</strong>} v={<strong>{$(s.toDate.total)}</strong>} /></div>
-        {s.unconfirmed > 0 && <div style={{ color: T.amber, fontSize: 12.5 }}>{s.unconfirmed} day{s.unconfirmed === 1 ? " uses" : "s use"} shop hours until the real hours are entered.</div>}
+        {s.unconfirmed > 0 && <div style={{ color: T.amber, fontSize: 12.5 }}>{s.unconfirmed} day{s.unconfirmed === 1 ? " uses" : "s use"} his usual hours until the real hours are entered.</div>}
       </div>
 
       {/* Calendar */}
@@ -144,7 +144,7 @@ function DayCard({ d, s, canEdit, busy, run }) {
       </div>
       <div style={{ color: T.textMuted, fontSize: 13, marginTop: 2 }}>
         {d.hours === 0 ? "Off" : `${hrs(d.hours)} × ${$0(s.hourly)} = ${$(d.base)}`}{d.commission ? ` · commission ${$(d.commission)}` : ""}
-        {!d.past ? " · coming up" : !d.confirmed ? " · shop hours (not entered yet)" : ""}
+        {!d.past ? " · coming up" : !d.confirmed ? " · usual hours (not entered yet)" : ""}
       </div>
       {d.note && <div style={{ color: T.textMuted, fontSize: 12.5, marginTop: 4 }}>{d.note}</div>}
 
