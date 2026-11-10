@@ -26,7 +26,7 @@ export default function BelenTab({ auth }) {
       {view === "todo" ? <TodoTab key="todo" auth={auth} who="belen" name="Belen" /> : view === "know" ? <TodoTab key="know" auth={auth} who="belen" name="Belen" list="know" /> : (
         <>
           <h1 style={{ ...ui.h1, marginBottom: 10 }}>Belen · field rep</h1>
-          <BelenBonus call={call} canEdit />
+          <BelenBonus call={call} canEdit guide={<TodoTab key="plan" auth={auth} who="belen" name="Belen" list="plan" />} />
         </>
       )}
     </div>

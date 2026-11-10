@@ -10,15 +10,18 @@ const pct = (r) => `${Math.round(Number(r || 0) * 1000) / 10}%`;
 const monthName = (m) => new Date(`${m}-01T12:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 const shortDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 const shiftMonth = (m, n) => { const d = new Date(`${m}-01T12:00:00Z`); d.setUTCMonth(d.getUTCMonth() + n); return d.toISOString().slice(0, 7); };
-const KIND_ICON = { wheels: "tire_repair", fleet: "local_shipping", tires: "storefront", commercial: "rv_hookup" };
+const KIND_ICON = { wheels: "recycling", fleet: "build", tires: "tire_repair", commercial: "local_shipping" };
+const SECTOR_ICON = { scrap: "recycling", wholesale: "inventory_2", retail: "build" };
 
-export default function BelenBonus({ call, canEdit = false }) {
+// `guide`: the "How your bonus works" list (a TodoTab with list="plan"), shown folded at the top.
+export default function BelenBonus({ call, canEdit = false, guide = null }) {
   const [month, setMonth] = useState("");
   const [s, setS] = useState(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(null); // account id
   const [adding, setAdding] = useState(false);
+  const [showGuide, setShowGuide] = useState(true);
 
   async function run(body) {
     setBusy(true); setErr("");
@@ -37,6 +40,15 @@ export default function BelenBonus({ call, canEdit = false }) {
       <div style={{ color: T.textMuted, fontSize: 13.5, marginBottom: 14 }}>
         {$(p.hourly).replace(/\.00$/, "")}/hour as always, plus a monthly bonus on the profit from your business accounts · paid the first payday of the next month.
       </div>
+
+      {guide && (
+        <div style={{ ...ui.card, marginBottom: 14, padding: 0 }}>
+          <button onClick={() => setShowGuide(!showGuide)} style={{ display: "flex", width: "100%", alignItems: "center", gap: 8, padding: "0.8rem 1rem", background: "none", border: 0, color: T.text, fontFamily: "inherit", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+            <Icon name="lightbulb" size={20} style={{ color: T.amber }} />How your bonus works<Icon name={showGuide ? "expand_less" : "expand_more"} style={{ marginLeft: "auto", color: T.textMuted }} />
+          </button>
+          {showGuide && <div style={{ padding: "0 0.6rem 0.6rem" }}>{guide}</div>}
+        </div>
+      )}
 
       {/* Month switcher */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 14 }}>
@@ -58,6 +70,19 @@ export default function BelenBonus({ call, canEdit = false }) {
           <div style={{ color: s.payout ? T.green : T.textMuted, fontSize: 12.5, marginTop: 4 }}>{s.payout ? `Paid ${shortDay(s.payout.paid_at.slice(0, 10))}` : `Paid in ${dueLabel}`}</div>
         </div>
       </div>
+
+      {/* Profit by part of the business */}
+      {s.sectors && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 10 }}>
+          {s.sectors.map((x) => (
+            <div key={x.id} style={{ ...ui.card, padding: "0.7rem 0.8rem" }}>
+              <div style={{ ...label, display: "flex", alignItems: "center", gap: 4 }}><Icon name={SECTOR_ICON[x.id]} size={15} />{x.name}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, marginTop: 2 }}>{$0(x.profit)}</div>
+              <div style={{ color: T.textFaint, fontSize: 11.5 }}>{x.jobs} job{x.jobs === 1 ? "" : "s"}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* The line / how it's figured */}
       <div style={{ ...ui.card, marginTop: 10, fontSize: 14, display: "grid", gap: 6 }}>

@@ -26,7 +26,7 @@ const WHO = /^[a-z]{2,20}$/;
 // Lists per person: "todo" (today's checklist), "know" (important things to know, no boxes), and
 // "daily" / "weekly" / "monthly" duty checklists whose ticks clear on their own when the period turns over
 // (shop time: a new day, a new Mon-Sun week, a new month).
-const LISTS = ["todo", "know", "daily", "weekly", "monthly"];
+const LISTS = ["todo", "know", "daily", "weekly", "monthly", "plan"]; // plan = "How your bonus works" (field reps)
 function periodOf(list) {
   const day = shopDay(0);
   if (list === "daily") return day;

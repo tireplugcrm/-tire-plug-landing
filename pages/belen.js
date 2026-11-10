@@ -112,7 +112,7 @@ export default function Belen() {
             ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>This list needs the real code.</div> : <TodoTab key="know" who="belen" name="Belen" call={todoCall} canEdit={false} list="know" />)
             : view === "today"
             ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>The to-do list needs the real code.</div> : <TodoTab key="todo" who="belen" name="Belen" call={todoCall} canEdit={false} />)
-            : <BelenBonus call={call} canEdit={demo === "edit"} />}
+            : <BelenBonus call={call} canEdit={demo === "edit"} guide={demo ? null : <TodoTab key="plan" who="belen" name="Belen" call={todoCall} canEdit={false} list="plan" />} />}
         </div>
       )}
     </main>

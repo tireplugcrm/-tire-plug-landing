@@ -15,7 +15,7 @@
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../lib/adminAuth.js";
 import { checkStaffCode } from "../../lib/staff-code.js";
-import { REP, KINDS, demoState, monthState } from "../../lib/belen-bonus.js";
+import { REP, KINDS, SECTORS, SECTOR_OF, demoState, monthState } from "../../lib/belen-bonus.js";
 
 const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
 const clean = (v, n = 120) => (v == null ? null : String(v).trim().slice(0, n) || null);
@@ -23,7 +23,7 @@ const clean = (v, n = 120) => (v == null ? null : String(v).trim().slice(0, n) |
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const b = req.body || {};
-  if (b.demo) return res.json({ ...demoState(b.month), kinds: KINDS });
+  if (b.demo) return res.json({ ...demoState(b.month), kinds: KINDS, sectorOf: SECTOR_OF, sectorNames: SECTORS });
   if (!supabaseAdmin) return res.status(500).json({ error: "Database not configured." });
 
   const auth = (b.password || b.accessToken || req.headers.authorization) ? await requireAdmin(req) : { ok: false };
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
   const month = String(b.month || (isDay(b.day) ? b.day.slice(0, 7) : "")).slice(0, 7);
   const done = async () => {
-    try { return res.json({ ...(await monthState(month)), canEdit: admin, kinds: KINDS }); }
+    try { return res.json({ ...(await monthState(month)), canEdit: admin, kinds: KINDS, sectorOf: SECTOR_OF, sectorNames: SECTORS }); }
     catch (e) { return res.status(500).json({ error: e.message }); }
   };
   const fail = (error) => res.status(500).json({ error: error.message });
