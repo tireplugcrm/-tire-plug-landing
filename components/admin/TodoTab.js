@@ -24,6 +24,13 @@ function parse(text) {
   return out;
 }
 
+// "Nov 9" for a YYYY-MM-DD day (the day a Good to know line was added).
+const shortDate = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) : "");
+function DateChip({ day }) {
+  if (!day) return null;
+  return <span title={`Added ${day}`} style={{ marginLeft: "auto", paddingLeft: 10, color: T.textFaint, fontSize: 12, whiteSpace: "nowrap", flex: "none" }}>{shortDate(day)}</span>;
+}
+
 // **bold** only; everything else is plain text (no HTML from the stored words).
 function Rich({ text }) {
   return String(text).split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
@@ -83,7 +90,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
 
       {editing ? (
         <div style={ui.card}>
-          <div style={{ ...ui.muted, marginBottom: 8 }}><code># Title</code> · <code>## Section</code> · <code>- {know ? "point" : "task"}</code>{know ? "" : " (gets a checkbox)"} · <code>1. point</code> · <code>**bold**</code> · any other line is a note.</div>
+          <div style={{ ...ui.muted, marginBottom: 8 }}><code># Title</code> · <code>## Section</code> · <code>- {know ? "point" : "task"}</code>{know ? "" : " (gets a checkbox)"} · <code>1. point</code> · <code>**bold**</code> · any other line is a note.{know ? " Each line shows the day it was added; rewording a line gives it today's date." : ""}</div>
           <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={28}
             style={{ ...ui.input, height: "auto", padding: "0.6rem 0.75rem", fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: 13, lineHeight: 1.55, resize: "vertical" }} />
         </div>
@@ -93,7 +100,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
         <div key={si} style={{ ...ui.card, marginBottom: 10 }}>
           {s.heading && <div style={{ color: T.text, fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}><Rich text={s.heading} /></div>}
           {s.rows.map((r, ri) => {
-            if (r.kind === "task" && know) return <div key={ri} style={{ display: "flex", gap: 10, padding: "5px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted }}>•</span><span><Rich text={r.text} /></span></div>;
+            if (r.kind === "task" && know) return <div key={ri} style={{ display: "flex", gap: 10, padding: "5px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted }}>•</span><span><Rich text={r.text} /></span><DateChip day={list.added?.[r.text]} /></div>;
             if (r.kind === "task") {
               const on = doneSet.has(r.text);
               return (
@@ -103,8 +110,8 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
                 </label>
               );
             }
-            if (r.kind === "num") return <div key={ri} style={{ display: "flex", gap: 10, padding: "4px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted, minWidth: 18, textAlign: "right" }}>{r.n}.</span><span><Rich text={r.text} /></span></div>;
-            return <div key={ri} style={{ ...ui.muted, fontSize: 13.5, padding: "4px 0" }}><Rich text={r.text} /></div>;
+            if (r.kind === "num") return <div key={ri} style={{ display: "flex", gap: 10, padding: "4px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted, minWidth: 18, textAlign: "right" }}>{r.n}.</span><span><Rich text={r.text} /></span>{know && <DateChip day={list.added?.[r.text]} />}</div>;
+            return <div key={ri} style={{ ...ui.muted, fontSize: 13.5, padding: "4px 0", display: "flex" }}><span><Rich text={r.text} /></span>{know && <DateChip day={list.added?.[r.text]} />}</div>;
           })}
         </div>
       ))}

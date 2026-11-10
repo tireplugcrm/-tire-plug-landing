@@ -7,7 +7,8 @@
  * admin sees the same boxes checked.
  *
  * POST actions:
- *   { action: "get",  who }                 -> { text, done, updated_at, updated_by }
+ *   { action: "get",  who }                 -> { text, done, added, updated_at, updated_by }
+ *                                              (added: { line words: "YYYY-MM-DD" first seen })
  *   { action: "save", who, text }           -> the same, after replacing the words
  *   { action: "tick", who, item, checked }  -> the same, after ticking / unticking one item
  *   { action: "reset", who }                -> the same, with every box unticked (start a new day)
@@ -17,21 +18,39 @@
 import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../../lib/adminAuth.js";
 import { checkStaffCode } from "../../../lib/staff-code.js";
+import { shopDay } from "../../../lib/invoices.js";
 
 const WHO = /^[a-z]{2,20}$/;
 
 // Two lists per person: "todo" (today's checklist) and "know" (important things to know, no boxes).
 const LISTS = ["todo", "know"];
 
+// Each line's words (no "- " / "1." marker), the same key TodoTab uses. Headings have none.
+const lineKey = (l) => l.trim().replace(/^[-*]\s+(\[[ xX]\]\s+)?/, "").replace(/^\d+[.)]\s+/, "").trim();
+const lineKeys = (text) => String(text || "").split(/\r?\n/).filter((l) => l.trim() && !/^\s*#/.test(l)).map(lineKey).filter(Boolean);
+
+// The day (LA) each line first appeared with these exact words; lines from before dates were
+// tracked get the day the list was last saved. A reworded line counts as new that day.
+function datesFor(text, prev, fallback) {
+  const out = {};
+  for (const k of lineKeys(text)) out[k] = prev[k] || fallback;
+  return out;
+}
+
 async function load(who, list) {
   const { data } = await supabaseAdmin.from("app_settings").select("value, updated_at").eq("key", `${list}_${who}`).maybeSingle();
   let v = {};
   try { v = data?.value ? JSON.parse(data.value) : {}; } catch { v = { text: String(data.value || "") }; }
-  return { text: v.text || "", done: Array.isArray(v.done) ? v.done : [], updated_at: data?.updated_at || null, updated_by: v.updated_by || null };
+  const updated_at = data?.updated_at || null;
+  const fallback = updated_at ? shopDay(0, new Date(updated_at)) : shopDay(0);
+  const added = datesFor(v.text, v.added && typeof v.added === "object" ? v.added : {}, fallback);
+  return { text: v.text || "", done: Array.isArray(v.done) ? v.done : [], added, updated_at, updated_by: v.updated_by || null };
 }
 
 async function store(who, list, v, user) {
-  const value = JSON.stringify({ text: v.text, done: v.done, updated_by: user?.name || user?.email || null });
+  const added = datesFor(v.text, v.added || {}, shopDay(0));
+  v = { ...v, added };
+  const value = JSON.stringify({ text: v.text, done: v.done, added, updated_by: user?.name || user?.email || null });
   const updated_at = new Date().toISOString();
   const { error } = await supabaseAdmin.from("app_settings").upsert({ key: `${list}_${who}`, value, updated_at }, { onConflict: "key" });
   if (error) throw new Error(error.message);
@@ -59,16 +78,16 @@ export default async function handler(req, res) {
     if (action === "get") return res.status(200).json(cur);
     if (action === "save") {
       const text = String(req.body.text || "").slice(0, 20000);
-      return res.status(200).json(await store(who, list, { text, done: cur.done }, auth.user));
+      return res.status(200).json(await store(who, list, { text, done: cur.done, added: cur.added }, auth.user));
     }
     if (action === "tick") {
       const item = String(req.body.item || "").slice(0, 500);
       if (!item) return res.status(400).json({ error: "Missing item." });
       const done = new Set(cur.done);
       if (req.body.checked) done.add(item); else done.delete(item);
-      return res.status(200).json(await store(who, list, { text: cur.text, done: [...done] }, auth.user));
+      return res.status(200).json(await store(who, list, { text: cur.text, done: [...done], added: cur.added }, auth.user));
     }
-    if (action === "reset") return res.status(200).json(await store(who, list, { text: cur.text, done: [] }, auth.user));
+    if (action === "reset") return res.status(200).json(await store(who, list, { text: cur.text, done: [], added: cur.added }, auth.user));
     return res.status(400).json({ error: "Unknown action." });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Failed" });
