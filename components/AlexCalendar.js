@@ -102,11 +102,11 @@ function MeetingForm({ people, busy, onSave, defaultCal }) {
     <form onSubmit={(e) => { e.preventDefault(); onSave(m); }} style={{ ...ui.card, marginBottom: 10, display: "grid", gap: 8 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
         {[["business", "Business"], ["personal", "Personal"]].map(([id, lbl]) => (
-          <button type="button" key={id} onClick={() => setM({ ...m, calendar: id })} style={{ ...ui.btn, background: m.calendar === id ? (id === "personal" ? PERSONAL : T.blue) : T.surface, borderColor: m.calendar === id ? "transparent" : T.borderStrong }}>{lbl}</button>
+          <button type="button" key={id} disabled={!!m.with_name && id === "business"} title={m.with_name && id === "business" ? "1-on-1 meetings go on Personal" : undefined} onClick={() => setM({ ...m, calendar: id })} style={{ ...ui.btn, background: m.calendar === id ? (id === "personal" ? PERSONAL : T.blue) : T.surface, borderColor: m.calendar === id ? "transparent" : T.borderStrong }}>{lbl}</button>
         ))}
       </div>
       <input placeholder={m.calendar === "personal" ? "What is it? (e.g. Gym, dinner, doctor)" : "What's it about? (e.g. Weekly check-in)"} value={m.title} onChange={(e) => setM({ ...m, title: e.target.value })} style={inp} required />
-      <select value={m.with_name} onChange={(e) => setM({ ...m, with_name: e.target.value })} style={inp}>
+      <select value={m.with_name} onChange={(e) => setM({ ...m, with_name: e.target.value, calendar: e.target.value ? "personal" : m.calendar })} style={inp}>
         <option value="" style={{ color: "#111" }}>Just me (no one to text)</option>
         {people.map((p) => <option key={p.name} value={p.name} style={{ color: "#111" }}>{p.name}{p.phone ? "" : " (no phone saved)"}</option>)}
       </select>
