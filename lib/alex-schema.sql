@@ -20,6 +20,8 @@ create table if not exists owner_events (
 );
 create index if not exists owner_events_starts on owner_events (starts_at);
 alter table owner_events enable row level security;
+-- business (shop) or personal; customer appointments are always business. Two iPhone calendars: ?cal=business / ?cal=personal.
+alter table owner_events add column if not exists calendar text not null default 'business';
 
 -- alex_code: the owner's 4-digit code (set by hand). alex_lock: wrong-code counter.
 -- alex_ical_key: secret in the iPhone calendar link. alex_people: [{name, phone}] he can schedule with.

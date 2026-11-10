@@ -1,8 +1,8 @@
 /**
  * The owner's calendar (lib/alex-calendar.js). Admin login, or his 4-digit code (/alex).
  *
- * POST { action: "state", from, to }       -> { entries, people, feed }   (ISO instants; default: this week + 5 weeks)
- * POST { action: "addMeeting", title, starts_at, minutes, with_name, place, notes, text } -> state
+ * POST { action: "state", from, to }       -> { entries, people, feeds: { business, personal } }  (each entry has calendar)   (ISO instants; default: this week + 5 weeks)
+ * POST { action: "addMeeting", title, starts_at, minutes, with_name, place, notes, text, calendar } -> state
  *      text: true texts the person from the shop line (the button press is the OK)
  * POST { action: "removeMeeting", id, from, to } -> state   (no text goes out)
  * POST { action: "people", people: [{name, phone}] } -> state
@@ -10,7 +10,7 @@
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../lib/adminAuth.js";
 import { checkStaffCode } from "../../lib/staff-code.js";
-import { entries, people, savePeople, addMeeting, feedUrl } from "../../lib/alex-calendar.js";
+import { entries, people, savePeople, addMeeting, feedUrls } from "../../lib/alex-calendar.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
   const from = b.from && !Number.isNaN(Date.parse(b.from)) ? new Date(b.from) : new Date(Date.now() - 7 * 864e5);
   const to = b.to && !Number.isNaN(Date.parse(b.to)) ? new Date(b.to) : new Date(Date.now() + 35 * 864e5);
-  const state = async (extra = {}) => res.json({ entries: await entries(from, to), people: await people(), feed: await feedUrl(), ...extra });
+  const state = async (extra = {}) => res.json({ entries: await entries(from, to), people: await people(), feeds: await feedUrls(), ...extra });
 
   try {
     if (b.action === "state") return await state();

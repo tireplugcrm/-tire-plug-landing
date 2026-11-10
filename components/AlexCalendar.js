@@ -1,5 +1,6 @@
-// The owner's calendar: his meetings + customer appointments, day by day, a "Schedule a meeting" form
-// that texts the staff member, and the iPhone Calendar link. Used by /alex and the admin "Alex" tab.
+// The owner's calendar: his meetings + customer appointments, day by day, split into Business and
+// Personal (filter at the top; appointments are Business), a "Schedule a meeting" form that texts the
+// staff member, and one iPhone Calendar link per calendar. Used by /alex and the admin "Alex" tab.
 // Data: /api/alex (call() adds the auth).
 import React, { useEffect, useState } from "react";
 import { T, Icon, ui } from "./admin/ui.js";
@@ -20,6 +21,8 @@ export default function AlexCalendar({ call }) {
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState(false);
   const [people, setPeople] = useState(false);
+  const [cal, setCal] = useState(() => { try { return localStorage.getItem("alex_cal") || "all"; } catch { return "all"; } });
+  const pickCal = (c) => { setCal(c); try { localStorage.setItem("alex_cal", c); } catch { /* */ } };
 
   const range = () => { const from = weekStart(week); const to = new Date(from); to.setDate(to.getDate() + 14); return { from: from.toISOString(), to: to.toISOString() }; };
   async function run(body) {
@@ -34,18 +37,24 @@ export default function AlexCalendar({ call }) {
   const from = weekStart(week);
   const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(from); d.setDate(d.getDate() + i); return d.toLocaleDateString("en-CA"); });
   const byDay = {};
-  for (const e of s.entries) (byDay[dayKey(e.at)] = byDay[dayKey(e.at)] || []).push(e);
+  for (const e of s.entries.filter((x) => cal === "all" || x.calendar === cal)) (byDay[dayKey(e.at)] = byDay[dayKey(e.at)] || []).push(e);
   const today = todayKey();
 
   return (
     <div style={{ color: T.text }}>
+      <div role="tablist" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, padding: 4, borderRadius: 999, background: T.hover, border: `1px solid ${T.border}`, marginBottom: 12 }}>
+        {[["business", "Business"], ["personal", "Personal"], ["all", "Both"]].map(([id, lbl]) => (
+          <button key={id} role="tab" aria-selected={cal === id} onClick={() => pickCal(id)} style={{ height: 32, borderRadius: 999, border: 0, background: cal === id ? (id === "personal" ? PERSONAL : id === "business" ? T.blue : "#fff") : "transparent", color: cal === id && id === "all" ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
+        ))}
+      </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
         <button style={ui.primary} onClick={() => { setForm(!form); setMsg(""); }}><Icon name={form ? "close" : "event"} size={18} />{form ? "Close" : "Schedule a meeting"}</button>
-        {s.feed && <a href={s.feed} style={ui.btn}><Icon name="calendar_add_on" size={18} />Add to iPhone Calendar</a>}
+        {s.feeds && cal !== "personal" && <a href={s.feeds.business} style={ui.btn}><Icon name="calendar_add_on" size={18} />iPhone: Business</a>}
+        {s.feeds && cal !== "business" && <a href={s.feeds.personal} style={ui.btn}><Icon name="calendar_add_on" size={18} />iPhone: Personal</a>}
         <button style={ui.btn} onClick={() => setPeople(!people)}><Icon name="contacts" size={18} />People</button>
       </div>
       {msg && <div style={{ ...ui.card, marginBottom: 10, color: T.green, fontSize: 14 }}>{msg}</div>}
-      {form && <MeetingForm people={s.people} busy={busy} onSave={async (m) => {
+      {form && <MeetingForm key={cal} defaultCal={cal === "personal" ? "personal" : "business"} people={s.people} busy={busy} onSave={async (m) => {
         const d = await run({ action: "addMeeting", ...m, starts_at: new Date(m.local).toISOString() });
         if (d) { setForm(false); setMsg(d.added?.texted ? `Saved, and ${m.with_name} got a text.` : d.added?.text_error ? `Saved. Text not sent: ${d.added.text_error}` : "Saved to your calendar."); }
       }} />}
@@ -67,9 +76,9 @@ export default function AlexCalendar({ call }) {
             {list.map((e) => (
               <div key={e.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "7px 0", borderTop: `1px solid ${T.border}` }}>
                 <div style={{ width: 64, flex: "none", fontWeight: 600, fontSize: 13.5 }}>{time(e.at)}</div>
-                <Icon name={e.kind === "appt" ? "tire_repair" : "groups"} size={18} style={{ color: e.kind === "appt" ? T.textMuted : T.blue, marginTop: 1 }} />
+                <Icon name={e.kind === "appt" ? "tire_repair" : e.calendar === "personal" ? "person" : "groups"} size={18} style={{ color: e.kind === "appt" ? T.textMuted : e.calendar === "personal" ? PERSONAL : T.blue, marginTop: 1 }} />
                 <div style={{ flex: 1, minWidth: 0, fontSize: 14 }}>
-                  <div style={{ fontWeight: 600 }}>{e.title}{e.with_name ? <span style={{ color: T.textMuted, fontWeight: 400 }}> · with {e.with_name}</span> : null}</div>
+                  <div style={{ fontWeight: 600 }}>{cal === "all" && e.kind === "meeting" ? <span style={{ ...ui.pill(e.calendar === "personal" ? PERSONAL : T.blue), height: 18, fontSize: 11, marginRight: 6 }}>{e.calendar === "personal" ? "Personal" : "Business"}</span> : null}{e.title}{e.with_name ? <span style={{ color: T.textMuted, fontWeight: 400 }}> · with {e.with_name}</span> : null}</div>
                   <div style={{ color: T.textMuted, fontSize: 12.5 }}>
                     {e.kind === "appt" ? [e.vehicle, "customer appointment"].filter(Boolean).join(" · ") : [`${e.minutes} min`, e.place, e.notes].filter(Boolean).join(" · ")}
                     {e.kind === "meeting" && e.with_name ? (e.texted_at ? " · texted ✓" : e.text_error ? ` · not texted (${e.text_error})` : " · not texted") : ""}
@@ -86,12 +95,17 @@ export default function AlexCalendar({ call }) {
   );
 }
 
-function MeetingForm({ people, busy, onSave }) {
-  const [m, setM] = useState({ title: "", with_name: "", local: nextHalfHour(), minutes: 30, place: "", notes: "", text: true });
+function MeetingForm({ people, busy, onSave, defaultCal }) {
+  const [m, setM] = useState({ calendar: defaultCal, title: "", with_name: "", local: nextHalfHour(), minutes: 30, place: "", notes: "", text: true });
   const person = people.find((p) => p.name === m.with_name);
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSave(m); }} style={{ ...ui.card, marginBottom: 10, display: "grid", gap: 8 }}>
-      <input placeholder="What's it about? (e.g. Weekly check-in)" value={m.title} onChange={(e) => setM({ ...m, title: e.target.value })} style={inp} required />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+        {[["business", "Business"], ["personal", "Personal"]].map(([id, lbl]) => (
+          <button type="button" key={id} onClick={() => setM({ ...m, calendar: id })} style={{ ...ui.btn, background: m.calendar === id ? (id === "personal" ? PERSONAL : T.blue) : T.surface, borderColor: m.calendar === id ? "transparent" : T.borderStrong }}>{lbl}</button>
+        ))}
+      </div>
+      <input placeholder={m.calendar === "personal" ? "What is it? (e.g. Gym, dinner, doctor)" : "What's it about? (e.g. Weekly check-in)"} value={m.title} onChange={(e) => setM({ ...m, title: e.target.value })} style={inp} required />
       <select value={m.with_name} onChange={(e) => setM({ ...m, with_name: e.target.value })} style={inp}>
         <option value="" style={{ color: "#111" }}>Just me (no one to text)</option>
         {people.map((p) => <option key={p.name} value={p.name} style={{ color: "#111" }}>{p.name}{p.phone ? "" : " (no phone saved)"}</option>)}
@@ -135,4 +149,5 @@ function PeopleEditor({ list, busy, onSave }) {
   );
 }
 
+const PERSONAL = "#a78bfa"; // personal entries: violet; business: blue
 const inp = { height: 38, boxSizing: "border-box", padding: "0 10px", borderRadius: 10, border: `1px solid ${T.borderStrong}`, background: "rgba(0,0,0,0.25)", color: T.text, fontSize: 14, fontFamily: "inherit", minWidth: 0, width: "100%", colorScheme: "dark" };
