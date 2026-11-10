@@ -170,6 +170,21 @@ export default async function handler(req, res) {
       const { commissionTick } = await import("./cron/commission.js");
       return res.status(200).json({ ok: true, ...(await commissionTick({ force: ["midday", "eod", "welcome", "recap"].includes(b.slot) ? b.slot : "midday", rep: b.rep || undefined, test: b.test ? "1" : undefined, notext: b.slot === "recap" ? "1" : undefined })) });
     }
+    // Owner-approved (2026-11-09): text Junior his pay-tracker link + code, and the owner the admin link.
+    // { owner_to } = the owner's cell. Code comes from app_settings emilio_code (never in the repo).
+    if (b.action === "junior-pay-links") {
+      const { sendSms } = await import("../../lib/sms.js");
+      const { reps, setting } = await import("../../lib/commission.js");
+      const junior = (await reps()).find((r) => r.name === "Junior");
+      const code = String(await setting("emilio_code")).trim();
+      if (!junior?.text_to || !/^\d{4}$/.test(code) || !b.owner_to) return res.status(400).json({ error: "Missing Junior's phone, the code, or owner_to." });
+      const toJunior = `Hi Junior! It's The Tire Plug. Your pay tracker is ready: https://tireplugla.com/junior\nIt shows your weekend hours, ROs, commission, and what you get paid on the 1st. Your code is ${code}. Save it to your home screen!`;
+      const toOwner = `Junior's pay tracker (admin, you can edit hours/ROs and mark paid): https://tireplugla.com/admin?tab=junior\nHis view: https://tireplugla.com/junior (code ${code})`;
+      const junior_sent = await sendSms({ to: junior.text_to, body: toJunior });
+      const owner_sent = await sendSms({ to: String(b.owner_to), body: toOwner });
+      await log(agent, `junior pay links texted: junior ${junior_sent.ok ? "ok" : junior_sent.error}, owner ${owner_sent.ok ? "ok" : owner_sent.error}`);
+      return res.status(200).json({ junior: junior_sent, owner: owner_sent });
+    }
     if (b.action === "commission-rep-add") {
       const { addRep } = await import("../../lib/commission.js");
       const { toE164 } = await import("../../lib/phone.js");
