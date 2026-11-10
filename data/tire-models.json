@@ -2711,6 +2711,87 @@
         "P Zero All Season RFT"
       ],
       "source": "https://www.pirelli.com/tires/en-us/car/catalog/product/p-zero-all-season/235_45-r18"
+    },
+    "Prinx|HiRace HZ2 A/S": {
+      "category": "Passenger Car / UHP All-Season",
+      "about": "A sporty ultra-high-performance all-season tire with sharp steering response and dependable wet and dry grip.",
+      "features": [
+        "Ultra-high-performance all-season",
+        "Responsive handling",
+        "Wet and dry grip",
+        "Quiet, comfortable ride"
+      ],
+      "img": "/images/tires/prinx-hirace-hz2-a-s.webp",
+      "aliases": [
+        "HiRace HZ2",
+        "HiRACE HZ2 A/S",
+        "HZ2"
+      ],
+      "source": "https://prinxtireusa.com/tire/hirace/"
+    },
+    "Firestone|Destination LE3": {
+      "category": "SUV / Crossover All-Season",
+      "about": "A comfortable all-season tire for SUVs and crossovers, built for a quiet ride and long tread life.",
+      "features": [
+        "All-season traction",
+        "Quiet, comfortable ride",
+        "Long tread life",
+        "Confident wet braking"
+      ],
+      "img": "/images/tires/firestone-destination-le3.webp",
+      "aliases": [
+        "Destination LE 3",
+        "LE3"
+      ],
+      "source": "https://simpletire.com/brands/firestone-tires/destination-le3"
+    },
+    "GT Radial|Savero HT2": {
+      "category": "SUV / Light Truck Highway",
+      "about": "A highway all-season tire for SUVs and light trucks with a smooth, quiet ride and even wear.",
+      "features": [
+        "Highway all-season tread",
+        "Smooth, quiet ride",
+        "Even wear",
+        "All-weather traction"
+      ],
+      "img": "/images/tires/gt-radial-savero-ht2.webp",
+      "aliases": [
+        "Savero H/T2",
+        "Savero HT 2"
+      ],
+      "source": "https://simpletire.com/brands/gt-radial-tires/savero-ht2"
+    },
+    "Evoluxx|Rotator A/T": {
+      "category": "Light Truck / All-Terrain",
+      "about": "A rugged all-terrain light-truck tire with an aggressive tread for dirt, gravel and the highway.",
+      "features": [
+        "Aggressive all-terrain tread",
+        "Light-truck construction",
+        "Stone ejectors",
+        "Off-road and highway traction"
+      ],
+      "img": "/images/tires/evoluxx-rotator-a-t.webp",
+      "aliases": [
+        "Rotator AT",
+        "Rotator A/T LT"
+      ],
+      "source": "https://simpletire.com/brands/evoluxx-tires/rotator-a-t"
+    },
+    "Blackhawk|HST01": {
+      "category": "Trailer (ST)",
+      "about": "A special-trailer (ST) tire built to carry heavy loads on boat, utility and travel trailers.",
+      "features": [
+        "ST trailer rated",
+        "Heavy load capacity",
+        "Steady towing stability",
+        "Long-wearing tread"
+      ],
+      "img": "/images/tires/blackhawk-hst01.webp",
+      "aliases": [
+        "HST01 trailer",
+        "HST-01"
+      ],
+      "source": "https://simpletire.com/brands/blackhawk-tires/hst01"
     }
   }
 }
