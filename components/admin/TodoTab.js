@@ -30,6 +30,8 @@ function DateChip({ day }) {
   if (!day) return null;
   return <span title={`Added ${day}`} style={{ marginLeft: "auto", paddingLeft: 10, color: T.textFaint, fontSize: 12, whiteSpace: "nowrap", flex: "none" }}>{shortDate(day)}</span>;
 }
+const TITLES = { daily: "Every day", weekly: "Every week", monthly: "Every month" };
+const RESETS = { daily: "Boxes clear every morning.", weekly: "Boxes clear every Monday.", monthly: "Boxes clear on the 1st." };
 
 // **bold** only; everything else is plain text (no HTML from the stored words).
 function Rich({ text }) {
@@ -74,7 +76,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-        <h1 style={ui.h1}>{doc.title || (know ? "Good to know" : `${name}'s to-do`)}</h1>
+        <h1 style={ui.h1}>{doc.title || (know ? "Good to know" : TITLES[listName] || `${name}'s to-do`)}</h1>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {!editing && tasks.length > 0 && <span style={ui.pill(doneCount === tasks.length ? T.green : T.amber)}>{doneCount} of {tasks.length} done</span>}
           {canEdit && !editing && doneCount > 0 && <button style={ui.btn} disabled={busy} onClick={() => window.confirm("Untick every box to start a new day?") && run({ action: "reset" })}><Icon name="restart_alt" size={17} />New day</button>}
@@ -115,6 +117,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
           })}
         </div>
       ))}
+      {!editing && RESETS[listName] && <div style={{ ...ui.muted, fontSize: 12 }}>{RESETS[listName]}</div>}
       {!editing && when && <div style={{ ...ui.muted, fontSize: 12, textAlign: "right" }}>Last change {when}{list.updated_by ? ` · ${list.updated_by}` : ""}</div>}
     </div>
   );

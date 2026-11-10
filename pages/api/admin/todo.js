@@ -12,6 +12,7 @@
  *   { action: "save", who, text }           -> the same, after replacing the words
  *   { action: "tick", who, item, checked }  -> the same, after ticking / unticking one item
  *   { action: "reset", who }                -> the same, with every box unticked (start a new day)
+ *   body `list`: "todo" (default) | "know" | "daily" | "weekly" | "monthly" (the last three reset by themselves)
  *
  * Ticks are keyed by the item's words, so editing the list keeps the ticks on unchanged items.
  */
@@ -22,8 +23,21 @@ import { shopDay } from "../../../lib/invoices.js";
 
 const WHO = /^[a-z]{2,20}$/;
 
-// Two lists per person: "todo" (today's checklist) and "know" (important things to know, no boxes).
-const LISTS = ["todo", "know"];
+// Lists per person: "todo" (today's checklist), "know" (important things to know, no boxes), and
+// "daily" / "weekly" / "monthly" duty checklists whose ticks clear on their own when the period turns over
+// (shop time: a new day, a new Mon-Sun week, a new month).
+const LISTS = ["todo", "know", "daily", "weekly", "monthly"];
+function periodOf(list) {
+  const day = shopDay(0);
+  if (list === "daily") return day;
+  if (list === "monthly") return day.slice(0, 7);
+  if (list === "weekly") {
+    const d = new Date(`${day}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); // back to Monday
+    return `w${d.toISOString().slice(0, 10)}`;
+  }
+  return null;
+}
 
 // Each line's words (no "- " / "1." marker), the same key TodoTab uses. Headings have none.
 const lineKey = (l) => l.trim().replace(/^[-*]\s+(\[[ xX]\]\s+)?/, "").replace(/^\d+[.)]\s+/, "").trim();
@@ -44,13 +58,15 @@ async function load(who, list) {
   const updated_at = data?.updated_at || null;
   const fallback = updated_at ? shopDay(0, new Date(updated_at)) : shopDay(0);
   const added = datesFor(v.text, v.added && typeof v.added === "object" ? v.added : {}, fallback);
-  return { text: v.text || "", done: Array.isArray(v.done) ? v.done : [], added, updated_at, updated_by: v.updated_by || null };
+  const period = periodOf(list);
+  const done = Array.isArray(v.done) && (!period || v.period === period) ? v.done : []; // new period: boxes start empty
+  return { text: v.text || "", done, period, added, updated_at, updated_by: v.updated_by || null };
 }
 
 async function store(who, list, v, user) {
   const added = datesFor(v.text, v.added || {}, shopDay(0));
   v = { ...v, added };
-  const value = JSON.stringify({ text: v.text, done: v.done, added, updated_by: user?.name || user?.email || null });
+  const value = JSON.stringify({ text: v.text, done: v.done, added, period: periodOf(list), updated_by: user?.name || user?.email || null });
   const updated_at = new Date().toISOString();
   const { error } = await supabaseAdmin.from("app_settings").upsert({ key: `${list}_${who}`, value, updated_at }, { onConflict: "key" });
   if (error) throw new Error(error.message);
@@ -69,7 +85,8 @@ export default async function handler(req, res) {
     if (req.body?.code == null) return res.status(401).json({ error: "Unauthorized" });
     const c = await checkStaffCode(who, String(req.body.code));
     if (!c.ok) return res.status(401).json({ error: c.error });
-    if (!["get", "tick"].includes(action)) return res.status(403).json({ error: "Only the owner can change the list." });
+    // Staff codes read and tick; the owner's own page (/alex, who = "alex") can also edit.
+    if (who !== "alex" && !["get", "tick"].includes(action)) return res.status(403).json({ error: "Only the owner can change the list." });
     auth = { ok: true, user: { name: who.charAt(0).toUpperCase() + who.slice(1) } };
   }
 
