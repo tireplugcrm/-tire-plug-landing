@@ -6,6 +6,7 @@ import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import TextsTab from "../../components/admin/TextsTab.js";
 import InvoicesTab from "../../components/admin/InvoicesTab.js";
+import EmilioTab from "../../components/admin/EmilioTab.js";
 import PhoneTab, { LeadCalls } from "../../components/admin/PhoneTab.js";
 import ShopFloor from "../../components/admin/ShopFloor.js";
 import { T, Icon } from "../../components/admin/ui.js";
@@ -216,6 +217,7 @@ export default function AdminHub() {
     { id: "pricing", icon: "tire_repair", label: "Inventory and pricing" },
     { id: "businesses", icon: "storefront", label: "Businesses" },
     { id: "reviews", icon: "star", label: "Reviews" },
+    { id: "emilio", icon: "payments", label: "Emilio pay" },
   ];
   const go = (id) => { setTab(id); window.scrollTo(0, 0); };
 
@@ -281,6 +283,7 @@ export default function AdminHub() {
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         {tab === "pricing" && <PricingTab auth={auth} />}
         {tab === "invoices" && <InvoicesTab auth={auth} />}
+        {tab === "emilio" && <EmilioTab auth={auth} />}
         {tab === "phone" && <PhoneTab auth={auth} onOpenLead={setSelectedLeadId} />}
         </main>
       </div>
