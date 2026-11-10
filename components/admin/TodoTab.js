@@ -63,8 +63,13 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
   useEffect(() => { run({ action: "get" }); }, [who, listName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tick = async (item, checked) => {
-    setList((l) => ({ ...l, done: checked ? [...l.done, item] : l.done.filter((x) => x !== item) })); // feels instant
+    setList((l) => ({ ...l, done: checked ? [...l.done, item] : l.done.filter((x) => x !== item), skipped: checked ? (l.skipped || []).filter((x) => x !== item) : l.skipped })); // feels instant
     try { setList(await call({ action: "tick", item, checked })); } catch (e) { setErr(e.message); }
+  };
+  // Scratch = it isn't happening today (counts as handled, shown crossed out in red).
+  const scratch = async (item, skipped) => {
+    setList((l) => ({ ...l, skipped: skipped ? [...(l.skipped || []), item] : (l.skipped || []).filter((x) => x !== item), done: skipped ? l.done.filter((x) => x !== item) : l.done }));
+    try { setList(await call({ action: "skip", item, skipped })); } catch (e) { setErr(e.message); }
   };
 
   if (!list) return <div style={{ maxWidth: 720, margin: "0 auto", ...ui.muted }}>{err || "Loading…"}</div>;
@@ -73,6 +78,8 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
   const tasks = plain ? [] : doc.sections.flatMap((s) => s.rows.filter((r) => r.kind === "task").map((r) => r.text));
   const doneSet = new Set(list.done);
   const doneCount = tasks.filter((t) => doneSet.has(t)).length;
+  const skipSet = new Set(list.skipped || []);
+  const skipCount = tasks.filter((t) => skipSet.has(t) && !doneSet.has(t)).length;
   const when = list.updated_at ? new Date(list.updated_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
 
   return (
@@ -80,8 +87,8 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
         <h1 style={ui.h1}>{doc.title || (listName === "plan" ? "How your bonus works" : know ? "Good to know" : TITLES[listName] || `${name}'s to-do`)}</h1>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {!editing && tasks.length > 0 && <span style={ui.pill(doneCount === tasks.length ? T.green : T.amber)}>{doneCount} of {tasks.length} done</span>}
-          {canEdit && !editing && doneCount > 0 && <button style={ui.btn} disabled={busy} onClick={() => window.confirm("Untick every box to start a new day?") && run({ action: "reset" })}><Icon name="restart_alt" size={17} />New day</button>}
+          {!editing && tasks.length > 0 && <span style={ui.pill(doneCount + skipCount === tasks.length ? T.green : T.amber)}>{doneCount} of {tasks.length} done{skipCount ? ` · ${skipCount} scratched` : ""}</span>}
+          {canEdit && !editing && doneCount + skipCount > 0 && <button style={ui.btn} disabled={busy} onClick={() => window.confirm("Untick every box to start a new day?") && run({ action: "reset" })}><Icon name="restart_alt" size={17} />New day</button>}
           {!canEdit ? null : !editing
             ? <button style={ui.btn} onClick={() => { setDraft(list.text); setEditing(true); }}><Icon name="edit" size={17} />Edit</button>
             : <>
@@ -107,11 +114,16 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
             if (r.kind === "task" && plain) return <div key={ri} style={{ display: "flex", gap: 10, padding: "5px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted }}>•</span><span><Rich text={r.text} /></span>{know && <DateChip day={list.added?.[r.text]} />}</div>;
             if (r.kind === "task") {
               const on = doneSet.has(r.text);
+              const off = !on && skipSet.has(r.text);
               return (
-                <label key={ri} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0", cursor: "pointer", fontSize: 14.5, lineHeight: 1.5, color: on ? T.textFaint : T.text }}>
-                  <input type="checkbox" checked={on} onChange={(e) => tick(r.text, e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: T.green, flex: "none", cursor: "pointer" }} />
-                  <span style={{ textDecoration: on ? "line-through" : "none" }}><Rich text={r.text} /></span>
-                </label>
+                <div key={ri} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <label style={{ flex: 1, display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0", cursor: "pointer", fontSize: 14.5, lineHeight: 1.5, color: on || off ? T.textFaint : T.text }}>
+                    <input type="checkbox" checked={on} onChange={(e) => tick(r.text, e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: T.green, flex: "none", cursor: "pointer" }} />
+                    <span style={{ textDecoration: on || off ? "line-through" : "none", textDecorationColor: off ? T.red : undefined }}><Rich text={r.text} />{off && <span style={{ ...ui.pill(T.red), marginLeft: 6, textDecoration: "none", display: "inline-flex" }}>scratched</span>}</span>
+                  </label>
+                  {!on && <button onClick={() => scratch(r.text, !off)} title={off ? "Bring it back" : "Scratch it (not happening today)"} aria-label={off ? "Unscratch" : "Scratch"}
+                    style={{ ...ui.btn, height: 28, padding: "0 8px", marginTop: 3, fontSize: 12, color: off ? T.text : T.textMuted }}>{off ? "Undo" : <Icon name="close" size={15} />}</button>}
+                </div>
               );
             }
             if (r.kind === "num") return <div key={ri} style={{ display: "flex", gap: 10, padding: "4px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted, minWidth: 18, textAlign: "right" }}>{r.n}.</span><span><Rich text={r.text} /></span>{know && <DateChip day={list.added?.[r.text]} />}</div>;

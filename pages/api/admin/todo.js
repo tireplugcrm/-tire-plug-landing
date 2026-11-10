@@ -7,7 +7,8 @@
  * admin sees the same boxes checked.
  *
  * POST actions:
- *   { action: "get",  who }                 -> { text, done, added, updated_at, updated_by }
+ *   { action: "get",  who }                 -> { text, done, skipped, added, updated_at, updated_by }
+ *   { action: "skip", who, item, skipped }  -> the same, after scratching / unscratching one item (won't happen today)
  *                                              (added: { line words: "YYYY-MM-DD" first seen })
  *   { action: "save", who, text }           -> the same, after replacing the words
  *   { action: "tick", who, item, checked }  -> the same, after ticking / unticking one item
@@ -61,13 +62,14 @@ async function load(who, list) {
   const added = datesFor(v.text, v.added && typeof v.added === "object" ? v.added : {}, fallback);
   const period = periodOf(list);
   const done = Array.isArray(v.done) && (!period || v.period === period) ? v.done : []; // new period: boxes start empty
-  return { text: v.text || "", done, period, added, updated_at, updated_by: v.updated_by || null };
+  const skipped = Array.isArray(v.skipped) && (!period || v.period === period) ? v.skipped : [];
+  return { text: v.text || "", done, skipped, period, added, updated_at, updated_by: v.updated_by || null };
 }
 
 async function store(who, list, v, user) {
   const added = datesFor(v.text, v.added || {}, shopDay(0));
   v = { ...v, added };
-  const value = JSON.stringify({ text: v.text, done: v.done, added, period: periodOf(list), updated_by: user?.name || user?.email || null });
+  const value = JSON.stringify({ text: v.text, done: v.done, skipped: v.skipped || [], added, period: periodOf(list), updated_by: user?.name || user?.email || null });
   const updated_at = new Date().toISOString();
   const { error } = await supabaseAdmin.from("app_settings").upsert({ key: `${list}_${who}`, value, updated_at }, { onConflict: "key" });
   if (error) throw new Error(error.message);
@@ -87,7 +89,7 @@ export default async function handler(req, res) {
     const c = await checkStaffCode(who, String(req.body.code));
     if (!c.ok) return res.status(401).json({ error: c.error });
     // Staff codes read and tick; the owner's own page (/alex, who = "alex") can also edit.
-    if (who !== "alex" && !["get", "tick"].includes(action)) return res.status(403).json({ error: "Only the owner can change the list." });
+    if (who !== "alex" && !["get", "tick", "skip"].includes(action)) return res.status(403).json({ error: "Only the owner can change the list." });
     auth = { ok: true, viaCode: true, user: { name: who.charAt(0).toUpperCase() + who.slice(1) } };
   }
 
@@ -96,17 +98,27 @@ export default async function handler(req, res) {
     if (action === "get") return res.status(200).json(cur);
     if (action === "save") {
       const text = String(req.body.text || "").slice(0, 20000);
-      return res.status(200).json(await store(who, list, { text, done: cur.done, added: cur.added }, auth.user));
+      return res.status(200).json(await store(who, list, { text, done: cur.done, skipped: cur.skipped, added: cur.added }, auth.user));
     }
     if (action === "tick") {
       const item = String(req.body.item || "").slice(0, 500);
       if (!item) return res.status(400).json({ error: "Missing item." });
       const done = new Set(cur.done);
       if (req.body.checked) done.add(item); else done.delete(item);
+      const skipped = cur.skipped.filter((x) => !(req.body.checked && x === item)); // checking it un-scratches it
       if (auth.viaCode) await logActivity(who, req.body.checked ? "tick" : "untick", item);
-      return res.status(200).json(await store(who, list, { text: cur.text, done: [...done], added: cur.added }, auth.user));
+      return res.status(200).json(await store(who, list, { text: cur.text, done: [...done], skipped, added: cur.added }, auth.user));
     }
-    if (action === "reset") return res.status(200).json(await store(who, list, { text: cur.text, done: [], added: cur.added }, auth.user));
+    if (action === "skip") {
+      const item = String(req.body.item || "").slice(0, 500);
+      if (!item) return res.status(400).json({ error: "Missing item." });
+      const skipped = new Set(cur.skipped);
+      if (req.body.skipped) skipped.add(item); else skipped.delete(item);
+      const done = cur.done.filter((x) => !(req.body.skipped && x === item)); // scratching it un-checks it
+      if (auth.viaCode) await logActivity(who, req.body.skipped ? "skip" : "unskip", item);
+      return res.status(200).json(await store(who, list, { text: cur.text, done, skipped: [...skipped], added: cur.added }, auth.user));
+    }
+    if (action === "reset") return res.status(200).json(await store(who, list, { text: cur.text, done: [], skipped: [], added: cur.added }, auth.user));
     return res.status(400).json({ error: "Unknown action." });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Failed" });

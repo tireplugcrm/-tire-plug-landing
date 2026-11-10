@@ -20,10 +20,13 @@ function say(e) {
   if (e.event === "tab") return `Looked at ${TAB[e.detail] || e.detail}`;
   if (e.event === "tick") return `Checked off: ${e.detail}`;
   if (e.event === "untick") return `Unchecked: ${e.detail}`;
+  if (e.event === "skip") return `Scratched: ${e.detail}`;
+  if (e.event === "unskip") return `Un-scratched: ${e.detail}`;
+  if (e.event === "reminder") return `Reminder text sent (${e.detail})`;
   if (e.event === "add_account") return `Added a business: ${e.detail}`;
   return e.event;
 }
-const ICON = { open: "login", tab: "tab", tick: "check_circle", untick: "radio_button_unchecked", add_account: "add_business" };
+const ICON = { open: "login", tab: "tab", tick: "check_circle", untick: "radio_button_unchecked", skip: "cancel", unskip: "undo", reminder: "sms", add_account: "add_business" };
 
 export default function BelenActivity({ auth }) {
   const [events, setEvents] = useState(null);
@@ -57,6 +60,8 @@ export default function BelenActivity({ auth }) {
   });
   const tasks = todo ? todo.text.split(/\r?\n/).filter((l) => /^\s*[-*]\s/.test(l)).length : 0;
   const done = todo ? todo.done.length : 0;
+  const scratched = todo ? (todo.skipped || []).length : 0;
+  const reminders = todayEv.filter((e) => e.event === "reminder").length;
   const seenToday = lastSeen && dayOf(lastSeen) === today;
 
   return (
@@ -72,7 +77,8 @@ export default function BelenActivity({ auth }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginTop: 10 }}>
         <Stat k="Last on her page" v={when(lastSeen)} warn={!seenToday} />
         <Stat k="Opened today" v={`${todayEv.filter((e) => e.event === "open").length} time${todayEv.filter((e) => e.event === "open").length === 1 ? "" : "s"}`} />
-        <Stat k="To-do checked off" v={tasks ? `${done} of ${tasks}` : "—"} warn={tasks > 0 && done < tasks} />
+        <Stat k="To-do checked off" v={tasks ? `${done} of ${tasks}${scratched ? ` · ${scratched} scratched` : ""}` : "—"} warn={tasks > 0 && done + scratched < tasks} />
+        <Stat k="Reminders texted today" v={String(reminders)} />
         <Stat k="Businesses added (14 days)" v={String(events.filter((e) => e.event === "add_account").length)} />
       </div>
 
