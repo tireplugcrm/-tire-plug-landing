@@ -13,7 +13,9 @@ const todayKey = () => dayKey(new Date().toISOString());
 function weekStart(offset) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + offset * 7); return d; }
 function nextHalfHour() { const d = new Date(Date.now() + 60 * 60000); d.setMinutes(d.getMinutes() < 30 ? 30 : 60, 0, 0); const p = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 
-export default function AlexCalendar({ call }) {
+// showAppts: whether customer tire appointments are listed (the admin shows them; /alex hides them,
+// the owner's call 2026-11-10: his own page is for his meetings and personal life).
+export default function AlexCalendar({ call, showAppts = true }) {
   const [week, setWeek] = useState(0);
   const [s, setS] = useState(null);
   const [err, setErr] = useState("");
@@ -37,7 +39,7 @@ export default function AlexCalendar({ call }) {
   const from = weekStart(week);
   const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(from); d.setDate(d.getDate() + i); return d.toLocaleDateString("en-CA"); });
   const byDay = {};
-  for (const e of s.entries.filter((x) => cal === "all" || x.calendar === cal)) (byDay[dayKey(e.at)] = byDay[dayKey(e.at)] || []).push(e);
+  for (const e of s.entries.filter((x) => (showAppts || x.kind !== "appt") && (cal === "all" || x.calendar === cal))) (byDay[dayKey(e.at)] = byDay[dayKey(e.at)] || []).push(e);
   const today = todayKey();
 
   return (

@@ -106,7 +106,7 @@ export default function Alex() {
               <button key={id} role="tab" aria-selected={view === id} onClick={() => setView(id)} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
             ))}
           </div>
-          {view === "calendar" ? <AlexCalendar call={call} /> : <TodoTab key={view} who="alex" name="Alex" call={todoCall} list={view} />}
+          {view === "calendar" ? <AlexCalendar call={call} showAppts={false} /> : <TodoTab key={view} who="alex" name="Alex" call={todoCall} list={view} />}
         </div>
       )}
     </main>
