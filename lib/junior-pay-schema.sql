@@ -1,7 +1,8 @@
--- Emilio's Pay Tracker (/emilio, 4-digit code; editable from the admin "Emilio pay" tab).
--- Emilio works every Saturday and Sunday. Pay = hours x hourly rate + commission (5% of LABOR on his ROs,
+-- Junior's Pay Tracker (/junior, 4-digit code; editable from the admin "Junior pay" tab).
+-- Junior is Emilio (owner, 2026-11-09). His ROs come from his existing commission tracker (/commission, rep = 'Junior'); setting keys stay emilio_*.
+-- Junior works every Saturday and Sunday. Pay = hours x hourly rate + commission (5% of LABOR on his ROs,
 -- app_settings commission_rate, same as Lexi). Paid once a month, on the 1st, for the month before.
--- His ROs live in commission_reports with rep = 'Emilio' (status 'matched', labor_total, commission).
+-- His ROs live in commission_reports with rep = 'Junior' (status 'matched', labor_total, commission).
 
 create table if not exists rep_shifts (
   rep text not null,

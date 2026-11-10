@@ -1,6 +1,6 @@
-// Emilio's Pay Tracker view: month calendar of his Saturday/Sunday shifts, each day's ROs and
-// commission, earned so far, and what's due on the 1st. Used by /emilio (4-digit code, read only)
-// and the admin "Emilio pay" tab (canEdit: hours, ROs, mark paid). Data: /api/emilio.
+// Junior's Pay Tracker view: month calendar of his Saturday/Sunday shifts, each day's ROs and
+// commission, earned so far, and what's due on the 1st. Used by /junior (4-digit code, read only)
+// and the admin "Junior pay" tab (canEdit: hours, ROs, mark paid). Data: /api/junior.
 import React, { useEffect, useState } from "react";
 import { T, Icon, ui } from "./admin/ui.js";
 
@@ -11,7 +11,7 @@ const dayName = (d, opt = { weekday: "long", month: "short", day: "numeric" }) =
 const shiftMonth = (m, n) => { const d = new Date(`${m}-01T12:00:00Z`); d.setUTCMonth(d.getUTCMonth() + n); return d.toISOString().slice(0, 7); };
 const hrs = (h) => `${Number(h).toLocaleString("en-US", { maximumFractionDigits: 2 })}h`;
 
-export default function EmilioPay({ call, canEdit = false, initialMonth }) {
+export default function JuniorPay({ call, canEdit = false, initialMonth }) {
   const [month, setMonth] = useState(initialMonth || "");
   const [s, setS] = useState(null);
   const [sel, setSel] = useState(null);

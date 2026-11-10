@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import EmilioPay from "../components/EmilioPay.js";
+import JuniorPay from "../components/JuniorPay.js";
 
-/* Emilio's Pay Tracker. iPhone-style 4-digit passcode, then his month: weekend shifts, ROs,
+/* Junior's Pay Tracker. iPhone-style 4-digit passcode, then his month: weekend shifts, ROs,
    commission, and what's due on the 1st. Read only here; the owner edits from the admin.
    ?demo=1 shows made-up numbers (no code, no database). */
 
@@ -10,13 +10,13 @@ const KEYS = [["1", ""], ["2", "ABC"], ["3", "DEF"], ["4", "GHI"], ["5", "JKL"],
 const SS = "emilio_code";
 
 async function post(body) {
-  const res = await fetch("/api/emilio", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const res = await fetch("/api/junior", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) { const e = new Error(j.error || "Something went wrong."); e.status = res.status; throw e; }
   return j;
 }
 
-export default function Emilio() {
+export default function Junior() {
   const [code, setCode] = useState("");
   const [ok, setOk] = useState(false);
   const [demo, setDemo] = useState(""); // "", "1", or "edit" (shows the owner's controls; nothing saves)
@@ -61,7 +61,7 @@ export default function Emilio() {
   return (
     <main style={{ minHeight: "100vh", background: "radial-gradient(120% 80% at 50% 0%, #1f2937 0%, #0b0f15 70%)", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", padding: "28px 16px 40px", boxSizing: "border-box" }}>
       <Head>
-        <title>Emilio&apos;s Pay</title>
+        <title>Junior&apos;s Pay</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="robots" content="noindex" />
         <meta name="theme-color" content="#0b0f15" />
@@ -95,11 +95,11 @@ export default function Emilio() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <div>
               <div style={{ fontSize: 12.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,.55)" }}>The Tire Plug{demo ? " · demo numbers" : ""}</div>
-              <h1 style={{ margin: "2px 0 0", fontSize: 26, fontWeight: 800 }}>Emilio&apos;s Pay</h1>
+              <h1 style={{ margin: "2px 0 0", fontSize: 26, fontWeight: 800 }}>Junior&apos;s Pay</h1>
             </div>
             {!demo && <button onClick={() => { try { sessionStorage.removeItem(SS); } catch { /* */ } setOk(false); setCode(""); }} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.2)", color: "#fff", borderRadius: 999, height: 34, padding: "0 14px", fontFamily: "inherit", cursor: "pointer" }}>Lock</button>}
           </div>
-          <EmilioPay call={call} canEdit={demo === "edit"} />
+          <JuniorPay call={call} canEdit={demo === "edit"} />
         </div>
       )}
     </main>

@@ -1,7 +1,7 @@
 /**
- * Emilio's Pay Tracker (lib/emilio.js). Two ways in:
- *   - the 4-digit code (Emilio and the owner, /emilio): read only
- *   - admin login (the admin "Emilio pay" tab): read + edit
+ * Junior's Pay Tracker (lib/junior-pay.js). Two ways in:
+ *   - the 4-digit code (Junior and the owner, /junior): read only
+ *   - admin login (the admin "Junior pay" tab): read + edit
  *
  * POST { code | admin auth, action: "state", month: "YYYY-MM" }              -> month
  * POST { admin, action: "shift", day, hours, note }                         -> month   (hours 0 = off)
@@ -12,7 +12,7 @@
  */
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../lib/adminAuth.js";
-import { REP, checkCode, demoState, monthState } from "../../lib/emilio.js";
+import { REP, checkCode, demoState, monthState } from "../../lib/junior-pay.js";
 import { rate } from "../../lib/commission.js";
 
 const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
