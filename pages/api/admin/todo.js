@@ -2,7 +2,7 @@
  * Staff to-do lists: the admin "Belen's to-do" tab (admin login: read, tick, edit) and the
  * phone page /belen (her 4-digit code, lib/staff-code.js: read and tick only).
  *
- * The list's words live in Supabase (app_settings key `todo_<who>`), not in this public repo,
+ * The list's words live in Supabase (app_settings key `todo_<who>` / `know_<who>`, body `list`), not in this public repo,
  * so vendor names and shop notes stay private. Ticks are shared: everyone signed in to the
  * admin sees the same boxes checked.
  *
@@ -20,17 +20,20 @@ import { checkStaffCode } from "../../../lib/staff-code.js";
 
 const WHO = /^[a-z]{2,20}$/;
 
-async function load(who) {
-  const { data } = await supabaseAdmin.from("app_settings").select("value, updated_at").eq("key", `todo_${who}`).maybeSingle();
+// Two lists per person: "todo" (today's checklist) and "know" (important things to know, no boxes).
+const LISTS = ["todo", "know"];
+
+async function load(who, list) {
+  const { data } = await supabaseAdmin.from("app_settings").select("value, updated_at").eq("key", `${list}_${who}`).maybeSingle();
   let v = {};
   try { v = data?.value ? JSON.parse(data.value) : {}; } catch { v = { text: String(data.value || "") }; }
   return { text: v.text || "", done: Array.isArray(v.done) ? v.done : [], updated_at: data?.updated_at || null, updated_by: v.updated_by || null };
 }
 
-async function store(who, v, user) {
+async function store(who, list, v, user) {
   const value = JSON.stringify({ text: v.text, done: v.done, updated_by: user?.name || user?.email || null });
   const updated_at = new Date().toISOString();
-  const { error } = await supabaseAdmin.from("app_settings").upsert({ key: `todo_${who}`, value, updated_at }, { onConflict: "key" });
+  const { error } = await supabaseAdmin.from("app_settings").upsert({ key: `${list}_${who}`, value, updated_at }, { onConflict: "key" });
   if (error) throw new Error(error.message);
   return { ...v, updated_at, updated_by: user?.name || user?.email || null };
 }
@@ -38,8 +41,8 @@ async function store(who, v, user) {
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (!supabaseAdmin) return res.status(500).json({ error: "Supabase not configured." });
-  const { action, who = "belen" } = req.body || {};
-  if (!WHO.test(who)) return res.status(400).json({ error: "Bad list name." });
+  const { action, who = "belen", list = "todo" } = req.body || {};
+  if (!WHO.test(who) || !LISTS.includes(list)) return res.status(400).json({ error: "Bad list name." });
 
   // Admin login, or the person's own 4-digit code (that one can only read and tick).
   let auth = (req.body?.password || req.body?.accessToken || req.headers.authorization) ? await requireAdmin(req) : { ok: false };
@@ -52,20 +55,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const cur = await load(who);
+    const cur = await load(who, list);
     if (action === "get") return res.status(200).json(cur);
     if (action === "save") {
       const text = String(req.body.text || "").slice(0, 20000);
-      return res.status(200).json(await store(who, { text, done: cur.done }, auth.user));
+      return res.status(200).json(await store(who, list, { text, done: cur.done }, auth.user));
     }
     if (action === "tick") {
       const item = String(req.body.item || "").slice(0, 500);
       if (!item) return res.status(400).json({ error: "Missing item." });
       const done = new Set(cur.done);
       if (req.body.checked) done.add(item); else done.delete(item);
-      return res.status(200).json(await store(who, { text: cur.text, done: [...done] }, auth.user));
+      return res.status(200).json(await store(who, list, { text: cur.text, done: [...done] }, auth.user));
     }
-    if (action === "reset") return res.status(200).json(await store(who, { text: cur.text, done: [] }, auth.user));
+    if (action === "reset") return res.status(200).json(await store(who, list, { text: cur.text, done: [] }, auth.user));
     return res.status(400).json({ error: "Unknown action." });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Failed" });

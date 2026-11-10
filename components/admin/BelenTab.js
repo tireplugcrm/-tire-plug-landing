@@ -1,4 +1,4 @@
-// Admin "Belen" tab: her to-do list (edit it here, she ticks it on /belen) and her field-rep
+// Admin "Belen" tab: her to-do list (edit it here, she ticks it on /belen), her "Good to know" list, and her field-rep
 // tracker (log profit per paid job, edit accounts, mark the bonus paid). Same data as /belen.
 import React, { useState } from "react";
 import BelenBonus from "../BelenBonus.js";
@@ -20,10 +20,10 @@ export default function BelenTab({ auth }) {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-        <div role="tablist" style={{ display: "flex", gap: 6 }}>{seg("todo", "To-do")}{seg("bonus", "Accounts & bonus")}</div>
+        <div role="tablist" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{seg("todo", "To-do")}{seg("know", "Good to know")}{seg("bonus", "Accounts & bonus")}</div>
         <a href="/belen" target="_blank" rel="noopener noreferrer" style={ui.btn}>Belen&apos;s page (code)</a>
       </div>
-      {view === "todo" ? <TodoTab auth={auth} who="belen" name="Belen" /> : (
+      {view === "todo" ? <TodoTab key="todo" auth={auth} who="belen" name="Belen" /> : view === "know" ? <TodoTab key="know" auth={auth} who="belen" name="Belen" list="know" /> : (
         <>
           <h1 style={{ ...ui.h1, marginBottom: 10 }}>Belen · field rep</h1>
           <BelenBonus call={call} canEdit />

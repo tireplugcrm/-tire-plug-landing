@@ -32,22 +32,24 @@ function Rich({ text }) {
 
 // `call` (optional) replaces the admin fetch, e.g. the /belen page posting her code instead;
 // `canEdit` false hides Edit and New day.
-export default function TodoTab({ auth, who = "belen", name = "Belen", call: callProp, canEdit = true }) {
+// `list` "know" = the "Good to know" list: same editor, but "- " lines are plain bullets (no boxes).
+export default function TodoTab({ auth, who = "belen", name = "Belen", call: callProp, canEdit = true, list: listName = "todo" }) {
+  const know = listName === "know";
   const [list, setList] = useState(null);
   const [err, setErr] = useState("");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const call = callProp || async function adminCall(body) {
-    const res = await fetch("/api/admin/todo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, who, ...body }) });
+  const call = callProp ? (body) => callProp({ list: listName, ...body }) : async function adminCall(body) {
+    const res = await fetch("/api/admin/todo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...auth, who, list: listName, ...body }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.error || "Request failed");
     return j;
   };
   const run = async (body) => { setBusy(true); setErr(""); try { setList(await call(body)); return true; } catch (e) { setErr(e.message); return false; } finally { setBusy(false); } };
 
-  useEffect(() => { run({ action: "get" }); }, [who]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { run({ action: "get" }); }, [who, listName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tick = async (item, checked) => {
     setList((l) => ({ ...l, done: checked ? [...l.done, item] : l.done.filter((x) => x !== item) })); // feels instant
@@ -57,7 +59,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
   if (!list) return <div style={{ maxWidth: 720, margin: "0 auto", ...ui.muted }}>{err || "Loading…"}</div>;
 
   const doc = parse(list.text);
-  const tasks = doc.sections.flatMap((s) => s.rows.filter((r) => r.kind === "task").map((r) => r.text));
+  const tasks = know ? [] : doc.sections.flatMap((s) => s.rows.filter((r) => r.kind === "task").map((r) => r.text));
   const doneSet = new Set(list.done);
   const doneCount = tasks.filter((t) => doneSet.has(t)).length;
   const when = list.updated_at ? new Date(list.updated_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
@@ -65,7 +67,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-        <h1 style={ui.h1}>{doc.title || `${name}'s to-do`}</h1>
+        <h1 style={ui.h1}>{doc.title || (know ? "Good to know" : `${name}'s to-do`)}</h1>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {!editing && tasks.length > 0 && <span style={ui.pill(doneCount === tasks.length ? T.green : T.amber)}>{doneCount} of {tasks.length} done</span>}
           {canEdit && !editing && doneCount > 0 && <button style={ui.btn} disabled={busy} onClick={() => window.confirm("Untick every box to start a new day?") && run({ action: "reset" })}><Icon name="restart_alt" size={17} />New day</button>}
@@ -81,7 +83,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
 
       {editing ? (
         <div style={ui.card}>
-          <div style={{ ...ui.muted, marginBottom: 8 }}><code># Title</code> · <code>## Section</code> · <code>- task</code> (gets a checkbox) · <code>1. point</code> · <code>**bold**</code> · any other line is a note.</div>
+          <div style={{ ...ui.muted, marginBottom: 8 }}><code># Title</code> · <code>## Section</code> · <code>- {know ? "point" : "task"}</code>{know ? "" : " (gets a checkbox)"} · <code>1. point</code> · <code>**bold**</code> · any other line is a note.</div>
           <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={28}
             style={{ ...ui.input, height: "auto", padding: "0.6rem 0.75rem", fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: 13, lineHeight: 1.55, resize: "vertical" }} />
         </div>
@@ -91,6 +93,7 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
         <div key={si} style={{ ...ui.card, marginBottom: 10 }}>
           {s.heading && <div style={{ color: T.text, fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}><Rich text={s.heading} /></div>}
           {s.rows.map((r, ri) => {
+            if (r.kind === "task" && know) return <div key={ri} style={{ display: "flex", gap: 10, padding: "5px 0", fontSize: 14.5, lineHeight: 1.5, color: T.text }}><span style={{ color: T.textMuted }}>•</span><span><Rich text={r.text} /></span></div>;
             if (r.kind === "task") {
               const on = doneSet.has(r.text);
               return (
