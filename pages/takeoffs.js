@@ -27,6 +27,10 @@ export default function Takeoffs() {
   const [by, setBy] = useState("");
   const [qty, setQty] = useState(4);
   const [tread, setTread] = useState("");
+  const [basis, setBasis] = useState("each");
+  const [cost, setCost] = useState("");
+  const [retail, setRetail] = useState("");
+  const [discount, setDiscount] = useState("");
   const [picked, setPicked] = useState([]); // { file, preview }
   const [busy, setBusy] = useState("");
   const [done, setDone] = useState([]);
@@ -55,6 +59,7 @@ export default function Takeoffs() {
 
   async function save() {
     setErr("");
+    if (Number(discount) > 0 && !(Number(discount) < Number(retail))) { setErr("The discounted price has to be lower than retail."); window.scrollTo(0, 0); return; }
     try { localStorage.setItem("tp_invoice_name", by); } catch (e) {}
     try {
       const photos = [];
@@ -71,10 +76,10 @@ export default function Takeoffs() {
         photos.push({ p: s.full.path, t: s.thumb.path });
       }
       setBusy("Reading the size and DOT…");
-      const r = await call({ action: "save", batch: batch.current, qty, tread, photos, by });
+      const r = await call({ action: "save", batch: batch.current, qty, tread, basis: qty > 1 ? basis : "each", cost, retail, discount, photos, by });
       setDone((d) => [{ ...r, qty }, ...d]);
       batch.current = newBatch();
-      setPicked([]); setTread("");
+      setPicked([]); setTread(""); setCost(""); setRetail(""); setDiscount("");
       window.scrollTo(0, 0);
       call({ action: "state" }).then(setState).catch(() => {});
     } catch (e) { setErr(e.message || "Upload failed. Try again."); }
@@ -91,7 +96,7 @@ export default function Takeoffs() {
       </Head>
       <header style={{ background: "#1e2833", color: "#fff", padding: "14px 16px" }}>
         <div style={{ fontWeight: 700, fontSize: 17 }}>Upload used tires</div>
-        <div style={{ fontSize: 12.5, opacity: 0.7 }}>{state ? `${state.total} uploaded · ${state.drafts} waiting for a price` : "The Tire Plug · Olympic"}</div>
+        <div style={{ fontSize: 12.5, opacity: 0.7 }}>{state ? `${state.total} uploaded · ${state.drafts} not on the website yet` : "The Tire Plug · Olympic"}</div>
       </header>
       <main style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
         {err && <div style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: 14 }}>{err}</div>}
@@ -118,6 +123,24 @@ export default function Takeoffs() {
 
           <label style={label}>Tread depth in 32nds (lowest tire, if you measured)</label>
           <input value={tread} onChange={(e) => setTread(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" placeholder="e.g. 7" style={input} />
+
+          <div style={{ borderTop: "1px solid #e5e7eb", margin: "2px 0 14px" }} />
+          {qty > 1 && <>
+            <label style={label}>These prices are</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 14 }}>
+              {[["each", "Per tire"], ["group", qty === 4 ? "Full set" : `All ${qty} tires`]].map(([id, name]) => (
+                <button key={id} onClick={() => setBasis(id)} style={{ height: 46, borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", border: `1.5px solid ${basis === id ? RED : "#d1d5db"}`, background: basis === id ? "#fef2f2" : "#fff", color: basis === id ? RED : "#1f2937" }}>{name}</button>
+              ))}
+            </div>
+          </>}
+          {[["Your cost", cost, setCost, "Only you see this"], ["Retail price", retail, setRetail, "Shown on the website"], ["Discounted price after 21 days on the shelf", discount, setDiscount, "Drops by itself on day 21"]].map(([name, v, set, hint]) => (
+            <div key={name}>
+              <label style={label}>{name}</label>
+              <input value={v} onChange={(e) => set(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" placeholder={`$ · ${hint}`} style={{ ...input, marginBottom: qty > 1 && basis === "group" && Number(v) > 0 ? 2 : 14 }} />
+              {qty > 1 && basis === "group" && Number(v) > 0 && <div style={{ fontSize: 12.5, color: "#6b7280", marginBottom: 12 }}>= ${(Number(v) / qty).toFixed(2)} per tire</div>}
+            </div>
+          ))}
+          <div style={{ borderTop: "1px solid #e5e7eb", margin: "2px 0 14px" }} />
 
           <label style={label}>Photos of this group only: tread, DOT, size, brand</label>
           {picked.length > 0 && (

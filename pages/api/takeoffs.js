@@ -4,7 +4,8 @@
  *
  * POST { k, action: "state" }                      -> { total, drafts }
  * POST { k, action: "sign", batch, n }             -> { full: { path, token }, thumb: { path, token } }
- * POST { k, action: "save", batch, qty, tread, photos: [{ p, t }], by } -> { ok, tag, size, brand, model, dot_year, error }
+ * POST { k, action: "save", batch, qty, tread, basis, cost, retail, discount, photos: [{ p, t }], by } -> { ok, tag, size, brand, model, dot_year, error }
+ *   basis "group" means the prices are for the whole group; they are stored per tire.
  *   Saves the group as a draft, then has the AI read it (can take ~30 s).
  */
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
@@ -47,11 +48,14 @@ export default async function handler(req, res) {
     const photos = (Array.isArray(req.body.photos) ? req.body.photos : []).filter((x) => inBatch(x?.p) && inBatch(x?.t)).map((x) => ({ p: x.p, t: x.t }));
     if (!photos.length) return res.status(400).json({ error: "Add the photos first." });
     const tread = Number(req.body.tread);
+    const each = (v) => { const n = Number(v); return n > 0 ? Math.round((n / (req.body.basis === "group" ? qty : 1)) * 10000) / 10000 : null; };
+    const [cost_each, price_each, discount_each] = [each(req.body.cost), each(req.body.retail), each(req.body.discount)];
+    if (discount_each && (!price_each || discount_each >= price_each)) return res.status(400).json({ error: "The discounted price has to be lower than retail." });
 
     const { data: same } = await supabaseAdmin.from("used_tires").select("*").eq("batch", batch).maybeSingle();
     if (same) return res.json({ ok: true, tag: same.tag, size: same.size, brand: same.brand, model: same.model, dot_year: same.dot_year });
     const { data: row, error } = await supabaseAdmin.from("used_tires").insert({
-      batch, qty, qty_start: qty, photos, tread_32: tread > 0 && tread <= 32 ? tread : null,
+      batch, qty, qty_start: qty, photos, tread_32: tread > 0 && tread <= 32 ? tread : null, cost_each, price_each, discount_each,
       uploaded_by: String(req.body.by || "").trim().slice(0, 60) || null,
     }).select("*").single();
     if (error) return res.status(500).json({ error: error.message });

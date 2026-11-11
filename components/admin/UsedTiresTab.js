@@ -3,12 +3,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { T, ui } from "./ui.js";
 
-const FILTERS = [["draft", "Needs price"], ["live", "On website"], ["sold", "Sold"], ["hidden", "Hidden"]];
+const FILTERS = [["draft", "Not on website"], ["live", "On website"], ["sold", "Sold"], ["hidden", "Hidden"]];
 const COLOR = { draft: T.amber, live: T.green, sold: T.textMuted, hidden: T.textMuted };
-const LABEL = { draft: "Needs price", live: "On website", sold: "Sold", hidden: "Hidden" };
+const LABEL = { draft: "Not on website", live: "On website", sold: "Sold", hidden: "Hidden" };
 const norm = (s) => String(s || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
 const GROUP = { 0: "None left", 1: "Single", 2: "Double", 3: "3 tires", 4: "Full set" };
-const FIELDS = [["size", "Size"], ["brand", "Brand"], ["model", "Model"], ["load_speed", "Load / speed"], ["dot_week", "DOT week"], ["dot_year", "DOT year"], ["tread_32", "Tread (32nds)"], ["price_each", "Price each $"]];
+const FIELDS = [["size", "Size"], ["brand", "Brand"], ["model", "Model"], ["load_speed", "Load / speed"], ["dot_week", "DOT week"], ["dot_year", "DOT year"], ["tread_32", "Tread (32nds)"], ["cost_each", "Cost each $"], ["price_each", "Retail each $"], ["discount_each", "After 21 days $"]];
+const DAY = 864e5;
+const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function discountNote(t) {
+  if (!(Number(t.discount_each) > 0)) return "";
+  const start = new Date(new Date(t.created_at).getTime() + 21 * DAY);
+  return `${start <= new Date() ? "Discounted since" : "Drops to"} ${start <= new Date() ? fmt(start) : `$${Number(t.discount_each).toFixed(2)} on ${fmt(start)}`}`;
+}
 
 function Row({ t, call, onChange }) {
   const [f, setF] = useState({});
@@ -55,6 +62,7 @@ function Row({ t, call, onChange }) {
           </div>
         ))}
       </div>
+      {discountNote(t) && <div style={{ ...ui.muted, marginBottom: 8 }}>{discountNote(t)}</div>}
       <label style={ui.label}>Staff notes (never shown on the website)</label>
       <input value={val("notes")} onChange={(e) => setF((x) => ({ ...x, notes: e.target.value }))} style={ui.input} />
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>

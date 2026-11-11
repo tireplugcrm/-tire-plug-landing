@@ -31,7 +31,7 @@ function Card({ t }) {
         {name && <div style={{ color: "#333", fontSize: "0.92rem" }}>{name}</div>}
         <div style={{ color: "#6b6b6b", fontSize: "0.85rem" }}>{[GROUP[t.qty], ...facts].join(" · ")}</div>
         <div style={{ fontSize: "1.05rem", fontWeight: 800, marginTop: 4 }}>
-          {money(t.price_each)} <span style={{ fontWeight: 500, fontSize: "0.85rem", color: "#6b6b6b" }}>each{t.qty > 1 ? ` · ${money(t.price_each * t.qty)} for ${t.qty}` : ""}</span>
+          {t.was_each != null && <s style={{ color: "#8a8a8a", fontWeight: 500, marginRight: 6 }}>{money(t.was_each)}</s>}{money(t.price_each)} <span style={{ fontWeight: 500, fontSize: "0.85rem", color: "#6b6b6b" }}>each{t.qty > 1 ? ` · ${money(t.price_each * t.qty)} for ${t.qty}` : ""}</span>
         </div>
         <div style={{ display: "flex", gap: 6, marginTop: "auto", paddingTop: 8 }}>
           <a href={smsHref(body)} style={{ flex: 1, textAlign: "center", background: "#E01B22", color: "#fff", padding: "0.6rem 0.4rem", borderRadius: 8, fontWeight: 700, fontSize: "0.88rem", textDecoration: "none" }}>Text to reserve</a>

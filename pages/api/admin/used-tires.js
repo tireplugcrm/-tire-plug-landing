@@ -2,7 +2,7 @@
  * Admin -> Used tires: the staff list and the owner's pricing step (lib/used-tires.js).
  *
  * POST { action: "list" }                 -> { tires, link }
- * POST { action: "update", id, fields }   -> { ok, tire }  (size, brand, model, load_speed, dot_week, dot_year, tread_32, price_each, notes)
+ * POST { action: "update", id, fields }   -> { ok, tire }  (size, brand, model, load_speed, dot_week, dot_year, tread_32, cost_each, price_each, discount_each, notes)
  * POST { action: "status", id, status }   -> { ok, tire }  ("live" needs a size, a price and tires left)
  * POST { action: "sold", id, n }          -> { ok, tire }  (n = 1 takes one off, -1 puts one back)
  * POST { action: "cover", id, index }     -> { ok, tire }
@@ -19,7 +19,7 @@ const num = (v) => (v === "" || v == null || !Number.isFinite(Number(v)) ? null 
 const CLEAN = {
   size: (v) => { const s = text(v, 24); return s && s.toUpperCase().replace(/\s+/g, ""); },
   brand: (v) => text(v, 60), model: (v) => text(v, 80), load_speed: (v) => text(v, 12), notes: (v) => text(v, 500),
-  dot_week: num, dot_year: num, tread_32: num, price_each: num,
+  dot_week: num, dot_year: num, tread_32: num, cost_each: num, price_each: num, discount_each: num,
 };
 
 export default async function handler(req, res) {
@@ -49,6 +49,9 @@ export default async function handler(req, res) {
   if (action === "update") {
     const patch = {};
     for (const [key, clean] of Object.entries(CLEAN)) if (key in (req.body.fields || {})) patch[key] = clean(req.body.fields[key]);
+    const next = { ...row, ...patch };
+    if (Number(next.discount_each) > 0 && !(Number(next.discount_each) < Number(next.price_each)))
+      return res.status(400).json({ error: "The discounted price has to be lower than retail." });
     return save(patch);
   }
   if (action === "status") {

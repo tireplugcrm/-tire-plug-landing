@@ -16,7 +16,9 @@ create table if not exists used_tires (
   dot_week int,                           -- oldest DOT in the group
   dot_year int,
   tread_32 numeric,                       -- measured tread in 32nds; null until someone measures it
-  price_each numeric,
+  cost_each numeric,                      -- what we paid per tire; admin only, never public
+  price_each numeric,                     -- retail per tire
+  discount_each numeric,                  -- per tire, once it's been on the shelf 21 days
   notes text,                             -- staff only, never public
   photos jsonb not null default '[]',     -- [{ p: full path, t: thumbnail path }], cover first
   read jsonb,
@@ -28,6 +30,8 @@ create table if not exists used_tires (
   sold_at timestamptz
 );
 create index if not exists used_tires_status on used_tires (status);
+alter table used_tires add column if not exists cost_each numeric;
+alter table used_tires add column if not exists discount_each numeric;
 
 -- Server-only (service role); no public policies.
 alter table used_tires enable row level security;
