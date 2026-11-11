@@ -12,7 +12,7 @@ import AlexTab from "../../components/admin/AlexTab.js";
 import PhoneTab, { LeadCalls } from "../../components/admin/PhoneTab.js";
 import ShopFloor from "../../components/admin/ShopFloor.js";
 import { T, Icon } from "../../components/admin/ui.js";
-import CrmBoard, { crmStage } from "../../components/admin/CrmBoard.js";
+import CrmBoard, { crmStage, onBoard } from "../../components/admin/CrmBoard.js";
 
 /* ============================================================
    The Tire Plug — Owner Admin Hub
@@ -114,6 +114,18 @@ export default function AdminHub() {
     } catch (e) { loadWith(authObj()); return { ok: false }; }
   }
 
+  // CRM "Clear board" and its Undo: hide the cards right away, then save.
+  async function clearBoard(ids, undo) {
+    const set = new Set(ids);
+    const crm_closed_at = undo ? null : new Date().toISOString();
+    setData((d) => ({ ...d, leads: d.leads.map((l) => (set.has(l.id) ? { ...l, crm_closed_at } : l)) }));
+    try {
+      const res = await fetch("/api/admin/crm-clear", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj(), ids, undo: !!undo }) });
+      if (!res.ok) { loadWith(authObj()); return false; }
+      return true;
+    } catch (e) { loadWith(authObj()); return false; }
+  }
+
   async function reminderAction(payload) {
     await fetch("/api/admin/reminders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...authObj(), ...payload }) });
     loadWith(authObj());
@@ -198,7 +210,7 @@ export default function AdminHub() {
   const dueCount = data.reminders.filter((r) => isDueOrOverdue(r.due_at)).length;
   // Same rule as the Front Desk's "Needs a reply" list (/api/admin/front-desk): canceled bookings don't count.
   const unansweredCount = data.leads.filter((l) => l.status === "new" && !l.first_response_at && l.appt_status !== "canceled" && Date.now() - new Date(l.created_at).getTime() < 14 * 864e5).length;
-  const navCounts = { frontdesk: unansweredCount, crm: data.leads.filter((l) => (!l.channel || l.channel === "web") && crmStage(l) === "new").length, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
+  const navCounts = { frontdesk: unansweredCount, crm: data.leads.filter((l) => (!l.channel || l.channel === "web") && crmStage(l) === "new" && onBoard(l, "new")).length, leads: liveLeads.length, subscribers: data.subscribers.length, replies: unreadReplies };
   // Sidebar: only what the shop uses day to day. The other screens (Leads list, Overview,
   // Email, Reviews, Replies, Subscribers, Conversions, P&L, Payroll, Staff, Schedule,
   // Work Log, Hiring, Training) still exist and their data is untouched; add them back here to show them.
@@ -265,7 +277,7 @@ export default function AdminHub() {
 
         {tab === "frontdesk" && <FrontDesk auth={auth} onOpenLead={openLead} me={data.me} onNav={go} />}
         {tab === "texts" && <TextsTab auth={auth} onOpenLead={openLead} />}
-        {tab === "crm" && <CrmBoard leads={data.leads} unreadByLead={data.unreadByLead} onOpen={openLead} />}
+        {tab === "crm" && <CrmBoard leads={data.leads} unreadByLead={data.unreadByLead} onOpen={openLead} onClear={clearBoard} />}
         {tab === "overview" && <OverviewTab auth={auth} />}
         {tab === "shopfloor" && <ShopFloor auth={auth} />}
         {tab === "leads" && (

@@ -115,7 +115,7 @@ export default function TextsTab({ auth, onOpenLead }) {
       </div>
 
       <div className="tx-grid">
-        <div className={`tx-list${phone || composing ? " tx-hide-sm" : ""}`} style={{ ...ui.card, padding: 0, overflow: "hidden" }}>
+        <div className={`tx-list${phone || composing ? " tx-hide-sm" : ""}`} style={{ ...ui.card, padding: 0 }}>
           {threads === null && <div style={{ ...ui.muted, padding: 16 }}>Loading…</div>}
           {threads && !threads.length && <div style={{ ...ui.muted, padding: 16 }}>No texts yet.</div>}
           {(threads || []).map((t) => {
@@ -201,7 +201,7 @@ export default function TextsTab({ auth, onOpenLead }) {
 
       <style jsx>{`
         .tx-grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 14px; align-items: start; }
-        .tx-list { max-height: 640px; overflow-y: auto; }
+        .tx-list { max-height: 640px; overflow-x: hidden; overflow-y: auto; }
         .tx-back { display: none !important; }
         @media (max-width: 800px) {
           .tx-grid { grid-template-columns: 1fr; }

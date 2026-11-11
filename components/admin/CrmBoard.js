@@ -32,6 +32,14 @@ export function onBoard(l, stage = crmStage(l)) {
   return true;
 }
 
+// "Clear board" leaves cars still on the schedule: anyone in the shop or booked for today or later.
+function staysOnClear(l, stage) {
+  if (stage !== "booked") return false;
+  if (l.appt_status === "checked_in") return true;
+  const today = new Date(new Date().toLocaleDateString("en-US", { timeZone: TZ })).getTime();
+  return new Date(l.appointment_at).getTime() >= today;
+}
+
 export function crmStage(l) {
   if (l.status === "dead") return "lost";
   if (l.status === "booked" || l.appt_status === "done") return "won";
@@ -72,9 +80,13 @@ function badge(l, stage) {
   return ["Contacted", "#7c3aed"];
 }
 
-export default function CrmBoard({ leads, unreadByLead = {}, onOpen }) {
+export default function CrmBoard({ leads, unreadByLead = {}, onOpen, onClear }) {
   const [source, setSource] = useState("web");
   const [q, setQ] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [cleared, setCleared] = useState(null); // ids from the last clear, for Undo
+  const [clearErr, setClearErr] = useState("");
 
   const cols = useMemo(() => {
     const src = SOURCES.find((s) => s.key === source) || SOURCES[0];
@@ -96,6 +108,16 @@ export default function CrmBoard({ leads, unreadByLead = {}, onOpen }) {
   }, [leads, source, q]);
 
   const open = COLUMNS.slice(0, 4).reduce((n, c) => n + cols[c.key].length, 0);
+  const toClear = COLUMNS.flatMap((c) => cols[c.key].filter((l) => !staysOnClear(l, c.key))).map((l) => l.id);
+  const cardWord = (n) => `${n} card${n === 1 ? "" : "s"}`;
+
+  async function runClear(ids, undo) {
+    setClearing(true); setClearErr("");
+    const ok = await onClear(ids, undo);
+    setClearing(false); setConfirming(false);
+    if (!ok) { setClearErr(undo ? "Couldn't put those cards back. Try again." : "Couldn't clear the board. Try again."); return; }
+    setCleared(undo ? null : ids);
+  }
 
   return (
     <div>
@@ -103,7 +125,27 @@ export default function CrmBoard({ leads, unreadByLead = {}, onOpen }) {
         <div>
           <h1 style={ui.h1}>CRM</h1>
           <div style={{ ...ui.muted, marginTop: 2 }}>{open} open lead{open === 1 ? "" : "s"}. Work each column left to right; cards move on their own as you reply, quote and book.</div>
+          {clearErr && <div style={{ color: T.red, fontSize: 13, marginTop: 4 }}>{clearErr}</div>}
         </div>
+        {onClear && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {cleared && !confirming && (
+              <>
+                <span style={ui.muted}>Cleared {cardWord(cleared.length)}.</span>
+                <button type="button" style={ui.btn} disabled={clearing} onClick={() => runClear(cleared, true)}>Undo</button>
+              </>
+            )}
+            {confirming ? (
+              <>
+                <span style={ui.muted}>Clear {cardWord(toClear.length)}? Today's and upcoming appointments stay. Nothing is deleted, and a customer reply brings a card back.</span>
+                <button type="button" style={ui.primary} disabled={clearing} onClick={() => runClear(toClear, false)}>{clearing ? "Clearing…" : "Clear"}</button>
+                <button type="button" style={ui.btn} disabled={clearing} onClick={() => setConfirming(false)}>Cancel</button>
+              </>
+            ) : (
+              toClear.length > 0 && <button type="button" style={ui.btn} onClick={() => { setConfirming(true); setClearErr(""); }}>Clear board</button>
+            )}
+          </div>
+        )}
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 14 }}>
@@ -113,7 +155,7 @@ export default function CrmBoard({ leads, unreadByLead = {}, onOpen }) {
         </div>
         <div style={{ display: "inline-flex", border: `1px solid ${T.borderStrong}`, borderRadius: 6, overflow: "hidden", background: T.surface }}>
           {SOURCES.map((s, i) => (
-            <button key={s.key} onClick={() => setSource(s.key)} style={{ height: 36, padding: "0 14px", border: "none", borderLeft: i ? `1px solid ${T.borderStrong}` : "none", background: source === s.key ? T.blueSoft : T.surface, color: source === s.key ? T.blue : T.text, fontWeight: source === s.key ? 600 : 500, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit" }}>{s.label}</button>
+            <button key={s.key} onClick={() => { setSource(s.key); setConfirming(false); }} style={{ height: 36, padding: "0 14px", border: "none", borderLeft: i ? `1px solid ${T.borderStrong}` : "none", background: source === s.key ? T.blueSoft : T.surface, color: source === s.key ? T.blue : T.text, fontWeight: source === s.key ? 600 : 500, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit" }}>{s.label}</button>
           ))}
         </div>
       </div>
