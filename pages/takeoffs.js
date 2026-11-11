@@ -35,6 +35,7 @@ export default function Takeoffs() {
   const [busy, setBusy] = useState("");
   const [done, setDone] = useState([]);
   const [state, setState] = useState(null);
+  const [help, setHelp] = useState(false);
   const batch = useRef(newBatch());
   const fileRef = useRef(null);
   const camRef = useRef(null);
@@ -94,11 +95,27 @@ export default function Takeoffs() {
         <meta name="robots" content="noindex, nofollow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <header style={{ background: "#1e2833", color: "#fff", padding: "14px 16px" }}>
-        <div style={{ fontWeight: 700, fontSize: 17 }}>Upload used tires</div>
-        <div style={{ fontSize: 12.5, opacity: 0.7 }}>{state ? `${state.total} uploaded · ${state.drafts} not on the website yet` : "The Tire Plug · Olympic"}</div>
+      <header style={{ background: "#1e2833", color: "#fff", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 17 }}>Upload used tires</div>
+          <div style={{ fontSize: 12.5, opacity: 0.7 }}>{state ? `${state.total} uploaded · ${state.drafts} not on the website yet` : "The Tire Plug · Olympic"}</div>
+        </div>
+        <button aria-label="How to upload used tires" aria-expanded={help} onClick={() => setHelp((h) => !h)} style={{ flex: "0 0 36px", width: 36, height: 36, borderRadius: 18, border: "1.5px solid rgba(255,255,255,0.6)", background: help ? "#fff" : "transparent", color: help ? "#1e2833" : "#fff", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>?</button>
       </header>
       <main style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
+        {help && (
+          <section style={{ background: "#fff", border: "1px solid #d1d5db", borderRadius: 12, padding: 16, marginBottom: 12, fontSize: 15, lineHeight: 1.5 }}>
+            <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>How to Upload Used Tires Successfully</div>
+            <div>Take a picture of these:</div>
+            <ul style={{ margin: "6px 0 0", paddingLeft: 20 }}>
+              <li>DOT date</li>
+              <li>Size</li>
+              <li>Brand</li>
+              <li>Model</li>
+              <li>Tread on all 4, 2 or 1</li>
+            </ul>
+          </section>
+        )}
         {err && <div style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: 14 }}>{err}</div>}
 
         {done.map((d) => (
