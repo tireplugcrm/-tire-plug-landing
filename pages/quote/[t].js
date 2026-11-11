@@ -21,6 +21,7 @@ export default function QuotePage() {
   const [slot, setSlot] = useState(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState("");
+  const [align, setAlign] = useState(false);
 
   useEffect(() => {
     if (!isReady || !t) return;
@@ -30,7 +31,7 @@ export default function QuotePage() {
   async function book() {
     if (!slot) return;
     setBusy(true); setErr("");
-    const { status, data } = await api({ action: "book", t, at: slot.at });
+    const { status, data } = await api({ action: "book", t, at: slot.at, alignment: align });
     setBusy(false);
     if (status === 200) setDone(data.when);
     else { setErr(data.error || "Couldn't book that time."); if (data.days) setS({ ...s, days: data.days }); setSlot(null); }
@@ -70,12 +71,18 @@ export default function QuotePage() {
               <p className="small">TPMS light on? Let us know at the front desk when you come in and we'll check it.</p>
 
               {done ? (
-                <div className="panel"><p className="ok">You&apos;re booked: {done}</p><p className="muted">We&apos;ll have your {name} ready. See you at 2331 E Olympic Blvd.</p></div>
+                <div className="panel"><p className="ok">You&apos;re booked: {done}</p>{align && <p className="muted">Alignment added: {money(s.quote.alignment.price)}.</p>}<p className="muted">We&apos;ll have your {name} ready. See you at 2331 E Olympic Blvd.</p></div>
               ) : s.booked ? (
                 <div className="panel"><p className="ok">You&apos;re booked: {s.booked.when}</p><p className="muted">Need to change it? Call or text us.</p></div>
               ) : (
                 <div className="panel">
                   <h2>Book your install</h2>
+                  {s.quote.alignment && (
+                    <label className="align">
+                      <input type="checkbox" checked={align} onChange={(e) => setAlign(e.target.checked)} />
+                      <span>Add a wheel alignment for <b>{money(s.quote.alignment.price)}</b>{s.quote.alignment.regular ? <> <s>{money(s.quote.alignment.regular)}</s></> : null}, done on the same visit</span>
+                    </label>
+                  )}
                   {s.days?.length ? <SlotPicker days={s.days} value={slot?.at} onChange={(x, d) => setSlot({ ...x, dayLabel: d.label })} /> : <p className="muted">Call or text us for a time.</p>}
                   {err && <p className="bad">{err}</p>}
                   <button type="button" className="btn" disabled={!slot || busy} onClick={book}>{busy ? "Booking…" : slot ? `Book ${slot.dayLabel}, ${slot.label}` : "Pick a time"}</button>
@@ -105,6 +112,9 @@ export default function QuotePage() {
         .tot { border-top: 1px solid #eee; padding-top: 0.6rem; font-size: 1.1rem; color: #111; font-weight: 900; }
         dd.tot { color: #E01B22; }
         .small { font-size: 0.82rem; color: #6b6b6b; }
+        .align { display: flex; gap: 0.6rem; align-items: flex-start; background: #f7f7f7; border: 1px solid #e6e6e6; border-radius: 12px; padding: 0.75rem 0.9rem; margin: 0 0 1rem; font-size: 0.93rem; cursor: pointer; }
+        .align input { width: 18px; height: 18px; margin-top: 2px; accent-color: #E01B22; }
+        .align s { color: #8a8a8a; }
         .panel { border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem; }
         .btn { width: 100%; margin-top: 1rem; padding: 0.9rem 1rem; border-radius: 50px; border: none; background: #E01B22; color: #fff; font: inherit; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
         .btn:disabled { opacity: 0.45; cursor: not-allowed; }
