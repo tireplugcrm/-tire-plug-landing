@@ -35,9 +35,14 @@ const TITLES = { daily: "Every day", weekly: "Every week", monthly: "Every month
 const RESETS = { daily: "Boxes clear every morning.", weekly: "Boxes clear every Monday.", monthly: "Boxes clear on the 1st." };
 
 // **bold** only; everything else is plain text (no HTML from the stored words).
+// Also [label](https://...) links, opened in a new tab (https only, so stored words can't run script).
 function Rich({ text }) {
-  return String(text).split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
-    /^\*\*[^*]+\*\*$/.test(p) ? <strong key={i} style={{ color: T.text, fontWeight: 600 }}>{p.slice(2, -2)}</strong> : <React.Fragment key={i}>{p}</React.Fragment>);
+  return String(text).split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(https:\/\/[^\s)]+\))/g).map((p, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(p)) return <strong key={i} style={{ color: T.text, fontWeight: 600 }}>{p.slice(2, -2)}</strong>;
+    const m = p.match(/^\[([^\]]+)\]\((https:\/\/[^\s)]+)\)$/);
+    if (m) return <a key={i} href={m[2]} target="_blank" rel="noopener noreferrer" style={{ color: T.blue, textDecoration: "underline" }}>{m[1]}</a>;
+    return <React.Fragment key={i}>{p}</React.Fragment>;
+  });
 }
 
 // `call` (optional) replaces the admin fetch, e.g. the /belen page posting her code instead;

@@ -5,7 +5,7 @@ import AlexCalendar from "../AlexCalendar.js";
 import TodoTab from "./TodoTab.js";
 import { T, ui } from "./ui.js";
 
-const VIEWS = [["daily", "Every day"], ["weekly", "Every week"], ["monthly", "Every month"], ["calendar", "Calendar"]];
+const VIEWS = [["daily", "Every day"], ["weekly", "Every week"], ["monthly", "Every month"], ["know", "Trip & links"], ["calendar", "Calendar"]];
 
 export default function AlexTab({ auth }) {
   const [view, setView] = useState("daily");

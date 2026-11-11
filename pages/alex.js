@@ -101,9 +101,9 @@ export default function Alex() {
             </div>
             {<button onClick={() => { try { localStorage.removeItem(SS); } catch { /* */ } setOk(false); setCode(""); }} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.2)", color: "#fff", borderRadius: 999, height: 34, padding: "0 14px", fontFamily: "inherit", cursor: "pointer" }}>Lock</button>}
           </div>
-          <div role="tablist" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4, padding: 4, borderRadius: 999, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.14)", marginBottom: 16 }}>
-            {[["daily", "Day"], ["weekly", "Week"], ["monthly", "Month"], ["calendar", "Calendar"]].map(([id, lbl]) => (
-              <button key={id} role="tab" aria-selected={view === id} onClick={() => setView(id)} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
+          <div role="tablist" style={{ display: "grid", gridTemplateColumns: "repeat(5, auto)", gap: 4, padding: 4, borderRadius: 999, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.14)", marginBottom: 16 }}>
+            {[["daily", "Day"], ["weekly", "Week"], ["monthly", "Month"], ["know", "Links"], ["calendar", "Calendar"]].map(([id, lbl]) => (
+              <button key={id} role="tab" aria-selected={view === id} onClick={() => setView(id)} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 12.5, padding: "0 8px", fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
             ))}
           </div>
           {view === "calendar" ? <AlexCalendar call={call} showAppts={false} /> : <TodoTab key={view} who="alex" name="Alex" call={todoCall} list={view} />}
