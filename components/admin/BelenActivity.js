@@ -8,7 +8,7 @@ import { tasksForDay } from "../../lib/todo-days.js";
 const TZ = "America/Los_Angeles";
 const dayOf = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
 const time = (iso) => new Date(iso).toLocaleTimeString("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
-const TAB = { today: "Today", know: "Good to know", bonus: "My bonus" };
+const TAB = { today: "Today", know: "Good to know", pay: "My pay", commission: "Commission", bonus: "My bonus" };
 
 function when(iso) {
   if (!iso) return "Never";

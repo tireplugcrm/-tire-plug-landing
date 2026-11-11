@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import BelenBonus from "../components/BelenBonus.js";
+import JuniorPay from "../components/JuniorPay.js";
 import TodoTab from "../components/admin/TodoTab.js";
 import CommissionFrame from "../components/CommissionFrame.js";
 
@@ -29,7 +29,7 @@ export default function Belen() {
   const [view, setView] = useState("today");
 
   useEffect(() => {
-    const dm = new URLSearchParams(window.location.search).get("demo"); if (dm) { setDemo(dm); setOk(true); setView("bonus"); return; }
+    const dm = new URLSearchParams(window.location.search).get("demo"); if (dm) { setDemo(dm); setOk(true); setView("pay"); return; }
     let saved = "";
     try { saved = sessionStorage.getItem(SS) || ""; } catch { /* private mode */ }
     if (saved) post({ code: saved, action: "state" }).then(() => { setCode(saved); setOk(true); post({ code: saved, action: "ping", event: "open" }).catch(() => {}); }).catch(() => { try { sessionStorage.removeItem(SS); } catch { /* */ } });
@@ -63,6 +63,8 @@ export default function Belen() {
 
   const call = (body) => post(demo ? { demo: true, ...body } : { code, ...body });
   const todoCall = (body) => post({ code, who: "belen", ...body }, "/api/admin/todo");
+  const payCall = (body) => post(demo ? { demo: true, ...body } : { code, ...body }, "/api/belen-pay");
+  // The bonus / business-accounts tracker (components/BelenBonus.js) is hidden until her field-rep plan is final.
 
   return (
     <main style={{ minHeight: "100vh", background: "radial-gradient(120% 80% at 50% 0%, #1f2937 0%, #0b0f15 70%)", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", padding: "28px 16px 40px", boxSizing: "border-box" }}>
@@ -106,7 +108,7 @@ export default function Belen() {
             {!demo && <button onClick={() => { try { sessionStorage.removeItem(SS); } catch { /* */ } setOk(false); setCode(""); }} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.2)", color: "#fff", borderRadius: 999, height: 34, padding: "0 14px", fontFamily: "inherit", cursor: "pointer" }}>Lock</button>}
           </div>
           <div role="tablist" style={{ display: "grid", gridTemplateColumns: "repeat(4, auto)", gap: 2, padding: 4, borderRadius: 999, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.14)", marginBottom: 16 }}>
-            {[["today", "Today"], ["know", "Good to know"], ["commission", "Commission"], ["bonus", "My bonus"]].map(([id, lbl]) => (
+            {[["today", "Today"], ["know", "Good to know"], ["pay", "My pay"], ["commission", "Commission"]].map(([id, lbl]) => (
               <button key={id} role="tab" aria-selected={view === id} onClick={() => { setView(id); if (!demo && id !== view) post({ code, action: "ping", event: "tab", detail: id }).catch(() => {}); }} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 12.5, padding: "0 8px", fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
             ))}
           </div>
@@ -116,7 +118,7 @@ export default function Belen() {
             ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>This list needs the real code.</div> : <TodoTab key="know" who="belen" name="Belen" call={todoCall} canEdit={false} list="know" />)
             : view === "today"
             ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>The to-do list needs the real code.</div> : <TodoTab key="todo" who="belen" name="Belen" call={todoCall} canEdit={false} />)
-            : <BelenBonus call={call} canEdit={demo === "edit"} guide={demo ? null : <TodoTab key="plan" who="belen" name="Belen" call={todoCall} canEdit={false} list="plan" />} />}
+            : <JuniorPay call={payCall} canEdit={false} />}
         </div>
       )}
     </main>

@@ -46,7 +46,7 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
 
   return (
     <div style={{ color: T.text, fontFamily: "inherit" }}>
-      <div style={{ color: T.textMuted, fontSize: 13.5, marginBottom: 14 }}>Every Saturday and Sunday · {$0(s.hourly)}/hour + {pctLabel} of labor on his ROs · paid on the 1st.</div>
+      <div style={{ color: T.textMuted, fontSize: 13.5, marginBottom: 14 }}>{s.who?.daysLabel || "Every Saturday and Sunday"} · {$(s.hourly).replace(/[.]00$/, "")}/hour + {pctLabel} of labor on {s.who?.his || "his"} ROs · paid on the 1st.</div>
       {/* Month switcher */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 14 }}>
         <button aria-label="Previous month" style={{ ...ui.btn, width: 40, padding: 0 }} onClick={() => { setSel(null); setMonth(shiftMonth(s.month, -1)); }}><Icon name="chevron_left" /></button>
@@ -65,7 +65,7 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
           <div style={label}>{s.payout ? "Paid" : "Due"} {dayName(s.dueOn, { month: "short", day: "numeric" })}</div>
           <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.15, color: s.payout ? T.textMuted : T.text }}>{$(s.payout ? s.payout.amount : due)}</div>
           <div style={{ color: s.payout ? T.green : T.textMuted, fontSize: 12.5, marginTop: 4 }}>
-            {s.payout ? `Paid ${dayName(s.payout.paid_at.slice(0, 10), { month: "short", day: "numeric" })}` : s.complete ? "Month is done" : "If he works every weekend left"}
+            {s.payout ? `Paid ${dayName(s.payout.paid_at.slice(0, 10), { month: "short", day: "numeric" })}` : s.complete ? "Month is done" : `If ${s.who?.he || "he"} works ${s.who?.fill || "every weekend left"}`}
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
         <Row k={`Hours · ${hrs(s.toDate.hours)} × ${$0(s.hourly)}/hr`} v={$(s.toDate.base)} />
         <Row k={`Commission · ${pctLabel} of ${$0(s.toDate.labor)} labor`} v={$(s.toDate.commission)} />
         <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 6 }}><Row k={<strong>Total so far</strong>} v={<strong>{$(s.toDate.total)}</strong>} /></div>
-        {s.unconfirmed > 0 && <div style={{ color: T.amber, fontSize: 12.5 }}>{s.unconfirmed} day{s.unconfirmed === 1 ? " uses" : "s use"} his usual hours until the real hours are entered.</div>}
+        {s.unconfirmed > 0 && <div style={{ color: T.amber, fontSize: 12.5 }}>{s.unconfirmed} day{s.unconfirmed === 1 ? " uses" : "s use"} {s.who?.his || "his"} usual hours until the real hours are entered.</div>}
       </div>
 
       {/* Calendar */}

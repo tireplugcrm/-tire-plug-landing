@@ -120,8 +120,8 @@ export default async function handler(req, res) {
   if (b.action === "paid" || b.action === "unpaid") {
     if (!/^\d{4}-\d{2}$/.test(month)) return res.status(400).json({ error: "Which month?" });
     const q = b.action === "paid"
-      ? supabaseAdmin.from("rep_payouts").upsert({ rep: REP, month: `${month}-01`, amount: parseFloat(b.amount) || 0, paid_at: new Date().toISOString() })
-      : supabaseAdmin.from("rep_payouts").delete().eq("rep", REP).eq("month", `${month}-01`);
+      ? supabaseAdmin.from("rep_payouts").upsert({ rep: `${REP} bonus`, month: `${month}-01`, amount: parseFloat(b.amount) || 0, paid_at: new Date().toISOString() })
+      : supabaseAdmin.from("rep_payouts").delete().eq("rep", `${REP} bonus`).eq("month", `${month}-01`);
     const { error } = await q;
     if (error) return fail(error);
     return done();
