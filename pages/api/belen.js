@@ -18,6 +18,7 @@ import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { requireAdmin } from "../../lib/adminAuth.js";
 import { checkStaffCode } from "../../lib/staff-code.js";
 import { logActivity, recentActivity } from "../../lib/staff-activity.js";
+import { reps } from "../../lib/commission.js";
 import { REP, KINDS, SECTORS, SECTOR_OF, demoState, monthState } from "../../lib/belen-bonus.js";
 
 const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
   if (!admin) {
     const c = await checkStaffCode("belen", String(b.code || ""));
     if (!c.ok) return res.status(401).json({ error: c.error });
-    if (!["state", "addAccount", "ping"].includes(b.action)) return res.status(403).json({ error: "Only the owner can change this." });
+    if (!["state", "addAccount", "ping", "commissionLink"].includes(b.action)) return res.status(403).json({ error: "Only the owner can change this." });
   }
 
   const month = String(b.month || (isDay(b.day) ? b.day.slice(0, 7) : "")).slice(0, 7);
@@ -45,6 +46,13 @@ export default async function handler(req, res) {
   const fail = (error) => res.status(500).json({ error: error.message });
 
   if (b.action === "state") return done();
+
+  // Her commission tracker (same as Junior's and Lexi's), shown inside her page and the admin Belen tab.
+  if (b.action === "commissionLink") {
+    const me = (await reps()).find((r) => r.name === REP);
+    if (!me?.key) return res.status(404).json({ error: "Her commission tracker isn't set up yet." });
+    return res.json({ url: `/commission?k=${me.key}` });
+  }
 
   // Her page reports when she opens it and which tab she looks at (only her code counts, not the owner).
   if (b.action === "ping") {

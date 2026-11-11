@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import BelenBonus from "../BelenBonus.js";
 import TodoTab from "./TodoTab.js";
+import CommissionFrame from "../CommissionFrame.js";
 import BelenActivity from "./BelenActivity.js";
 import { T, ui } from "./ui.js";
 
@@ -22,10 +23,10 @@ export default function BelenTab({ auth }) {
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <BelenActivity auth={auth} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-        <div role="tablist" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{seg("todo", "To-do")}{seg("know", "Good to know")}{seg("bonus", "Accounts & bonus")}</div>
+        <div role="tablist" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{seg("todo", "To-do")}{seg("know", "Good to know")}{seg("commission", "Commission")}{seg("bonus", "Accounts & bonus")}</div>
         <a href="/belen" target="_blank" rel="noopener noreferrer" style={ui.btn}>Belen&apos;s page (code)</a>
       </div>
-      {view === "todo" ? <TodoTab key="todo" auth={auth} who="belen" name="Belen" /> : view === "know" ? <TodoTab key="know" auth={auth} who="belen" name="Belen" list="know" /> : (
+      {view === "todo" ? <TodoTab key="todo" auth={auth} who="belen" name="Belen" /> : view === "know" ? <TodoTab key="know" auth={auth} who="belen" name="Belen" list="know" /> : view === "commission" ? <CommissionFrame call={call} /> : (
         <>
           <h1 style={{ ...ui.h1, marginBottom: 10 }}>Belen · field rep</h1>
           <BelenBonus call={call} canEdit guide={<TodoTab key="plan" auth={auth} who="belen" name="Belen" list="plan" />} />
