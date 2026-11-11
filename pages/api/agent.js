@@ -24,6 +24,7 @@
  *        pads_brand, pads_warranty?, rotor_brand? } }  one car's cheapest AutoZone Pro brake parts (costs), so the phone AI
  *                                                     quotes that car's brakes exactly; { action: "brake-parts" } lists them
  * POST { action: "phone-calls", since? }             Mary's calls (default last 24 h) with quality checks and transcripts
+ * POST { action: "used-tires" }                    every used-tire group (takeoffs): status, size, prices, tread, AI notes, photo links
  * POST { action: "quote-queue" }                   phone AI callers waiting on an exact quote (brakes, special-order tires)
  * POST { action: "quote-send", id, title, lines: [[label, amount]], total, tax_included }
  *                                                     text the customer the exact quote; copies to the owner (and the brake tech)
@@ -33,6 +34,7 @@
 import { supabaseAdmin } from "../../lib/supabaseAdmin.js";
 import { agentKeyOk, ask, approval, notify, log } from "../../lib/agent.js";
 import { INVOICE_BUCKET } from "../../lib/invoices.js";
+import { withUrls } from "../../lib/used-tires.js";
 import { pricingContext } from "../../lib/pricing-context.js";
 import * as P from "../../lib/pricing.js";
 import { linesFromCsv } from "../../lib/stock-csv.mjs";
@@ -338,6 +340,11 @@ export default async function handler(req, res) {
       const expires = new Date(Date.now() + 2 * 3600e3).toISOString();
       await supabaseAdmin.from("app_settings").upsert({ key: "vendor_upload_token", value: JSON.stringify({ token, expires }), updated_at: new Date().toISOString() }, { onConflict: "key" });
       return res.status(200).json({ token, expires, url: "https://tireplugla.com/api/vendor-upload" });
+    }
+    if (b.action === "used-tires") {
+      const { data, error } = await supabaseAdmin.from("used_tires").select("*").order("tag").limit(2000);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ tires: (data || []).map(withUrls) });
     }
     if (b.action === "quote-queue") return res.status(200).json({ quotes: await quoteQueue() });
     // Mary's calls since a time (default 24 h), for the coach: outcome, failed quality checks, transcript.
