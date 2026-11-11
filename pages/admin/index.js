@@ -6,6 +6,7 @@ import FrontDesk from "../../components/admin/FrontDesk.js";
 import PricingTab from "../../components/admin/PricingTab.js";
 import TextsTab from "../../components/admin/TextsTab.js";
 import InvoicesTab from "../../components/admin/InvoicesTab.js";
+import UsedTiresTab from "../../components/admin/UsedTiresTab.js";
 import JuniorTab from "../../components/admin/JuniorTab.js";
 import BelenTab from "../../components/admin/BelenTab.js";
 import AlexTab from "../../components/admin/AlexTab.js";
@@ -229,6 +230,7 @@ export default function AdminHub() {
     { id: "shopfloor", icon: "garage", label: "Shop Floor" },
     { id: "schedule", icon: "event", label: "Schedule" },
     { id: "pricing", icon: "tire_repair", label: "Inventory and pricing" },
+    { id: "usedtires", icon: "album", label: "Used tires" },
     { id: "businesses", icon: "storefront", label: "Businesses" },
     { id: "reviews", icon: "star", label: "Reviews" },
     { id: "junior", icon: "payments", label: "Junior pay" },
@@ -299,6 +301,7 @@ export default function AdminHub() {
         {tab === "reviews" && <ReviewsTab auth={auth} />}
         {tab === "pricing" && <PricingTab auth={auth} />}
         {tab === "invoices" && <InvoicesTab auth={auth} />}
+        {tab === "usedtires" && <UsedTiresTab auth={auth} />}
         {tab === "junior" && <JuniorTab auth={auth} />}
         {tab === "belen" && <BelenTab auth={auth} />}
         {tab === "alex" && <AlexTab auth={auth} />}

@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import { PHONE, CTA, smsHref } from "../lib/shop";
 
 // Each page's second button: services book straight into /book, new tires start by
-// picking a size and a tire, used tires (not listed online) start with a text.
+// picking a size and a tire, used tires start with a text.
 const BOOK = {
   "wheel-alignment-los-angeles": { href: "/book?service=alignment", label: CTA.bookService },
   "oil-change-los-angeles": { href: "/book?service=oil-change", label: CTA.bookService },
@@ -32,7 +32,7 @@ const WHY = [
   "Trusted local shop — quotes by text or phone",
 ];
 
-export default function ServicePage({ svc }) {
+export default function ServicePage({ svc, children }) {
   const url = `https://tireplugla.com/${svc.slug}`;
   const next = BOOK[svc.slug] || { href: "/tires", label: CTA.shopTires };
   const schema = {
@@ -69,6 +69,8 @@ export default function ServicePage({ svc }) {
             <a href={next.href} style={ctaGhost}>{next.label}</a>
           </div>
         </section>
+
+        {children}
 
         <section style={{ padding: "1.5rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto", borderTop: "1px solid #e6e6e6" }}>
           <h2 style={h2}>Why choose The Tire Plug for {svc.label.toLowerCase()} in LA?</h2>
