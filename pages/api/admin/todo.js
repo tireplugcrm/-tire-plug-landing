@@ -22,6 +22,7 @@ import { requireAdmin } from "../../../lib/adminAuth.js";
 import { checkStaffCode } from "../../../lib/staff-code.js";
 import { shopDay } from "../../../lib/invoices.js";
 import { logActivity } from "../../../lib/staff-activity.js";
+import { ticksForDay } from "../../../lib/todo-days.js";
 
 const WHO = /^[a-z]{2,20}$/;
 
@@ -29,8 +30,10 @@ const WHO = /^[a-z]{2,20}$/;
 // "daily" / "weekly" / "monthly" duty checklists whose ticks clear on their own when the period turns over
 // (shop time: a new day, a new Mon-Sun week, a new month).
 const LISTS = ["todo", "know", "daily", "weekly", "monthly", "plan"]; // plan = "How your bonus works" (field reps)
-function periodOf(list) {
+const DAILY_TODO = new Set(["belen"]); // whose "todo" checks clear every morning (see lib/todo-days.js)
+function periodOf(list, who) {
   const day = shopDay(0);
+  if (list === "todo" && DAILY_TODO.has(who)) return day;
   if (list === "daily") return day;
   if (list === "monthly") return day.slice(0, 7);
   if (list === "weekly") {
@@ -60,16 +63,18 @@ async function load(who, list) {
   const updated_at = data?.updated_at || null;
   const fallback = updated_at ? shopDay(0, new Date(updated_at)) : shopDay(0);
   const added = datesFor(v.text, v.added && typeof v.added === "object" ? v.added : {}, fallback);
-  const period = periodOf(list);
-  const done = Array.isArray(v.done) && (!period || v.period === period) ? v.done : []; // new period: boxes start empty
-  const skipped = Array.isArray(v.skipped) && (!period || v.period === period) ? v.skipped : [];
+  const period = periodOf(list, who);
+  const daily = list === "todo" && DAILY_TODO.has(who);
+  const ticks = daily ? ticksForDay({ text: v.text, done: v.done, skipped: v.skipped, lastDay: v.period || fallback, today: period }) : null;
+  const done = daily ? ticks.done : Array.isArray(v.done) && (!period || v.period === period) ? v.done : []; // new period: boxes start empty
+  const skipped = daily ? ticks.skipped : Array.isArray(v.skipped) && (!period || v.period === period) ? v.skipped : [];
   return { text: v.text || "", done, skipped, period, added, updated_at, updated_by: v.updated_by || null };
 }
 
 async function store(who, list, v, user) {
   const added = datesFor(v.text, v.added || {}, shopDay(0));
   v = { ...v, added };
-  const value = JSON.stringify({ text: v.text, done: v.done, skipped: v.skipped || [], added, period: periodOf(list), updated_by: user?.name || user?.email || null });
+  const value = JSON.stringify({ text: v.text, done: v.done, skipped: v.skipped || [], added, period: periodOf(list, who), updated_by: user?.name || user?.email || null });
   const updated_at = new Date().toISOString();
   const { error } = await supabaseAdmin.from("app_settings").upsert({ key: `${list}_${who}`, value, updated_at }, { onConflict: "key" });
   if (error) throw new Error(error.message);

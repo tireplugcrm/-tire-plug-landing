@@ -17,17 +17,21 @@ import { setting, shopDay, shopClock } from "../../../lib/invoices.js";
 import { people } from "../../../lib/alex-calendar.js";
 import { sendSms } from "../../../lib/sms.js";
 import { logActivity } from "../../../lib/staff-activity.js";
+import { tasksForDay, ticksForDay } from "../../../lib/todo-days.js";
 
 const DEFAULTS = { belen: { on: true, days: [1, 2, 3, 4, 5, 6], hours: [11, 14, 17], name: "Belen", page: "tireplugla.com/belen" } };
 const short = (t, n = 45) => { t = String(t).replace(/\*\*/g, "").trim(); if (t.length <= n) return t; const cut = t.slice(0, n); return `${cut.slice(0, cut.lastIndexOf(" ") > 20 ? cut.lastIndexOf(" ") : n).replace(/[,.;:]$/, "")}…`; };
 
-/** Open / done / scratched items on someone's to-do list (lines starting "- "). */
+/** Open / done / scratched items that count today (repeating sections plus today's dated section). */
 async function progress(who) {
-  const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", `todo_${who}`).maybeSingle();
+  const { data } = await supabaseAdmin.from("app_settings").select("value, updated_at").eq("key", `todo_${who}`).maybeSingle();
   let v = {};
   try { v = JSON.parse(data?.value || "{}"); } catch { v = {}; }
-  const tasks = String(v.text || "").split(/\r?\n/).filter((l) => /^\s*[-*]\s/.test(l)).map((l) => l.replace(/^\s*[-*]\s+(\[[ xX]\]\s+)?/, "").trim()).filter(Boolean);
-  const done = new Set(v.done || []), skipped = new Set(v.skipped || []);
+  const today = shopDay(0);
+  const tasks = tasksForDay(v.text, today).map((t) => t.text);
+  const lastDay = v.period || (data?.updated_at ? shopDay(0, new Date(data.updated_at)) : today);
+  const ticks = ticksForDay({ text: v.text, done: v.done, skipped: v.skipped, lastDay, today });
+  const done = new Set(ticks.done), skipped = new Set(ticks.skipped);
   return {
     total: tasks.length,
     done: tasks.filter((t) => done.has(t)).length,

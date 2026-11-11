@@ -4,6 +4,7 @@
 // "1. point" (numbered, no box) · anything else is a plain note. **bold** works anywhere.
 import React, { useEffect, useState } from "react";
 import { T, ui, Icon } from "./ui.js";
+import { tasksForDay, shopToday } from "../../lib/todo-days.js";
 
 const itemText = (l) => l.replace(/^\s*[-*]\s+(\[[ xX]\]\s+)?/, "").trim();
 
@@ -75,7 +76,8 @@ export default function TodoTab({ auth, who = "belen", name = "Belen", call: cal
   if (!list) return <div style={{ maxWidth: 720, margin: "0 auto", ...ui.muted }}>{err || "Loading…"}</div>;
 
   const doc = parse(list.text);
-  const tasks = plain ? [] : doc.sections.flatMap((s) => s.rows.filter((r) => r.kind === "task").map((r) => r.text));
+  // The plain to-do counts only what's due today; a section dated for another day doesn't count yet.
+  const tasks = plain ? [] : listName === "todo" ? tasksForDay(list.text, shopToday()).map((t) => t.text) : doc.sections.flatMap((s) => s.rows.filter((r) => r.kind === "task").map((r) => r.text));
   const doneSet = new Set(list.done);
   const doneCount = tasks.filter((t) => doneSet.has(t)).length;
   const skipSet = new Set(list.skipped || []);

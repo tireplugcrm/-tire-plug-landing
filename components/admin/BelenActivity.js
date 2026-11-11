@@ -3,6 +3,7 @@
 // Data: /api/belen action "activity" (lib/staff-activity.js) + her to-do list (/api/admin/todo).
 import React, { useEffect, useState } from "react";
 import { T, ui, Icon } from "./ui.js";
+import { tasksForDay } from "../../lib/todo-days.js";
 
 const TZ = "America/Los_Angeles";
 const dayOf = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
@@ -58,9 +59,10 @@ export default function BelenActivity({ auth }) {
     const d = dayOf(iso);
     return { d, label: new Date(iso).toLocaleDateString("en-US", { timeZone: TZ, weekday: "narrow" }), on: events.some((e) => dayOf(e.at) === d) };
   });
-  const tasks = todo ? todo.text.split(/\r?\n/).filter((l) => /^\s*[-*]\s/.test(l)).length : 0;
-  const done = todo ? todo.done.length : 0;
-  const scratched = todo ? (todo.skipped || []).length : 0;
+  const todayTasks = todo ? tasksForDay(todo.text, today).map((t) => t.text) : [];
+  const tasks = todayTasks.length;
+  const done = todo ? todayTasks.filter((t) => todo.done.includes(t)).length : 0;
+  const scratched = todo ? todayTasks.filter((t) => (todo.skipped || []).includes(t) && !todo.done.includes(t)).length : 0;
   const reminders = todayEv.filter((e) => e.event === "reminder").length;
   const seenToday = lastSeen && dayOf(lastSeen) === today;
 
