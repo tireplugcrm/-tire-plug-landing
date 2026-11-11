@@ -1,6 +1,6 @@
 /**
  * Belen's pay tracker: the same calendar as Junior's (lib/junior-pay.js, PAY_REPS.belen), on her
- * work days (Mon-Sat), hourly + commission on her ROs. Two ways in:
+ * work days (Mon-Sat), commission on her ROs only (her hours are in Homebase). Two ways in:
  *   - her 4-digit code (/belen, "My pay" tab): read only
  *   - admin login (the admin Belen tab): read + edit
  *
@@ -26,7 +26,7 @@ const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d || "");
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const b = req.body || {};
-  if (b.demo) return res.json({ ...demoState(b.month), who: { rep: REP, daysLabel: P.daysLabel, his: P.his, he: P.he, fill: P.fill, days: P.days } });
+  if (b.demo) return res.json({ ...demoState(b.month), who: { rep: REP, daysLabel: P.daysLabel, his: P.his, he: P.he, fill: P.fill, days: P.days, commissionOnly: true }, hourly: 0 });
   if (!supabaseAdmin) return res.status(500).json({ error: "Database not configured." });
 
   const admin = (b.password || b.accessToken || req.headers.authorization) ? (await requireAdmin(req)).ok : false;

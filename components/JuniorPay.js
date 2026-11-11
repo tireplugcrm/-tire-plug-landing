@@ -43,10 +43,11 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
   const cells = [...Array(lead).fill(null), ...Array.from({ length: nDays }, (_, i) => `${s.month}-${String(i + 1).padStart(2, "0")}`)];
   const due = s.complete ? s.toDate.total : s.projected.total;
   const pctLabel = `${Math.round((s.pct ?? 0.05) * 1000) / 10}%`;
+  const co = !!s.who?.commissionOnly; // commission-only tracker (hours live elsewhere)
 
   return (
     <div style={{ color: T.text, fontFamily: "inherit" }}>
-      <div style={{ color: T.textMuted, fontSize: 13.5, marginBottom: 14 }}>{s.who?.daysLabel || "Every Saturday and Sunday"} · {$(s.hourly).replace(/[.]00$/, "")}/hour + {pctLabel} of labor on {s.who?.his || "his"} ROs · paid on the 1st.</div>
+      <div style={{ color: T.textMuted, fontSize: 13.5, marginBottom: 14 }}>{co ? `Commission tracker · ${pctLabel} of labor on ${s.who?.his || "his"} ROs · hours are in Homebase` : <>{s.who?.daysLabel || "Every Saturday and Sunday"} · {$(s.hourly).replace(/[.]00$/, "")}/hour + {pctLabel} of labor on {s.who?.his || "his"} ROs · paid on the 1st.</>}</div>
       {/* Month switcher */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 14 }}>
         <button aria-label="Previous month" style={{ ...ui.btn, width: 40, padding: 0 }} onClick={() => { setSel(null); setMonth(shiftMonth(s.month, -1)); }}><Icon name="chevron_left" /></button>
@@ -59,22 +60,22 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
         <div style={ui.card}>
           <div style={label}>Earned so far</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: T.green, lineHeight: 1.15 }}>{$(s.toDate.total)}</div>
-          <div style={{ color: T.textMuted, fontSize: 12.5, marginTop: 4 }}>{s.toDate.shifts} shift{s.toDate.shifts === 1 ? "" : "s"} · {s.toDate.ros} RO{s.toDate.ros === 1 ? "" : "s"}</div>
+          <div style={{ color: T.textMuted, fontSize: 12.5, marginTop: 4 }}>{co ? "" : `${s.toDate.shifts} shift${s.toDate.shifts === 1 ? "" : "s"} · `}{s.toDate.ros} RO{s.toDate.ros === 1 ? "" : "s"}</div>
         </div>
         <div style={ui.card}>
           <div style={label}>{s.payout ? "Paid" : "Due"} {dayName(s.dueOn, { month: "short", day: "numeric" })}</div>
           <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.15, color: s.payout ? T.textMuted : T.text }}>{$(s.payout ? s.payout.amount : due)}</div>
           <div style={{ color: s.payout ? T.green : T.textMuted, fontSize: 12.5, marginTop: 4 }}>
-            {s.payout ? `Paid ${dayName(s.payout.paid_at.slice(0, 10), { month: "short", day: "numeric" })}` : s.complete ? "Month is done" : `If ${s.who?.he || "he"} works ${s.who?.fill || "every weekend left"}`}
+            {s.payout ? `Paid ${dayName(s.payout.paid_at.slice(0, 10), { month: "short", day: "numeric" })}` : s.complete ? "Month is done" : co ? "Commission so far" : `If ${s.who?.he || "he"} works ${s.who?.fill || "every weekend left"}`}
           </div>
         </div>
       </div>
 
       <div style={{ ...ui.card, marginTop: 10, fontSize: 14, display: "grid", gap: 6 }}>
-        <Row k={`Hours · ${hrs(s.toDate.hours)} × ${$0(s.hourly)}/hr`} v={$(s.toDate.base)} />
+        {!co && <Row k={`Hours · ${hrs(s.toDate.hours)} × ${$0(s.hourly)}/hr`} v={$(s.toDate.base)} />}
         <Row k={`Commission · ${pctLabel} of ${$0(s.toDate.labor)} labor`} v={$(s.toDate.commission)} />
         <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 6 }}><Row k={<strong>Total so far</strong>} v={<strong>{$(s.toDate.total)}</strong>} /></div>
-        {s.unconfirmed > 0 && <div style={{ color: T.amber, fontSize: 12.5 }}>{s.unconfirmed} day{s.unconfirmed === 1 ? " uses" : "s use"} {s.who?.his || "his"} usual hours until the real hours are entered.</div>}
+        {!co && s.unconfirmed > 0 && <div style={{ color: T.amber, fontSize: 12.5 }}>{s.unconfirmed} day{s.unconfirmed === 1 ? " uses" : "s use"} {s.who?.his || "his"} usual hours until the real hours are entered.</div>}
       </div>
 
       {/* Calendar */}
@@ -88,7 +89,7 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
             const d = byDay[c];
             const num = +c.slice(8);
             if (!d) return <div key={c} style={{ ...cell, opacity: 0.35 }}><span style={{ fontSize: 12 }}>{num}</span></div>;
-            const off = d.hours === 0;
+            const off = !co && d.hours === 0;
             const on = sel === c;
             return (
               <button key={c} onClick={() => setSel(c)} style={{
@@ -97,8 +98,8 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
                 border: `1px solid ${on ? T.blue : c === s.today ? T.amber : off ? T.border : d.past ? "rgba(52,211,153,0.45)" : T.borderStrong}`,
               }}>
                 <span style={{ fontSize: 12, fontWeight: 700 }}>{num}</span>
-                <span style={{ fontSize: 10.5, color: off ? T.textFaint : T.textMuted }}>{off ? "Off" : hrs(d.hours)}</span>
-                {d.past && !off && <span style={{ fontSize: 10.5, fontWeight: 700, color: T.green }}>{$0(Math.round(d.total))}</span>}
+                <span style={{ fontSize: 10.5, color: off ? T.textFaint : T.textMuted }}>{co ? (d.ros.length ? "" : d.past ? "—" : "") : off ? "Off" : hrs(d.hours)}</span>
+                {d.past && !off && (!co || d.total > 0) && <span style={{ fontSize: 10.5, fontWeight: 700, color: T.green }}>{$0(Math.round(d.total))}</span>}
                 {d.ros.length > 0 && <span style={{ fontSize: 9.5, color: T.textMuted }}>{d.ros.length} RO</span>}
               </button>
             );
@@ -143,12 +144,12 @@ function DayCard({ d, s, canEdit, busy, run }) {
         <div style={{ fontSize: 17, fontWeight: 800, color: d.past ? T.green : T.textMuted }}>{$(d.total)}</div>
       </div>
       <div style={{ color: T.textMuted, fontSize: 13, marginTop: 2 }}>
-        {d.hours === 0 ? "Off" : `${hrs(d.hours)} × ${$0(s.hourly)} = ${$(d.base)}`}{d.commission ? ` · commission ${$(d.commission)}` : ""}
-        {!d.past ? " · coming up" : !d.confirmed ? " · usual hours (not entered yet)" : ""}
+        {s.who?.commissionOnly ? (d.commission ? `Commission ${$(d.commission)}` : "No commission yet") : d.hours === 0 ? "Off" : `${hrs(d.hours)} × ${$0(s.hourly)} = ${$(d.base)}`}{!s.who?.commissionOnly && d.commission ? ` · commission ${$(d.commission)}` : ""}
+        {!d.past ? " · coming up" : !s.who?.commissionOnly && !d.confirmed ? " · usual hours (not entered yet)" : ""}
       </div>
       {d.note && <div style={{ color: T.textMuted, fontSize: 12.5, marginTop: 4 }}>{d.note}</div>}
 
-      {canEdit && (
+      {canEdit && !s.who?.commissionOnly && (
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
           <label style={{ fontSize: 13, color: T.textMuted }}>Hours worked</label>
           <input value={hours} onChange={(e) => setHours(e.target.value)} inputMode="decimal" style={{ ...inp, width: 70 }} />
