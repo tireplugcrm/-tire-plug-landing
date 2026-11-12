@@ -11,7 +11,7 @@ function Card({ t }) {
   const [shown, setShown] = useState(0);
   const name = [t.brand, t.model].filter(Boolean).join(" ");
   const facts = [t.dot_year && `Made ${t.dot_year}`, t.tread_32 != null && `${t.tread_32}/32" tread`, t.load_speed].filter(Boolean);
-  const body = `Hi Tire Plug! I want used tire U${t.tag}: ${t.size}${name ? ` ${name}` : ""}, ${GROUP[t.qty]}. Is it still available?`;
+  const body = `Hi Tire Plug! I want used tire U${t.tag}: ${t.size}${name ? ` ${name}` : ""}, ${GROUP[t.qty]}, installed and balanced. Is it still available?`;
   return (
     <article style={{ border: "1px solid #e6e6e6", borderRadius: 12, overflow: "hidden", background: "#fff", display: "flex", flexDirection: "column" }}>
       <a href={t.photos[shown]?.full} target="_blank" rel="noopener noreferrer" style={{ display: "block", position: "relative", overflow: "hidden", aspectRatio: "4 / 3", background: "#f2f2f2" }}>
@@ -33,6 +33,7 @@ function Card({ t }) {
         <div style={{ fontSize: "1.05rem", fontWeight: 800, marginTop: 4 }}>
           {t.was_each != null && <s style={{ color: "#8a8a8a", fontWeight: 500, marginRight: 6 }}>{money(t.was_each)}</s>}{money(t.price_each)} <span style={{ fontWeight: 500, fontSize: "0.85rem", color: "#6b6b6b" }}>each{t.qty > 1 ? ` · ${money(t.price_each * t.qty)} for ${t.qty}` : ""}</span>
         </div>
+        <div style={{ color: "#15803d", fontSize: "0.85rem", fontWeight: 700 }}>✓ Install &amp; balance included</div>
         <div style={{ display: "flex", gap: 6, marginTop: "auto", paddingTop: 8 }}>
           <a href={smsHref(body)} style={{ flex: 1, textAlign: "center", background: "#E01B22", color: "#fff", padding: "0.6rem 0.4rem", borderRadius: 8, fontWeight: 700, fontSize: "0.88rem", textDecoration: "none" }}>Text to reserve</a>
           <a href={PHONE.tel} style={{ textAlign: "center", border: "1px solid #ccc", color: "#111", padding: "0.6rem 0.8rem", borderRadius: 8, fontWeight: 700, fontSize: "0.88rem", textDecoration: "none" }}>Call</a>
