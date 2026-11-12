@@ -100,6 +100,7 @@ export default function Header() {
         <div className="desktop-nav" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
           {/* Sales funnel first: pick a tire (priced to beat Amazon/Walmart) -> book. Careers is in the footer. */}
           <a href="/tires" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Shop Tires</a>
+          <a href="/cheap-tires-los-angeles" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Cheap Tires</a>
           <button onClick={() => scrollToSection('hero')} style={navLinkStyle} className="nav-link">Deals</button>
           <a href="/book?service=1" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Services</a>
           <a href="/olympic" style={{ ...navLinkStyle, textDecoration: 'none' }} className="nav-link">Location</a>
@@ -112,6 +113,7 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="mm">
             <a href="/tires">Shop tires<span>›</span></a>
+            <a href="/cheap-tires-los-angeles">Cheap tires in stock<span>›</span></a>
             <button type="button" onClick={() => scrollToSection('hero')}>Deals<span>›</span></button>
             <a href="/book?service=1">Services<span>›</span></a>
             <a href="/olympic">Location &amp; hours<span>›</span></a>

@@ -124,6 +124,11 @@ export default function CheapTires({ cheapest, rims, count, from }) {
             </section>
           )}
 
+          <section>
+            <h2>Cheap tires near Downtown LA</h2>
+            <p className="sub">We're at 2331 E Olympic Blvd, Los Angeles 90021, a few minutes from the Arts District, Boyle Heights, Vernon, Pico-Union, the Fashion District and Lincoln Heights. Walk in with your size or <a href="/olympic">get directions and hours</a>.</p>
+          </section>
+
           <section className="cols">
             <div className="panel">
               <h2>Used tires, even cheaper</h2>

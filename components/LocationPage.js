@@ -48,6 +48,9 @@ export default function LocationPage({ loc }) {
             <a href={loc.directionsUrl} target="_blank" rel="noopener noreferrer" style={ctaGhost}>🗺️ Get Directions</a>
             <a href="/tires" style={ctaGhost}>{CTA.shopTires}</a>
           </div>
+          <p style={{ marginTop: "1.25rem", color: "#555" }}>
+            Looking for cheap tires near {loc.label}? <a href="/cheap-tires-los-angeles" style={{ color: "#E01B22", fontWeight: 700 }}>See the cheapest tires in stock today →</a>
+          </p>
         </section>
 
         <section style={{ padding: "1.5rem 1.5rem 2.5rem", maxWidth: 940, margin: "0 auto", borderTop: "1px solid #e6e6e6" }}>
