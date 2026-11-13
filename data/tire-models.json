@@ -725,7 +725,8 @@
       ],
       "img": "/images/tires/groundspeed-voyager-gt-as.webp",
       "aliases": [
-        "Voyager GTS A/S"
+        "Voyager GTS A/S",
+        "VYG GT-AS"
       ],
       "source": "https://groundspeedtires.com/tires/passenger/voyager-gt-as"
     },
@@ -809,7 +810,8 @@
       ],
       "img": "/images/tires/arisun-aggressor-zs03.webp",
       "aliases": [
-        "ZS03"
+        "ZS03",
+        "ZS03 Aggressor"
       ],
       "source": "https://simpletire.com/brands/arisun-tires/aggressor-zs03"
     },
@@ -2792,6 +2794,34 @@
         "HST-01"
       ],
       "source": "https://simpletire.com/brands/blackhawk-tires/hst01"
+    },
+    "BFGoodrich|Trail-Terrain T/A": {
+      "category": "All-terrain",
+      "features": [],
+      "img": "/images/tires/bfgoodrich-trail-terrain-t-a.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/bfgoodrich-tires/trail-terrain-t-a"
+    },
+    "Continental|TrueContact Tour": {
+      "category": "All-season touring",
+      "features": [],
+      "img": "/images/tires/continental-truecontact-tour.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/continental-tires/truecontact-tour"
+    },
+    "Firestone|All Season": {
+      "category": "All-season",
+      "features": [],
+      "img": "/images/tires/firestone-all-season.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/firestone-tires/all-season"
+    },
+    "Nexen|Roadian GTX": {
+      "category": "All-season SUV / CUV",
+      "features": [],
+      "img": "/images/tires/nexen-roadian-gtx.webp",
+      "aliases": [],
+      "source": "https://simpletire.com/brands/nexen-tires/roadian-gtx"
     }
   }
 }
