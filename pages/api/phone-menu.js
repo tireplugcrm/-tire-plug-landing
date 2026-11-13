@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   try {
     if (!step) {
-      if (!liveNow(s)) return twiml(res, toAI(s));
+      if (!liveNow(s, new Date(), q.From)) return twiml(res, toAI(s));
       const ask = `<Gather numDigits="1" timeout="5" action="${U("choice")}" method="POST"><Play>${A("menu")}</Play></Gather>`;
       return twiml(res, ask + ask + toAI(s)); // asked twice, then the AI picks up
     }
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     if (!twilioOk) console.warn(`phone-menu: bad Twilio signature on step=${step}`);
 
     if (step === "choice") {
-      if (q.Digits !== "1" || !twilioOk || !liveNow(s)) return twiml(res, toAI(s));
+      if (q.Digits !== "1" || !twilioOk || !liveNow(s, new Date(), q.From)) return twiml(res, toAI(s));
       await ringAgent(s, { why: "press1" }).catch((e) => console.error("phone-menu ring:", e.message));
       return twiml(res, `<Enqueue waitUrl="${U("wait")}" waitUrlMethod="POST" action="${U("left")}" method="POST">${QUEUE}</Enqueue>`);
     }

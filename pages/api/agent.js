@@ -246,7 +246,7 @@ export default async function handler(req, res) {
       const op = String(b.op || "status");
       let out = {};
       if (op === "set") {
-        const allowed = ["enabled", "agent_phone", "schedule", "max_wait"];
+        const allowed = ["enabled", "agent_phone", "schedule", "max_wait", "test_from"];
         await M.saveSettings(Object.fromEntries(Object.entries(b.settings || {}).filter(([k]) => allowed.includes(k))));
       }
       if (op === "install") out.number = await M.install();
