@@ -240,6 +240,22 @@ export default async function handler(req, res) {
         error: c.message || null, notifications: (notes?.notifications || []).map((n) => ({ code: n.error_code, text: n.message_text })) });
     }
     if (b.action === "health") return res.status(200).json({ ok: true, ...(await health()) });
+    // Shop line phone menu (lib/phone-menu.js). op: status | set {settings} | install | uninstall
+    if (b.action === "phone-menu") {
+      const M = await import("../../lib/phone-menu.js");
+      const op = String(b.op || "status");
+      let out = {};
+      if (op === "set") {
+        const allowed = ["enabled", "agent_phone", "schedule", "max_wait"];
+        await M.saveSettings(Object.fromEntries(Object.entries(b.settings || {}).filter(([k]) => allowed.includes(k))));
+      }
+      if (op === "install") out.number = await M.install();
+      if (op === "uninstall") out.number = await M.uninstall();
+      const s = await M.menuSettings();
+      out = { settings: s, live_now: M.liveNow(s), number: out.number || (await M.numberInfo()), waiting: await M.queueSize() };
+      await log(agent, `phone menu ${op}`, { live_now: out.live_now });
+      return res.status(200).json({ ok: true, ...out });
+    }
     if (b.action === "reprice") {
       const ctx = pricingContext();
       const report = await P.autopilot(ctx, (path) => res.revalidate(path), { budgetMs: 45000, force: true });
