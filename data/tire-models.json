@@ -2822,6 +2822,16 @@
       "img": "/images/tires/nexen-roadian-gtx.webp",
       "aliases": [],
       "source": "https://simpletire.com/brands/nexen-tires/roadian-gtx"
+    },
+    "Hankook|SmartFlex AH35": {
+      "category": "Commercial regional all-position",
+      "features": [],
+      "img": "/images/tires/hankook-smartflex-ah35.webp",
+      "aliases": [
+        "Smart Flex AH35",
+        "SmartFlex AH-35"
+      ],
+      "source": "https://simpletire.com/brands/hankook-tires/smart-flex-ah35"
     }
   }
 }
