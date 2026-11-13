@@ -55,6 +55,8 @@ export default function JuniorPay({ call, canEdit = false, initialMonth }) {
         <button aria-label="Next month" style={{ ...ui.btn, width: 40, padding: 0 }} onClick={() => { setSel(null); setMonth(shiftMonth(s.month, 1)); }}><Icon name="chevron_right" /></button>
       </div>
 
+      {co && !canEdit && <LogRo run={run} busy={busy} />}
+
       {/* Totals */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={ui.card}>
@@ -164,7 +166,7 @@ function DayCard({ d, s, canEdit, busy, run }) {
         <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, padding: "8px 0", borderTop: `1px solid ${T.border}` }}>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 600, fontSize: 14 }}>RO #{r.ro_number}{r.ro_name ? <span style={{ color: T.textMuted, fontWeight: 400 }}> · {r.ro_name}</span> : null}</div>
-            <div style={{ color: T.textMuted, fontSize: 12.5 }}>{$(r.labor)} labor × {pctLabel}</div>
+            <div style={{ color: T.textMuted, fontSize: 12.5 }}>{!r.labor && r.status !== "matched" ? "Waiting for the shop to match it in Tekmetric" : `${$(r.labor)} labor × ${pctLabel}`}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <strong style={{ color: T.green }}>{$(r.commission)}</strong>
@@ -183,6 +185,23 @@ function DayCard({ d, s, canEdit, busy, run }) {
         </form>
       )}
     </div>
+  );
+}
+
+// Commission-only trackers (Belen): she logs an RO here (RO # + the name on it), the same as the
+// commission tracker link; it lands on today and earns commission once the shop matches the labor.
+function LogRo({ run, busy }) {
+  const [ro, setRo] = useState({ ro_number: "", ro_name: "" });
+  const [ok, setOk] = useState("");
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); setOk(""); run({ action: "reportRo", ...ro }).then((x) => { if (x) { setOk(`RO #${ro.ro_number} logged for today.`); setRo({ ro_number: "", ro_name: "" }); } }); }}
+      style={{ ...ui.card, marginBottom: 12, display: "grid", gridTemplateColumns: "1fr 1.4fr auto", gap: 6, alignItems: "center" }}>
+      <div style={{ ...label, gridColumn: "1 / -1" }}>Log an RO</div>
+      <input placeholder="RO #" inputMode="numeric" value={ro.ro_number} onChange={(e) => setRo({ ...ro, ro_number: e.target.value })} style={inp} required />
+      <input placeholder="Name on the RO" value={ro.ro_name} onChange={(e) => setRo({ ...ro, ro_name: e.target.value })} style={inp} required />
+      <button style={ui.primary} disabled={busy}>Add</button>
+      {ok && <div style={{ gridColumn: "1 / -1", color: T.green, fontSize: 12.5 }}>{ok}</div>}
+    </form>
   );
 }
 

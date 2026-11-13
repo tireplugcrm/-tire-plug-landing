@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { trackContactClicks } from '../lib/track';
+import { rememberBookedBy } from '../lib/booked-by';
 
 // Vercel Web Analytics (visitors, pages, referrers) is always on; turn it on for the
 // project in the Vercel dashboard (Analytics tab → Enable).
@@ -19,6 +20,8 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 export default function App({ Component, pageProps }) {
   // Text / Call taps anywhere on the site (see lib/track.js)
   useEffect(() => trackContactClicks(), []);
+  // Staff booking links (?by=belen): remember who is booking for this tab (see lib/booked-by.js)
+  useEffect(() => rememberBookedBy(), []);
 
   return (
     <>

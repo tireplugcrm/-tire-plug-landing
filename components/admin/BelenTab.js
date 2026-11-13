@@ -1,10 +1,10 @@
 // Admin "Belen" tab: her to-do list (edit it here, she ticks it on /belen), her "Good to know" list, her pay
-// calendar (same as Junior's: hours + commission on her ROs, mark paid) and her commission tracker.
+// commission calendar (same as Junior's, commission only: ROs, mark paid) and the bookings she made.
 // The field-rep bonus / business-accounts tracker (BelenBonus) is hidden until her plan is final.
 import React, { useState } from "react";
 import JuniorPay from "../JuniorPay.js";
 import TodoTab from "./TodoTab.js";
-import CommissionFrame from "../CommissionFrame.js";
+import BelenBookings from "../BelenBookings.js";
 import BelenActivity from "./BelenActivity.js";
 import { T, ui } from "./ui.js";
 
@@ -30,10 +30,10 @@ export default function BelenTab({ auth }) {
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <BelenActivity auth={auth} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-        <div role="tablist" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{seg("todo", "To-do")}{seg("know", "Good to know")}{seg("pay", "Pay")}{seg("commission", "Commission")}</div>
+        <div role="tablist" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{seg("todo", "To-do")}{seg("know", "Good to know")}{seg("bookings", "Bookings")}{seg("pay", "Pay")}</div>
         <a href="/belen" target="_blank" rel="noopener noreferrer" style={ui.btn}>Belen&apos;s page (code)</a>
       </div>
-      {view === "todo" ? <TodoTab key="todo" auth={auth} who="belen" name="Belen" /> : view === "know" ? <TodoTab key="know" auth={auth} who="belen" name="Belen" list="know" /> : view === "commission" ? <CommissionFrame call={call} /> : (
+      {view === "todo" ? <TodoTab key="todo" auth={auth} who="belen" name="Belen" /> : view === "know" ? <TodoTab key="know" auth={auth} who="belen" name="Belen" list="know" /> : view === "bookings" ? <BelenBookings call={payCall} /> : (
         <>
           <h1 style={{ ...ui.h1, marginBottom: 10 }}>Belen&apos;s pay</h1>
           <JuniorPay call={payCall} canEdit />

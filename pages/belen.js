@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import JuniorPay from "../components/JuniorPay.js";
 import TodoTab from "../components/admin/TodoTab.js";
-import CommissionFrame from "../components/CommissionFrame.js";
+import BelenBookings from "../components/BelenBookings.js";
 
 /* Belen's page. iPhone-style 4-digit passcode (same as /junior), then three tabs:
    Today (her to-do list from the admin, she ticks it off), Good to know (shop info, no boxes) and My bonus (her business accounts,
@@ -108,12 +108,12 @@ export default function Belen() {
             {!demo && <button onClick={() => { try { sessionStorage.removeItem(SS); } catch { /* */ } setOk(false); setCode(""); }} style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.2)", color: "#fff", borderRadius: 999, height: 34, padding: "0 14px", fontFamily: "inherit", cursor: "pointer" }}>Lock</button>}
           </div>
           <div role="tablist" style={{ display: "grid", gridTemplateColumns: "repeat(4, auto)", gap: 2, padding: 4, borderRadius: 999, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.14)", marginBottom: 16 }}>
-            {[["today", "Today"], ["know", "Good to know"], ["pay", "My pay"], ["commission", "Commission"]].map(([id, lbl]) => (
+            {[["today", "Today"], ["know", "Good to know"], ["bookings", "Bookings"], ["pay", "My pay"]].map(([id, lbl]) => (
               <button key={id} role="tab" aria-selected={view === id} onClick={() => { setView(id); if (!demo && id !== view) post({ code, action: "ping", event: "tab", detail: id }).catch(() => {}); }} style={{ height: 36, borderRadius: 999, border: 0, background: view === id ? "#fff" : "transparent", color: view === id ? "#0b0f15" : "#fff", fontWeight: 600, fontSize: 12.5, padding: "0 8px", fontFamily: "inherit", cursor: "pointer" }}>{lbl}</button>
             ))}
           </div>
-          {view === "commission"
-            ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>The tracker needs the real code.</div> : <CommissionFrame call={call} />)
+          {view === "bookings"
+            ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>Bookings need the real code.</div> : <BelenBookings call={payCall} />)
             : view === "know"
             ? (demo ? <div style={{ color: "rgba(255,255,255,.6)", textAlign: "center", padding: 24 }}>This list needs the real code.</div> : <TodoTab key="know" who="belen" name="Belen" call={todoCall} canEdit={false} list="know" />)
             : view === "today"

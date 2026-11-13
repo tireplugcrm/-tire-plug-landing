@@ -1,3 +1,4 @@
+import { bookedByName } from "../lib/booked-by.js";
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Header from "../components/Header";
@@ -127,6 +128,7 @@ export default function BookPage({ sizeKey, options, picked, service }) {
           appointmentAt: slot ? slot.at : undefined,
           leadPriority: timing === "ASAP" || timing === "Tomorrow" ? "HOT" : "WARM",
           smsConsent, marketingConsent: dealsConsent, source: "book-page",
+          bookedBy: bookedByName() || undefined,
         }),
       });
       const data = await r.json();
