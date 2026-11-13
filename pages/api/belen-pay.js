@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     const m = /^[0-9]{4}-[0-9]{2}$/.test(month) ? month : shopDay(0).slice(0, 7);
     const from = `${m}-01`, to = `${nextMonth(m)}-01`;
     const [{ data: leads, error }, { data: ros }] = await Promise.all([
-      supabaseAdmin.from("leads").select("id, name, created_at, appointment_at, appt_status, status, service, tire_size, quantity")
+      supabaseAdmin.from("leads").select("id, name, created_at, appointment_at, appt_status, status, service")
         .ilike("raw->>bookedBy", "belen%").gte("created_at", from).lt("created_at", to).order("created_at", { ascending: false }).limit(300),
       supabaseAdmin.from("commission_reports").select("ro_number, ro_name, commission, labor_total, status, day").eq("rep", REP).gte("day", from),
     ]);
