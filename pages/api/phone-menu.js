@@ -10,7 +10,7 @@
  *   step=agent-status  their call leg ended (Twilio status callback): ring again if anyone waits
  * Every path that doesn't reach a person ends at the AI agent, so no call is dropped.
  */
-import { AI_URL_DEFAULT, QUEUE, inBackground, liveNow, menuSettings, queueSize, ringAgent, signatureOk, stopOtherRinging } from "../../lib/phone-menu.js";
+import { AI_URL_DEFAULT, QUEUE, agentPhones, inBackground, liveNow, menuSettings, queueSize, ringAgent, signatureOk, stopOtherRinging } from "../../lib/phone-menu.js";
 import { SITE } from "../../lib/invoices.js";
 
 const A = (f) => `${SITE}/audio/phone/${f}.mp3`;
@@ -47,7 +47,9 @@ export default async function handler(req, res) {
 
     if (step === "wait") {
       if (Number(q.QueueTime) >= Number(s.max_wait || 180) || !twilioOk) return twiml(res, `<Leave/>`);
-      await ringAgent(s, { why: "tick" }).catch((e) => console.error("phone-menu ring:", e.message));
+      // While Press 1's ordered ringing is still adding phones, ticks leave it alone.
+      const ordered = agentPhones(s).length * Number(s.ring_gap ?? 3) + 5;
+      if (Number(q.QueueTime) >= ordered) await ringAgent(s, { why: "tick" }).catch((e) => console.error("phone-menu ring:", e.message));
       return twiml(res, `<Play>${A("hold")}</Play>`);
     }
 
@@ -74,7 +76,8 @@ export default async function handler(req, res) {
     }
 
     if (step === "agent-status") {
-      if ((await queueSize()) > 0) await ringAgent(s, { why: `after ${q.CallStatus}` }).catch((e) => console.error("phone-menu ring:", e.message));
+      // canceled = we stopped it because someone else took the caller: don't ring it right back.
+      if (q.CallStatus !== "canceled" && (await queueSize()) > 0) await ringAgent(s, { why: `after ${q.CallStatus}` }).catch((e) => console.error("phone-menu ring:", e.message));
       return res.status(204).end();
     }
 
