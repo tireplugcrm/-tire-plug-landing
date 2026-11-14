@@ -2832,6 +2832,16 @@
         "SmartFlex AH-35"
       ],
       "source": "https://simpletire.com/brands/hankook-tires/smart-flex-ah35"
+    },
+    "BFGoodrich|g-Force Comp 2 AS Plus": {
+      "category": "Ultra-high performance all-season",
+      "features": [],
+      "img": "/images/tires/bfgoodrich-g-force-comp-2-a-s-plus.webp",
+      "aliases": [
+        "g-Force COMP-2 A/S PLUS",
+        "g-Force Comp-2 A/S Plus"
+      ],
+      "source": "https://simpletire.com/brands/bfgoodrich-tires/g-force-comp-2-a-s-plus"
     }
   }
 }
