@@ -10,7 +10,7 @@
  *   step=agent-status  their call leg ended (Twilio status callback): ring again if anyone waits
  * Every path that doesn't reach a person ends at the AI agent, so no call is dropped.
  */
-import { AI_URL_DEFAULT, QUEUE, liveNow, menuSettings, queueSize, ringAgent, signatureOk, stopOtherRinging } from "../../lib/phone-menu.js";
+import { AI_URL_DEFAULT, QUEUE, inBackground, liveNow, menuSettings, queueSize, ringAgent, signatureOk, stopOtherRinging } from "../../lib/phone-menu.js";
 import { SITE } from "../../lib/invoices.js";
 
 const A = (f) => `${SITE}/audio/phone/${f}.mp3`;
@@ -38,7 +38,10 @@ export default async function handler(req, res) {
 
     if (step === "choice") {
       if (q.Digits !== "1" || !twilioOk || !liveNow(s, new Date(), q.From)) return twiml(res, toAI(s));
-      await ringAgent(s, { why: "press1" }).catch((e) => console.error("phone-menu ring:", e.message));
+      // Phones ring in order, ring_gap seconds apart, while the caller already hears the hold line.
+      const job = ringAgent(s, { why: "press1", gapMs: Number(s.ring_gap ?? 3) * 1000 }).catch((e) => console.error("phone-menu ring:", e.message));
+      const wait = inBackground(job);
+      if (wait) await wait;
       return twiml(res, `<Enqueue waitUrl="${U("wait")}" waitUrlMethod="POST" action="${U("left")}" method="POST">${QUEUE}</Enqueue>`);
     }
 
