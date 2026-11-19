@@ -161,7 +161,7 @@ export default function TextUs() {
         <p style={{ margin: "0 0 32px" }}>
           Monday–Friday 9:00am–7:00pm
           <br />
-          Saturday 9:00am–6:00pm
+          Saturday 9:00am–7:00pm
           <br />
           Sunday 10:00am–4:00pm
         </p>

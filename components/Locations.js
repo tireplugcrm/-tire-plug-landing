@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PHONE, ADDRESS, HOURS_LINES } from '../lib/shop';
 
 export default function Locations() {
@@ -14,7 +14,11 @@ export default function Locations() {
       city: `${ADDRESS.city}, ${ADDRESS.region} ${ADDRESS.zip}`,
       hours: HOURS_LINES[0],
       sundayHours: HOURS_LINES.slice(1).join(' · '),
-      image: '/images/shop-exterior.webp',
+      photos: [
+        { src: '/images/shop/street-front.webp', alt: 'The Tire Plug storefront on E Olympic Blvd', pos: '50% 50%' },
+        { src: '/images/shop/entrance-sign.webp', alt: 'The Tire Plug pole sign and yellow entrance', pos: '50% 35%' },
+        { src: '/images/shop/street-wide.webp', alt: 'The Tire Plug from down the block on Olympic Blvd', pos: '50% 45%' },
+      ],
       directionsUrl: ADDRESS.directions,
       phone: PHONE.plain,
       highlights: ['Full Service', 'Oil Changes', 'Brake Service'],
@@ -91,7 +95,7 @@ export default function Locations() {
           display: 'grid',
           gridTemplateColumns: '1fr',
           gap: '2rem',
-          maxWidth: '600px',
+          maxWidth: '880px',
           margin: '0 auto',
         }}>
           {locations.map((loc, idx) => (
@@ -135,23 +139,12 @@ function LocationCard({ location, delay, isVisible }) {
       }}
     >
       {/* IMAGE SECTION */}
-      <div style={{
+      <div className="loc-photos" style={{
         position: 'relative',
-        height: '280px',
+        height: 'clamp(280px, 48vw, 460px)',
         overflow: 'hidden',
       }}>
-        <div
-          className="card-image"
-          style={{
-            width: '100%',
-            height: '100%',
-            backgroundImage: `url(${location.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'brightness(0.85) contrast(1.05)',
-            transition: 'transform 6s ease, filter 0.6s ease',
-          }}
-        />
+        <PhotoSlides photos={location.photos} />
 
         {/* Image gradient overlay */}
         <div style={{
@@ -416,6 +409,67 @@ function LocationCard({ location, delay, isVisible }) {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.2); }
         }
+      `}</style>
+    </div>
+  );
+}
+// ============ PHOTO CAROUSEL ============
+// Crossfades through the shop photos; arrows, dots and swipe. Pauses on hover.
+function PhotoSlides({ photos }) {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touch = useRef(null);
+  const go = useCallback((n) => setI((n + photos.length) % photos.length), [photos.length]);
+
+  useEffect(() => {
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const t = setTimeout(() => go(i + 1), 4500);
+    return () => clearTimeout(t);
+  }, [i, paused, go]);
+
+  return (
+    <div
+      className="ls"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={(e) => { touch.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => {
+        if (touch.current == null) return;
+        const dx = e.changedTouches[0].clientX - touch.current;
+        if (Math.abs(dx) > 40) go(i + (dx < 0 ? 1 : -1));
+        touch.current = null;
+      }}
+      aria-roledescription="carousel"
+      aria-label="Photos of the shop"
+    >
+      {photos.map((p, n) => (
+        <img key={p.src} src={p.src} alt={p.alt} className={n === i ? 'on' : ''} style={{ objectPosition: p.pos }}
+          loading={n === 0 ? 'eager' : 'lazy'} aria-hidden={n === i ? undefined : 'true'} />
+      ))}
+      <button type="button" className="ls-arrow l" onClick={() => go(i - 1)} aria-label="Previous photo">‹</button>
+      <button type="button" className="ls-arrow r" onClick={() => go(i + 1)} aria-label="Next photo">›</button>
+      <div className="ls-dots">
+        {photos.map((p, n) => (
+          <button key={p.src} type="button" className={n === i ? 'on' : ''} onClick={() => go(n)} aria-label={`Photo ${n + 1} of ${photos.length}`} aria-current={n === i} />
+        ))}
+      </div>
+      <style jsx>{`
+        .ls { position: absolute; inset: 0; }
+        .ls img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.04);
+          transition: opacity 0.9s ease, transform 6s ease; }
+        .ls img.on { opacity: 1; transform: scale(1); }
+        .ls-arrow { position: absolute; top: 50%; z-index: 3; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.35); background: rgba(0,0,0,0.45); color: #fff; font-size: 1.4rem; line-height: 1; cursor: pointer;
+          opacity: 0; transition: opacity 0.2s ease, border-color 0.2s ease; }
+        .ls-arrow.l { left: 12px; }
+        .ls-arrow.r { right: 12px; }
+        .ls:hover .ls-arrow, .ls-arrow:focus-visible { opacity: 1; }
+        .ls-arrow:hover { border-color: #E01B22; }
+        .ls-dots { position: absolute; z-index: 3; right: 1.25rem; bottom: 1.6rem; display: flex; gap: 6px; }
+        .ls-dots button { width: 8px; height: 8px; padding: 0; border: none; border-radius: 50px; background: rgba(255,255,255,0.45); cursor: pointer; transition: all 0.3s ease; }
+        .ls-dots button.on { width: 22px; background: #E01B22; }
+        @media (hover: none) { .ls-arrow { opacity: 1; width: 32px; height: 32px; } }
+        @media (max-width: 640px) { .ls-dots { bottom: auto; top: 1.6rem; } }
       `}</style>
     </div>
   );

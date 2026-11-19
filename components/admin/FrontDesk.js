@@ -246,8 +246,8 @@ export default function FrontDesk({ auth, onOpenLead, me, onNav }) {
 }
 
 // Sends the 5 customer emails of the booking sequence to you, so you can read the wording.
-// Shop hours in minutes from midnight by weekday (Sun 10–4, Mon–Fri 9–7, Sat 9–6), as in lib/booking.js.
-const HOURS = { 0: [600, 960], 1: [540, 1140], 2: [540, 1140], 3: [540, 1140], 4: [540, 1140], 5: [540, 1140], 6: [540, 1080] };
+// Shop hours in minutes from midnight by weekday (Sun 10–4, Mon–Fri 9–7, Sat 9–7), as in lib/booking.js.
+const HOURS = { 0: [600, 960], 1: [540, 1140], 2: [540, 1140], 3: [540, 1140], 4: [540, 1140], 5: [540, 1140], 6: [540, 1140] };
 const slotLabel = (m) => `${Math.floor(m / 60) % 12 || 12}:${String(m % 60).padStart(2, "0")} ${m < 720 ? "AM" : "PM"}`;
 const BOOK_SERVICES = ["New tires", "Used tires", "Flat repair", "Oil change", "Alignment", "Brakes", "Tire rotation"];
 

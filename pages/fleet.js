@@ -92,7 +92,7 @@ export default function Fleet({ cat }) {
         <section className="wrap contact">
           <h2>Set up a business account</h2>
           <p>Call or text <a href={PHONE.tel}><b>{PHONE.display}</b></a> and tell us what you drive. We'll set you up with one contact and quote your vehicles by text.</p>
-          <p className="addr"><b>The Tire Plug</b> · 2331 E Olympic Blvd, Los Angeles, CA 90021 · Mon–Fri 9–7, Sat 9–6, Sun 10–4 · tireplugla.com</p>
+          <p className="addr"><b>The Tire Plug</b> · 2331 E Olympic Blvd, Los Angeles, CA 90021 · Mon–Fri 9–7, Sat 9–7, Sun 10–4 · tireplugla.com</p>
         </section>
       </main>
       <div className="no-print"><Footer /></div>

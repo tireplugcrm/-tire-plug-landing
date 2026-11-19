@@ -4,7 +4,7 @@ scripts/voice-agent-setup.mjs. If something isn't here, the phone AI doesn't kno
 
 ## The shop
 - The Tire Plug, 2331 E Olympic Blvd, Los Angeles, CA 90021 (Downtown LA, near the Arts District, Boyle Heights and Vernon). One location.
-- Open 7 days: Monday to Friday 9 AM to 7 PM, Saturday 9 AM to 6 PM, Sunday 10 AM to 4 PM.
+- Open 7 days: Monday to Friday 9 AM to 7 PM, Saturday 9 AM to 7 PM, Sunday 10 AM to 4 PM.
 - Phone and texts: 562-500-4625. Website: tireplugla.com. Instagram: @tireplugcali.
 - 5.0 stars on Google, over 10,000 vehicles serviced.
 - Walk-ins welcome; booking a time holds your spot and makes sure your tires are ready.
