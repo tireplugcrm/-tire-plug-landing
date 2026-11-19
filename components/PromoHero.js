@@ -11,41 +11,9 @@ const money = (n) => (n == null ? null : `$${Number(n).toFixed(2).replace(/\.00$
 const range = (a, b) => (a && b ? (a === b ? `${a}"` : `${a}" to ${b}"`) : null);
 
 const slides = (f = {}) => {
-  const ls = f.landspider || {};
   const rbp = f.rbpAt || {};
   const install = f.install || 25;
   return [
-  {
-    kicker: 'OG Classics · whitewalls in stock',
-    brand: { src: '/images/brands/remington.svg', alt: 'Remington', h: 18, white: true },
-    title: ['Remington whitewalls,', '155/80R13'],
-    price: money(f.remington),
-    sub: `Touring L/X whitewall for lowriders and classics. Install & balance from $${install} per wheel.`,
-    cta: { label: 'See price & book', href: '/tires/155-80r13' },
-    img: '/images/promo/remington-touring-lx-wire.webp',
-    imgAlt: 'Remington Touring L/X whitewall on a chrome wire-spoke wheel',
-    bg: '/images/promo/remington-og-classic.webp',
-  },
-  {
-    kicker: 'Landspider special',
-    brand: { src: '/images/landspider/landspider-logo-white.png', alt: 'Landspider', h: 30 },
-    title: ['Brand-new tires,', [range(ls.rimMin, ls.rimMax), ls.from != null && 'from'].filter(Boolean).join(', ')],
-    price: money(ls.from),
-    sub: `Citytraxx G/P, H/P and H/T${ls.sizes ? ` in ${ls.sizes} ${ls.sizes === 1 ? 'size' : 'sizes'}` : ''}. Install & balance from $${install} per wheel. While supplies last.`,
-    cta: { label: 'See sizes & prices', href: '/landspider-tires-los-angeles' },
-    img: '/images/tires/landspider-citytraxx-h-p.webp',
-    imgAlt: 'Landspider Citytraxx H/P tire',
-  },
-  {
-    kicker: 'Kumho special',
-    brand: { src: '/images/kumho/kumho-logo.png', alt: 'Kumho Tires', h: 40 },
-    title: ['Buy 4 Kumho tires,', 'get a 4-wheel alignment'],
-    price: '$49',
-    sub: `Ecsta · Crugen · Road Venture · Tesla-ready TA91 EV.${f.kumhoFrom != null ? ` From ${money(f.kumhoFrom)} a tire.` : ''} Install & balance from $${install} per wheel.`,
-    cta: { label: 'Shop Kumho', href: '/kumho-tires-los-angeles' },
-    img: '/images/kumho/road-venture-ht52-cut.webp',
-    imgAlt: 'Kumho Road Venture HT tire',
-  },
   {
     kicker: 'New · RBP Repulsor A/T',
     brand: { src: '/images/rbp/rbp-logo-white.png', alt: 'RBP', h: 30 },
@@ -87,6 +55,41 @@ const TRUST = [
   ['130K', 'Instagram followers'],
 ];
 
+// Logo slideshow under the hero. Every brand we stock or order; the list scrolls on a loop.
+const L = (f) => `/images/brands/${f}`;
+const BRANDS = [
+  { name: 'Dunlop', src: L('dunlop.svg') },
+  { name: 'Falken', src: L('falken.svg') },
+  { name: 'RBP', src: '/images/rbp/rbp-logo.png', href: '/rbp-tires-los-angeles' },
+  { name: 'Blackhawk', src: L('blackhawk.png') },
+  { name: 'Lexani', src: L('lexani.png') },
+  { name: 'Michelin', src: L('michelin.webp') },
+  { name: 'Lionhart', src: L('lionhart.png') },
+  { name: 'Bridgestone', src: L('bridgestone.svg') },
+  { name: 'Evoluxx', src: L('evoluxx.svg') },
+  { name: 'Goodyear', src: L('goodyear.svg') },
+  { name: 'GT Radial', src: L('gt-radial.svg') },
+  { name: 'Pirelli', src: L('pirelli.svg') },
+  { name: 'Kumho', src: '/images/kumho/kumho-logo.png', href: '/kumho-tires-los-angeles' },
+  { name: 'Continental', src: L('continental.svg') },
+  { name: 'Hankook', src: L('hankook.svg') },
+  { name: 'BFGoodrich', src: L('bfgoodrich.svg') },
+  { name: 'Toyo', src: L('toyo.svg') },
+  { name: 'Nitto', src: L('nitto.svg') },
+  { name: 'Yokohama', src: L('yokohama.svg') },
+  { name: 'Firestone', src: L('firestone.svg') },
+  { name: 'Nexen', src: L('nexen.png') },
+  { name: 'Arisun', src: L('arisun.svg') },
+  { name: 'Groundspeed', src: L('groundspeed.png') },
+  { name: 'Arroyo', src: L('arroyo.svg') },
+  { name: 'Prinx', src: L('prinx.png') },
+  { name: 'Jinyu', src: L('jinyu.png') },
+  { name: 'Venom Power', src: L('venom-power.png') },
+  { name: 'Landsail', src: L('landsail.png') },
+  { name: 'Atlander', src: L('atlander.svg') },
+  { name: 'Advanta', src: L('advanta.svg') },
+];
+
 const INTERVAL = 6000;
 
 export default function PromoHero({ facts }) {
@@ -118,10 +121,10 @@ export default function PromoHero({ facts }) {
 
   return (
     <section id="hero" className="ph">
-      <a className="ph-bar" href="/kumho-tires-los-angeles">
+      <a className="ph-bar" href="/book?service=1">
         <span className="star">★</span>
-        <span><b>Kumho special:</b> buy 4 tires, get a 4-wheel alignment for <b>$49</b></span>
-        <span className="go">Shop now →</span>
+        <span><b>New customers:</b> <b>$20 off</b> your first visit, any service</span>
+        <span className="go">Book now →</span>
       </a>
 
       <div className="ph-wrap">
@@ -177,10 +180,18 @@ export default function PromoHero({ facts }) {
 
       <div className="ph-fin"><FinancingNote /></div>
 
-      <div className="ph-brands">
+      <div className="ph-brands" aria-label="Brands we carry">
         <span className="ph-brands-label">Brands we carry</span>
-        <a href="/kumho-tires-los-angeles" aria-label="Shop Kumho tires"><img src="/images/kumho/kumho-logo.png" alt="Kumho Tires" style={{ height: 44 }} /></a>
-        <a href="/rbp-tires-los-angeles" aria-label="Shop RBP tires"><img src="/images/rbp/rbp-logo.png" alt="RBP" style={{ height: 30 }} /></a>
+        <div className="ph-marquee">
+          <div className="ph-track">
+            {[0, 1].map((copy) => BRANDS.map((b) => {
+              const img = <img src={b.src} alt={copy ? '' : b.name} />;
+              return b.href
+                ? <a key={`${copy}-${b.name}`} className="ph-logo" href={b.href} aria-hidden={copy ? 'true' : undefined} tabIndex={copy ? -1 : undefined} title={b.name}>{img}</a>
+                : <span key={`${copy}-${b.name}`} className="ph-logo" aria-hidden={copy ? 'true' : undefined} title={b.name}>{img}</span>;
+            }))}
+          </div>
+        </div>
       </div>
 
       <div className="ph-trust">
@@ -241,11 +252,21 @@ export default function PromoHero({ facts }) {
         .ph-finder { display: flex; flex-direction: column; justify-content: center; scroll-margin-top: 150px; }
 
         .ph-brand { display: block; width: auto; margin-bottom: 0.9rem; }
-        .ph-brands { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; display: flex; align-items: center; justify-content: center; gap: 2.5rem; flex-wrap: wrap; }
-        .ph-brands-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6b6b; }
-        .ph-brands a { display: flex; align-items: center; padding: 0.6rem 1.1rem; border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; transition: transform 0.2s ease, border-color 0.2s ease; }
-        .ph-brands a:hover { transform: translateY(-2px); border-color: #E01B22; }
-        .ph-brands img { width: auto; display: block; }
+        .ph-brands { max-width: 1280px; margin: 1.5rem auto 0; padding: 0 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+        .ph-brands-label { flex: none; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6b6b6b; }
+        .ph-marquee { flex: 1; min-width: 0; overflow: hidden;
+          -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+        .ph-track { display: flex; gap: 0.75rem; width: max-content; animation: phScroll 70s linear infinite; }
+        .ph-marquee:hover .ph-track { animation-play-state: paused; }
+        .ph-logo { flex: none; display: flex; align-items: center; justify-content: center; width: 150px; height: 68px; padding: 0.6rem 1rem;
+          border: 1px solid #e6e6e6; border-radius: 12px; background: #fff; transition: transform 0.2s ease, border-color 0.2s ease; }
+        a.ph-logo:hover { transform: translateY(-2px); border-color: #E01B22; }
+        .ph-logo img { display: block; max-width: 100%; max-height: 38px; width: auto; height: auto; object-fit: contain; }
+        @keyframes phScroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 0.375rem)); } }
+        @media (prefers-reduced-motion: reduce) {
+          .ph-track { animation: none; flex-wrap: wrap; width: auto; justify-content: center; }
+          .ph-track > :nth-child(n + 31) { display: none; }
+        }
         .ph-fin { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; }
         .ph-trust { max-width: 1280px; margin: 1.25rem auto 0; padding: 0 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
         .ph-trust div { border: 1px solid #e6e6e6; background: #fff; border-radius: 12px; padding: 0.9rem 1rem; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
@@ -271,8 +292,9 @@ export default function PromoHero({ facts }) {
           .ph-ctas .ghost { display: none; }
           .ph-fin { padding: 0 1rem; }
           .ph-trust { grid-template-columns: repeat(2, 1fr); padding: 0 1rem; }
-          .ph-brands { gap: 0.75rem 1rem; padding: 0 1rem; }
-          .ph-brands-label { width: 100%; text-align: center; }
+          .ph-brands { flex-direction: column; gap: 0.75rem; padding: 0 1rem; }
+          .ph-marquee { width: 100%; }
+          .ph-logo { width: 120px; height: 58px; }
           .ph-brand { margin-bottom: 0.6rem; }
         }
       `}</style>
